@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导购业绩 - 收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/导购业绩.css">
+</head>
+<body class="performance-body">
+    <div class="performance-container">
+        <!-- 页面标题和操作栏 -->
+        <div class="performance-header">
+            <h1 class="performance-title">导购业绩</h1>
+            <div class="performance-actions">
+                <button class="performance-btn performance-btn-outline" id="exportBtn">导出报表</button>
+            </div>
+        </div>
+
+        <!-- 筛选和搜索区 -->
+        <div class="performance-filters">
+            <!-- 日期筛选 -->
+            <div class="performance-filter-group">
+                <label class="performance-filter-label">日期：</label>
+                <input type="date" class="performance-input" id="startDate">
+                <span class="performance-filter-separator">至</span>
+                <input type="date" class="performance-input" id="endDate">
+            </div>
+
+            <!-- 导购员筛选 -->
+            <div class="performance-filter-group">
+                <label class="performance-filter-label">导购员：</label>
+                <select class="performance-input" id="guideFilter">
+                    <option value="">全部</option>
+                    <option value="1">王小明 (G001)</option>
+                    <option value="2">赵小刚 (G002)</option>
+                </select>
+            </div>
+
+            <!-- 查询按钮 -->
+            <button class="performance-btn performance-btn-primary" id="searchBtn">查询</button>
+        </div>
+
+        <!-- 业绩汇总卡片 -->
+        <div class="performance-summary-cards">
+            <div class="performance-summary-card">
+                <div class="performance-summary-icon">👥</div>
+                <div class="performance-summary-content">
+                    <div class="performance-summary-label">导购人数</div>
+                    <div class="performance-summary-value" id="summaryGuideCount">0</div>
+                </div>
+            </div>
+            <div class="performance-summary-card">
+                <div class="performance-summary-icon">📦</div>
+                <div class="performance-summary-content">
+                    <div class="performance-summary-label">总订单数</div>
+                    <div class="performance-summary-value" id="summaryOrderCount">0</div>
+                </div>
+            </div>
+            <div class="performance-summary-card">
+                <div class="performance-summary-icon">💰</div>
+                <div class="performance-summary-content">
+                    <div class="performance-summary-label">总销售额</div>
+                    <div class="performance-summary-value performance-summary-value-primary" id="summaryTotalAmount">¥0.00</div>
+                </div>
+            </div>
+            <div class="performance-summary-card">
+                <div class="performance-summary-icon">🎁</div>
+                <div class="performance-summary-content">
+                    <div class="performance-summary-label">总提成</div>
+                    <div class="performance-summary-value performance-summary-value-success" id="summaryCommission">¥0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 业绩列表表格 -->
+        <div class="performance-table-section">
+            <div class="performance-table-wrapper">
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>导购员</th>
+                            <th>工号</th>
+                            <th>订单数</th>
+                            <th>销售额</th>
+                            <th>平均客单价</th>
+                            <th>提成金额</th>
+                            <th>提成比例</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performanceTableBody">
+                        <!-- 业绩数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 业绩详情弹窗 -->
+    <div id="performanceDetailModal" class="performance-modal" style="display: none;">
+        <div class="performance-modal-content performance-modal-large">
+            <div class="performance-modal-header">
+                <h3 id="performanceDetailTitle">业绩详情</h3>
+                <button class="performance-modal-close" onclick="closePerformanceDetailModal()">×</button>
+            </div>
+            <div class="performance-modal-body">
+                <div class="performance-detail-info" id="performanceDetailInfo">
+                    <!-- 业绩详情将动态生成 -->
+                </div>
+            </div>
+            <div class="performance-modal-footer">
+                <button class="performance-btn performance-btn-secondary" onclick="closePerformanceDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/导购业绩.js"></script>
+</body>
+</html>

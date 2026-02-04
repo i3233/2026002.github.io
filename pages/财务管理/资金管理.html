@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资金管理 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .fund-management-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .status-badge.active {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-badge.inactive {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .type-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .type-tag.cash {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ff9800;
+        }
+
+        .type-tag.bank {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .type-tag.alipay {
+            background-color: rgba(0, 168, 255, 0.1);
+            color: #00a8ff;
+        }
+
+        .type-tag.wechat {
+            background-color: rgba(9, 187, 7, 0.1);
+            color: #09bb07;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-2xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-group label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group .form-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fund-management-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">资金管理</h1>
+                <div class="page-subtitle">管理存款账户设置和配置</div>
+            </div>
+        </div>
+
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addAccountBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">＋</span>
+                        <span>新增账户</span>
+                    </span>
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="exportBtn">导出</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>账户类型</label>
+                    <select id="typeFilter">
+                        <option value="">全部类型</option>
+                        <option value="cash">现金账户</option>
+                        <option value="bank">银行账户</option>
+                        <option value="alipay">支付宝账户</option>
+                        <option value="wechat">微信账户</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>账户状态</label>
+                    <select id="statusFilter">
+                        <option value="">全部状态</option>
+                        <option value="active">启用</option>
+                        <option value="inactive">禁用</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>快捷搜索</label>
+                    <input type="text" id="searchInput" placeholder="输入账户名称、账号搜索">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>账户名称</th>
+                            <th>账户类型</th>
+                            <th>账号/卡号</th>
+                            <th>开户行/机构</th>
+                            <th class="text-right">账户余额(元)</th>
+                            <th>账户状态</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑账户模态框 -->
+    <div class="modal" id="accountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增账户</h3>
+                <button class="modal-close" onclick="closeAccountModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="accountForm">
+                    <div class="form-group">
+                        <label>
+                            账户名称
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="accountName" required placeholder="请输入账户名称">
+                        <div class="form-hint">例如：工商银行主账户、支付宝企业账户等</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                账户类型
+                                <span class="required">*</span>
+                            </label>
+                            <select id="accountType" required>
+                                <option value="">请选择</option>
+                                <option value="cash">现金账户</option>
+                                <option value="bank">银行账户</option>
+                                <option value="alipay">支付宝账户</option>
+                                <option value="wechat">微信账户</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                账户状态
+                                <span class="required">*</span>
+                            </label>
+                            <select id="accountStatus" required>
+                                <option value="active" selected>启用</option>
+                                <option value="inactive">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            账号/卡号
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="accountNumber" required placeholder="请输入账号或卡号">
+                        <div class="form-hint">银行账户填写卡号，支付宝/微信填写账号</div>
+                    </div>
+
+                    <div class="form-group" id="bankNameGroup">
+                        <label>
+                            开户行
+                        </label>
+                        <input type="text" id="bankName" placeholder="请输入开户行名称">
+                        <div class="form-hint">仅银行账户需要填写</div>
+                    </div>
+
+                    <div class="form-group" id="bankBranchGroup">
+                        <label>
+                            开户行支行
+                        </label>
+                        <input type="text" id="bankBranch" placeholder="请输入开户行支行">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                初始余额(元)
+                            </label>
+                            <input type="number" id="initialBalance" step="0.01" value="0.00" placeholder="0.00">
+                            <div class="form-hint">新增账户时的初始余额</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                账户排序
+                            </label>
+                            <input type="number" id="accountOrder" value="0" placeholder="0">
+                            <div class="form-hint">数字越小越靠前</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            备注
+                        </label>
+                        <textarea id="accountRemark" placeholder="请输入备注信息"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAccountModal()">取消</button>
+                <button class="btn btn-primary" id="saveAccountBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟账户数据
+        let accountData = [
+            {
+                id: 'ACCOUNT001',
+                name: '现金账户',
+                type: 'cash',
+                accountNumber: 'CASH001',
+                bankName: '',
+                bankBranch: '',
+                balance: 50000.00,
+                initialBalance: 50000.00,
+                status: 'active',
+                order: 1,
+                remark: '日常现金账户'
+            },
+            {
+                id: 'ACCOUNT002',
+                name: '工商银行主账户',
+                type: 'bank',
+                accountNumber: '6222021234567890123',
+                bankName: '中国工商银行',
+                bankBranch: '雅安市雨城区支行',
+                balance: 200000.00,
+                initialBalance: 200000.00,
+                status: 'active',
+                order: 2,
+                remark: '公司主账户'
+            },
+            {
+                id: 'ACCOUNT003',
+                name: '支付宝企业账户',
+                type: 'alipay',
+                accountNumber: 'company@example.com',
+                bankName: '',
+                bankBranch: '',
+                balance: 35000.00,
+                initialBalance: 35000.00,
+                status: 'active',
+                order: 3,
+                remark: '企业支付宝账户'
+            },
+            {
+                id: 'ACCOUNT004',
+                name: '微信商户账户',
+                type: 'wechat',
+                accountNumber: 'wx_merchant_001',
+                bankName: '',
+                bankBranch: '',
+                balance: 28000.00,
+                initialBalance: 28000.00,
+                status: 'active',
+                order: 4,
+                remark: '微信商户平台账户'
+            },
+            {
+                id: 'ACCOUNT005',
+                name: '建设银行备用账户',
+                type: 'bank',
+                accountNumber: '6227001234567890123',
+                bankName: '中国建设银行',
+                bankBranch: '雅安市名山区支行',
+                balance: 0.00,
+                initialBalance: 0.00,
+                status: 'inactive',
+                order: 5,
+                remark: '备用账户，暂未启用'
+            }
+        ];
+
+        let currentEditId = null;
+        let filteredData = [...accountData];
+
+        function init() {
+            renderTable();
+            bindEvents();
+        }
+
+        function getFilteredData() {
+            let data = [...accountData];
+            const type = document.getElementById('typeFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            if (type) {
+                data = data.filter(item => item.type === type);
+            }
+            if (status) {
+                data = data.filter(item => item.status === status);
+            }
+            if (search) {
+                data = data.filter(item => 
+                    item.name.toLowerCase().includes(search) ||
+                    item.accountNumber.toLowerCase().includes(search)
+                );
+            }
+
+            // 按排序字段排序
+            data.sort((a, b) => a.order - b.order);
+
+            return data;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('accountTableBody');
+            tbody.innerHTML = '';
+
+            filteredData = getFilteredData();
+
+            filteredData.forEach(account => {
+                const row = document.createElement('tr');
+                const statusClass = account.status === 'active' ? 'active' : 'inactive';
+                const statusText = account.status === 'active' ? '启用' : '禁用';
+                const typeText = getAccountTypeText(account.type);
+
+                row.innerHTML = `
+                    <td>
+                        <span class="link-text" onclick="editAccount('${account.id}')">${account.name}</span>
+                    </td>
+                    <td><span class="type-tag ${account.type}">${typeText}</span></td>
+                    <td>${account.accountNumber}</td>
+                    <td>${account.bankName || '-'}</td>
+                    <td class="text-right">${account.balance.toFixed(2)}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${account.remark || '-'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-outline btn-sm" onclick="editAccount('${account.id}')">编辑</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAccount('${account.id}')">删除</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getAccountTypeText(type) {
+            const typeMap = {
+                'cash': '现金',
+                'bank': '银行',
+                'alipay': '支付宝',
+                'wechat': '微信'
+            };
+            return typeMap[type] || type;
+        }
+
+        function openAccountModal(id = null) {
+            currentEditId = id;
+            const modal = document.getElementById('accountModal');
+            const form = document.getElementById('accountForm');
+            const modalTitle = document.getElementById('modalTitle');
+
+            if (id) {
+                // 编辑模式
+                modalTitle.textContent = '编辑账户';
+                const account = accountData.find(a => a.id === id);
+                if (account) {
+                    document.getElementById('accountName').value = account.name;
+                    document.getElementById('accountType').value = account.type;
+                    document.getElementById('accountStatus').value = account.status;
+                    document.getElementById('accountNumber').value = account.accountNumber;
+                    document.getElementById('bankName').value = account.bankName || '';
+                    document.getElementById('bankBranch').value = account.bankBranch || '';
+                    document.getElementById('initialBalance').value = account.initialBalance || 0;
+                    document.getElementById('accountOrder').value = account.order || 0;
+                    document.getElementById('accountRemark').value = account.remark || '';
+                }
+            } else {
+                // 新增模式
+                modalTitle.textContent = '新增账户';
+                form.reset();
+                document.getElementById('accountStatus').value = 'active';
+                document.getElementById('initialBalance').value = '0.00';
+                document.getElementById('accountOrder').value = '0';
+            }
+
+            // 根据账户类型显示/隐藏相关字段
+            updateFormFields();
+            modal.classList.add('show');
+        }
+
+        function closeAccountModal() {
+            document.getElementById('accountModal').classList.remove('show');
+            currentEditId = null;
+            document.getElementById('accountForm').reset();
+        }
+
+        function updateFormFields() {
+            const accountType = document.getElementById('accountType').value;
+            const bankNameGroup = document.getElementById('bankNameGroup');
+            const bankBranchGroup = document.getElementById('bankBranchGroup');
+
+            if (accountType === 'bank') {
+                bankNameGroup.style.display = 'block';
+                bankBranchGroup.style.display = 'block';
+            } else {
+                bankNameGroup.style.display = 'none';
+                bankBranchGroup.style.display = 'none';
+            }
+        }
+
+        function saveAccount() {
+            const form = document.getElementById('accountForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const accountDataItem = {
+                name: document.getElementById('accountName').value.trim(),
+                type: document.getElementById('accountType').value,
+                status: document.getElementById('accountStatus').value,
+                accountNumber: document.getElementById('accountNumber').value.trim(),
+                bankName: document.getElementById('bankName').value.trim(),
+                bankBranch: document.getElementById('bankBranch').value.trim(),
+                initialBalance: parseFloat(document.getElementById('initialBalance').value) || 0,
+                order: parseInt(document.getElementById('accountOrder').value) || 0,
+                remark: document.getElementById('accountRemark').value.trim()
+            };
+
+            if (currentEditId) {
+                // 编辑
+                const index = accountData.findIndex(a => a.id === currentEditId);
+                if (index !== -1) {
+                    accountDataItem.id = currentEditId;
+                    accountDataItem.balance = accountData[index].balance; // 保留原余额
+                    accountData[index] = accountDataItem;
+                    alert('账户信息已更新！');
+                }
+            } else {
+                // 新增
+                accountDataItem.id = 'ACCOUNT' + String(Date.now()).slice(-6);
+                accountDataItem.balance = accountDataItem.initialBalance;
+                accountData.push(accountDataItem);
+                alert('账户已添加！');
+            }
+
+            renderTable();
+            closeAccountModal();
+        }
+
+        function editAccount(id) {
+            openAccountModal(id);
+        }
+
+        function deleteAccount(id) {
+            const account = accountData.find(a => a.id === id);
+            if (!account) return;
+
+            if (!confirm(`确定要删除账户"${account.name}"吗？\n注意：删除后无法恢复，且该账户的历史记录将无法关联。`)) {
+                return;
+            }
+
+            accountData = accountData.filter(a => a.id !== id);
+            renderTable();
+            alert('账户已删除！');
+        }
+
+        function bindEvents() {
+            // 新增账户按钮
+            document.getElementById('addAccountBtn').addEventListener('click', () => {
+                openAccountModal();
+            });
+
+            // 保存账户按钮
+            document.getElementById('saveAccountBtn').addEventListener('click', saveAccount);
+
+            // 账户类型变化时更新表单字段
+            document.getElementById('accountType').addEventListener('change', updateFormFields);
+
+            // 筛选条件变化
+            ['typeFilter', 'statusFilter'].forEach(id => {
+                document.getElementById(id).addEventListener('change', renderTable);
+            });
+
+            // 搜索输入
+            document.getElementById('searchInput').addEventListener('input', renderTable);
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    renderTable();
+                }
+            });
+
+            // 导出按钮
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                alert('导出功能');
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

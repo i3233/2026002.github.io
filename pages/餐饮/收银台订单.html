@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收银台订单 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/餐饮收银台订单.css">
+</head>
+<body>
+    <div class="cashier-order-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">收银台订单</h1>
+                <div class="page-subtitle">管理餐饮收银台产生的订单，支持桌台管理和直接出库功能</div>
+            </div>
+        </div>
+
+        <!-- 收银台绑定区域 -->
+        <div class="cashier-bind-section">
+            <div class="cashier-bind-header">
+                <h2 class="cashier-bind-title">收银台绑定</h2>
+            </div>
+            
+            <div class="cashier-select-wrapper">
+                <label class="cashier-select-label">选择收银台：</label>
+                <select class="cashier-select" id="cashierSelect">
+                    <option value="">请选择收银台</option>
+                    <!-- 选项由JS动态生成 -->
+                </select>
+                <button class="btn btn-primary" id="bindCashierBtn">绑定</button>
+                <button class="btn btn-outline" id="unbindCashierBtn" style="display: none;">解绑</button>
+            </div>
+
+            <!-- 收银台信息（绑定后显示） -->
+            <div id="cashierInfo" class="cashier-info hidden">
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">收银台名称</span>
+                    <span class="cashier-info-value" id="cashierNameDisplay">-</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">收银台编号</span>
+                    <span class="cashier-info-value" id="cashierCodeDisplay">-</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">收银员</span>
+                    <span class="cashier-info-value" id="cashierStaffDisplay">-</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">状态</span>
+                    <span class="cashier-status-badge online" id="cashierStatusDisplay">在线</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">绑定时间</span>
+                    <span class="cashier-info-value" id="cashierBindTimeDisplay">-</span>
+                </div>
+            </div>
+
+            <!-- 提示信息 -->
+            <div class="alert-info" id="bindInfoAlert" style="display: none;">
+                <strong>提示：</strong>已绑定收银台，订单完成后将自动出库。如需切换收银台，请先解绑当前收银台。
+            </div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="toolbar-card" id="toolbarCard" style="display: none;">
+            <!-- 左侧按钮组 -->
+            <div class="toolbar-left">
+                <button class="btn btn-outline" id="refreshOrdersBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↻</span>
+                        <span>刷新订单</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="exportBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- 中间搜索区 -->
+            <div class="toolbar-center">
+                <input type="text" 
+                       class="toolbar-search-input" 
+                       id="quickSearchInput" 
+                       placeholder="快捷搜索：支持按订单号、会员、手机号、桌台号等关键字">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧功能 -->
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-outline" id="statisticsBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊙</span>
+                        <span>统计</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 订单状态 Tab -->
+        <div class="order-tabs" id="orderTabs" style="display: none;">
+            <button class="order-tab-btn active" data-status="all">全部</button>
+            <button class="order-tab-btn" data-status="pending">待出库</button>
+            <button class="order-tab-btn" data-status="outbound">已出库</button>
+            <button class="order-tab-btn" data-status="completed">已完成</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="summary-row" id="summaryRow" style="display: none;">
+            <div class="summary-card">
+                <div class="summary-label">订单总额 (元)</div>
+                <div class="summary-value summary-value-blue">
+                    <span id="summaryTotalAmount">0.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">已出库订单</div>
+                <div class="summary-value summary-value-green">
+                    <span id="summaryOutboundCount">0</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">待出库订单</div>
+                <div class="summary-value summary-value-red">
+                    <span id="summaryPendingCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container" id="tableContainer" style="display: none;">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>⊙ 订单号</th>
+                            <th class="sortable" data-sort="orderTime">下单时间</th>
+                            <th>会员</th>
+                            <th>手机号</th>
+                            <th>桌台号</th>
+                            <th>用餐人数</th>
+                            <th class="text-right">商品数量</th>
+                            <th class="text-right">订单金额</th>
+                            <th class="text-right">实收金额</th>
+                            <th>支付方式</th>
+                            <th>订单状态</th>
+                            <th>出库状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="6" class="text-right">合计：</td>
+                            <td class="text-right" id="totalQtyCell">0</td>
+                            <td class="text-right" id="totalAmountCell">0.00</td>
+                            <td class="text-right" id="totalPaidCell">0.00</td>
+                            <td colspan="5"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="btn btn-primary" id="batchOutboundBtn">批量出库</button>
+                    <button class="btn btn-outline" id="batchExportBtn">批量导出</button>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/餐饮收银台订单.js"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品分类 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/商品分类.css">
+</head>
+<body class="category-list-body">
+    <div class="category-list-container">
+        <!-- 搜索和操作栏 -->
+        <div class="category-list-toolbar">
+            <div class="category-list-search-section">
+                <label class="category-list-search-label">分类名称:</label>
+                <input type="text" class="category-list-search-input" id="categorySearchInput" placeholder="请输入分类名称">
+                <button class="category-list-btn category-list-btn-primary" id="searchBtn">
+                    <span class="category-list-btn-icon">Q</span>
+                    搜索
+                </button>
+            </div>
+            <div class="category-list-actions">
+                <button class="category-list-btn category-list-btn-primary" id="createCategoryBtn">
+                    <span class="category-list-btn-icon">+</span>
+                    新建分类
+                </button>
+            </div>
+        </div>
+
+        <!-- 分类列表表格 -->
+        <div class="category-list-table-section">
+            <div class="category-list-table-wrapper">
+                <table class="category-list-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label class="category-list-checkbox-label">
+                                    <input type="checkbox" id="selectAllCheckbox">
+                                </label>
+                            </th>
+                            <th>分类</th>
+                            <th>关联商品</th>
+                            <th>排序</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryTableBody">
+                        <!-- 分类数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 底部分页器 -->
+        <div class="category-list-pagination">
+            <div class="category-list-pagination-left">
+                <button class="category-list-btn category-list-btn-outline" id="prevPageBtn">上一页</button>
+                <div class="category-list-pagination-pages" id="paginationPages">
+                    <!-- 页码将动态生成 -->
+                </div>
+                <button class="category-list-btn category-list-btn-outline" id="nextPageBtn">下一页</button>
+            </div>
+            <div class="category-list-pagination-right">
+                <select class="category-list-page-size" id="pageSizeSelect">
+                    <option value="10" selected>10条/页</option>
+                    <option value="20">20条/页</option>
+                    <option value="50">50条/页</option>
+                    <option value="100">100条/页</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建分类弹窗（复用商品列表页面的弹窗） -->
+    <div class="product-list-modal" id="createCategoryModal" style="display: none;">
+        <div class="product-list-modal-backdrop" onclick="closeCreateCategoryModal()"></div>
+        <div class="product-list-modal-content product-list-modal-category">
+            <div class="product-list-modal-header">
+                <div class="product-list-modal-header-left">
+                    <h3 class="product-list-modal-title">新建分类</h3>
+                    <button class="product-list-status-toggle active" id="categoryStatusToggle">
+                        <span class="product-list-status-toggle-text">启用</span>
+                    </button>
+                </div>
+                <button class="product-list-modal-close" onclick="closeCreateCategoryModal()">×</button>
+            </div>
+            <div class="product-list-modal-body product-list-category-form">
+                <!-- 左侧图片上传区 -->
+                <aside class="product-list-form-sidebar">
+                    <div class="product-list-form-section">
+                        <div class="product-list-form-label">
+                            <span>分类图片</span>
+                        </div>
+                        <div class="product-list-form-hint">图片建议尺寸为 100*100px</div>
+                        <div class="product-list-upload-area" id="categoryImageUpload">
+                            <div class="product-list-upload-icon">☁️</div>
+                            <div class="product-list-upload-text">点击或拖拽上传</div>
+                            <input type="file" id="categoryImageInput" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="product-list-uploaded-image" id="categoryImagePreview" style="display: none;">
+                            <img id="categoryImagePreviewImg" src="" alt="分类图片">
+                            <button class="product-list-remove-image" onclick="removeCategoryImage()">×</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- 右侧表单区 -->
+                <main class="product-list-form-main">
+                    <!-- 基础信息 -->
+                    <div class="product-list-form-group">
+                        <label class="product-list-form-label">基础信息</label>
+                        <div class="product-list-form-group">
+                            <label class="product-list-form-label">
+                                <span class="product-list-form-label-icon">!</span>
+                                分类名称
+                            </label>
+                            <input type="text" class="product-list-form-input" id="categoryNameInput" placeholder="请输入分类名称">
+                        </div>
+                        <div class="product-list-form-group">
+                            <label class="product-list-form-label">排序</label>
+                            <input type="number" class="product-list-form-input" id="categorySortInput" value="1" min="0">
+                        </div>
+                        <div class="product-list-form-group">
+                            <label class="product-list-form-label">分类角标</label>
+                            <button class="product-list-btn product-list-btn-outline" onclick="addCategoryBadge()">
+                                <span>+</span> 添加角标
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 配置 -->
+                    <div class="product-list-form-group">
+                        <label class="product-list-form-label">配置</label>
+                        <div class="product-list-form-group">
+                            <label class="product-list-form-label">适用商品</label>
+                            <input type="text" class="product-list-form-input" id="categoryProductsInput" placeholder="请选择商品">
+                        </div>
+                        <div class="product-list-form-group">
+                            <label class="product-list-form-label">适用售卖渠道</label>
+                            <div class="product-list-switch-group">
+                                <div class="product-list-form-row product-list-form-row-align">
+                                    <label class="product-list-form-label">自取订单</label>
+                                    <label class="product-list-switch">
+                                        <input type="checkbox" id="channelPickupSwitch">
+                                        <span class="product-list-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="product-list-form-row product-list-form-row-align">
+                                    <label class="product-list-form-label">外送订单</label>
+                                    <label class="product-list-switch">
+                                        <input type="checkbox" id="channelDeliverySwitch">
+                                        <span class="product-list-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="product-list-form-row product-list-form-row-align">
+                                    <label class="product-list-form-label">收银单</label>
+                                    <label class="product-list-switch">
+                                        <input type="checkbox" id="channelCashierSwitch">
+                                        <span class="product-list-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="product-list-form-row product-list-form-row-align">
+                                    <label class="product-list-form-label">桌位订单</label>
+                                    <label class="product-list-switch">
+                                        <input type="checkbox" id="channelTableSwitch">
+                                        <span class="product-list-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="product-list-form-row product-list-form-row-align">
+                                    <label class="product-list-form-label">积分商城</label>
+                                    <label class="product-list-switch">
+                                        <input type="checkbox" id="channelPointsSwitch">
+                                        <span class="product-list-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="product-list-form-row product-list-form-row-align">
+                                    <label class="product-list-form-label">商城系统</label>
+                                    <label class="product-list-switch">
+                                        <input type="checkbox" id="channelMallSwitch">
+                                        <span class="product-list-switch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 点单设置 -->
+                    <div class="product-list-form-group">
+                        <label class="product-list-form-label">点单设置 (适用于手机点单使用)</label>
+                        <div class="product-list-form-group">
+                            <div class="product-list-form-row product-list-form-row-align">
+                                <label class="product-list-form-label">必选分类</label>
+                                <label class="product-list-switch">
+                                    <input type="checkbox" id="requiredCategorySwitch">
+                                    <span class="product-list-switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="product-list-form-group">
+                            <label class="product-list-form-label">显示时间</label>
+                            <div class="product-list-time-schedule" id="timeScheduleContainer">
+                                <!-- 时间安排将动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div class="product-list-modal-footer">
+                <div class="product-list-modal-footer-left">
+                    <label class="product-list-form-label">是否启用:</label>
+                    <label class="product-list-switch">
+                        <input type="checkbox" id="categoryEnableSwitch" checked>
+                        <span class="product-list-switch-slider"></span>
+                    </label>
+                </div>
+                <button class="product-list-btn product-list-btn-primary product-list-btn-lg" onclick="saveCategory()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../../css/餐饮商品列表.css">
+    <script src="../../js/商品分类.js"></script>
+</body>
+</html>

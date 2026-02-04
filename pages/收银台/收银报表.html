@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收银报表 - 收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银报表.css">
+</head>
+<body class="report-body">
+    <div class="report-container">
+        <!-- 页面标题和操作栏 -->
+        <div class="report-header">
+            <h1 class="report-title">收银报表</h1>
+            <div class="report-actions">
+                <button class="report-btn report-btn-outline" id="printReportBtn">打印报表</button>
+                <button class="report-btn report-btn-outline" id="exportReportBtn">导出报表</button>
+            </div>
+        </div>
+
+        <!-- 筛选和搜索区 -->
+        <div class="report-filters">
+            <!-- 日期筛选 -->
+            <div class="report-filter-group">
+                <label class="report-filter-label">日期：</label>
+                <input type="date" class="report-input" id="reportDate" value="">
+                <button class="report-btn report-btn-text" id="todayBtn">今天</button>
+                <button class="report-btn report-btn-text" id="yesterdayBtn">昨天</button>
+                <button class="report-btn report-btn-text" id="thisWeekBtn">本周</button>
+            </div>
+
+            <!-- 收银员筛选 -->
+            <div class="report-filter-group">
+                <label class="report-filter-label">收银员：</label>
+                <select class="report-input" id="cashierFilter">
+                    <option value="">全部</option>
+                    <option value="1">张三 (C001)</option>
+                    <option value="2">李四 (C002)</option>
+                    <option value="3">王五 (C003)</option>
+                </select>
+            </div>
+
+            <!-- 查询按钮 -->
+            <button class="report-btn report-btn-primary" id="searchBtn">查询</button>
+        </div>
+
+        <!-- 结存汇总卡片 -->
+        <div class="report-summary-section">
+            <div class="report-summary-card report-summary-card-primary">
+                <div class="report-summary-icon">📊</div>
+                <div class="report-summary-content">
+                    <div class="report-summary-label">订单总数</div>
+                    <div class="report-summary-value" id="summaryOrderCount">0</div>
+                </div>
+            </div>
+            <div class="report-summary-card report-summary-card-success">
+                <div class="report-summary-icon">💰</div>
+                <div class="report-summary-content">
+                    <div class="report-summary-label">收款总额</div>
+                    <div class="report-summary-value" id="summaryTotalAmount">¥0.00</div>
+                </div>
+            </div>
+            <div class="report-summary-card">
+                <div class="report-summary-icon">💵</div>
+                <div class="report-summary-content">
+                    <div class="report-summary-label">现金</div>
+                    <div class="report-summary-value" id="summaryCash">¥0.00</div>
+                </div>
+            </div>
+            <div class="report-summary-card">
+                <div class="report-summary-icon">💳</div>
+                <div class="report-summary-content">
+                    <div class="report-summary-label">微信</div>
+                    <div class="report-summary-value" id="summaryWechat">¥0.00</div>
+                </div>
+            </div>
+            <div class="report-summary-card">
+                <div class="report-summary-icon">💳</div>
+                <div class="report-summary-content">
+                    <div class="report-summary-label">支付宝</div>
+                    <div class="report-summary-value" id="summaryAlipay">¥0.00</div>
+                </div>
+            </div>
+            <div class="report-summary-card">
+                <div class="report-summary-icon">🎫</div>
+                <div class="report-summary-content">
+                    <div class="report-summary-label">其他</div>
+                    <div class="report-summary-value" id="summaryOther">¥0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报表数据表格 -->
+        <div class="report-table-section">
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>收银员</th>
+                            <th>订单号</th>
+                            <th>订单金额</th>
+                            <th>支付方式</th>
+                            <th>实收金额</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <!-- 报表数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="report-pagination">
+            <div class="report-pagination-info">
+                <span>共 <span id="totalRecords">0</span> 条记录</span>
+            </div>
+            <div class="report-pagination-buttons">
+                <button class="report-btn report-btn-outline" id="prevPageBtn">上一页</button>
+                <span class="report-pagination-current">
+                    第 <span id="currentPage">1</span> 页 / 共 <span id="totalPages">1</span> 页
+                </span>
+                <button class="report-btn report-btn-outline" id="nextPageBtn">下一页</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单详情弹窗 -->
+    <div id="orderDetailModal" class="report-modal" style="display: none;">
+        <div class="report-modal-content report-modal-large">
+            <div class="report-modal-header">
+                <h3>订单详情</h3>
+                <button class="report-modal-close" onclick="closeOrderDetailModal()">×</button>
+            </div>
+            <div class="report-modal-body">
+                <div class="report-order-detail" id="orderDetailInfo">
+                    <!-- 订单详情将动态生成 -->
+                </div>
+            </div>
+            <div class="report-modal-footer">
+                <button class="report-btn report-btn-secondary" onclick="closeOrderDetailModal()">关闭</button>
+                <button class="report-btn report-btn-primary" onclick="printOrderDetail()">打印订单</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/收银报表.js"></script>
+</body>
+</html>

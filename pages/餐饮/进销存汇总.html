@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进销存汇总 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/餐饮进销存汇总.css">
+</head>
+<body class="inventory-summary-body">
+    <div class="inventory-summary-container">
+        <!-- 页面标题 -->
+        <div class="inventory-summary-header">
+            <div>
+                <h1 class="inventory-summary-title">进销存汇总</h1>
+                <div class="inventory-summary-subtitle">查看指定时间范围内的进销存数据汇总报表</div>
+            </div>
+        </div>
+
+        <!-- 筛选工具栏 -->
+        <div class="inventory-summary-filter-toolbar">
+            <div class="inventory-summary-filter-item">
+                <label>开始日期：</label>
+                <input type="date" id="startDate" value="">
+            </div>
+            <div class="inventory-summary-filter-item">
+                <label>结束日期：</label>
+                <input type="date" id="endDate" value="">
+            </div>
+            <div class="inventory-summary-filter-item">
+                <label>商品类型：</label>
+                <select id="productTypeSelect">
+                    <option value="">全部类型</option>
+                    <option value="normal">普通商品</option>
+                    <option value="package">套餐商品</option>
+                    <option value="weight">称重商品</option>
+                </select>
+            </div>
+            <div class="inventory-summary-filter-item">
+                <label>分类：</label>
+                <select id="categorySelect">
+                    <option value="">全部分类</option>
+                    <option value="chinese">中餐</option>
+                    <option value="rainbow">彩虹斗酒</option>
+                    <option value="special">特色斗酒</option>
+                    <option value="wine">洋酒香槟</option>
+                    <option value="beer">啤酒</option>
+                    <option value="snack">小吃系列</option>
+                    <option value="other">其他系列</option>
+                    <option value="package">优惠套餐</option>
+                </select>
+            </div>
+            <button class="inventory-summary-btn inventory-summary-btn-primary" id="queryBtn">查询</button>
+            <button class="inventory-summary-btn inventory-summary-btn-outline" id="printBtn">
+                <span class="inventory-summary-btn-icon">🖨</span>
+                打印
+            </button>
+            <button class="inventory-summary-btn inventory-summary-btn-outline" id="exportBtn">
+                <span class="inventory-summary-btn-icon">↑</span>
+                导出
+            </button>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="inventory-summary-summary-section">
+            <div class="inventory-summary-summary-card">
+                <div class="inventory-summary-summary-card-header">
+                    <span class="inventory-summary-summary-label">总进货金额</span>
+                    <span class="inventory-summary-summary-icon">📦</span>
+                </div>
+                <div class="inventory-summary-summary-value inventory-summary-summary-value-blue" id="totalPurchaseAmount">¥0.00</div>
+            </div>
+            <div class="inventory-summary-summary-card">
+                <div class="inventory-summary-summary-card-header">
+                    <span class="inventory-summary-summary-label">总销售金额</span>
+                    <span class="inventory-summary-summary-icon">💰</span>
+                </div>
+                <div class="inventory-summary-summary-value inventory-summary-summary-value-green" id="totalSalesAmount">¥0.00</div>
+            </div>
+            <div class="inventory-summary-summary-card">
+                <div class="inventory-summary-summary-card-header">
+                    <span class="inventory-summary-summary-label">总退货金额</span>
+                    <span class="inventory-summary-summary-icon">↩</span>
+                </div>
+                <div class="inventory-summary-summary-value inventory-summary-summary-value-red" id="totalReturnAmount">¥0.00</div>
+            </div>
+            <div class="inventory-summary-summary-card">
+                <div class="inventory-summary-summary-card-header">
+                    <span class="inventory-summary-summary-label">净利润</span>
+                    <span class="inventory-summary-summary-icon">💵</span>
+                </div>
+                <div class="inventory-summary-summary-value inventory-summary-summary-value-orange" id="netProfit">¥0.00</div>
+            </div>
+        </div>
+
+        <!-- 进销存汇总表格 -->
+        <div class="inventory-summary-table-container">
+            <div class="inventory-summary-table-header">
+                <h3 class="inventory-summary-table-title">进销存汇总明细</h3>
+                <div class="inventory-summary-table-actions">
+                    <button class="inventory-summary-btn inventory-summary-btn-outline" id="refreshBtn">刷新</button>
+                </div>
+            </div>
+            <div class="inventory-summary-table-wrapper">
+                <table class="inventory-summary-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">序号</th>
+                            <th>商品名称</th>
+                            <th>商品类型</th>
+                            <th>分类</th>
+                            <th class="text-right">期初库存</th>
+                            <th class="text-right">进货数量</th>
+                            <th class="text-right">进货金额</th>
+                            <th class="text-right">销售数量</th>
+                            <th class="text-right">销售金额</th>
+                            <th class="text-right">退货数量</th>
+                            <th class="text-right">退货金额</th>
+                            <th class="text-right">期末库存</th>
+                            <th class="text-right">单位</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="inventory-summary-table-footer-row">
+                            <td colspan="4" class="text-right">合计：</td>
+                            <td class="text-right" id="totalBeginningQty">0</td>
+                            <td class="text-right" id="totalPurchaseQty">0</td>
+                            <td class="text-right" id="totalPurchaseAmount">¥0.00</td>
+                            <td class="text-right" id="totalSalesQty">0</td>
+                            <td class="text-right" id="totalSalesAmount">¥0.00</td>
+                            <td class="text-right" id="totalReturnQty">0</td>
+                            <td class="text-right" id="totalReturnAmount">¥0.00</td>
+                            <td class="text-right" id="totalEndingQty">0</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部分页器 -->
+            <div class="inventory-summary-bottom-toolbar">
+                <div class="inventory-summary-bottom-left">
+                    <span class="inventory-summary-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+                <div class="inventory-summary-bottom-right">
+                    <button class="inventory-summary-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                    <div class="inventory-summary-pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <button class="inventory-summary-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                    <span class="inventory-summary-pagination-info">每页显示</span>
+                    <select class="inventory-summary-page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/餐饮进销存汇总.js"></script>
+</body>
+</html>

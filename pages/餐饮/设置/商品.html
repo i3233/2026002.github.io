@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品设置 - 餐饮</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/餐饮商品设置.css">
+</head>
+<body class="catering-product-settings-page">
+    <div class="catering-product-settings-container">
+        <!-- 页面标题 -->
+        <div class="catering-product-settings-header">
+            <div>
+                <h1 class="catering-product-settings-title">商品设置</h1>
+                <div class="catering-product-settings-subtitle">配置餐饮商品相关的系统设置和默认参数</div>
+            </div>
+        </div>
+
+        <!-- 商品基础设置 -->
+        <div class="catering-product-settings-card">
+            <div class="catering-product-settings-card-header">
+                <div>
+                    <h3 class="catering-product-settings-card-title">商品基础设置</h3>
+                    <div class="catering-product-settings-card-desc">设置商品的基础默认值和展示规则</div>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        商品默认排序
+                        <span class="catering-product-help-icon" title="新添加商品的默认排序值，数值越大排序越靠前">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">设置新添加商品的默认排序值</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <input type="number" class="catering-product-form-input catering-product-form-input--small" id="defaultSort" value="100" min="0">
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        默认商品类型
+                        <span class="catering-product-help-icon" title="新添加商品的默认类型">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">设置新添加商品的默认类型</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <select class="catering-product-form-select catering-product-form-input--small" id="defaultProductType">
+                        <option value="normal" selected>普通商品</option>
+                        <option value="package">套餐商品</option>
+                        <option value="weight">称重商品</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        默认商品状态
+                        <span class="catering-product-help-icon" title="新添加商品的默认上架状态">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">设置新添加商品的默认上架状态</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <select class="catering-product-form-select catering-product-form-input--small" id="defaultStatus">
+                        <option value="onSale">上架</option>
+                        <option value="offSale">下架</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        启用商品规格
+                        <span class="catering-product-help-icon" title="是否默认启用商品规格功能">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，新添加的商品默认启用规格功能（如：大份/小份）</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="enableSpecs">
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        启用商品标签
+                        <span class="catering-product-help-icon" title="是否默认启用商品标签功能">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，新添加的商品默认启用标签功能（如：招牌、推荐、新品等）</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="enableTags" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        启用包装费设置
+                        <span class="catering-product-help-icon" title="是否启用商品包装费功能">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，商品可以设置包装费（适用于外卖场景）</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="enablePackagingFee" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品展示设置 -->
+        <div class="catering-product-settings-card">
+            <div class="catering-product-settings-card-header">
+                <div>
+                    <h3 class="catering-product-settings-card-title">商品展示设置</h3>
+                    <div class="catering-product-settings-card-desc">设置商品在前端的展示规则和样式</div>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        商品列表每页显示数量
+                        <span class="catering-product-help-icon" title="商品列表页面每页显示的商品数量">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">设置商品列表页面每页显示的商品数量</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <select class="catering-product-form-select catering-product-form-input--small" id="pageSize">
+                        <option value="20" selected>20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        显示商品销量
+                        <span class="catering-product-help-icon" title="是否在前端显示商品销量">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，前端商品列表和详情页会显示销量</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="showSales" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        显示商品评价
+                        <span class="catering-product-help-icon" title="是否在前端显示商品评价">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，前端商品详情页会显示评价功能</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="showReviews" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        商品图片最大数量
+                        <span class="catering-product-help-icon" title="每个商品最多可上传的图片数量">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">设置每个商品最多可上传的图片数量</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <input type="number" class="catering-product-form-input catering-product-form-input--small" id="maxImages" value="9" min="1" max="20">
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品分类设置 -->
+        <div class="catering-product-settings-card">
+            <div class="catering-product-settings-card-header">
+                <div>
+                    <h3 class="catering-product-settings-card-title">商品分类设置</h3>
+                    <div class="catering-product-settings-card-desc">设置商品分类相关的规则</div>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        启用多分类
+                        <span class="catering-product-help-icon" title="是否允许商品属于多个分类">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，一个商品可以同时属于多个分类</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="enableMultiCategory" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        分类层级深度
+                        <span class="catering-product-help-icon" title="商品分类支持的最大层级深度">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">设置商品分类支持的最大层级深度</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <select class="catering-product-form-select catering-product-form-input--small" id="categoryDepth">
+                        <option value="2" selected>2级</option>
+                        <option value="3">3级</option>
+                        <option value="4">4级</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        必须选择分类
+                        <span class="catering-product-help-icon" title="添加商品时是否必须选择分类">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，添加商品时必须选择至少一个分类</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="requireCategory" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品原料设置 -->
+        <div class="catering-product-settings-card">
+            <div class="catering-product-settings-card-header">
+                <div>
+                    <h3 class="catering-product-settings-card-title">商品原料设置</h3>
+                    <div class="catering-product-settings-card-desc">设置商品原料相关的规则</div>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        启用原料设置
+                        <span class="catering-product-help-icon" title="是否启用商品原料设置功能">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，可以为商品设置所需原料，用于用料分析和成本核算</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="enableIngredients" checked>
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-product-setting-item">
+                <div class="catering-product-setting-item-left">
+                    <div class="catering-product-setting-item-label">
+                        必须设置原料
+                        <span class="catering-product-help-icon" title="添加商品时是否必须设置原料">?</span>
+                    </div>
+                    <div class="catering-product-setting-item-desc">开启后，添加商品时必须设置至少一种原料</div>
+                </div>
+                <div class="catering-product-setting-item-right">
+                    <label class="catering-product-toggle-switch">
+                        <input type="checkbox" id="requireIngredients">
+                        <span class="catering-product-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="catering-product-settings-actions">
+            <button class="catering-product-btn catering-product-btn-outline" id="resetBtn">重置</button>
+            <button class="catering-product-btn catering-product-btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script src="../../../js/餐饮商品设置.js"></script>
+</body>
+</html>

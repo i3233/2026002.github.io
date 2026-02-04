@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>菜品原料设置 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/菜品原料设置.css">
+</head>
+<body class="ingredient-setting-body">
+    <div class="ingredient-setting-container">
+        <!-- 页面标题 -->
+        <div class="ingredient-setting-header">
+            <h1 class="ingredient-setting-title">菜品原料设置</h1>
+            <p class="ingredient-setting-subtitle">为菜品设置所需原料，用于用料分析和成本核算</p>
+        </div>
+
+        <!-- 搜索栏和操作按钮区 -->
+        <div class="ingredient-setting-toolbar">
+            <!-- 左侧搜索栏 -->
+            <div class="ingredient-setting-search">
+                <input type="text" class="ingredient-setting-search-input" id="productSearchInput" placeholder="🔍 搜索菜品名称">
+            </div>
+
+            <!-- 右侧操作按钮 -->
+            <div class="ingredient-setting-actions">
+                <button class="ingredient-setting-btn ingredient-setting-btn-primary" id="addIngredientBtn">
+                    <span class="ingredient-setting-btn-icon">+</span>
+                    添加原料
+                </button>
+                <button class="ingredient-setting-btn ingredient-setting-btn-outline" id="batchSetBtn">
+                    批量设置
+                </button>
+                <button class="ingredient-setting-btn ingredient-setting-btn-outline" id="importBtn">导入</button>
+                <button class="ingredient-setting-btn ingredient-setting-btn-outline" id="exportBtn">导出</button>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="ingredient-setting-content">
+            <!-- 左侧分类菜单 -->
+            <aside class="ingredient-setting-sidebar">
+                <div class="ingredient-setting-category-menu">
+                    <div class="ingredient-setting-category-item active" data-category="all">
+                        <span class="ingredient-setting-category-name">所有分类</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="chinese">
+                        <span class="ingredient-setting-category-name">中餐</span>
+                        <span class="ingredient-setting-category-count">(2)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="rainbow">
+                        <span class="ingredient-setting-category-name">彩虹斗酒</span>
+                        <span class="ingredient-setting-category-count">(7)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="special">
+                        <span class="ingredient-setting-category-name">特色斗酒</span>
+                        <span class="ingredient-setting-category-count">(12)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="wine">
+                        <span class="ingredient-setting-category-name">洋酒香槟</span>
+                        <span class="ingredient-setting-category-count">(14)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="beer">
+                        <span class="ingredient-setting-category-name">啤酒</span>
+                        <span class="ingredient-setting-category-count">(16)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="snack">
+                        <span class="ingredient-setting-category-name">小吃系列</span>
+                        <span class="ingredient-setting-category-count">(36)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="other">
+                        <span class="ingredient-setting-category-name">其他系列</span>
+                        <span class="ingredient-setting-category-count">(2)</span>
+                    </div>
+                    <div class="ingredient-setting-category-item" data-category="package">
+                        <span class="ingredient-setting-category-name">优惠套餐</span>
+                        <span class="ingredient-setting-category-count">(11)</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 右侧菜品列表 -->
+            <main class="ingredient-setting-main">
+                <div class="ingredient-setting-table-section">
+                    <div class="ingredient-setting-table-wrapper">
+                        <table class="ingredient-setting-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <label class="ingredient-setting-checkbox-label">
+                                            <input type="checkbox" id="selectAllCheckbox">
+                                        </label>
+                                    </th>
+                                    <th>菜品名称</th>
+                                    <th>分类</th>
+                                    <th>原料数量</th>
+                                    <th>最后更新</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                <!-- 数据将动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 底部分页器 -->
+                <div class="ingredient-setting-pagination">
+                    <div class="ingredient-setting-pagination-left">
+                        <span class="ingredient-setting-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    </div>
+                    <div class="ingredient-setting-pagination-right">
+                        <button class="ingredient-setting-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                        <div class="ingredient-setting-pagination-pages" id="paginationPages">
+                            <!-- JS 渲染 -->
+                        </div>
+                        <button class="ingredient-setting-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                        <span class="ingredient-setting-pagination-info">每页显示</span>
+                        <select class="ingredient-setting-pagination-select" id="pageSizeSelect">
+                            <option value="10" selected>10 条/页</option>
+                            <option value="20">20 条/页</option>
+                            <option value="50">50 条/页</option>
+                        </select>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 设置原料弹窗 -->
+    <div class="ingredient-setting-modal" id="ingredientModal" style="display: none;">
+        <div class="ingredient-setting-modal-backdrop" onclick="closeIngredientModal()"></div>
+        <div class="ingredient-setting-modal-content ingredient-setting-modal-large">
+            <div class="ingredient-setting-modal-header">
+                <h2 class="ingredient-setting-modal-title" id="ingredientModalTitle">设置原料</h2>
+                <button class="ingredient-setting-modal-close" onclick="closeIngredientModal()">×</button>
+            </div>
+            <div class="ingredient-setting-modal-body">
+                <!-- 菜品信息 -->
+                <div class="ingredient-setting-product-info">
+                    <div class="ingredient-setting-product-info-item">
+                        <span class="ingredient-setting-product-info-label">菜品名称：</span>
+                        <span class="ingredient-setting-product-info-value" id="modalProductName">-</span>
+                    </div>
+                    <div class="ingredient-setting-product-info-item">
+                        <span class="ingredient-setting-product-info-label">分类：</span>
+                        <span class="ingredient-setting-product-info-value" id="modalProductCategory">-</span>
+                    </div>
+                </div>
+
+                <!-- 原料列表 -->
+                <div class="ingredient-setting-ingredients-section">
+                    <div class="ingredient-setting-section-header">
+                        <h3 class="ingredient-setting-section-title">原料清单</h3>
+                        <button class="ingredient-setting-btn ingredient-setting-btn-primary" id="addIngredientRowBtn">
+                            <span class="ingredient-setting-btn-icon">+</span>
+                            添加原料
+                        </button>
+                    </div>
+
+                    <div class="ingredient-setting-ingredients-table-wrapper">
+                        <table class="ingredient-setting-ingredients-table">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>原料名称</th>
+                                    <th>用量</th>
+                                    <th>单位</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ingredientsTableBody">
+                                <!-- 数据将动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="ingredient-setting-modal-footer">
+                <button class="ingredient-setting-btn ingredient-setting-btn-cancel" onclick="closeIngredientModal()">取消</button>
+                <button class="ingredient-setting-btn ingredient-setting-btn-primary" id="saveIngredientsBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加原料弹窗 -->
+    <div class="ingredient-setting-modal" id="addIngredientModal" style="display: none;">
+        <div class="ingredient-setting-modal-backdrop" onclick="closeAddIngredientModal()"></div>
+        <div class="ingredient-setting-modal-content">
+            <div class="ingredient-setting-modal-header">
+                <h2 class="ingredient-setting-modal-title">添加原料</h2>
+                <button class="ingredient-setting-modal-close" onclick="closeAddIngredientModal()">×</button>
+            </div>
+            <div class="ingredient-setting-modal-body">
+                <div class="ingredient-setting-form-group">
+                    <label class="ingredient-setting-form-label">
+                        <span class="ingredient-setting-form-label-icon">!</span>
+                        原料名称
+                    </label>
+                    <input type="text" class="ingredient-setting-form-input" id="ingredientNameInput" placeholder="请输入原料名称">
+                </div>
+                <div class="ingredient-setting-form-group">
+                    <label class="ingredient-setting-form-label">
+                        <span class="ingredient-setting-form-label-icon">!</span>
+                        用量
+                    </label>
+                    <input type="number" class="ingredient-setting-form-input" id="ingredientQtyInput" placeholder="请输入用量" step="0.01" min="0">
+                </div>
+                <div class="ingredient-setting-form-group">
+                    <label class="ingredient-setting-form-label">
+                        <span class="ingredient-setting-form-label-icon">!</span>
+                        单位
+                    </label>
+                    <select class="ingredient-setting-form-select" id="ingredientUnitSelect">
+                        <option value="">请选择单位</option>
+                        <option value="g">克(g)</option>
+                        <option value="kg">千克(kg)</option>
+                        <option value="ml">毫升(ml)</option>
+                        <option value="l">升(l)</option>
+                        <option value="个">个</option>
+                        <option value="份">份</option>
+                        <option value="包">包</option>
+                        <option value="瓶">瓶</option>
+                        <option value="支">支</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ingredient-setting-modal-footer">
+                <button class="ingredient-setting-btn ingredient-setting-btn-cancel" onclick="closeAddIngredientModal()">取消</button>
+                <button class="ingredient-setting-btn ingredient-setting-btn-primary" id="confirmAddIngredientBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/菜品原料设置.js"></script>
+</body>
+</html>

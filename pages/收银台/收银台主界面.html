@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收银台主界面 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银台主界面.css">
+</head>
+<body class="cashier-main-body">
+    <div class="cashier-main-container">
+        <!-- 左侧收银台主功能区 -->
+        <aside class="cashier-sidebar">
+            <nav class="cashier-sidebar-menu">
+                <a href="#" class="cashier-menu-item active" title="点单" data-menu="order">
+                    <span class="cashier-menu-icon">📋</span>
+                    <span class="cashier-menu-text">点单</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="桌位" data-menu="table">
+                    <span class="cashier-menu-icon">🪑</span>
+                    <span class="cashier-menu-text">桌位</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="订单" data-menu="order-list">
+                    <span class="cashier-menu-icon">📝</span>
+                    <span class="cashier-menu-text">订单</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="商品" data-menu="product">
+                    <span class="cashier-menu-icon">📦</span>
+                    <span class="cashier-menu-text">商品</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="排号" data-menu="queue">
+                    <span class="cashier-menu-icon">🎫</span>
+                    <span class="cashier-menu-text">排号</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="财务" data-menu="finance">
+                    <span class="cashier-menu-icon">💰</span>
+                    <span class="cashier-menu-text">财务</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="会员" data-menu="member">
+                    <span class="cashier-menu-icon">👥</span>
+                    <span class="cashier-menu-text">会员</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="制作" data-menu="kitchen">
+                    <span class="cashier-menu-icon">🍳</span>
+                    <span class="cashier-menu-text">制作</span>
+                </a>
+                <a href="#" class="cashier-menu-item" title="设置" data-menu="settings">
+                    <span class="cashier-menu-icon">⚙️</span>
+                    <span class="cashier-menu-text">设置</span>
+                </a>
+            </nav>
+            <div class="cashier-sidebar-footer">
+                <button class="cashier-menu-item cashier-power-btn" title="退出" id="powerBtn">
+                    <span class="cashier-menu-icon">⏻</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="cashier-main-content">
+            <iframe id="cashierContentFrame" class="cashier-content-frame" src="子页面/点单.html" frameborder="0"></iframe>
+        </main>
+    </div>
+
+    <script src="../../js/收银台主界面.js"></script>
+</body>
+</html>

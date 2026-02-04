@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存汇总 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .inventory-summary-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 顶部操作按钮栏 */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 筛选条件区域 */
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item--full {
+            flex: 1 1 100%;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-item--date-range {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .filter-item--date-range > div {
+            flex: 1;
+        }
+
+        .filter-item--date-range span {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .more-search-toggle {
+            color: var(--color-primary);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            user-select: none;
+        }
+
+        .more-search-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .more-search-section {
+            display: none;
+        }
+
+        .more-search-section.show {
+            display: block;
+        }
+
+        /* 统计摘要区域 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 180px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            position: relative;
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-orange {
+            color: #ff8c42;
+        }
+
+        .summary-indicator {
+            position: absolute;
+            top: var(--spacing-sm);
+            right: var(--spacing-sm);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .summary-indicator.blue {
+            background-color: var(--color-primary);
+        }
+
+        .summary-indicator.green {
+            background-color: var(--color-success);
+        }
+
+        /* 库龄分析区域 */
+        .age-analysis-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .age-analysis-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .age-analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .age-analysis-item {
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .age-analysis-item.warning {
+            border-left-color: #ff8c42;
+        }
+
+        .age-analysis-item.danger {
+            border-left-color: var(--color-error);
+        }
+
+        .age-analysis-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .age-analysis-value {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .age-analysis-desc {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .age-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .age-badge.new {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .age-badge.normal {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .age-badge.warning {
+            background-color: rgba(255, 140, 66, 0.1);
+            color: #ff8c42;
+        }
+
+        .age-badge.danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .inventory-qty {
+            color: var(--color-error);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+        }
+
+        .inventory-qty:hover {
+            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active):not(:disabled) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .age-analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="inventory-summary-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">库存汇总</h1>
+                <div class="page-subtitle">管理和查看库存信息，支持库龄分析和统计</div>
+            </div>
+        </div>
+
+        <!-- 顶部操作按钮栏 -->
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-outline" id="exportBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="exportDetailBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出详情</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="printListBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">🖨</span>
+                        <span>打印列表</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="summaryBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">📊</span>
+                        <span>库存汇总</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选条件区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>仓库</label>
+                    <select id="warehouseSelect">
+                        <option value="">全部仓库</option>
+                        <option value="WH001">主仓库</option>
+                        <option value="WH002">分仓库</option>
+                        <option value="WH003">批发库</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>产品分类</label>
+                    <select id="categorySelect">
+                        <option value="">全部分类</option>
+                        <option value="CAT001">厨房用品</option>
+                        <option value="CAT002">食品</option>
+                        <option value="CAT003">日用品</option>
+                        <option value="CAT004">其他</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>库龄区间</label>
+                    <select id="ageRangeSelect">
+                        <option value="">全部库龄</option>
+                        <option value="0-30">0-30天（新入库）</option>
+                        <option value="31-60">31-60天</option>
+                        <option value="61-90">61-90天</option>
+                        <option value="91-180">91-180天</option>
+                        <option value="180+">180天以上（滞销）</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>库存筛选</label>
+                    <select id="inventoryFilterSelect">
+                        <option value="">全部</option>
+                        <option value="hasStock">有库存</option>
+                        <option value="noStock">无库存</option>
+                        <option value="lowStock">低库存</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>快捷搜索</label>
+                    <input type="text" id="quickSearchInput" placeholder="输入产品ID、名称、条码等关键词搜索">
+                </div>
+            </div>
+            <div class="more-search-section" id="moreSearchSection">
+                <div class="filter-row">
+                    <div class="filter-item filter-item--date-range">
+                        <div style="flex: 1;">
+                            <label>入库日期</label>
+                            <input type="date" id="entryDateStart">
+                        </div>
+                        <span>至</span>
+                        <div style="flex: 1;">
+                            <label style="visibility: hidden;">结束日期</label>
+                            <input type="date" id="entryDateEnd">
+                        </div>
+                    </div>
+                    <div class="filter-item">
+                        <label>库存数量范围</label>
+                        <input type="number" id="inventoryQtyMin" placeholder="最小数量" style="width: 48%; display: inline-block;">
+                        <span style="margin: 0 4px;">-</span>
+                        <input type="number" id="inventoryQtyMax" placeholder="最大数量" style="width: 48%; display: inline-block;">
+                    </div>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <span class="more-search-toggle" id="moreSearchToggle">更多搜索</span>
+                <button class="btn btn-primary" id="searchBtn">搜索</button>
+            </div>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <span class="summary-indicator blue"></span>
+                <div class="summary-label">产品数量</div>
+                <div class="summary-value summary-value-blue" id="productCount">0</div>
+            </div>
+            <div class="summary-card">
+                <span class="summary-indicator green"></span>
+                <div class="summary-label">库存数量</div>
+                <div class="summary-value summary-value-green" id="totalInventoryQty">0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">库存余额(元)</div>
+                <div class="summary-value summary-value-blue" id="totalInventoryBalance">0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">平均单位成本(元)</div>
+                <div class="summary-value summary-value-orange" id="avgUnitCost">0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">入库总量</div>
+                <div class="summary-value summary-value-green" id="totalInQty">0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">出库总量</div>
+                <div class="summary-value summary-value-red" id="totalOutQty">0.00</div>
+            </div>
+        </div>
+
+        <!-- 库龄分析区域 -->
+        <div class="age-analysis-section">
+            <div class="age-analysis-title">库龄分析</div>
+            <div class="age-analysis-grid">
+                <div class="age-analysis-item">
+                    <div class="age-analysis-label">0-30天（新入库）</div>
+                    <div class="age-analysis-value" id="age0-30Count">0</div>
+                    <div class="age-analysis-desc">产品数：<span id="age0-30Products">0</span> | 金额：<span id="age0-30Amount">0.00</span> 元</div>
+                </div>
+                <div class="age-analysis-item">
+                    <div class="age-analysis-label">31-60天</div>
+                    <div class="age-analysis-value" id="age31-60Count">0</div>
+                    <div class="age-analysis-desc">产品数：<span id="age31-60Products">0</span> | 金额：<span id="age31-60Amount">0.00</span> 元</div>
+                </div>
+                <div class="age-analysis-item warning">
+                    <div class="age-analysis-label">61-90天</div>
+                    <div class="age-analysis-value" id="age61-90Count">0</div>
+                    <div class="age-analysis-desc">产品数：<span id="age61-90Products">0</span> | 金额：<span id="age61-90Amount">0.00</span> 元</div>
+                </div>
+                <div class="age-analysis-item warning">
+                    <div class="age-analysis-label">91-180天</div>
+                    <div class="age-analysis-value" id="age91-180Count">0</div>
+                    <div class="age-analysis-desc">产品数：<span id="age91-180Products">0</span> | 金额：<span id="age91-180Amount">0.00</span> 元</div>
+                </div>
+                <div class="age-analysis-item danger">
+                    <div class="age-analysis-label">180天以上（滞销）</div>
+                    <div class="age-analysis-value" id="age180PlusCount">0</div>
+                    <div class="age-analysis-desc">产品数：<span id="age180PlusProducts">0</span> | 金额：<span id="age180PlusAmount">0.00</span> 元</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>序号</th>
+                            <th>产品ID</th>
+                            <th>产品名称</th>
+                            <th>规格型号</th>
+                            <th>分类</th>
+                            <th>仓库</th>
+                            <th class="text-right">入库数量</th>
+                            <th class="text-right">出库数量</th>
+                            <th class="sortable text-right" data-sort="inventory">库存数量</th>
+                            <th class="text-right">平均单位成本</th>
+                            <th class="text-right">库存余额</th>
+                            <th class="sortable" data-sort="entryDate">入库日期</th>
+                            <th class="sortable" data-sort="age">库龄(天)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="7" class="text-right">合计：</td>
+                            <td class="text-right" id="totalInQtyCell">0.00</td>
+                            <td class="text-right" id="totalOutQtyCell">0.00</td>
+                            <td class="text-right" id="totalInventoryQtyCell">0.00</td>
+                            <td class="text-right" id="avgCostCell">-</td>
+                            <td class="text-right" id="totalBalanceCell">0.00</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟库存数据
+        const inventoryData = [
+            {
+                id: 'PRD001',
+                name: '隔热垫',
+                spec: '30cm×30cm',
+                category: '厨房用品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 150,
+                outQty: 43,
+                inventory: 107,
+                unit: '个',
+                avgCost: 12.50,
+                balance: 1337.50,
+                entryDate: '2025-01-15',
+                lastTradeDate: '2025-01-28'
+            },
+            {
+                id: 'PRD002',
+                name: 'p-6炒锅',
+                spec: '32cm',
+                category: '厨房用品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 80,
+                outQty: 78,
+                inventory: 2,
+                unit: '个',
+                avgCost: 158.00,
+                balance: 316.00,
+                entryDate: '2025-01-10',
+                lastTradeDate: '2025-01-29'
+            },
+            {
+                id: 'PRD003',
+                name: '雅安茶叶',
+                spec: '500g/盒',
+                category: '食品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 200,
+                outQty: 120,
+                inventory: 80,
+                unit: '盒',
+                avgCost: 45.00,
+                balance: 3600.00,
+                entryDate: '2025-01-05',
+                lastTradeDate: '2025-01-30'
+            },
+            {
+                id: 'PRD004',
+                name: '雅安花椒',
+                spec: '250g/袋',
+                category: '食品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 300,
+                outQty: 250,
+                inventory: 50,
+                unit: '袋',
+                avgCost: 28.00,
+                balance: 1400.00,
+                entryDate: '2024-12-20',
+                lastTradeDate: '2025-01-25'
+            },
+            {
+                id: 'PRD005',
+                name: '熊猫玩偶',
+                spec: '20cm',
+                category: '其他',
+                warehouse: 'WH002',
+                warehouseName: '分仓库',
+                inQty: 100,
+                outQty: 45,
+                inventory: 55,
+                unit: '个',
+                avgCost: 35.00,
+                balance: 1925.00,
+                entryDate: '2024-11-15',
+                lastTradeDate: '2025-01-20'
+            },
+            {
+                id: 'PRD006',
+                name: '雅安明信片',
+                spec: '一套10张',
+                category: '其他',
+                warehouse: 'WH002',
+                warehouseName: '分仓库',
+                inQty: 200,
+                outQty: 180,
+                inventory: 20,
+                unit: '套',
+                avgCost: 12.00,
+                balance: 240.00,
+                entryDate: '2024-10-10',
+                lastTradeDate: '2025-01-15'
+            },
+            {
+                id: 'PRD007',
+                name: '雅安特产礼盒',
+                spec: '1kg装',
+                category: '食品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 150,
+                outQty: 100,
+                inventory: 50,
+                unit: '盒',
+                avgCost: 88.00,
+                balance: 4400.00,
+                entryDate: '2024-09-05',
+                lastTradeDate: '2025-01-10'
+            },
+            {
+                id: 'PRD008',
+                name: '雅安蜂蜜',
+                spec: '500g/瓶',
+                category: '食品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 120,
+                outQty: 80,
+                inventory: 40,
+                unit: '瓶',
+                avgCost: 35.00,
+                balance: 1400.00,
+                entryDate: '2024-08-20',
+                lastTradeDate: '2025-01-05'
+            },
+            {
+                id: 'PRD009',
+                name: '砂锅',
+                spec: 'p-6',
+                category: '厨房用品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 60,
+                outQty: 55,
+                inventory: 5,
+                unit: '个',
+                avgCost: 38.00,
+                balance: 190.00,
+                entryDate: '2025-01-20',
+                lastTradeDate: '2025-01-31'
+            },
+            {
+                id: 'PRD010',
+                name: '腊肉',
+                spec: '500g/包',
+                category: '食品',
+                warehouse: 'WH001',
+                warehouseName: '主仓库',
+                inQty: 80,
+                outQty: 75,
+                inventory: 5,
+                unit: '包',
+                avgCost: 30.00,
+                balance: 150.00,
+                entryDate: '2024-07-15',
+                lastTradeDate: '2024-12-20'
+            }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 20;
+        let sortField = '';
+        let sortOrder = '';
+        let selectedIds = new Set();
+        let filteredData = [...inventoryData];
+
+        // 计算库龄（天数）
+        function calculateAge(entryDate) {
+            const today = new Date();
+            const entry = new Date(entryDate);
+            const diffTime = Math.abs(today - entry);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // 获取库龄区间
+        function getAgeRange(age) {
+            if (age <= 30) return '0-30';
+            if (age <= 60) return '31-60';
+            if (age <= 90) return '61-90';
+            if (age <= 180) return '91-180';
+            return '180+';
+        }
+
+        // 获取库龄标签类
+        function getAgeBadgeClass(age) {
+            if (age <= 30) return 'new';
+            if (age <= 60) return 'normal';
+            if (age <= 90) return 'warning';
+            if (age <= 180) return 'warning';
+            return 'danger';
+        }
+
+        // 初始化
+        function init() {
+            renderTable();
+            updatePagination();
+            updateSummary();
+            updateAgeAnalysis();
+            bindEvents();
+        }
+
+        // 获取筛选后的数据
+        function getFilteredData() {
+            let data = [...inventoryData];
+            
+            const warehouse = document.getElementById('warehouseSelect').value;
+            const category = document.getElementById('categorySelect').value;
+            const ageRange = document.getElementById('ageRangeSelect').value;
+            const inventoryFilter = document.getElementById('inventoryFilterSelect').value;
+            const quickSearch = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            
+            if (warehouse) {
+                data = data.filter(item => item.warehouse === warehouse);
+            }
+            
+            if (category) {
+                data = data.filter(item => item.category === getCategoryName(category));
+            }
+            
+            if (ageRange) {
+                data = data.filter(item => {
+                    const age = calculateAge(item.entryDate);
+                    if (ageRange === '180+') {
+                        return age > 180;
+                    } else {
+                        const [min, max] = ageRange.split('-').map(Number);
+                        return age >= min && age <= max;
+                    }
+                });
+            }
+            
+            if (inventoryFilter) {
+                if (inventoryFilter === 'hasStock') {
+                    data = data.filter(item => item.inventory > 0);
+                } else if (inventoryFilter === 'noStock') {
+                    data = data.filter(item => item.inventory === 0);
+                } else if (inventoryFilter === 'lowStock') {
+                    data = data.filter(item => item.inventory > 0 && item.inventory < 10);
+                }
+            }
+            
+            if (quickSearch) {
+                data = data.filter(item => 
+                    item.id.toLowerCase().includes(quickSearch) ||
+                    item.name.toLowerCase().includes(quickSearch)
+                );
+            }
+            
+            return data;
+        }
+
+        // 获取分类名称
+        function getCategoryName(categoryId) {
+            const categoryMap = {
+                'CAT001': '厨房用品',
+                'CAT002': '食品',
+                'CAT003': '日用品',
+                'CAT004': '其他'
+            };
+            return categoryMap[categoryId] || '';
+        }
+
+        // 更新统计摘要
+        function updateSummary() {
+            const data = getFilteredData();
+            
+            // 产品数量
+            const productCount = new Set(data.map(item => item.id)).size;
+            
+            // 库存数量
+            const totalInventoryQty = data.reduce((sum, item) => sum + item.inventory, 0);
+            
+            // 库存余额
+            const totalInventoryBalance = data.reduce((sum, item) => sum + item.balance, 0);
+            
+            // 平均单位成本
+            const totalCost = data.reduce((sum, item) => sum + (item.avgCost * item.inventory), 0);
+            const avgUnitCost = totalInventoryQty > 0 ? totalCost / totalInventoryQty : 0;
+            
+            // 入库总量
+            const totalInQty = data.reduce((sum, item) => sum + item.inQty, 0);
+            
+            // 出库总量
+            const totalOutQty = data.reduce((sum, item) => sum + item.outQty, 0);
+            
+            // 更新显示
+            document.getElementById('productCount').textContent = productCount;
+            document.getElementById('totalInventoryQty').textContent = totalInventoryQty.toFixed(2);
+            document.getElementById('totalInventoryBalance').textContent = totalInventoryBalance.toFixed(2);
+            document.getElementById('avgUnitCost').textContent = avgUnitCost.toFixed(2);
+            document.getElementById('totalInQty').textContent = totalInQty.toFixed(2);
+            document.getElementById('totalOutQty').textContent = totalOutQty.toFixed(2);
+        }
+
+        // 更新库龄分析
+        function updateAgeAnalysis() {
+            const data = getFilteredData();
+            
+            const ageGroups = {
+                '0-30': { count: 0, products: new Set(), amount: 0 },
+                '31-60': { count: 0, products: new Set(), amount: 0 },
+                '61-90': { count: 0, products: new Set(), amount: 0 },
+                '91-180': { count: 0, products: new Set(), amount: 0 },
+                '180+': { count: 0, products: new Set(), amount: 0 }
+            };
+            
+            data.forEach(item => {
+                const age = calculateAge(item.entryDate);
+                const range = getAgeRange(age);
+                
+                ageGroups[range].count += item.inventory;
+                ageGroups[range].products.add(item.id);
+                ageGroups[range].amount += item.balance;
+            });
+            
+            // 更新显示
+            document.getElementById('age0-30Count').textContent = ageGroups['0-30'].count.toFixed(2);
+            document.getElementById('age0-30Products').textContent = ageGroups['0-30'].products.size;
+            document.getElementById('age0-30Amount').textContent = ageGroups['0-30'].amount.toFixed(2);
+            
+            document.getElementById('age31-60Count').textContent = ageGroups['31-60'].count.toFixed(2);
+            document.getElementById('age31-60Products').textContent = ageGroups['31-60'].products.size;
+            document.getElementById('age31-60Amount').textContent = ageGroups['31-60'].amount.toFixed(2);
+            
+            document.getElementById('age61-90Count').textContent = ageGroups['61-90'].count.toFixed(2);
+            document.getElementById('age61-90Products').textContent = ageGroups['61-90'].products.size;
+            document.getElementById('age61-90Amount').textContent = ageGroups['61-90'].amount.toFixed(2);
+            
+            document.getElementById('age91-180Count').textContent = ageGroups['91-180'].count.toFixed(2);
+            document.getElementById('age91-180Products').textContent = ageGroups['91-180'].products.size;
+            document.getElementById('age91-180Amount').textContent = ageGroups['91-180'].amount.toFixed(2);
+            
+            document.getElementById('age180PlusCount').textContent = ageGroups['180+'].count.toFixed(2);
+            document.getElementById('age180PlusProducts').textContent = ageGroups['180+'].products.size;
+            document.getElementById('age180PlusAmount').textContent = ageGroups['180+'].amount.toFixed(2);
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            filteredData = getFilteredData();
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const age = calculateAge(item.entryDate);
+                const ageBadgeClass = getAgeBadgeClass(age);
+                
+                row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${item.id}">
+                    </td>
+                    <td>${startIndex + index + 1}</td>
+                    <td>${item.id}</td>
+                    <td>
+                        <span class="link-text" onclick="viewProductDetail('${item.id}')">${item.name}</span>
+                    </td>
+                    <td>${item.spec}</td>
+                    <td>${item.category}</td>
+                    <td>${item.warehouseName}</td>
+                    <td class="text-right">${item.inQty}${item.unit}</td>
+                    <td class="text-right">${item.outQty}${item.unit}</td>
+                    <td class="text-right">
+                        <span class="inventory-qty" onclick="viewInventoryDetail('${item.id}')">${item.inventory}${item.unit}</span>
+                    </td>
+                    <td class="text-right">¥${item.avgCost.toFixed(2)}</td>
+                    <td class="text-right">¥${item.balance.toFixed(2)}</td>
+                    <td>${item.entryDate}</td>
+                    <td>
+                        <span class="age-badge ${ageBadgeClass}">${age}天</span>
+                    </td>
+                    <td>
+                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}')" title="更多操作">查看</button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // 更新合计行
+            const totalInQty = filteredData.reduce((sum, item) => sum + item.inQty, 0);
+            const totalOutQty = filteredData.reduce((sum, item) => sum + item.outQty, 0);
+            const totalInventoryQty = filteredData.reduce((sum, item) => sum + item.inventory, 0);
+            const totalBalance = filteredData.reduce((sum, item) => sum + item.balance, 0);
+            const totalCost = filteredData.reduce((sum, item) => sum + (item.avgCost * item.inventory), 0);
+            const avgCost = totalInventoryQty > 0 ? totalCost / totalInventoryQty : 0;
+            
+            document.getElementById('totalInQtyCell').textContent = totalInQty.toFixed(2);
+            document.getElementById('totalOutQtyCell').textContent = totalOutQty.toFixed(2);
+            document.getElementById('totalInventoryQtyCell').textContent = totalInventoryQty.toFixed(2);
+            document.getElementById('avgCostCell').textContent = avgCost > 0 ? '¥' + avgCost.toFixed(2) : '-';
+            document.getElementById('totalBalanceCell').textContent = totalBalance.toFixed(2);
+
+            updateSelectedInfo();
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalRecords = filteredData.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            document.getElementById('totalRecords').textContent = totalRecords;
+
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-page-btn';
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    updatePagination();
+                }
+            };
+            paginationPages.appendChild(prevBtn);
+
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                if (totalPages > 7 && i !== 1 && i !== totalPages && Math.abs(i - currentPage) > 1) {
+                    if (Math.abs(i - currentPage) === 2) {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'pagination-info';
+                        ellipsis.textContent = '...';
+                        paginationPages.appendChild(ellipsis);
+                    }
+                    continue;
+                }
+                
+                const btn = document.createElement('button');
+                btn.className = 'pagination-page-btn' + (i === currentPage ? ' active' : '');
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                    updatePagination();
+                };
+                paginationPages.appendChild(btn);
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-page-btn';
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                    updatePagination();
+                }
+            };
+            paginationPages.appendChild(nextBtn);
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 全选
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checked = this.checked;
+                document.querySelectorAll('.row-checkbox').forEach(cb => {
+                    cb.checked = checked;
+                    if (checked) {
+                        selectedIds.add(cb.dataset.id);
+                    } else {
+                        selectedIds.delete(cb.dataset.id);
+                    }
+                });
+                document.getElementById('bottomSelectAll').checked = checked;
+                updateSelectedInfo();
+            });
+
+            document.getElementById('bottomSelectAll').addEventListener('change', function() {
+                document.getElementById('selectAll').checked = this.checked;
+                document.getElementById('selectAll').dispatchEvent(new Event('change'));
+            });
+
+            // 行复选框
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('row-checkbox')) {
+                    const id = e.target.dataset.id;
+                    if (e.target.checked) {
+                        selectedIds.add(id);
+                    } else {
+                        selectedIds.delete(id);
+                    }
+                    updateSelectAllState();
+                    updateSelectedInfo();
+                }
+            });
+
+            // 排序
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    if (sortField === field) {
+                        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortField = field;
+                        sortOrder = 'asc';
+                    }
+                    // 更新排序图标
+                    document.querySelectorAll('th.sortable').forEach(t => {
+                        t.classList.remove('asc', 'desc');
+                    });
+                    this.classList.add(sortOrder);
+                    // 这里可以添加排序逻辑
+                    renderTable();
+                });
+            });
+
+            // 更多搜索
+            document.getElementById('moreSearchToggle').addEventListener('click', function() {
+                const section = document.getElementById('moreSearchSection');
+                section.classList.toggle('show');
+                this.textContent = section.classList.contains('show') ? '收起搜索' : '更多搜索';
+            });
+
+            // 搜索
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateSummary();
+                updateAgeAnalysis();
+            });
+
+            // 筛选条件变化
+            ['warehouseSelect', 'categorySelect', 'ageRangeSelect', 'inventoryFilterSelect'].forEach(id => {
+                document.getElementById(id).addEventListener('change', function() {
+                    currentPage = 1;
+                    renderTable();
+                    updatePagination();
+                    updateSummary();
+                    updateAgeAnalysis();
+                });
+            });
+
+            // 快捷搜索
+            document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchBtn').click();
+                }
+            });
+
+            // 分页大小
+            document.getElementById('pageSizeSelect').addEventListener('change', function() {
+                pageSize = parseInt(this.value);
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+            });
+
+            // 跳转页面
+            document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const page = parseInt(this.value);
+                    const totalPages = Math.ceil(filteredData.length / pageSize);
+                    if (page >= 1 && page <= totalPages) {
+                        currentPage = page;
+                        renderTable();
+                        updatePagination();
+                    }
+                }
+            });
+
+            // 按钮事件
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                alert('导出功能');
+            });
+
+            document.getElementById('exportDetailBtn').addEventListener('click', () => {
+                alert('导出详情功能');
+            });
+
+            document.getElementById('printListBtn').addEventListener('click', () => {
+                alert('打印列表功能');
+            });
+
+            document.getElementById('summaryBtn').addEventListener('click', () => {
+                const data = getFilteredData();
+                const productCount = new Set(data.map(item => item.id)).size;
+                const totalInventoryQty = data.reduce((sum, item) => sum + item.inventory, 0);
+                const totalBalance = data.reduce((sum, item) => sum + item.balance, 0);
+                const totalInQty = data.reduce((sum, item) => sum + item.inQty, 0);
+                const totalOutQty = data.reduce((sum, item) => sum + item.outQty, 0);
+                
+                alert(`库存汇总统计：\n产品数量：${productCount} 种\n库存数量：${totalInventoryQty.toFixed(2)}\n库存余额：${totalBalance.toFixed(2)} 元\n入库总量：${totalInQty.toFixed(2)}\n出库总量：${totalOutQty.toFixed(2)}`);
+            });
+        }
+
+        // 更新全选状态
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selectAll').checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+            document.getElementById('bottomSelectAll').checked = document.getElementById('selectAll').checked;
+        }
+
+        // 更新选中信息
+        function updateSelectedInfo() {
+            document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
+        }
+
+        // 查看产品详情
+        function viewProductDetail(id) {
+            const item = inventoryData.find(d => d.id === id);
+            if (item) {
+                const age = calculateAge(item.entryDate);
+                alert(`产品详情：\n产品ID：${item.id}\n产品名称：${item.name}\n规格型号：${item.spec}\n分类：${item.category}\n库存数量：${item.inventory}${item.unit}\n库存余额：${item.balance.toFixed(2)} 元\n入库日期：${item.entryDate}\n库龄：${age}天`);
+            }
+        }
+
+        // 查看库存详情
+        function viewInventoryDetail(id) {
+            const item = inventoryData.find(d => d.id === id);
+            if (item) {
+                alert(`库存详情：\n产品：${item.name}\n入库数量：${item.inQty}${item.unit}\n出库数量：${item.outQty}${item.unit}\n当前库存：${item.inventory}${item.unit}\n最后交易日期：${item.lastTradeDate}`);
+            }
+        }
+
+        // 显示操作菜单
+        function showActionMenu(id) {
+            const actions = ['查看详情', '编辑', '删除', '打印', '库存调整'];
+            const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
+            if (action) {
+                const index = parseInt(action) - 1;
+                if (index >= 0 && index < actions.length) {
+                    alert(`执行操作：${actions[index]} (ID: ${id})`);
+                }
+            }
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

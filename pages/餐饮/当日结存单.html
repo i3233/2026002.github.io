@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当日结存单 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/餐饮当日结存单.css">
+</head>
+<body class="daily-settlement-body">
+    <div class="daily-settlement-container">
+        <!-- 页面标题 -->
+        <div class="daily-settlement-header">
+            <div>
+                <h1 class="daily-settlement-title">当日结存单</h1>
+                <div class="daily-settlement-subtitle">查看当日商品的进存销情况和结存信息</div>
+            </div>
+        </div>
+
+        <!-- 筛选工具栏 -->
+        <div class="daily-settlement-filter-toolbar">
+            <div class="daily-settlement-filter-item">
+                <label>日期：</label>
+                <input type="date" id="statementDate" value="">
+            </div>
+            <div class="daily-settlement-filter-item">
+                <label>商品类型：</label>
+                <select id="productTypeSelect">
+                    <option value="">全部类型</option>
+                    <option value="normal">普通商品</option>
+                    <option value="package">套餐商品</option>
+                    <option value="weight">称重商品</option>
+                </select>
+            </div>
+            <div class="daily-settlement-filter-item">
+                <label>分类：</label>
+                <select id="categorySelect">
+                    <option value="">全部分类</option>
+                    <option value="chinese">中餐</option>
+                    <option value="rainbow">彩虹斗酒</option>
+                    <option value="special">特色斗酒</option>
+                    <option value="wine">洋酒香槟</option>
+                    <option value="beer">啤酒</option>
+                    <option value="snack">小吃系列</option>
+                    <option value="other">其他系列</option>
+                    <option value="package">优惠套餐</option>
+                </select>
+            </div>
+            <button class="daily-settlement-btn daily-settlement-btn-primary" id="queryBtn">查询</button>
+            <button class="daily-settlement-btn daily-settlement-btn-outline" id="printBtn">
+                <span class="daily-settlement-btn-icon">🖨</span>
+                打印
+            </button>
+            <button class="daily-settlement-btn daily-settlement-btn-outline" id="exportBtn">
+                <span class="daily-settlement-btn-icon">↑</span>
+                导出
+            </button>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="daily-settlement-summary-section">
+            <div class="daily-settlement-summary-card">
+                <div class="daily-settlement-summary-card-header">
+                    <span class="daily-settlement-summary-label">今日进货</span>
+                    <span class="daily-settlement-summary-icon">📦</span>
+                </div>
+                <div class="daily-settlement-summary-value daily-settlement-summary-value-blue" id="todayPurchaseAmount">¥0.00</div>
+                <div class="daily-settlement-summary-change" id="todayPurchaseChange">较昨日: +0.00</div>
+            </div>
+            <div class="daily-settlement-summary-card">
+                <div class="daily-settlement-summary-card-header">
+                    <span class="daily-settlement-summary-label">今日销售</span>
+                    <span class="daily-settlement-summary-icon">💰</span>
+                </div>
+                <div class="daily-settlement-summary-value daily-settlement-summary-value-green" id="todaySalesAmount">¥0.00</div>
+                <div class="daily-settlement-summary-change" id="todaySalesChange">较昨日: +0.00</div>
+            </div>
+            <div class="daily-settlement-summary-card">
+                <div class="daily-settlement-summary-card-header">
+                    <span class="daily-settlement-summary-label">当前库存</span>
+                    <span class="daily-settlement-summary-icon">📊</span>
+                </div>
+                <div class="daily-settlement-summary-value daily-settlement-summary-value-orange" id="currentInventoryQty">0</div>
+                <div class="daily-settlement-summary-change" id="currentInventoryChange">库存金额: ¥0.00</div>
+            </div>
+            <div class="daily-settlement-summary-card">
+                <div class="daily-settlement-summary-card-header">
+                    <span class="daily-settlement-summary-label">库存金额</span>
+                    <span class="daily-settlement-summary-icon">💵</span>
+                </div>
+                <div class="daily-settlement-summary-value daily-settlement-summary-value-red" id="currentInventoryAmount">¥0.00</div>
+                <div class="daily-settlement-summary-change" id="currentInventoryAmountChange">较昨日: +0.00</div>
+            </div>
+        </div>
+
+        <!-- 进存销统计卡片 -->
+        <div class="daily-settlement-inventory-stats-section">
+            <!-- 进货统计 -->
+            <div class="daily-settlement-inventory-stat-card">
+                <div class="daily-settlement-inventory-stat-title">进货统计</div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">进货单数</span>
+                    <span class="daily-settlement-inventory-stat-value" id="purchaseOrderCount">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">进货数量</span>
+                    <span class="daily-settlement-inventory-stat-value" id="purchaseQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">进货金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="purchaseAmount">¥0.00</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">退货单数</span>
+                    <span class="daily-settlement-inventory-stat-value" id="returnOrderCount">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">退货数量</span>
+                    <span class="daily-settlement-inventory-stat-value" id="returnQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">退货金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="returnAmount">¥0.00</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">净进货金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="netPurchaseAmount">¥0.00</span>
+                </div>
+            </div>
+
+            <!-- 销售统计 -->
+            <div class="daily-settlement-inventory-stat-card">
+                <div class="daily-settlement-inventory-stat-title">销售统计</div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">销售单数</span>
+                    <span class="daily-settlement-inventory-stat-value" id="salesOrderCount">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">销售数量</span>
+                    <span class="daily-settlement-inventory-stat-value" id="salesQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">销售金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="salesAmount">¥0.00</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">退货单数</span>
+                    <span class="daily-settlement-inventory-stat-value" id="salesReturnOrderCount">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">退货数量</span>
+                    <span class="daily-settlement-inventory-stat-value" id="salesReturnQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">退货金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="salesReturnAmount">¥0.00</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">净销售金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="netSalesAmount">¥0.00</span>
+                </div>
+            </div>
+
+            <!-- 库存统计 -->
+            <div class="daily-settlement-inventory-stat-card">
+                <div class="daily-settlement-inventory-stat-title">库存统计</div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">期初数量</span>
+                    <span class="daily-settlement-inventory-stat-value" id="beginningInventoryQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">期初金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="beginningInventoryAmount">¥0.00</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">本期入库</span>
+                    <span class="daily-settlement-inventory-stat-value" id="currentInQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">本期出库</span>
+                    <span class="daily-settlement-inventory-stat-value" id="currentOutQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">期末数量</span>
+                    <span class="daily-settlement-inventory-stat-value" id="endingInventoryQty">0</span>
+                </div>
+                <div class="daily-settlement-inventory-stat-row">
+                    <span class="daily-settlement-inventory-stat-label">期末金额</span>
+                    <span class="daily-settlement-inventory-stat-value daily-settlement-inventory-stat-amount" id="endingInventoryAmount">¥0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品结存明细表格 -->
+        <div class="daily-settlement-table-container">
+            <div class="daily-settlement-table-header">
+                <h3 class="daily-settlement-table-title">商品结存明细</h3>
+                <div class="daily-settlement-table-actions">
+                    <button class="daily-settlement-btn daily-settlement-btn-outline" id="refreshBtn">刷新</button>
+                </div>
+            </div>
+            <div class="daily-settlement-table-wrapper">
+                <table class="daily-settlement-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">序号</th>
+                            <th>商品名称</th>
+                            <th>商品类型</th>
+                            <th>分类</th>
+                            <th class="text-right">期初库存</th>
+                            <th class="text-right">本期入库</th>
+                            <th class="text-right">本期出库</th>
+                            <th class="text-right sortable" data-sort="inventory">期末库存</th>
+                            <th class="text-right">单位</th>
+                            <th class="text-right">平均成本</th>
+                            <th class="text-right">库存金额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statementTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="daily-settlement-table-footer-row">
+                            <td colspan="4" class="text-right">合计：</td>
+                            <td class="text-right" id="totalBeginningQty">0</td>
+                            <td class="text-right" id="totalInQty">0</td>
+                            <td class="text-right" id="totalOutQty">0</td>
+                            <td class="text-right" id="totalEndingQty">0</td>
+                            <td colspan="2"></td>
+                            <td class="text-right" id="totalInventoryAmount">¥0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部分页器 -->
+            <div class="daily-settlement-bottom-toolbar">
+                <div class="daily-settlement-bottom-left">
+                    <span class="daily-settlement-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+                <div class="daily-settlement-bottom-right">
+                    <button class="daily-settlement-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                    <div class="daily-settlement-pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <button class="daily-settlement-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                    <span class="daily-settlement-pagination-info">每页显示</span>
+                    <select class="daily-settlement-page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/餐饮当日结存单.js"></script>
+</body>
+</html>

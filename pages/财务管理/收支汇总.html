@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收支汇总 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .income-expense-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 顶部操作按钮栏 */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 筛选条件区域 */
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item--full {
+            flex: 1 1 100%;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-item--date-range {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .filter-item--date-range > div {
+            flex: 1;
+        }
+
+        .filter-item--date-range span {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .more-search-toggle {
+            color: var(--color-primary);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            user-select: none;
+        }
+
+        .more-search-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .more-search-section {
+            display: none;
+        }
+
+        .more-search-section.show {
+            display: block;
+        }
+
+        /* 统计摘要区域 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 180px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            position: relative;
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-black {
+            color: var(--color-text-primary);
+        }
+
+        .summary-value-gray {
+            color: var(--color-text-secondary);
+        }
+
+        .summary-indicator {
+            position: absolute;
+            top: var(--spacing-sm);
+            right: var(--spacing-sm);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .summary-indicator.red {
+            background-color: var(--color-error);
+        }
+
+        .summary-indicator.green {
+            background-color: var(--color-success);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr.expanded {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .seq-cell {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .amount-link {
+            color: var(--color-primary);
+            cursor: pointer;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .amount-link:hover {
+            text-decoration: underline;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .type-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .type-tag.income {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .type-tag.expense {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .seq-cell {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .seq-type {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .attachment-icon {
+            color: var(--color-text-secondary);
+            cursor: pointer;
+        }
+
+        .attachment-icon:hover {
+            color: var(--color-primary);
+        }
+
+        .action-menu-btn {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+        }
+
+        .action-menu-btn:hover {
+            opacity: 0.7;
+        }
+
+        /* 行展开详情 */
+        .row-detail {
+            display: none;
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .row-detail.show {
+            display: block;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .detail-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .detail-value {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="income-expense-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">收支汇总</h1>
+                <div class="page-subtitle">管理和查看收入支出记录，支持筛选、统计和导出</div>
+            </div>
+        </div>
+
+        <!-- 顶部操作按钮栏 -->
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addIncomeBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">+</span>
+                        <span>新增收入</span>
+                    </span>
+                </button>
+                <button class="btn btn-primary" id="addExpenseBtn" style="background-color: var(--color-error);">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">+</span>
+                        <span>新增支出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="exportBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="importBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↓</span>
+                        <span>导入</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="printListBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">🖨</span>
+                        <span>打印列表</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="printVoucherBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">🖨</span>
+                        <span>打印凭证</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="customAttrBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">≡</span>
+                        <span>收支自定义属性</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="summaryBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">📊</span>
+                        <span>收支汇总</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选条件区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>收支类型</label>
+                    <select id="typeSelect">
+                        <option value="">全部类型</option>
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>类别</label>
+                    <select id="categorySelect">
+                        <option value="">全部类别</option>
+                        <option value="sales">销售收入</option>
+                        <option value="service">服务收入</option>
+                        <option value="other">其他收入</option>
+                        <option value="purchase">采购支出</option>
+                        <option value="salary">工资支出</option>
+                        <option value="rent">租金支出</option>
+                        <option value="utilities">水电费</option>
+                        <option value="other_expense">其他支出</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>经手人</label>
+                    <select id="handlerSelect">
+                        <option value="">全部经手人</option>
+                        <option value="zhang">张三</option>
+                        <option value="li">李四</option>
+                        <option value="wang">王五</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>审核状态</label>
+                    <select id="auditStatusSelect">
+                        <option value="">全部状态</option>
+                        <option value="pending">待审核</option>
+                        <option value="approved">已审核</option>
+                        <option value="rejected">已拒绝</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>往来单位</label>
+                    <input type="text" id="partnerInput" placeholder="全部往来单位">
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>项目</label>
+                    <select id="projectSelect">
+                        <option value="">全部项目</option>
+                        <option value="project1">项目A</option>
+                        <option value="project2">项目B</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>部门</label>
+                    <select id="departmentSelect">
+                        <option value="">全部部门</option>
+                        <option value="sales">销售部</option>
+                        <option value="finance">财务部</option>
+                        <option value="admin">行政部</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>快捷搜索</label>
+                    <input type="text" id="quickSearchInput" placeholder="输入关键词搜索">
+                </div>
+            </div>
+            <div class="more-search-section" id="moreSearchSection">
+                <div class="filter-row">
+                    <div class="filter-item filter-item--date-range">
+                        <div style="flex: 1;">
+                            <label>账单日期</label>
+                            <input type="date" id="billDateStart">
+                        </div>
+                        <span>至</span>
+                        <div style="flex: 1;">
+                            <label style="visibility: hidden;">结束日期</label>
+                            <input type="date" id="billDateEnd">
+                        </div>
+                    </div>
+                    <div class="filter-item filter-item--date-range">
+                        <div style="flex: 1;">
+                            <label>录入时间</label>
+                            <input type="date" id="entryDateStart">
+                        </div>
+                        <span>至</span>
+                        <div style="flex: 1;">
+                            <label style="visibility: hidden;">结束日期</label>
+                            <input type="date" id="entryDateEnd">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <span class="more-search-toggle" id="moreSearchToggle">更多搜索</span>
+                <button class="btn btn-primary" id="searchBtn">搜索</button>
+            </div>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <span class="summary-indicator red"></span>
+                <div class="summary-label">实时余额(元)</div>
+                <div class="summary-value summary-value-red" id="realTimeBalance">-105632.78</div>
+            </div>
+            <div class="summary-card">
+                <span class="summary-indicator red"></span>
+                <div class="summary-label">总流入</div>
+                <div class="summary-value summary-value-red" id="totalInflow">849012.25</div>
+            </div>
+            <div class="summary-card">
+                <span class="summary-indicator green"></span>
+                <div class="summary-label">总流出</div>
+                <div class="summary-value summary-value-green" id="totalOutflow">954645.03</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">本月收入</div>
+                <div class="summary-value summary-value-blue" id="monthlyIncome">0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">本月支出</div>
+                <div class="summary-value summary-value-red" id="monthlyExpense">0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">总收入(含手续费)</div>
+                <div class="summary-value summary-value-blue" id="totalIncome">317601.25</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">总支出</div>
+                <div class="summary-value summary-value-red" id="totalExpense">954645.03</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">手续费</div>
+                <div class="summary-value summary-value-gray" id="serviceFee">0.00</div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>序号</th>
+                            <th class="sortable" data-sort="billDate">账单日期 ⇅</th>
+                            <th>类型</th>
+                            <th>类别</th>
+                            <th>金额</th>
+                            <th>支付账户</th>
+                            <th>往来单位</th>
+                            <th>项目</th>
+                            <th>部门</th>
+                            <th>经手人</th>
+                            <th class="sortable" data-sort="entryTime">录入时间 ⇅</th>
+                            <th>附件</th>
+                            <th>审核状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const incomeExpenseData = [
+            {
+                id: 1,
+                type: 'income',
+                billDate: '2024-04-02',
+                category: '销售收入',
+                amount: 3557.00,
+                account: '现金账户',
+                partner: '政府机关',
+                project: '项目A',
+                department: '销售部',
+                handler: '张三',
+                entryTime: '2024-04-02 10:30:00',
+                hasAttachment: true,
+                auditStatus: '已审核',
+                voucherNo: '202404021360',
+                recorder: '李四',
+                remark: '第一季度销售收入',
+                accountInfo: '分账信息：销售部50%，财务部50%'
+            },
+            {
+                id: 2,
+                type: 'income',
+                billDate: '2024-04-01',
+                category: '服务收入',
+                amount: 240.00,
+                account: '银行账户',
+                partner: 'XX企业',
+                project: '项目B',
+                department: '服务部',
+                handler: '王五',
+                entryTime: '2024-04-01 14:20:00',
+                hasAttachment: false,
+                auditStatus: '已审核',
+                voucherNo: '202404011234',
+                recorder: '赵六',
+                remark: '咨询服务费',
+                accountInfo: '分账信息：服务部100%'
+            },
+            {
+                id: 3,
+                type: 'income',
+                billDate: '2024-03-30',
+                category: '其他收入',
+                amount: 1200.00,
+                account: '支付宝账户',
+                partner: '个人客户',
+                project: '',
+                department: '财务部',
+                handler: '张三',
+                entryTime: '2024-03-30 09:15:00',
+                hasAttachment: true,
+                auditStatus: '待审核',
+                voucherNo: '202403301567',
+                recorder: '李四',
+                remark: '其他业务收入',
+                accountInfo: ''
+            },
+            {
+                id: 4,
+                type: 'expense',
+                billDate: '2024-04-03',
+                category: '采购支出',
+                amount: 8500.00,
+                account: '银行账户',
+                partner: '供应商A',
+                project: '项目A',
+                department: '采购部',
+                handler: '李四',
+                entryTime: '2024-04-03 11:20:00',
+                hasAttachment: true,
+                auditStatus: '已审核',
+                voucherNo: '202404031001',
+                recorder: '王五',
+                remark: '原材料采购',
+                accountInfo: ''
+            },
+            {
+                id: 5,
+                type: 'expense',
+                billDate: '2024-04-02',
+                category: '工资支出',
+                amount: 45000.00,
+                account: '银行账户',
+                partner: '',
+                project: '',
+                department: '人事部',
+                handler: '赵六',
+                entryTime: '2024-04-02 09:00:00',
+                hasAttachment: false,
+                auditStatus: '已审核',
+                voucherNo: '202404021002',
+                recorder: '张三',
+                remark: '3月份员工工资',
+                accountInfo: ''
+            },
+            {
+                id: 6,
+                type: 'expense',
+                billDate: '2024-04-01',
+                category: '租金支出',
+                amount: 12000.00,
+                account: '银行账户',
+                partner: '房东',
+                project: '',
+                department: '行政部',
+                handler: '王五',
+                entryTime: '2024-04-01 10:15:00',
+                hasAttachment: true,
+                auditStatus: '已审核',
+                voucherNo: '202404011003',
+                recorder: '李四',
+                remark: '4月份办公室租金',
+                accountInfo: ''
+            },
+            {
+                id: 7,
+                type: 'expense',
+                billDate: '2024-03-31',
+                category: '水电费',
+                amount: 3500.00,
+                account: '银行账户',
+                partner: '电力公司',
+                project: '',
+                department: '行政部',
+                handler: '王五',
+                entryTime: '2024-03-31 14:30:00',
+                hasAttachment: false,
+                auditStatus: '待审核',
+                voucherNo: '202403311004',
+                recorder: '赵六',
+                remark: '3月份水电费',
+                accountInfo: ''
+            }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 20;
+        let sortField = '';
+        let sortOrder = '';
+        let selectedIds = new Set();
+        let expandedRows = new Set();
+        let filterType = '';
+        let filterCategory = '';
+
+        // 初始化
+        function init() {
+            renderTable();
+            updatePagination();
+            updateSummary();
+            bindEvents();
+        }
+
+        // 获取筛选后的数据
+        function getFilteredData() {
+            let filtered = incomeExpenseData;
+            
+            if (filterType) {
+                filtered = filtered.filter(item => item.type === filterType);
+            }
+            
+            if (filterCategory) {
+                filtered = filtered.filter(item => item.category === filterCategory);
+            }
+            
+            return filtered;
+        }
+
+        // 更新统计摘要
+        function updateSummary() {
+            const filteredData = getFilteredData();
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            
+            // 计算总流入（收入）
+            const totalInflow = incomeExpenseData
+                .filter(item => item.type === 'income')
+                .reduce((sum, item) => sum + item.amount, 0);
+            
+            // 计算总流出（支出）
+            const totalOutflow = incomeExpenseData
+                .filter(item => item.type === 'expense')
+                .reduce((sum, item) => sum + item.amount, 0);
+            
+            // 计算实时余额
+            const realTimeBalance = totalInflow - totalOutflow;
+            
+            // 计算本月收入
+            const monthlyIncome = incomeExpenseData
+                .filter(item => {
+                    if (item.type !== 'income') return false;
+                    const date = new Date(item.billDate);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                })
+                .reduce((sum, item) => sum + item.amount, 0);
+            
+            // 计算本月支出
+            const monthlyExpense = incomeExpenseData
+                .filter(item => {
+                    if (item.type !== 'expense') return false;
+                    const date = new Date(item.billDate);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                })
+                .reduce((sum, item) => sum + item.amount, 0);
+            
+            // 计算总收入
+            const totalIncome = totalInflow;
+            
+            // 计算总支出
+            const totalExpense = totalOutflow;
+            
+            // 更新显示
+            document.getElementById('realTimeBalance').textContent = realTimeBalance.toFixed(2);
+            document.getElementById('totalInflow').textContent = totalInflow.toFixed(2);
+            document.getElementById('totalOutflow').textContent = totalOutflow.toFixed(2);
+            document.getElementById('monthlyIncome').textContent = monthlyIncome.toFixed(2);
+            document.getElementById('monthlyExpense').textContent = monthlyExpense.toFixed(2);
+            document.getElementById('totalIncome').textContent = totalIncome.toFixed(2);
+            document.getElementById('totalExpense').textContent = totalExpense.toFixed(2);
+            
+            // 实时余额颜色
+            const balanceElement = document.getElementById('realTimeBalance');
+            balanceElement.className = 'summary-value ' + (realTimeBalance >= 0 ? 'summary-value-blue' : 'summary-value-red');
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            const filteredData = getFilteredData();
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const isExpanded = expandedRows.has(item.id);
+                if (isExpanded) {
+                    row.classList.add('expanded');
+                }
+
+                const seqNum = startIndex + index + 1;
+                const typeText = item.type === 'income' ? '收入' : '支出';
+                const typeClass = item.type === 'income' ? 'income' : 'expense';
+                const seqType = item.type === 'income' ? '收' : '支';
+
+                row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${item.id}">
+                    </td>
+                    <td>
+                        <div class="seq-cell">
+                            <span>${seqNum}</span>
+                            <span class="seq-type">${seqType}</span>
+                        </div>
+                    </td>
+                    <td>${item.billDate}</td>
+                    <td><span class="type-tag ${typeClass}">${typeText}</span></td>
+                    <td><span class="category-tag">${item.category}</span></td>
+                    <td><span class="amount-link" onclick="viewAmountDetail(${item.id})">${item.amount.toFixed(2)}</span></td>
+                    <td>${item.account}</td>
+                    <td>${item.partner || '-'}</td>
+                    <td>${item.project || '-'}</td>
+                    <td>${item.department}</td>
+                    <td>${item.handler}</td>
+                    <td>${item.entryTime}</td>
+                    <td>
+                        ${item.hasAttachment ? '<span class="attachment-icon" title="有附件">📎</span>' : '-'}
+                    </td>
+                    <td><span class="status-tag">${item.auditStatus}</span></td>
+                    <td>
+                        <button class="action-menu-btn" onclick="showActionMenu(${item.id})" title="更多操作">≡</button>
+                    </td>
+                `;
+
+                // 添加行展开详情
+                const detailRow = document.createElement('tr');
+                detailRow.className = 'row-detail' + (isExpanded ? ' show' : '');
+                detailRow.innerHTML = `
+                    <td colspan="14">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">凭证号</div>
+                                <div class="detail-value">${item.voucherNo}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">录入员</div>
+                                <div class="detail-value">${item.recorder}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">详细事项</div>
+                                <div class="detail-value">${item.remark}</div>
+                            </div>
+                            ${item.accountInfo ? `
+                            <div class="detail-item">
+                                <div class="detail-label">分账信息</div>
+                                <div class="detail-value">${item.accountInfo}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+
+                // 点击行展开/收起
+                row.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox' && !e.target.closest('.action-menu-btn')) {
+                        toggleRowExpand(item.id);
+                    }
+                });
+
+                tbody.appendChild(row);
+                tbody.appendChild(detailRow);
+            });
+
+            updateSelectedInfo();
+        }
+
+        // 切换行展开
+        function toggleRowExpand(id) {
+            if (expandedRows.has(id)) {
+                expandedRows.delete(id);
+            } else {
+                expandedRows.add(id);
+            }
+            renderTable();
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const filteredData = getFilteredData();
+            const totalRecords = filteredData.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            document.getElementById('totalRecords').textContent = totalRecords;
+
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'pagination-page-btn' + (i === currentPage ? ' active' : '');
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                    updatePagination();
+                };
+                paginationPages.appendChild(btn);
+            }
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 全选
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checked = this.checked;
+                document.querySelectorAll('.row-checkbox').forEach(cb => {
+                    cb.checked = checked;
+                    if (checked) {
+                        selectedIds.add(parseInt(cb.dataset.id));
+                    } else {
+                        selectedIds.delete(parseInt(cb.dataset.id));
+                    }
+                });
+                document.getElementById('bottomSelectAll').checked = checked;
+                updateSelectedInfo();
+            });
+
+            document.getElementById('bottomSelectAll').addEventListener('change', function() {
+                document.getElementById('selectAll').checked = this.checked;
+                document.getElementById('selectAll').dispatchEvent(new Event('change'));
+            });
+
+            // 行复选框
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('row-checkbox')) {
+                    const id = parseInt(e.target.dataset.id);
+                    if (e.target.checked) {
+                        selectedIds.add(id);
+                    } else {
+                        selectedIds.delete(id);
+                    }
+                    updateSelectAllState();
+                    updateSelectedInfo();
+                }
+            });
+
+            // 排序
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    if (sortField === field) {
+                        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortField = field;
+                        sortOrder = 'asc';
+                    }
+                    // 更新排序图标
+                    document.querySelectorAll('th.sortable').forEach(t => {
+                        t.classList.remove('asc', 'desc');
+                    });
+                    this.classList.add(sortOrder);
+                    // 这里可以添加排序逻辑
+                    renderTable();
+                });
+            });
+
+            // 更多搜索
+            document.getElementById('moreSearchToggle').addEventListener('click', function() {
+                const section = document.getElementById('moreSearchSection');
+                section.classList.toggle('show');
+                this.textContent = section.classList.contains('show') ? '收起搜索' : '更多搜索';
+            });
+
+            // 筛选类型
+            document.getElementById('typeSelect').addEventListener('change', function() {
+                filterType = this.value;
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateSummary();
+            });
+
+            // 筛选类别
+            document.getElementById('categorySelect').addEventListener('change', function() {
+                filterCategory = this.value;
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateSummary();
+            });
+
+            // 搜索
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                // 这里可以添加搜索逻辑
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateSummary();
+            });
+
+            // 分页大小
+            document.getElementById('pageSizeSelect').addEventListener('change', function() {
+                pageSize = parseInt(this.value);
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+            });
+
+            // 跳转页面
+            document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const page = parseInt(this.value);
+                    const filteredData = getFilteredData();
+                    const totalPages = Math.ceil(filteredData.length / pageSize);
+                    if (page >= 1 && page <= totalPages) {
+                        currentPage = page;
+                        renderTable();
+                        updatePagination();
+                    }
+                }
+            });
+
+            // 按钮事件
+            document.getElementById('addIncomeBtn').addEventListener('click', () => {
+                alert('新增收入功能');
+            });
+
+            document.getElementById('addExpenseBtn').addEventListener('click', () => {
+                alert('新增支出功能');
+            });
+
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                alert('导出功能');
+            });
+
+            document.getElementById('importBtn').addEventListener('click', () => {
+                alert('导入功能');
+            });
+
+            document.getElementById('printListBtn').addEventListener('click', () => {
+                alert('打印列表功能');
+            });
+
+            document.getElementById('printVoucherBtn').addEventListener('click', () => {
+                if (selectedIds.size === 0) {
+                    alert('请先选择要打印的凭证');
+                    return;
+                }
+                alert(`打印 ${selectedIds.size} 条凭证`);
+            });
+
+            document.getElementById('customAttrBtn').addEventListener('click', () => {
+                alert('收支自定义属性功能');
+            });
+
+            document.getElementById('summaryBtn').addEventListener('click', () => {
+                const filteredData = getFilteredData();
+                const incomeTotal = filteredData.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0);
+                const expenseTotal = filteredData.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0);
+                alert(`收支汇总统计：\n总收入：${incomeTotal.toFixed(2)} 元\n总支出：${expenseTotal.toFixed(2)} 元\n净余额：${(incomeTotal - expenseTotal).toFixed(2)} 元`);
+            });
+        }
+
+        // 更新全选状态
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selectAll').checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+            document.getElementById('bottomSelectAll').checked = document.getElementById('selectAll').checked;
+        }
+
+        // 更新选中信息
+        function updateSelectedInfo() {
+            document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
+        }
+
+        // 查看金额详情
+        function viewAmountDetail(id) {
+            const item = incomeExpenseData.find(d => d.id === id);
+            if (item) {
+                alert(`金额详情：${item.amount.toFixed(2)} 元\n凭证号：${item.voucherNo}\n${item.remark}`);
+            }
+        }
+
+        // 显示操作菜单
+        function showActionMenu(id) {
+            const actions = ['编辑', '删除', '审核', '查看详情'];
+            const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
+            if (action) {
+                const index = parseInt(action) - 1;
+                if (index >= 0 && index < actions.length) {
+                    alert(`执行操作：${actions[index]} (ID: ${id})`);
+                }
+            }
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

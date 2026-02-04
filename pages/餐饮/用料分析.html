@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用料分析 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/用料分析.css">
+</head>
+<body class="ingredient-analysis-body">
+    <div class="ingredient-analysis-container">
+        <!-- 页面标题 -->
+        <div class="ingredient-analysis-header">
+            <h1 class="ingredient-analysis-title">用料分析</h1>
+            <p class="ingredient-analysis-subtitle">分析菜品销售情况，计算原料消耗量，用于采购和库存管理</p>
+        </div>
+
+        <!-- 筛选条件区域 -->
+        <div class="ingredient-analysis-filters">
+            <div class="ingredient-analysis-filter-row">
+                <div class="ingredient-analysis-filter-group">
+                    <label class="ingredient-analysis-filter-label">时间范围：</label>
+                    <input type="date" class="ingredient-analysis-filter-input" id="startDateInput" value="2026-02-01">
+                    <span class="ingredient-analysis-filter-separator">至</span>
+                    <input type="date" class="ingredient-analysis-filter-input" id="endDateInput" value="2026-02-03">
+                </div>
+                <div class="ingredient-analysis-filter-group">
+                    <label class="ingredient-analysis-filter-label">分类筛选：</label>
+                    <select class="ingredient-analysis-filter-select" id="categoryFilterSelect">
+                        <option value="all">所有分类</option>
+                        <option value="chinese">中餐</option>
+                        <option value="rainbow">彩虹斗酒</option>
+                        <option value="special">特色斗酒</option>
+                        <option value="wine">洋酒香槟</option>
+                        <option value="beer">啤酒</option>
+                        <option value="snack">小吃系列</option>
+                        <option value="other">其他系列</option>
+                        <option value="package">优惠套餐</option>
+                    </select>
+                </div>
+                <div class="ingredient-analysis-filter-group">
+                    <label class="ingredient-analysis-filter-label">菜品搜索：</label>
+                    <input type="text" class="ingredient-analysis-filter-input" id="productSearchInput" placeholder="搜索菜品名称">
+                </div>
+                <button class="ingredient-analysis-btn ingredient-analysis-btn-primary" id="analyzeBtn">分析</button>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="ingredient-analysis-summary-row">
+            <div class="ingredient-analysis-summary-card">
+                <div class="ingredient-analysis-summary-label">销售总额 (元)</div>
+                <div class="ingredient-analysis-summary-value ingredient-analysis-summary-value-blue">
+                    <span id="summaryTotalAmount">0.00</span>
+                </div>
+            </div>
+            <div class="ingredient-analysis-summary-card">
+                <div class="ingredient-analysis-summary-label">销售菜品数</div>
+                <div class="ingredient-analysis-summary-value ingredient-analysis-summary-value-green">
+                    <span id="summaryProductCount">0</span>
+                </div>
+            </div>
+            <div class="ingredient-analysis-summary-card">
+                <div class="ingredient-analysis-summary-label">原料种类数</div>
+                <div class="ingredient-analysis-summary-value ingredient-analysis-summary-value-red">
+                    <span id="summaryIngredientCount">0</span>
+                </div>
+            </div>
+            <div class="ingredient-analysis-summary-card">
+                <div class="ingredient-analysis-summary-label">总原料消耗</div>
+                <div class="ingredient-analysis-summary-value ingredient-analysis-summary-value-blue">
+                    <span id="summaryTotalConsumption">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="ingredient-analysis-toolbar">
+            <div class="ingredient-analysis-toolbar-left">
+                <button class="ingredient-analysis-btn ingredient-analysis-btn-outline" id="exportBtn">
+                    <span class="ingredient-analysis-btn-icon">↑</span>
+                    导出分析结果
+                </button>
+                <button class="ingredient-analysis-btn ingredient-analysis-btn-outline" id="exportDetailBtn">
+                    <span class="ingredient-analysis-btn-icon">↑</span>
+                    导出详细报表
+                </button>
+            </div>
+            <div class="ingredient-analysis-toolbar-right">
+                <label class="ingredient-analysis-view-toggle">
+                    <input type="radio" name="viewMode" value="product" checked>
+                    <span>按菜品</span>
+                </label>
+                <label class="ingredient-analysis-view-toggle">
+                    <input type="radio" name="viewMode" value="ingredient">
+                    <span>按原料</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- 分析结果表格 -->
+        <div class="ingredient-analysis-table-section">
+            <div class="ingredient-analysis-table-wrapper">
+                <!-- 按菜品视图 -->
+                <table class="ingredient-analysis-table" id="productViewTable">
+                    <thead>
+                        <tr>
+                            <th>菜品名称</th>
+                            <th>分类</th>
+                            <th class="text-right">销售数量</th>
+                            <th class="text-right">销售金额</th>
+                            <th>原料消耗</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productViewTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+
+                <!-- 按原料视图 -->
+                <table class="ingredient-analysis-table" id="ingredientViewTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>原料名称</th>
+                            <th>单位</th>
+                            <th class="text-right">总消耗量</th>
+                            <th>使用菜品</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ingredientViewTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 底部分页器 -->
+        <div class="ingredient-analysis-pagination">
+            <div class="ingredient-analysis-pagination-left">
+                <span class="ingredient-analysis-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+            </div>
+            <div class="ingredient-analysis-pagination-right">
+                <button class="ingredient-analysis-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                <div class="ingredient-analysis-pagination-pages" id="paginationPages">
+                    <!-- JS 渲染 -->
+                </div>
+                <button class="ingredient-analysis-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                <span class="ingredient-analysis-pagination-info">每页显示</span>
+                <select class="ingredient-analysis-pagination-select" id="pageSizeSelect">
+                    <option value="20" selected>20 条/页</option>
+                    <option value="50">50 条/页</option>
+                    <option value="100">100 条/页</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="ingredient-analysis-modal" id="detailModal" style="display: none;">
+        <div class="ingredient-analysis-modal-backdrop" onclick="closeDetailModal()"></div>
+        <div class="ingredient-analysis-modal-content ingredient-analysis-modal-large">
+            <div class="ingredient-analysis-modal-header">
+                <h2 class="ingredient-analysis-modal-title" id="detailModalTitle">详情</h2>
+                <button class="ingredient-analysis-modal-close" onclick="closeDetailModal()">×</button>
+            </div>
+            <div class="ingredient-analysis-modal-body">
+                <div id="detailModalContent">
+                    <!-- JS 渲染 -->
+                </div>
+            </div>
+            <div class="ingredient-analysis-modal-footer">
+                <button class="ingredient-analysis-btn ingredient-analysis-btn-cancel" onclick="closeDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/用料分析.js"></script>
+</body>
+</html>

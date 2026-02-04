@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品标签 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/商品标签.css">
+</head>
+<body class="tag-list-body">
+    <div class="tag-list-container">
+        <!-- 搜索栏 -->
+        <div class="tag-list-toolbar">
+            <div class="tag-list-search-section">
+                <label class="tag-list-search-label">标签名称:</label>
+                <input type="text" class="tag-list-search-input" id="tagSearchInput" placeholder="请输入标签名称查询">
+                <button class="tag-list-btn tag-list-btn-primary" id="searchBtn">
+                    <span class="tag-list-btn-icon">🔍</span>
+                    搜索
+                </button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="tag-list-actions">
+            <button class="tag-list-btn tag-list-btn-primary" id="createTagBtn">
+                <span class="tag-list-btn-icon">+</span>
+                新建标签
+            </button>
+            <button class="tag-list-btn tag-list-btn-outline" id="batchDeleteBtn">
+                <span class="tag-list-btn-icon">🗑️</span>
+                批量删除
+            </button>
+        </div>
+
+        <!-- 标签列表表格 -->
+        <div class="tag-list-table-section">
+            <div class="tag-list-table-wrapper">
+                <table class="tag-list-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label class="tag-list-checkbox-label">
+                                    <input type="checkbox" id="selectAllCheckbox">
+                                </label>
+                            </th>
+                            <th>排序</th>
+                            <th>标签名称</th>
+                            <th>字体颜色</th>
+                            <th>背景颜色</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tagTableBody">
+                        <!-- 标签数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建标签弹窗 -->
+    <div class="tag-list-modal" id="createTagModal" style="display: none;">
+        <div class="tag-list-modal-backdrop" onclick="closeCreateTagModal()"></div>
+        <div class="tag-list-modal-content">
+            <div class="tag-list-modal-header">
+                <h3 class="tag-list-modal-title">新建标签</h3>
+                <button class="tag-list-modal-close" onclick="closeCreateTagModal()">×</button>
+            </div>
+            <div class="tag-list-modal-body">
+                <!-- 排序 -->
+                <div class="tag-list-form-group">
+                    <label class="tag-list-form-label">排序</label>
+                    <input type="number" class="tag-list-form-input" id="tagSortInput" value="1" min="0">
+                </div>
+
+                <!-- 标签名称 -->
+                <div class="tag-list-form-group">
+                    <label class="tag-list-form-label">标签名称</label>
+                    <input type="text" class="tag-list-form-input" id="tagNameInput" placeholder="请输入标签名称">
+                </div>
+
+                <!-- 字体颜色 -->
+                <div class="tag-list-form-group">
+                    <label class="tag-list-form-label">字体颜色</label>
+                    <div class="tag-list-color-picker">
+                        <div class="tag-list-color-display">
+                            <span class="tag-list-color-box" id="fontColorBox" style="background-color: #fff;"></span>
+                            <span class="tag-list-color-text" id="fontColorText">#fff</span>
+                        </div>
+                        <input type="color" class="tag-list-color-input" id="fontColorInput" value="#ffffff">
+                    </div>
+                </div>
+
+                <!-- 背景颜色 -->
+                <div class="tag-list-form-group">
+                    <label class="tag-list-form-label">背景颜色</label>
+                    <div class="tag-list-color-picker">
+                        <div class="tag-list-color-display">
+                            <span class="tag-list-color-box" id="bgColorBox" style="background-color: #000;"></span>
+                            <span class="tag-list-color-text" id="bgColorText">#000</span>
+                        </div>
+                        <input type="color" class="tag-list-color-input" id="bgColorInput" value="#000000">
+                    </div>
+                </div>
+
+                <!-- 适用商品 -->
+                <div class="tag-list-form-group">
+                    <label class="tag-list-form-label">适用商品</label>
+                    <input type="text" class="tag-list-form-input" id="tagProductsInput" placeholder="请选择商品" readonly>
+                </div>
+            </div>
+            <div class="tag-list-modal-footer">
+                <button class="tag-list-btn tag-list-btn-cancel" onclick="closeCreateTagModal()">取消</button>
+                <button class="tag-list-btn tag-list-btn-primary" onclick="saveTag()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/商品标签.js"></script>
+</body>
+</html>

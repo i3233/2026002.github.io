@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单设置 - 餐饮</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/餐饮订单设置.css">
+</head>
+<body class="catering-order-settings-page">
+    <div class="catering-order-settings-container">
+        <!-- 页面标题 -->
+        <div class="catering-order-settings-header">
+            <div>
+                <h1 class="catering-order-settings-title">订单设置</h1>
+                <div class="catering-order-settings-subtitle">配置餐饮订单相关的系统设置和默认参数</div>
+            </div>
+        </div>
+
+        <!-- 订单基础设置 -->
+        <div class="catering-order-settings-card">
+            <div class="catering-order-settings-card-header">
+                <div>
+                    <h3 class="catering-order-settings-card-title">订单基础设置</h3>
+                    <div class="catering-order-settings-card-desc">设置订单的基础默认值和生成规则</div>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        订单号生成规则
+                        <span class="catering-order-help-icon" title="设置订单号的生成规则">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">设置订单号的生成规则，支持日期、序号等变量</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <select class="catering-order-form-select catering-order-form-input--medium" id="orderNoRule">
+                        <option value="dateSeq" selected>日期+序号（如：DD20260131001）</option>
+                        <option value="dateTimeSeq">日期时间+序号（如：DD20260131120001）</option>
+                        <option value="random">随机号（如：RND123456789）</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        订单号前缀
+                        <span class="catering-order-help-icon" title="订单号的前缀">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">设置订单号的前缀标识</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <input type="text" class="catering-order-form-input catering-order-form-input--small" id="orderNoPrefix" value="DD" placeholder="DD">
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        订单自动取消时间（分钟）
+                        <span class="catering-order-help-icon" title="未支付订单自动取消的时间">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">设置未支付订单自动取消的时间（0表示不自动取消）</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <input type="number" class="catering-order-form-input catering-order-form-input--small" id="autoCancelMinutes" value="30" min="0">
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        启用订单备注
+                        <span class="catering-order-help-icon" title="是否允许订单添加备注">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，创建订单时可以添加备注信息（如：不要香菜、少辣等）</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enableOrderRemark" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 桌台订单设置 -->
+        <div class="catering-order-settings-card">
+            <div class="catering-order-settings-card-header">
+                <div>
+                    <h3 class="catering-order-settings-card-title">桌台订单设置</h3>
+                    <div class="catering-order-settings-card-desc">设置桌台订单相关的规则</div>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        启用桌台订单
+                        <span class="catering-order-help-icon" title="是否启用桌台订单功能">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，支持通过桌台号创建订单</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enableTableOrder" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        必须选择桌台
+                        <span class="catering-order-help-icon" title="创建桌台订单时是否必须选择桌台">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，创建桌台订单时必须选择桌台号</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="requireTableNo" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        启用用餐人数
+                        <span class="catering-order-help-icon" title="是否记录用餐人数">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，创建订单时可以记录用餐人数</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enableGuestCount" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 扫码点餐设置 -->
+        <div class="catering-order-settings-card">
+            <div class="catering-order-settings-card-header">
+                <div>
+                    <h3 class="catering-order-settings-card-title">扫码点餐设置</h3>
+                    <div class="catering-order-settings-card-desc">设置扫码点餐相关的规则</div>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        启用扫码点餐
+                        <span class="catering-order-help-icon" title="是否启用扫码点餐功能">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，顾客可以通过扫描桌台二维码进行点餐</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enableScanOrder" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        扫码点餐自动绑定桌台
+                        <span class="catering-order-help-icon" title="扫码点餐时是否自动绑定桌台">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，扫码点餐时自动绑定对应的桌台</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="autoBindTable" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        扫码点餐需登录
+                        <span class="catering-order-help-icon" title="扫码点餐是否需要登录">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，扫码点餐需要先登录会员账号</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="requireLoginForScan">
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单状态设置 -->
+        <div class="catering-order-settings-card">
+            <div class="catering-order-settings-card-header">
+                <div>
+                    <h3 class="catering-order-settings-card-title">订单状态设置</h3>
+                    <div class="catering-order-settings-card-desc">设置订单状态流转规则</div>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        启用待制作状态
+                        <span class="catering-order-help-icon" title="是否启用待制作状态">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，订单支付后进入待制作状态，需要手动开始制作</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enablePendingMake" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        启用制作中状态
+                        <span class="catering-order-help-icon" title="是否启用制作中状态">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，订单开始制作后进入制作中状态</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enableMaking" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-order-setting-item">
+                <div class="catering-order-setting-item-left">
+                    <div class="catering-order-setting-item-label">
+                        订单完成自动通知
+                        <span class="catering-order-help-icon" title="订单完成时是否自动通知">?</span>
+                    </div>
+                    <div class="catering-order-setting-item-desc">开启后，订单完成时自动发送通知（如：短信、小程序消息等）</div>
+                </div>
+                <div class="catering-order-setting-item-right">
+                    <label class="catering-order-toggle-switch">
+                        <input type="checkbox" id="enableAutoNotify" checked>
+                        <span class="catering-order-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="catering-order-settings-actions">
+            <button class="catering-order-btn catering-order-btn-outline" id="resetBtn">重置</button>
+            <button class="catering-order-btn catering-order-btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script src="../../../js/餐饮订单设置.js"></script>
+</body>
+</html>

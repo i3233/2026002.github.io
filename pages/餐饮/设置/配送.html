@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配送设置 - 餐饮</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/餐饮配送设置.css">
+</head>
+<body class="catering-delivery-settings-page">
+    <div class="catering-delivery-settings-container">
+        <!-- 页面标题 -->
+        <div class="catering-delivery-settings-header">
+            <div>
+                <h1 class="catering-delivery-settings-title">配送设置</h1>
+                <div class="catering-delivery-settings-subtitle">配置餐饮配送相关的系统设置和配送规则</div>
+            </div>
+        </div>
+
+        <!-- 配送方式设置 -->
+        <div class="catering-delivery-settings-card">
+            <div class="catering-delivery-settings-card-header">
+                <div>
+                    <h3 class="catering-delivery-settings-card-title">配送方式设置</h3>
+                    <div class="catering-delivery-settings-card-desc">启用或禁用各种配送方式</div>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        启用外卖配送
+                        <span class="catering-delivery-help-icon" title="是否启用外卖配送方式">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，订单可以使用外卖配送（适用于线上订单）</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="enableTakeout" checked>
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        启用门店自提
+                        <span class="catering-delivery-help-icon" title="是否启用门店自提方式">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，订单可以选择门店自提</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="enableSelfPickup" checked>
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        启用同城配送
+                        <span class="catering-delivery-help-icon" title="是否启用同城配送方式">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，订单可以使用同城配送（自有配送团队）</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="enableLocalDelivery" checked>
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        默认配送方式
+                        <span class="catering-delivery-help-icon" title="订单的默认配送方式">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">设置订单的默认配送方式</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <select class="catering-delivery-form-select catering-delivery-form-input--medium" id="defaultDeliveryMethod">
+                        <option value="takeout" selected>外卖配送</option>
+                        <option value="selfPickup">门店自提</option>
+                        <option value="localDelivery">同城配送</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送费用设置 -->
+        <div class="catering-delivery-settings-card">
+            <div class="catering-delivery-settings-card-header">
+                <div>
+                    <h3 class="catering-delivery-settings-card-title">配送费用设置</h3>
+                    <div class="catering-delivery-settings-card-desc">设置配送费用的计算规则</div>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        启用包邮功能
+                        <span class="catering-delivery-help-icon" title="是否启用包邮功能">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，可以设置订单满额包邮</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="enableFreeShipping" checked>
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        包邮金额（元）
+                        <span class="catering-delivery-help-icon" title="订单满此金额即可包邮">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">设置订单满此金额即可包邮（0表示不包邮）</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <input type="number" class="catering-delivery-form-input catering-delivery-form-input--small" id="freeShippingAmount" value="99" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        默认配送费（元）
+                        <span class="catering-delivery-help-icon" title="订单的默认配送费用">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">设置订单的默认配送费用</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <input type="number" class="catering-delivery-form-input catering-delivery-form-input--small" id="defaultShippingFee" value="5" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        配送费计算方式
+                        <span class="catering-delivery-help-icon" title="配送费的计算方式">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">选择配送费的计算方式</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <select class="catering-delivery-form-select catering-delivery-form-input--medium" id="shippingFeeCalculation">
+                        <option value="fixed" selected>固定配送费</option>
+                        <option value="distance">按距离计算</option>
+                        <option value="weight">按重量计算</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        门店自提免费
+                        <span class="catering-delivery-help-icon" title="门店自提是否免费">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，门店自提不收取配送费用</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="selfPickupFree" checked>
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送时间设置 -->
+        <div class="catering-delivery-settings-card">
+            <div class="catering-delivery-settings-card-header">
+                <div>
+                    <h3 class="catering-delivery-settings-card-title">配送时间设置</h3>
+                    <div class="catering-delivery-settings-card-desc">设置配送时间相关的规则</div>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        启用预约配送
+                        <span class="catering-delivery-help-icon" title="是否启用预约配送功能">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，顾客可以选择预约配送时间</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="enableScheduledDelivery" checked>
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        默认配送时长（分钟）
+                        <span class="catering-delivery-help-icon" title="订单的默认配送时长">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">设置订单的默认配送时长（从下单到送达的时间）</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <input type="number" class="catering-delivery-form-input catering-delivery-form-input--small" id="defaultDeliveryTime" value="30" min="10">
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        配送时间范围
+                        <span class="catering-delivery-help-icon" title="可选择的配送时间范围">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">设置可选择的配送时间范围（如：30-60分钟）</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <input type="number" class="catering-delivery-form-input catering-delivery-form-input--small" id="minDeliveryTime" value="30" min="10" placeholder="最短">
+                    <span style="margin: 0 var(--spacing-xs);">-</span>
+                    <input type="number" class="catering-delivery-form-input catering-delivery-form-input--small" id="maxDeliveryTime" value="60" min="10" placeholder="最长">
+                    <span style="margin-left: var(--spacing-xs);">分钟</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送范围设置 -->
+        <div class="catering-delivery-settings-card">
+            <div class="catering-delivery-settings-card-header">
+                <div>
+                    <h3 class="catering-delivery-settings-card-title">配送范围设置</h3>
+                    <div class="catering-delivery-settings-card-desc">设置配送服务的覆盖范围</div>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        启用配送范围限制
+                        <span class="catering-delivery-help-icon" title="是否启用配送范围限制">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">开启后，只配送指定范围内的地址</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <label class="catering-delivery-toggle-switch">
+                        <input type="checkbox" id="enableDeliveryRange">
+                        <span class="catering-delivery-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-delivery-setting-item">
+                <div class="catering-delivery-setting-item-left">
+                    <div class="catering-delivery-setting-item-label">
+                        配送范围（公里）
+                        <span class="catering-delivery-help-icon" title="以门店为中心的配送范围">?</span>
+                    </div>
+                    <div class="catering-delivery-setting-item-desc">设置以门店为中心的配送范围（0表示不限制）</div>
+                </div>
+                <div class="catering-delivery-setting-item-right">
+                    <input type="number" class="catering-delivery-form-input catering-delivery-form-input--small" id="deliveryRange" value="0" min="0" step="0.1">
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="catering-delivery-settings-actions">
+            <button class="catering-delivery-btn catering-delivery-btn-outline" id="resetBtn">重置</button>
+            <button class="catering-delivery-btn catering-delivery-btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script src="../../../js/餐饮配送设置.js"></script>
+</body>
+</html>

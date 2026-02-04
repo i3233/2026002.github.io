@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收银员管理 - 收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银员.css">
+</head>
+<body class="cashier-staff-body">
+    <div class="cashier-staff-container">
+        <!-- 页面标题和操作栏 -->
+        <div class="cashier-staff-header">
+            <h1 class="cashier-staff-title">收银员管理</h1>
+            <div class="cashier-staff-actions">
+                <button class="cashier-btn cashier-btn-primary" id="addCashierBtn">添加收银员</button>
+            </div>
+        </div>
+
+        <!-- 筛选和搜索区 -->
+        <div class="cashier-staff-filters">
+            <!-- 状态筛选 -->
+            <div class="cashier-filter-group">
+                <label class="cashier-filter-label">状态：</label>
+                <div class="cashier-filter-buttons">
+                    <button class="cashier-filter-btn cashier-filter-btn-active" data-status="all">全部</button>
+                    <button class="cashier-filter-btn" data-status="active">在职</button>
+                    <button class="cashier-filter-btn" data-status="inactive">离职</button>
+                </div>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="cashier-search-wrapper">
+                <input type="text" class="cashier-search-input" id="cashierSearchInput" placeholder="🔍 搜索收银员姓名或工号">
+            </div>
+        </div>
+
+        <!-- 收银员列表表格 -->
+        <div class="cashier-staff-table-section">
+            <div class="cashier-table-wrapper">
+                <table class="cashier-table">
+                    <thead>
+                        <tr>
+                            <th>工号</th>
+                            <th>姓名</th>
+                            <th>手机号</th>
+                            <th>角色</th>
+                            <th>权限</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cashierTableBody">
+                        <!-- 收银员数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑收银员弹窗 -->
+    <div id="cashierModal" class="cashier-modal" style="display: none;">
+        <div class="cashier-modal-content">
+            <div class="cashier-modal-header">
+                <h3 id="cashierModalTitle">添加收银员</h3>
+                <button class="cashier-modal-close" onclick="closeCashierModal()">×</button>
+            </div>
+            <div class="cashier-modal-body">
+                <form id="cashierForm">
+                    <div class="cashier-form-group">
+                        <label>工号 <span class="cashier-required">*</span></label>
+                        <input type="text" class="cashier-input" id="cashierCode" placeholder="请输入工号" required>
+                        <span class="cashier-form-tip">工号将用于登录和识别</span>
+                    </div>
+
+                    <div class="cashier-form-group">
+                        <label>姓名 <span class="cashier-required">*</span></label>
+                        <input type="text" class="cashier-input" id="cashierName" placeholder="请输入姓名" required>
+                    </div>
+
+                    <div class="cashier-form-group">
+                        <label>手机号 <span class="cashier-required">*</span></label>
+                        <input type="tel" class="cashier-input" id="cashierPhone" placeholder="请输入手机号" required>
+                    </div>
+
+                    <div class="cashier-form-group">
+                        <label>角色 <span class="cashier-required">*</span></label>
+                        <select class="cashier-input" id="cashierRole" required>
+                            <option value="">请选择角色</option>
+                            <option value="cashier">收银员</option>
+                            <option value="manager">店长</option>
+                            <option value="supervisor">主管</option>
+                        </select>
+                    </div>
+
+                    <div class="cashier-form-group">
+                        <label>权限设置</label>
+                        <div class="cashier-permissions">
+                            <label class="cashier-checkbox-label">
+                                <input type="checkbox" value="order" checked>
+                                <span>订单管理</span>
+                            </label>
+                            <label class="cashier-checkbox-label">
+                                <input type="checkbox" value="refund" checked>
+                                <span>退单权限</span>
+                            </label>
+                            <label class="cashier-checkbox-label">
+                                <input type="checkbox" value="discount">
+                                <span>折扣权限</span>
+                            </label>
+                            <label class="cashier-checkbox-label">
+                                <input type="checkbox" value="delete">
+                                <span>删除订单</span>
+                            </label>
+                            <label class="cashier-checkbox-label">
+                                <input type="checkbox" value="report">
+                                <span>查看报表</span>
+                            </label>
+                            <label class="cashier-checkbox-label">
+                                <input type="checkbox" value="settings">
+                                <span>系统设置</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="cashier-form-group">
+                        <label>登录密码 <span class="cashier-required" id="passwordRequired">*</span></label>
+                        <input type="password" class="cashier-input" id="cashierPassword" placeholder="请输入登录密码">
+                        <span class="cashier-form-tip" id="passwordTip">留空则不修改密码</span>
+                    </div>
+
+                    <div class="cashier-form-group">
+                        <label>状态</label>
+                        <label class="cashier-switch">
+                            <input type="checkbox" id="cashierStatus" checked>
+                            <span class="cashier-switch-slider"></span>
+                            <span class="cashier-switch-label">启用</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="cashier-modal-footer">
+                <button class="cashier-btn cashier-btn-secondary" onclick="closeCashierModal()">取消</button>
+                <button class="cashier-btn cashier-btn-primary" onclick="saveCashier()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/收银员.js"></script>
+</body>
+</html>

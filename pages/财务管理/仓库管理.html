@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库管理 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .warehouse-settings-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .settings-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .settings-card-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item-left {
+            flex: 1;
+            margin-right: var(--spacing-lg);
+        }
+
+        .setting-item-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .setting-item-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .setting-item-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-shrink: 0;
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-switch input:disabled + .toggle-slider {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 输入框 */
+        .form-input,
+        .form-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-input--small {
+            width: 120px;
+        }
+
+        .form-input--medium {
+            width: 200px;
+        }
+
+        /* 操作按钮区域 */
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        /* 帮助图标 */
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--color-neutral-200);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+            cursor: help;
+            margin-left: var(--spacing-xs);
+        }
+
+        .help-icon:hover {
+            background-color: var(--color-primary);
+            color: #ffffff;
+        }
+
+        /* 警告提示 */
+        .warning-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ff9800;
+            margin-left: var(--spacing-xs);
+        }
+
+        /* 依赖关系提示 */
+        .dependency-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            font-style: italic;
+            margin-top: var(--spacing-xs);
+            padding-left: var(--spacing-md);
+        }
+
+        .dependency-hint::before {
+            content: '→ ';
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="warehouse-settings-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">仓库管理</h1>
+                <div class="page-subtitle">配置仓库相关的审核和验证规则</div>
+            </div>
+        </div>
+
+        <!-- 审核设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">审核设置</h2>
+                    <div class="settings-card-desc">设置哪些单据需要财务审核</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        采购入库需财务审核
+                        <span class="help-icon" title="开启后，采购入库单提交后需要财务审核通过才能完成入库">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，采购入库单提交后需要财务审核通过才能完成入库操作</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="purchaseStorageAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        采购退货需财务审核
+                        <span class="help-icon" title="开启后，采购退货单提交后需要财务审核通过才能完成退货">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，采购退货单提交后需要财务审核通过才能完成退货操作</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="purchaseReturnAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        调拨需财务审核
+                        <span class="help-icon" title="开启后，库存调拨单提交后需要财务审核通过才能执行调拨">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，库存调拨单提交后需要财务审核通过才能执行调拨操作</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="transferAudit">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        批发订单需财务审核
+                        <span class="help-icon" title="开启后，批发订单提交后需要财务审核通过才能打印拣货单">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，批发订单提交后需要财务审核通过才能打印拣货单</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wholesaleOrderAudit">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 条码验证设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">条码验证设置</h2>
+                    <div class="settings-card-desc">设置条码录入和验证规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        强制审条码
+                        <span class="warning-badge">重要</span>
+                        <span class="help-icon" title="开启后，采购入库和退货时必须录入并验证条码才能提交审核">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，采购入库和退货时必须为所有商品录入条码并验证通过后才能提交财务审核</div>
+                    <div class="dependency-hint">此设置仅对已开启财务审核的采购入库和退货单生效</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="forceBarcodeAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        条码匹配验证
+                        <span class="help-icon" title="开启后，扫描的条码必须与商品预设条码匹配才能通过验证">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，扫描的条码必须与商品预设条码完全匹配才能通过验证</div>
+                    <div class="dependency-hint">需要先开启"强制审条码"</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="barcodeMatchVerify" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        允许手动输入条码
+                        <span class="help-icon" title="开启后，除了扫描外，也允许手动输入条码">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，除了扫描条码外，也允许手动输入条码进行验证</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="allowManualBarcode" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        条码重复检查
+                        <span class="help-icon" title="开启后，同一单据中不允许录入重复的条码">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，同一单据中不允许录入重复的条码，防止重复扫描</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="barcodeDuplicateCheck" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 序列号验证设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">序列号验证设置</h2>
+                    <div class="settings-card-desc">设置序列号录入和验证规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        强制审序列号
+                        <span class="warning-badge">重要</span>
+                        <span class="help-icon" title="开启后，采购入库和退货时必须录入并验证序列号才能提交审核">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，采购入库和退货时必须为所有商品录入序列号并验证通过后才能提交财务审核</div>
+                    <div class="dependency-hint">此设置仅对已开启财务审核的采购入库和退货单生效</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="forceSerialAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        序列号格式验证
+                        <span class="help-icon" title="开启后，录入的序列号必须符合预设格式才能通过验证">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，录入的序列号必须符合预设格式规则才能通过验证</div>
+                    <div class="dependency-hint">需要先开启"强制审序列号"</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="serialFormatVerify">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        序列号唯一性检查
+                        <span class="help-icon" title="开启后，系统中不允许存在重复的序列号">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，系统中不允许存在重复的序列号，录入时会自动检查是否已存在</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="serialUniqueCheck" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        序列号格式规则
+                        <span class="help-icon" title="设置序列号的格式规则，如：长度、前缀、后缀等">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置序列号的格式规则，支持正则表达式</div>
+                    <div class="dependency-hint">需要先开启"序列号格式验证"</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="text" class="form-input form-input--medium" id="serialFormatRule" placeholder="例如：^[A-Z]{2}[0-9]{8}$" disabled>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">其他设置</h2>
+                    <div class="settings-card-desc">其他仓库管理相关设置</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        允许负库存
+                        <span class="help-icon" title="开启后，允许库存数量为负数">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，允许库存数量为负数，否则出库时如果库存不足将无法出库</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="allowNegativeStock">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        自动生成调拨单号
+                        <span class="help-icon" title="开启后，新增调拨单时自动生成单号">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，新增调拨单时自动生成调拨单号，否则需要手动输入</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoGenerateTransferNo" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        库存预警阈值
+                        <span class="help-icon" title="设置库存预警的阈值，低于此值时会显示预警">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置库存预警的阈值（百分比），当库存低于此值时会在库存查询页面显示预警</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="stockWarningThreshold" value="10" min="0" max="100">
+                    <span style="color: var(--color-text-secondary); margin-left: var(--spacing-xs);">%</span>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认仓库
+                        <span class="help-icon" title="设置默认使用的仓库">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新增单据时默认选择的仓库</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="defaultWarehouse">
+                        <option value="warehouse1" selected>批发库</option>
+                        <option value="warehouse2">零售库</option>
+                        <option value="warehouse3">临时库</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="settings-actions">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化设置值
+        const settings = {
+            purchaseStorageAudit: true,
+            purchaseReturnAudit: true,
+            transferAudit: false,
+            wholesaleOrderAudit: false,
+            forceBarcodeAudit: true,
+            barcodeMatchVerify: true,
+            allowManualBarcode: true,
+            barcodeDuplicateCheck: true,
+            forceSerialAudit: true,
+            serialFormatVerify: false,
+            serialUniqueCheck: true,
+            serialFormatRule: '',
+            allowNegativeStock: false,
+            autoGenerateTransferNo: true,
+            stockWarningThreshold: 10,
+            defaultWarehouse: 'warehouse1'
+        };
+
+        function init() {
+            // 加载设置值
+            loadSettings();
+            
+            // 绑定事件
+            bindEvents();
+        }
+
+        function loadSettings() {
+            // 从localStorage加载设置（实际应用中应该从服务器加载）
+            const savedSettings = localStorage.getItem('warehouseSettings');
+            if (savedSettings) {
+                Object.assign(settings, JSON.parse(savedSettings));
+            }
+
+            // 应用到界面
+            document.getElementById('purchaseStorageAudit').checked = settings.purchaseStorageAudit;
+            document.getElementById('purchaseReturnAudit').checked = settings.purchaseReturnAudit;
+            document.getElementById('transferAudit').checked = settings.transferAudit;
+            document.getElementById('wholesaleOrderAudit').checked = settings.wholesaleOrderAudit;
+            document.getElementById('forceBarcodeAudit').checked = settings.forceBarcodeAudit;
+            document.getElementById('barcodeMatchVerify').checked = settings.barcodeMatchVerify;
+            document.getElementById('allowManualBarcode').checked = settings.allowManualBarcode;
+            document.getElementById('barcodeDuplicateCheck').checked = settings.barcodeDuplicateCheck;
+            document.getElementById('forceSerialAudit').checked = settings.forceSerialAudit;
+            document.getElementById('serialFormatVerify').checked = settings.serialFormatVerify;
+            document.getElementById('serialUniqueCheck').checked = settings.serialUniqueCheck;
+            document.getElementById('serialFormatRule').value = settings.serialFormatRule;
+            document.getElementById('allowNegativeStock').checked = settings.allowNegativeStock;
+            document.getElementById('autoGenerateTransferNo').checked = settings.autoGenerateTransferNo;
+            document.getElementById('stockWarningThreshold').value = settings.stockWarningThreshold;
+            document.getElementById('defaultWarehouse').value = settings.defaultWarehouse;
+
+            // 更新依赖关系
+            updateDependencies();
+        }
+
+        function updateDependencies() {
+            const forceBarcodeAudit = document.getElementById('forceBarcodeAudit').checked;
+            const purchaseStorageAudit = document.getElementById('purchaseStorageAudit').checked;
+            const purchaseReturnAudit = document.getElementById('purchaseReturnAudit').checked;
+            const forceSerialAudit = document.getElementById('forceSerialAudit').checked;
+            const serialFormatVerify = document.getElementById('serialFormatVerify').checked;
+
+            // 条码匹配验证依赖强制审条码
+            const barcodeMatchVerify = document.getElementById('barcodeMatchVerify');
+            barcodeMatchVerify.disabled = !forceBarcodeAudit;
+            if (!forceBarcodeAudit) {
+                barcodeMatchVerify.checked = false;
+            }
+
+            // 序列号格式验证依赖强制审序列号
+            const serialFormatRule = document.getElementById('serialFormatRule');
+            serialFormatRule.disabled = !serialFormatVerify;
+            if (!serialFormatVerify) {
+                serialFormatRule.value = '';
+            }
+
+            // 强制审条码和序列号需要采购入库或退货审核开启
+            if (!purchaseStorageAudit && !purchaseReturnAudit) {
+                if (forceBarcodeAudit) {
+                    alert('提示：采购入库和退货审核都未开启，强制审条码设置将不会生效');
+                }
+                if (forceSerialAudit) {
+                    alert('提示：采购入库和退货审核都未开启，强制审序列号设置将不会生效');
+                }
+            }
+        }
+
+        function bindEvents() {
+            // 保存按钮
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                // 收集设置值
+                settings.purchaseStorageAudit = document.getElementById('purchaseStorageAudit').checked;
+                settings.purchaseReturnAudit = document.getElementById('purchaseReturnAudit').checked;
+                settings.transferAudit = document.getElementById('transferAudit').checked;
+                settings.wholesaleOrderAudit = document.getElementById('wholesaleOrderAudit').checked;
+                settings.forceBarcodeAudit = document.getElementById('forceBarcodeAudit').checked;
+                settings.barcodeMatchVerify = document.getElementById('barcodeMatchVerify').checked;
+                settings.allowManualBarcode = document.getElementById('allowManualBarcode').checked;
+                settings.barcodeDuplicateCheck = document.getElementById('barcodeDuplicateCheck').checked;
+                settings.forceSerialAudit = document.getElementById('forceSerialAudit').checked;
+                settings.serialFormatVerify = document.getElementById('serialFormatVerify').checked;
+                settings.serialUniqueCheck = document.getElementById('serialUniqueCheck').checked;
+                settings.serialFormatRule = document.getElementById('serialFormatRule').value;
+                settings.allowNegativeStock = document.getElementById('allowNegativeStock').checked;
+                settings.autoGenerateTransferNo = document.getElementById('autoGenerateTransferNo').checked;
+                settings.stockWarningThreshold = parseInt(document.getElementById('stockWarningThreshold').value);
+                settings.defaultWarehouse = document.getElementById('defaultWarehouse').value;
+
+                // 保存到localStorage（实际应用中应该保存到服务器）
+                localStorage.setItem('warehouseSettings', JSON.stringify(settings));
+
+                alert('设置已保存！');
+            });
+
+            // 重置按钮
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                if (confirm('确定要重置所有设置为默认值吗？')) {
+                    localStorage.removeItem('warehouseSettings');
+                    loadSettings();
+                    alert('设置已重置为默认值！');
+                }
+            });
+
+            // 监听依赖关系变化
+            document.getElementById('forceBarcodeAudit').addEventListener('change', updateDependencies);
+            document.getElementById('purchaseStorageAudit').addEventListener('change', updateDependencies);
+            document.getElementById('purchaseReturnAudit').addEventListener('change', updateDependencies);
+            document.getElementById('forceSerialAudit').addEventListener('change', updateDependencies);
+            document.getElementById('serialFormatVerify').addEventListener('change', updateDependencies);
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

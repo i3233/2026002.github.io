@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全部订单 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/餐饮全部订单.css">
+</head>
+<body>
+    <div class="order-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">全部订单</h1>
+                <div class="page-subtitle">餐饮销售的全部订单列表，支持统一查看与简单统计（包含桌台订单、扫码点餐等）</div>
+            </div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="toolbar-card">
+            <!-- 左侧按钮组 -->
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addOrderBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">＋</span>
+                        <span>新增订单</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="exportBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="exportDetailBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出详情</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- 中间搜索区 -->
+            <div class="toolbar-center">
+                <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：支持按订单号、会员、手机号、桌台号等关键字">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧功能 -->
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-outline" id="statisticsBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊙</span>
+                        <span>统计</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 订单类型 Tab（餐饮特有：桌台订单、扫码点餐） -->
+        <div class="order-tabs">
+            <button class="order-tab-btn active" data-type="all">全部</button>
+            <button class="order-tab-btn" data-type="online">线上订单</button>
+            <button class="order-tab-btn" data-type="table">桌台订单</button>
+            <button class="order-tab-btn" data-type="scan">扫码点餐</button>
+            <button class="order-tab-btn" data-type="cashier">收银台订单</button>
+            <button class="order-tab-btn" data-type="refund">退款/售后</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">销售总额 (元)</div>
+                <div class="summary-value summary-value-blue">
+                    <span id="summaryTotalAmount">0.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">已收金额 (元)</div>
+                <div class="summary-value summary-value-green">
+                    <span id="summaryPaidAmount">0.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">订单数量</div>
+                <div class="summary-value summary-value-red">
+                    <span id="summaryOrderCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>⊙ 订单号</th>
+                            <th class="sortable" data-sort="orderTime">下单时间</th>
+                            <th>会员</th>
+                            <th>手机号</th>
+                            <th>桌台号</th>
+                            <th>用餐人数</th>
+                            <th>来源渠道</th>
+                            <th class="text-right">商品数量</th>
+                            <th class="text-right">订单金额</th>
+                            <th class="text-right">实收金额</th>
+                            <th>支付方式</th>
+                            <th>订单状态</th>
+                            <th>售后状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="7" class="text-right">合计：</td>
+                            <td class="text-right" id="totalQtyCell">0</td>
+                            <td class="text-right" id="totalAmountCell">0.00</td>
+                            <td class="text-right" id="totalPaidCell">0.00</td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="btn btn-outline" id="batchExportBtn">批量导出</button>
+                    <button class="btn btn-outline" id="batchCloseBtn">批量关闭订单</button>
+                    <button class="btn btn-outline" id="batchDeleteBtn">删除</button>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info" id="paginationInfo">共 0 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" id="jumpToPage" min="1" value="1">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/餐饮全部订单.js"></script>
+</body>
+</html>

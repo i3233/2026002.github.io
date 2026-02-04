@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导购/拣货/服务员管理 - 收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/导购管理.css">
+</head>
+<body class="guide-body">
+    <div class="guide-container">
+        <!-- 页面标题和操作栏 -->
+        <div class="guide-header">
+            <h1 class="guide-title">导购/拣货/服务员管理</h1>
+            <div class="guide-actions">
+                <button class="guide-btn guide-btn-primary" id="assistOutboundBtn">辅助出库</button>
+                <button class="guide-btn guide-btn-primary" id="addGuideBtn">添加人员</button>
+            </div>
+        </div>
+
+        <!-- 筛选和搜索区 -->
+        <div class="guide-filters">
+            <!-- 类型筛选 -->
+            <div class="guide-filter-group">
+                <label class="guide-filter-label">类型：</label>
+                <div class="guide-filter-buttons">
+                    <button class="guide-filter-btn guide-filter-btn-active" data-type="all">全部</button>
+                    <button class="guide-filter-btn" data-type="guide">导购</button>
+                    <button class="guide-filter-btn" data-type="picker">拣货</button>
+                    <button class="guide-filter-btn" data-type="waiter">服务员</button>
+                </div>
+            </div>
+
+            <!-- 状态筛选 -->
+            <div class="guide-filter-group">
+                <label class="guide-filter-label">状态：</label>
+                <div class="guide-filter-buttons">
+                    <button class="guide-filter-btn guide-filter-btn-active" data-status="all">全部</button>
+                    <button class="guide-filter-btn" data-status="active">在职</button>
+                    <button class="guide-filter-btn" data-status="inactive">离职</button>
+                </div>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="guide-search-wrapper">
+                <input type="text" class="guide-search-input" id="guideSearchInput" placeholder="🔍 搜索姓名或工号">
+            </div>
+        </div>
+
+        <!-- 人员列表表格 -->
+        <div class="guide-table-section">
+            <div class="guide-table-wrapper">
+                <table class="guide-table">
+                    <thead>
+                        <tr>
+                            <th>工号</th>
+                            <th>姓名</th>
+                            <th>类型</th>
+                            <th>手机号</th>
+                            <th>负责区域</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guideTableBody">
+                        <!-- 人员数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑人员弹窗 -->
+    <div id="guideModal" class="guide-modal" style="display: none;">
+        <div class="guide-modal-content">
+            <div class="guide-modal-header">
+                <h3 id="guideModalTitle">添加人员</h3>
+                <button class="guide-modal-close" onclick="closeGuideModal()">×</button>
+            </div>
+            <div class="guide-modal-body">
+                <form id="guideForm">
+                    <div class="guide-form-group">
+                        <label>工号 <span class="guide-required">*</span></label>
+                        <input type="text" class="guide-input" id="guideCode" placeholder="请输入工号" required>
+                        <span class="guide-form-tip">工号将用于识别和管理</span>
+                    </div>
+
+                    <div class="guide-form-group">
+                        <label>姓名 <span class="guide-required">*</span></label>
+                        <input type="text" class="guide-input" id="guideName" placeholder="请输入姓名" required>
+                    </div>
+
+                    <div class="guide-form-group">
+                        <label>类型 <span class="guide-required">*</span></label>
+                        <select class="guide-input" id="guideType" required>
+                            <option value="">请选择类型</option>
+                            <option value="guide">导购</option>
+                            <option value="picker">拣货</option>
+                            <option value="waiter">服务员</option>
+                        </select>
+                    </div>
+
+                    <div class="guide-form-group">
+                        <label>手机号 <span class="guide-required">*</span></label>
+                        <input type="tel" class="guide-input" id="guidePhone" placeholder="请输入手机号" required>
+                    </div>
+
+                    <div class="guide-form-group">
+                        <label>负责区域 <span class="guide-required">*</span></label>
+                        <div class="guide-areas-section">
+                            <div class="guide-areas-list" id="guideAreasList">
+                                <!-- 区域列表将动态生成 -->
+                            </div>
+                            <button type="button" class="guide-btn guide-btn-outline guide-btn-sm" onclick="addArea()">+ 添加区域</button>
+                        </div>
+                    </div>
+
+                    <div class="guide-form-group">
+                        <label>状态</label>
+                        <label class="guide-switch">
+                            <input type="checkbox" id="guideStatus" checked>
+                            <span class="guide-switch-slider"></span>
+                            <span class="guide-switch-label">启用</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="guide-modal-footer">
+                <button class="guide-btn guide-btn-secondary" onclick="closeGuideModal()">取消</button>
+                <button class="guide-btn guide-btn-primary" onclick="saveGuide()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 辅助出库弹窗 -->
+    <div id="assistOutboundModal" class="guide-modal" style="display: none;">
+        <div class="guide-modal-content guide-modal-large">
+            <div class="guide-modal-header">
+                <h3>辅助出库</h3>
+                <button class="guide-modal-close" onclick="closeAssistOutboundModal()">×</button>
+            </div>
+            <div class="guide-modal-body">
+                <div class="assist-outbound-section">
+                    <div class="guide-form-group">
+                        <label>选择人员</label>
+                        <select class="guide-input" id="assistGuideSelect">
+                            <option value="">请选择人员</option>
+                            <!-- 人员选项将动态生成 -->
+                        </select>
+                    </div>
+                    <div class="guide-form-group">
+                        <label>订单号</label>
+                        <input type="text" class="guide-input" id="assistOrderNo" placeholder="请输入订单号">
+                    </div>
+                    <div class="guide-form-group">
+                        <label>出库说明</label>
+                        <textarea class="guide-textarea" id="assistRemark" placeholder="请输入出库说明（可选）"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="guide-modal-footer">
+                <button class="guide-btn guide-btn-secondary" onclick="closeAssistOutboundModal()">取消</button>
+                <button class="guide-btn guide-btn-primary" onclick="confirmAssistOutbound()">确认出库</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/导购管理.js"></script>
+</body>
+</html>

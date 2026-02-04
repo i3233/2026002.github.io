@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>采购入库记录 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/餐饮采购入库记录.css">
+</head>
+<body>
+    <div class="purchase-storage-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">采购入库</h1>
+                <div class="page-subtitle">选择采购订单，匹配条码入库，提交财务审核（适配餐饮商品：普通商品、套餐、称重商品）</div>
+            </div>
+        </div>
+
+        <!-- 订单选择区域 -->
+        <div class="order-select-section">
+            <div class="order-select-header">
+                <label class="order-select-label">选择采购订单：</label>
+                <div class="order-select-wrapper">
+                    <input type="text" 
+                           class="order-select-input" 
+                           id="orderSearchInput" 
+                           placeholder="请输入订单号或往来单位搜索"
+                           list="orderList">
+                    <datalist id="orderList">
+                        <!-- 选项由JS动态生成 -->
+                    </datalist>
+                    <button class="btn btn-primary" id="selectOrderBtn">选择</button>
+                    <button class="btn btn-text" id="clearOrderBtn">清空</button>
+                </div>
+            </div>
+            
+            <!-- 条码设置 -->
+            <div class="barcode-setting">
+                <label class="barcode-setting-label">
+                    <input type="checkbox" id="barcodeRequiredCheckbox">
+                    <span>强制条码录入</span>
+                </label>
+                <span class="barcode-setting-hint">（开启后，所有商品必须录入条码才能提交审核）</span>
+            </div>
+
+            <!-- 订单信息卡片（选中订单后显示） -->
+            <div id="orderInfoCard" class="order-info-card hidden">
+                <div class="order-info-item">
+                    <span class="order-info-label">订单单号</span>
+                    <span class="order-info-value" id="orderIdDisplay">-</span>
+                </div>
+                <div class="order-info-item">
+                    <span class="order-info-label">订单日期</span>
+                    <span class="order-info-value" id="orderDateDisplay">-</span>
+                </div>
+                <div class="order-info-item">
+                    <span class="order-info-label">往来单位</span>
+                    <span class="order-info-value" id="orderPartnerDisplay">-</span>
+                </div>
+                <div class="order-info-item">
+                    <span class="order-info-label">商品类型</span>
+                    <span class="order-info-value" id="orderProductTypeDisplay">-</span>
+                </div>
+                <div class="order-info-item">
+                    <span class="order-info-label">订单金额</span>
+                    <span class="order-info-value" id="orderAmountDisplay">-</span>
+                </div>
+                <div class="order-info-item">
+                    <span class="order-info-label">应付余额</span>
+                    <span class="order-info-value" id="orderPayableDisplay">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品明细表格 -->
+        <div class="products-section" id="productsSection" style="display: none;">
+            <h2 class="section-title">商品明细</h2>
+            
+            <!-- 条码强制提示 -->
+            <div class="alert-warning" id="barcodeRequiredAlert" style="display: none;">
+                <strong>注意：</strong>当前设置为强制条码录入，所有商品必须录入条码后才能提交审核。
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>商品类型</th>
+                            <th>商品分类</th>
+                            <th>商品名称</th>
+                            <th>规格</th>
+                            <th>单位</th>
+                            <th class="text-right">订单数量</th>
+                            <th class="text-right">单价</th>
+                            <th class="text-right">金额</th>
+                            <th>条码</th>
+                            <th>条码状态</th>
+                            <th class="text-right">入库数量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- 数据由JavaScript动态生成 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="6" class="text-right">合计：</td>
+                            <td class="text-right" id="totalOrderQty">0.00</td>
+                            <td colspan="2"></td>
+                            <td colspan="2"></td>
+                            <td class="text-right" id="totalStorageQty">0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- 条码扫描区域 -->
+        <div class="barcode-scan-section" id="barcodeScanSection" style="display: none;">
+            <h2 class="section-title">条码扫描</h2>
+            <div class="barcode-scan-box">
+                <input type="text" 
+                       class="barcode-scan-input" 
+                       id="barcodeScanInput" 
+                       placeholder="请扫描或手动输入商品条码，按回车键匹配">
+                <button class="btn btn-primary" id="scanBarcodeBtn">扫描</button>
+            </div>
+            <div class="barcode-scan-hint">
+                提示：扫描条码后会自动匹配到对应的商品行，如果商品已存在条码，将自动填充。
+            </div>
+        </div>
+
+        <!-- 应付金额区域 -->
+        <div class="payable-section" id="payableSection" style="display: none;">
+            <h2 class="section-title">应付金额</h2>
+            <div class="payable-info">
+                <div>
+                    <div class="payable-label">应付金额</div>
+                    <div class="payable-change" id="payableChange">入库后将增加应付金额</div>
+                </div>
+                <div class="payable-value" id="payableValue">¥0.00</div>
+            </div>
+        </div>
+
+        <!-- 审核状态区域 -->
+        <div class="audit-status-section" id="auditStatusSection" style="display: none;">
+            <h2 class="section-title">审核状态</h2>
+            <div class="audit-status">
+                <span class="audit-status-badge none" id="auditStatusBadge">未提交</span>
+                <span id="auditStatusText">请完成商品明细和条码录入后提交财务审核</span>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="action-section" id="actionSection" style="display: none;">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="submitAuditBtn">提交财务审核</button>
+        </div>
+    </div>
+
+    <script src="../../js/餐饮采购入库记录.js"></script>
+</body>
+</html>

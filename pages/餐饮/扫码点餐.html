@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫码点餐 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/扫码点餐.css">
+</head>
+<body class="scan-order-body">
+    <div class="scan-order-container">
+        <!-- 页面标题 -->
+        <div class="scan-order-header">
+            <h1 class="scan-order-title">扫码点餐</h1>
+            <p class="scan-order-subtitle">管理顾客通过扫描桌台二维码下单的订单</p>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="scan-order-toolbar">
+            <!-- 左侧按钮组 -->
+            <div class="scan-order-toolbar-left">
+                <button class="scan-order-btn scan-order-btn-primary" id="addOrderBtn">
+                    <span class="scan-order-btn-icon">＋</span>
+                    新增订单
+                </button>
+                <button class="scan-order-btn scan-order-btn-outline" id="exportBtn">
+                    <span class="scan-order-btn-icon">↑</span>
+                    导出
+                </button>
+                <button class="scan-order-btn scan-order-btn-outline" id="exportDetailBtn">
+                    <span class="scan-order-btn-icon">↑</span>
+                    导出详情
+                </button>
+            </div>
+
+            <!-- 中间搜索区 -->
+            <div class="scan-order-toolbar-center">
+                <input type="text" class="scan-order-search-input" id="quickSearchInput" placeholder="快捷搜索：支持按订单号、会员、手机号、桌台号等关键字">
+                <button class="scan-order-btn scan-order-btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧功能 -->
+            <div class="scan-order-toolbar-right">
+                <button class="scan-order-btn scan-order-btn-outline" id="moreSearchBtn">更多搜索</button>
+            </div>
+        </div>
+
+        <!-- 订单状态 Tab -->
+        <div class="scan-order-tabs">
+            <button class="scan-order-tab-btn active" data-status="all">全部</button>
+            <button class="scan-order-tab-btn" data-status="pendingPay">待支付</button>
+            <button class="scan-order-tab-btn" data-status="pendingMake">待制作</button>
+            <button class="scan-order-tab-btn" data-status="making">制作中</button>
+            <button class="scan-order-tab-btn" data-status="completed">已完成</button>
+            <button class="scan-order-tab-btn" data-status="closed">已关闭</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="scan-order-summary-row">
+            <div class="scan-order-summary-card">
+                <div class="scan-order-summary-label">订单总数</div>
+                <div class="scan-order-summary-value scan-order-summary-value-blue">
+                    <span id="summaryOrderCount">0</span>
+                </div>
+            </div>
+            <div class="scan-order-summary-card">
+                <div class="scan-order-summary-label">销售总额 (元)</div>
+                <div class="scan-order-summary-value scan-order-summary-value-green">
+                    <span id="summaryTotalAmount">0.00</span>
+                </div>
+            </div>
+            <div class="scan-order-summary-card">
+                <div class="scan-order-summary-label">已收金额 (元)</div>
+                <div class="scan-order-summary-value scan-order-summary-value-red">
+                    <span id="summaryPaidAmount">0.00</span>
+                </div>
+            </div>
+            <div class="scan-order-summary-card">
+                <div class="scan-order-summary-label">待制作订单</div>
+                <div class="scan-order-summary-value scan-order-summary-value-orange">
+                    <span id="summaryPendingMakeCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="scan-order-table-section">
+            <div class="scan-order-table-wrapper">
+                <table class="scan-order-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>订单号</th>
+                            <th class="sortable" data-sort="orderTime">下单时间</th>
+                            <th>会员</th>
+                            <th>手机号</th>
+                            <th>桌台号</th>
+                            <th>用餐人数</th>
+                            <th class="text-right">商品数量</th>
+                            <th class="text-right">订单金额</th>
+                            <th class="text-right">实收金额</th>
+                            <th>支付方式</th>
+                            <th>订单状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="scan-order-table-footer-row">
+                            <td colspan="7" class="text-right">合计：</td>
+                            <td class="text-right" id="totalQtyCell">0</td>
+                            <td class="text-right" id="totalAmountCell">0.00</td>
+                            <td class="text-right" id="totalPaidCell">0.00</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="scan-order-bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="scan-order-bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="scan-order-btn scan-order-btn-outline" id="batchExportBtn">批量导出</button>
+                    <button class="scan-order-btn scan-order-btn-outline" id="batchCloseBtn">批量关闭订单</button>
+                    <span class="scan-order-text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="scan-order-bottom-right">
+                    <span class="scan-order-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <button class="scan-order-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                    <div class="scan-order-pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <button class="scan-order-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                    <span class="scan-order-pagination-info">每页显示</span>
+                    <select class="scan-order-pagination-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/扫码点餐.js"></script>
+</body>
+</html>

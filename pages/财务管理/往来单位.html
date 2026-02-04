@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>往来单位 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .partner-management-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .type-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .type-tag.supplier {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .type-tag.customer {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .type-tag.both {
+            background-color: rgba(255, 140, 66, 0.1);
+            color: #ff8c42;
+        }
+
+        .mobile-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+            margin-left: var(--spacing-xs);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-2xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-group label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group .form-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .settings-section {
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .settings-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+        }
+
+        .settings-item-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="partner-management-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">往来单位</h1>
+                <div class="page-subtitle">管理和设置供应商、客户等往来单位信息</div>
+            </div>
+        </div>
+
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addPartnerBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">＋</span>
+                        <span>新增往来单位</span>
+                    </span>
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="exportBtn">导出</button>
+                <button class="btn btn-outline" id="importBtn">导入</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>往来单位类型</label>
+                    <select id="typeFilter">
+                        <option value="">全部类型</option>
+                        <option value="supplier">供应商</option>
+                        <option value="customer">客户</option>
+                        <option value="both">供应商+客户</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>快捷搜索</label>
+                    <input type="text" id="searchInput" placeholder="输入单位名称、联系人、手机号搜索">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>往来单位</th>
+                            <th>单位类型</th>
+                            <th>联系人</th>
+                            <th>手机号</th>
+                            <th>联系电话</th>
+                            <th>地址</th>
+                            <th>手机绑定</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="partnerTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑往来单位模态框 -->
+    <div class="modal" id="partnerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增往来单位</h3>
+                <button class="modal-close" onclick="closePartnerModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="partnerForm">
+                    <div class="form-group">
+                        <label>
+                            单位名称
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="partnerName" required placeholder="请输入单位名称">
+                        <div class="form-hint">例如：雅安本地供应商A、XX批发商等</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                单位类型
+                                <span class="required">*</span>
+                            </label>
+                            <select id="partnerType" required>
+                                <option value="">请选择</option>
+                                <option value="supplier">供应商</option>
+                                <option value="customer">客户</option>
+                                <option value="both">供应商+客户</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                联系人
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="contact" required placeholder="请输入联系人姓名">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                手机号
+                                <span class="required">*</span>
+                            </label>
+                            <input type="tel" id="mobile" required placeholder="请输入手机号" pattern="[0-9]{11}">
+                            <div class="form-hint">11位手机号码</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                联系电话
+                            </label>
+                            <input type="tel" id="phone" placeholder="请输入联系电话">
+                            <div class="form-hint">固定电话或备用电话</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            地址
+                        </label>
+                        <input type="text" id="address" placeholder="请输入详细地址">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            备注
+                        </label>
+                        <textarea id="remark" placeholder="请输入备注信息"></textarea>
+                    </div>
+
+                    <!-- 设置区域 -->
+                    <div class="settings-section">
+                        <div class="settings-section-title">账户设置</div>
+                        
+                        <div class="settings-item">
+                            <div class="settings-item-label">绑定手机号用于收银台提货折扣</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="mobileBound">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-hint" style="margin-top: var(--spacing-xs);">
+                            开启后，该手机号可用于收银台提货时享受折扣优惠
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePartnerModal()">取消</button>
+                <button class="btn btn-primary" id="savePartnerBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟往来单位数据
+        let partnerData = [
+            {
+                id: 'PARTNER001',
+                name: '雅安本地供应商A',
+                type: 'supplier',
+                contact: '张老板',
+                mobile: '13800000001',
+                phone: '0835-1234567',
+                address: '四川省雅安市雨城区XX路XX号',
+                remark: '主要供应蔬菜水果',
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER002',
+                name: '成都批发商B',
+                type: 'supplier',
+                contact: '李经理',
+                mobile: '13800000002',
+                phone: '028-87654321',
+                address: '四川省成都市XX区XX街XX号',
+                remark: '',
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER003',
+                name: '雅安本地供应商C',
+                type: 'supplier',
+                contact: '王总',
+                mobile: '13800000003',
+                phone: '',
+                address: '四川省雅安市名山区XX镇XX号',
+                remark: '长期合作供应商',
+                mobileBound: false
+            },
+            {
+                id: 'PARTNER004',
+                name: '茶叶供应商D',
+                type: 'supplier',
+                contact: '赵老板',
+                mobile: '13800000004',
+                phone: '0835-2345678',
+                address: '四川省雅安市XX县XX乡',
+                remark: '蒙顶山茶叶供应商',
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER005',
+                name: '雅安批发商A',
+                type: 'customer',
+                contact: '张老板',
+                mobile: '13800000010',
+                phone: '0835-3456789',
+                address: '四川省雅安市雨城区XX市场XX号',
+                remark: '',
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER006',
+                name: 'XX贸易公司',
+                type: 'customer',
+                contact: '李经理',
+                mobile: '13800000011',
+                phone: '028-98765432',
+                address: '四川省成都市XX区XX大厦XX层',
+                remark: '大客户，信用良好',
+                mobileBound: false
+            },
+            {
+                id: 'PARTNER007',
+                name: 'YY商贸',
+                type: 'both',
+                contact: '王经理',
+                mobile: '13800000012',
+                phone: '',
+                address: '四川省雅安市XX区XX路XX号',
+                remark: '既是供应商也是客户',
+                mobileBound: true
+            }
+        ];
+
+        let currentEditId = null;
+        let filteredData = [...partnerData];
+
+        function init() {
+            renderTable();
+            bindEvents();
+        }
+
+        function getFilteredData() {
+            let data = [...partnerData];
+            const type = document.getElementById('typeFilter').value;
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            if (type) {
+                data = data.filter(item => item.type === type);
+            }
+            if (search) {
+                data = data.filter(item => 
+                    item.name.toLowerCase().includes(search) ||
+                    item.contact.toLowerCase().includes(search) ||
+                    item.mobile.includes(search)
+                );
+            }
+
+            return data;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('partnerTableBody');
+            tbody.innerHTML = '';
+
+            filteredData = getFilteredData();
+
+            filteredData.forEach(partner => {
+                const row = document.createElement('tr');
+                const typeText = getPartnerTypeText(partner.type);
+                const typeClass = partner.type;
+
+                row.innerHTML = `
+                    <td>
+                        <span class="link-text" onclick="editPartner('${partner.id}')">${partner.name}</span>
+                    </td>
+                    <td><span class="type-tag ${typeClass}">${typeText}</span></td>
+                    <td>${partner.contact}</td>
+                    <td>
+                        ${partner.mobile}
+                        ${partner.mobileBound ? '<span class="mobile-badge" title="已绑定，可用于收银台提货折扣">已绑定</span>' : ''}
+                    </td>
+                    <td>${partner.phone || '-'}</td>
+                    <td>${partner.address || '-'}</td>
+                    <td>${partner.mobileBound ? '是' : '否'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-outline btn-sm" onclick="editPartner('${partner.id}')">编辑</button>
+                            <button class="btn btn-danger btn-sm" onclick="deletePartner('${partner.id}')">删除</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getPartnerTypeText(type) {
+            const typeMap = {
+                'supplier': '供应商',
+                'customer': '客户',
+                'both': '供应商+客户'
+            };
+            return typeMap[type] || type;
+        }
+
+        function openPartnerModal(id = null) {
+            currentEditId = id;
+            const modal = document.getElementById('partnerModal');
+            const form = document.getElementById('partnerForm');
+            const modalTitle = document.getElementById('modalTitle');
+
+            if (id) {
+                // 编辑模式
+                modalTitle.textContent = '编辑往来单位';
+                const partner = partnerData.find(p => p.id === id);
+                if (partner) {
+                    document.getElementById('partnerName').value = partner.name;
+                    document.getElementById('partnerType').value = partner.type;
+                    document.getElementById('contact').value = partner.contact;
+                    document.getElementById('mobile').value = partner.mobile;
+                    document.getElementById('phone').value = partner.phone || '';
+                    document.getElementById('address').value = partner.address || '';
+                    document.getElementById('remark').value = partner.remark || '';
+                    document.getElementById('mobileBound').checked = partner.mobileBound || false;
+                }
+            } else {
+                // 新增模式
+                modalTitle.textContent = '新增往来单位';
+                form.reset();
+                document.getElementById('mobileBound').checked = false;
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closePartnerModal() {
+            document.getElementById('partnerModal').classList.remove('show');
+            currentEditId = null;
+            document.getElementById('partnerForm').reset();
+        }
+
+        function savePartner() {
+            const form = document.getElementById('partnerForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const mobile = document.getElementById('mobile').value.trim();
+            if (mobile.length !== 11 || !/^[0-9]+$/.test(mobile)) {
+                alert('请输入正确的11位手机号码');
+                return;
+            }
+
+            // 检查手机号是否重复（编辑时排除自己）
+            const existingPartner = partnerData.find(p => 
+                p.mobile === mobile && (!currentEditId || p.id !== currentEditId)
+            );
+            if (existingPartner) {
+                alert('该手机号已被其他往来单位使用，请使用其他手机号');
+                return;
+            }
+
+            const partnerDataItem = {
+                name: document.getElementById('partnerName').value.trim(),
+                type: document.getElementById('partnerType').value,
+                contact: document.getElementById('contact').value.trim(),
+                mobile: mobile,
+                phone: document.getElementById('phone').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                remark: document.getElementById('remark').value.trim(),
+                mobileBound: document.getElementById('mobileBound').checked
+            };
+
+            if (currentEditId) {
+                // 编辑
+                const index = partnerData.findIndex(p => p.id === currentEditId);
+                if (index !== -1) {
+                    partnerDataItem.id = currentEditId;
+                    partnerData[index] = partnerDataItem;
+                    alert('往来单位信息已更新！');
+                }
+            } else {
+                // 新增
+                partnerDataItem.id = 'PARTNER' + String(Date.now()).slice(-6);
+                partnerData.push(partnerDataItem);
+                alert('往来单位已添加！');
+            }
+
+            renderTable();
+            closePartnerModal();
+        }
+
+        function editPartner(id) {
+            openPartnerModal(id);
+        }
+
+        function deletePartner(id) {
+            const partner = partnerData.find(p => p.id === id);
+            if (!partner) return;
+
+            if (!confirm(`确定要删除往来单位"${partner.name}"吗？\n注意：删除后无法恢复，且该单位的历史记录将无法关联。`)) {
+                return;
+            }
+
+            partnerData = partnerData.filter(p => p.id !== id);
+            renderTable();
+            alert('往来单位已删除！');
+        }
+
+        function bindEvents() {
+            // 新增往来单位按钮
+            document.getElementById('addPartnerBtn').addEventListener('click', () => {
+                openPartnerModal();
+            });
+
+            // 保存往来单位按钮
+            document.getElementById('savePartnerBtn').addEventListener('click', savePartner);
+
+            // 筛选条件变化
+            document.getElementById('typeFilter').addEventListener('change', renderTable);
+
+            // 搜索输入
+            document.getElementById('searchInput').addEventListener('input', renderTable);
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    renderTable();
+                }
+            });
+
+            // 导出按钮
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                alert('导出功能');
+            });
+
+            // 导入按钮
+            document.getElementById('importBtn').addEventListener('click', () => {
+                alert('导入功能');
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

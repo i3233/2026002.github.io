@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付设置 - 餐饮</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/餐饮支付设置.css">
+</head>
+<body class="catering-payment-settings-page">
+    <div class="catering-payment-settings-container">
+        <!-- 页面标题 -->
+        <div class="catering-payment-settings-header">
+            <div>
+                <h1 class="catering-payment-settings-title">支付设置</h1>
+                <div class="catering-payment-settings-subtitle">配置餐饮支付相关的系统设置和安全规则</div>
+            </div>
+        </div>
+
+        <!-- 支付方式设置 -->
+        <div class="catering-payment-settings-card">
+            <div class="catering-payment-settings-card-header">
+                <div>
+                    <h3 class="catering-payment-settings-card-title">支付方式设置</h3>
+                    <div class="catering-payment-settings-card-desc">启用或禁用各种支付方式</div>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用现金支付
+                        <span class="catering-payment-help-icon" title="是否启用现金支付方式">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，订单可以使用现金支付（适用于收银台订单）</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enableCash" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用微信支付
+                        <span class="catering-payment-help-icon" title="是否启用微信支付方式">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，订单可以使用微信支付（扫码支付、小程序支付等）</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enableWeChat" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用支付宝支付
+                        <span class="catering-payment-help-icon" title="是否启用支付宝支付方式">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，订单可以使用支付宝支付</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enableAlipay" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用银行卡支付
+                        <span class="catering-payment-help-icon" title="是否启用银行卡支付方式">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，订单可以使用银行卡支付（POS机刷卡）</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enableBankCard" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用会员余额支付
+                        <span class="catering-payment-help-icon" title="是否启用会员余额支付">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，会员可以使用账户余额支付订单</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enableBalance" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 支付安全设置 -->
+        <div class="catering-payment-settings-card">
+            <div class="catering-payment-settings-card-header">
+                <div>
+                    <h3 class="catering-payment-settings-card-title">支付安全设置</h3>
+                    <div class="catering-payment-settings-card-desc">设置支付安全相关的规则</div>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用支付密码
+                        <span class="catering-payment-help-icon" title="是否启用支付密码功能">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，支付时需要输入支付密码</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enablePaymentPassword">
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        支付密码金额阈值（元）
+                        <span class="catering-payment-help-icon" title="超过此金额需要支付密码">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">设置支付金额阈值，超过此金额需要输入支付密码（0表示所有支付都需要密码）</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <input type="number" class="catering-payment-form-input catering-payment-form-input--small" id="paymentPasswordThreshold" value="0" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用支付超时
+                        <span class="catering-payment-help-icon" title="是否启用支付超时功能">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，支付超时未完成将自动取消订单</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enablePaymentTimeout" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        支付超时时间（分钟）
+                        <span class="catering-payment-help-icon" title="支付超时的时间">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">设置支付超时的时间，超过此时间未完成支付将自动取消订单</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <input type="number" class="catering-payment-form-input catering-payment-form-input--small" id="paymentTimeoutMinutes" value="30" min="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- 支付通知设置 -->
+        <div class="catering-payment-settings-card">
+            <div class="catering-payment-settings-card-header">
+                <div>
+                    <h3 class="catering-payment-settings-card-title">支付通知设置</h3>
+                    <div class="catering-payment-settings-card-desc">设置支付成功后的通知方式</div>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用支付成功通知
+                        <span class="catering-payment-help-icon" title="是否启用支付成功通知">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，支付成功时会发送通知（短信、小程序消息等）</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enablePaymentNotify" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="catering-payment-setting-item">
+                <div class="catering-payment-setting-item-left">
+                    <div class="catering-payment-setting-item-label">
+                        启用收银台语音提示
+                        <span class="catering-payment-help-icon" title="是否启用收银台语音提示">?</span>
+                    </div>
+                    <div class="catering-payment-setting-item-desc">开启后，收银台支付成功时会播放语音提示</div>
+                </div>
+                <div class="catering-payment-setting-item-right">
+                    <label class="catering-payment-toggle-switch">
+                        <input type="checkbox" id="enableVoiceNotify" checked>
+                        <span class="catering-payment-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="catering-payment-settings-actions">
+            <button class="catering-payment-btn catering-payment-btn-outline" id="resetBtn">重置</button>
+            <button class="catering-payment-btn catering-payment-btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script src="../../../js/餐饮支付设置.js"></script>
+</body>
+</html>

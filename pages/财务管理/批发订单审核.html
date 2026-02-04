@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批发订单审核 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .audit-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-item--date-range {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .filter-item--date-range > div {
+            flex: 1;
+        }
+
+        .filter-item--date-range span {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 150px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .status-badge.pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ff9800;
+        }
+
+        .status-badge.approved {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-badge.rejected {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .pay-type-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .pay-type-tag.credit {
+            background-color: rgba(255, 140, 66, 0.1);
+            color: #ff8c42;
+        }
+
+        .pay-type-tag.paid {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-2xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .detail-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .detail-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .detail-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .detail-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .audit-reason {
+            width: 100%;
+            min-height: 80px;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .audit-reason:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">批发订单审核</h1>
+                <div class="page-subtitle">审核待审核的批发订单</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>审核状态</label>
+                    <select id="statusSelect">
+                        <option value="">全部状态</option>
+                        <option value="pending" selected>待审核</option>
+                        <option value="approved">已通过</option>
+                        <option value="rejected">已拒绝</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>往来单位</label>
+                    <input type="text" id="partnerInput" placeholder="输入往来单位名称">
+                </div>
+                <div class="filter-item">
+                    <label>订单号</label>
+                    <input type="text" id="orderNoInput" placeholder="输入订单号">
+                </div>
+                <div class="filter-item">
+                    <label>支付方式</label>
+                    <select id="payTypeSelect">
+                        <option value="">全部方式</option>
+                        <option value="credit">赊账</option>
+                        <option value="paid">已付款</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item filter-item--date-range">
+                    <div style="flex: 1;">
+                        <label>下单日期</label>
+                        <input type="date" id="dateStart">
+                    </div>
+                    <span>至</span>
+                    <div style="flex: 1;">
+                        <label style="visibility: hidden;">结束日期</label>
+                        <input type="date" id="dateEnd">
+                    </div>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" id="searchBtn">搜索</button>
+            </div>
+        </div>
+
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">待审核</div>
+                <div class="summary-value" id="pendingCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">已通过</div>
+                <div class="summary-value" id="approvedCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">已拒绝</div>
+                <div class="summary-value" id="rejectedCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">订单金额(元)</div>
+                <div class="summary-value" id="totalAmount">0.00</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>往来单位</th>
+                            <th>下单时间</th>
+                            <th>支付方式</th>
+                            <th>商品数量</th>
+                            <th class="text-right">订单金额(元)</th>
+                            <th>收货人</th>
+                            <th>联系电话</th>
+                            <th>提交人</th>
+                            <th>审核状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核详情模态框 -->
+    <div class="modal" id="auditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">审核批发订单</h3>
+                <button class="modal-close" onclick="closeAuditModal()">×</button>
+            </div>
+            <div class="modal-body" id="auditModalBody">
+                <!-- JS 渲染 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAuditModal()">取消</button>
+                <button class="btn btn-danger" id="rejectBtn">拒绝</button>
+                <button class="btn btn-primary" id="approveBtn">通过</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟批发订单审核数据
+        const auditData = [
+            {
+                id: 'PF20250131001',
+                partner: 'XX批发商',
+                orderTime: '2025-01-31 09:30:25',
+                payType: 'credit',
+                payTypeText: '赊账',
+                productCount: 25,
+                orderAmount: 125000.00,
+                receiver: '张经理',
+                mobile: '13800138001',
+                submitter: '业务员A',
+                status: 'pending',
+                auditTime: null,
+                auditor: null,
+                auditReason: null,
+                address: '四川省雅安市雨城区XX路XX号',
+                remark: '请尽快发货',
+                products: [
+                    { name: '商品A', spec: '规格1', qty: 100, unit: '件', price: 50.00, amount: 5000.00 },
+                    { name: '商品B', spec: '规格2', qty: 200, unit: '件', price: 60.00, amount: 12000.00 }
+                ]
+            },
+            {
+                id: 'PF20250131002',
+                partner: 'YY贸易公司',
+                orderTime: '2025-01-31 10:15:10',
+                payType: 'paid',
+                payTypeText: '已付款',
+                productCount: 18,
+                orderAmount: 85000.00,
+                receiver: '李经理',
+                mobile: '13800138002',
+                submitter: '业务员B',
+                status: 'pending',
+                auditTime: null,
+                auditor: null,
+                auditReason: null,
+                address: '四川省成都市XX区XX街XX号',
+                remark: '',
+                products: [
+                    { name: '商品C', spec: '规格3', qty: 150, unit: '件', price: 40.00, amount: 6000.00 }
+                ]
+            },
+            {
+                id: 'PF20250130001',
+                partner: 'ZZ商贸',
+                orderTime: '2025-01-30 14:20:30',
+                payType: 'credit',
+                payTypeText: '赊账',
+                productCount: 30,
+                orderAmount: 180000.00,
+                receiver: '王经理',
+                mobile: '13800138003',
+                submitter: '业务员C',
+                status: 'approved',
+                auditTime: '2025-01-30 15:30:00',
+                auditor: '财务审核员',
+                auditReason: '审核通过，可以打印拣货单',
+                address: '四川省雅安市名山区XX路XX号',
+                remark: '信用良好',
+                products: [
+                    { name: '商品D', spec: '规格4', qty: 200, unit: '件', price: 25.00, amount: 5000.00 }
+                ]
+            },
+            {
+                id: 'PF20250129001',
+                partner: 'AA批发市场',
+                orderTime: '2025-01-29 11:45:20',
+                payType: 'credit',
+                payTypeText: '赊账',
+                productCount: 15,
+                orderAmount: 95000.00,
+                receiver: '赵经理',
+                mobile: '13800138004',
+                submitter: '业务员D',
+                status: 'rejected',
+                auditTime: '2025-01-29 13:20:00',
+                auditor: '财务审核员',
+                auditReason: '赊账额度不足，需要先结清欠款',
+                address: '四川省雅安市XX县XX镇XX号',
+                remark: '',
+                products: [
+                    { name: '商品E', spec: '规格5', qty: 80, unit: '件', price: 70.00, amount: 5600.00 }
+                ]
+            },
+            {
+                id: 'PF20250131003',
+                partner: 'BB零售店',
+                orderTime: '2025-01-31 11:00:15',
+                payType: 'paid',
+                payTypeText: '已付款',
+                productCount: 12,
+                orderAmount: 72000.00,
+                receiver: '钱经理',
+                mobile: '13800138005',
+                submitter: '业务员E',
+                status: 'pending',
+                auditTime: null,
+                auditor: null,
+                auditReason: null,
+                address: '四川省雅安市XX区XX路XX号',
+                remark: '加急订单',
+                products: [
+                    { name: '商品F', spec: '规格6', qty: 120, unit: '件', price: 60.00, amount: 7200.00 }
+                ]
+            }
+        ];
+
+        let currentAuditId = null;
+        let filteredData = [...auditData];
+
+        function init() {
+            renderTable();
+            updateSummary();
+            bindEvents();
+        }
+
+        function getFilteredData() {
+            let data = [...auditData];
+            const status = document.getElementById('statusSelect').value;
+            const partner = document.getElementById('partnerInput').value.trim().toLowerCase();
+            const orderNo = document.getElementById('orderNoInput').value.trim().toLowerCase();
+            const payType = document.getElementById('payTypeSelect').value;
+            const dateStart = document.getElementById('dateStart').value;
+            const dateEnd = document.getElementById('dateEnd').value;
+
+            if (status) {
+                data = data.filter(item => item.status === status);
+            }
+            if (partner) {
+                data = data.filter(item => item.partner.toLowerCase().includes(partner));
+            }
+            if (orderNo) {
+                data = data.filter(item => item.id.toLowerCase().includes(orderNo));
+            }
+            if (payType) {
+                data = data.filter(item => item.payType === payType);
+            }
+            if (dateStart) {
+                data = data.filter(item => item.orderTime >= dateStart);
+            }
+            if (dateEnd) {
+                data = data.filter(item => item.orderTime <= dateEnd + ' 23:59:59');
+            }
+
+            return data;
+        }
+
+        function updateSummary() {
+            const data = getFilteredData();
+            const pending = data.filter(item => item.status === 'pending').length;
+            const approved = data.filter(item => item.status === 'approved').length;
+            const rejected = data.filter(item => item.status === 'rejected').length;
+            const totalAmount = data.reduce((sum, item) => sum + item.orderAmount, 0);
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            filteredData = getFilteredData();
+
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                const statusClass = item.status === 'pending' ? 'pending' : 
+                                   item.status === 'approved' ? 'approved' : 'rejected';
+                const statusText = item.status === 'pending' ? '待审核' : 
+                                  item.status === 'approved' ? '已通过' : '已拒绝';
+                const payTypeClass = item.payType === 'credit' ? 'credit' : 'paid';
+
+                row.innerHTML = `
+                    <td>
+                        <span class="link-text" onclick="viewDetail('${item.id}')">${item.id}</span>
+                    </td>
+                    <td>${item.partner}</td>
+                    <td>${item.orderTime}</td>
+                    <td><span class="pay-type-tag ${payTypeClass}">${item.payTypeText}</span></td>
+                    <td>${item.productCount}</td>
+                    <td class="text-right">${item.orderAmount.toFixed(2)}</td>
+                    <td>${item.receiver}</td>
+                    <td>${item.mobile}</td>
+                    <td>${item.submitter}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            ${item.status === 'pending' ? `
+                                <button class="btn btn-primary btn-sm" onclick="openAuditModal('${item.id}')">审核</button>
+                            ` : `
+                                <button class="btn btn-outline btn-sm" onclick="viewDetail('${item.id}')">查看</button>
+                            `}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function openAuditModal(id) {
+            currentAuditId = id;
+            const item = auditData.find(d => d.id === id);
+            if (!item) return;
+
+            const modalBody = document.getElementById('auditModalBody');
+            modalBody.innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-section-title">订单信息</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">订单号</div>
+                            <div class="detail-value">${item.id}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">往来单位</div>
+                            <div class="detail-value">${item.partner}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">下单时间</div>
+                            <div class="detail-value">${item.orderTime}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">支付方式</div>
+                            <div class="detail-value"><span class="pay-type-tag ${item.payType === 'credit' ? 'credit' : 'paid'}">${item.payTypeText}</span></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">提交人</div>
+                            <div class="detail-value">${item.submitter}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">商品数量</div>
+                            <div class="detail-value">${item.productCount}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">订单金额</div>
+                            <div class="detail-value">¥${item.orderAmount.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="detail-item" style="margin-top: var(--spacing-md);">
+                        <div class="detail-label">收货地址</div>
+                        <div class="detail-value">${item.address}</div>
+                    </div>
+                    <div class="detail-item" style="margin-top: var(--spacing-sm);">
+                        <div class="detail-label">收货人</div>
+                        <div class="detail-value">${item.receiver} ${item.mobile}</div>
+                    </div>
+                    ${item.remark ? `
+                        <div class="detail-item" style="margin-top: var(--spacing-sm);">
+                            <div class="detail-label">备注</div>
+                            <div class="detail-value">${item.remark}</div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-title">商品明细</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>规格型号</th>
+                                    <th class="text-right">数量</th>
+                                    <th>单位</th>
+                                    <th class="text-right">单价(元)</th>
+                                    <th class="text-right">金额(元)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${item.products.map(p => `
+                                    <tr>
+                                        <td>${p.name}</td>
+                                        <td>${p.spec}</td>
+                                        <td class="text-right">${p.qty}</td>
+                                        <td>${p.unit}</td>
+                                        <td class="text-right">${p.price.toFixed(2)}</td>
+                                        <td class="text-right">${p.amount.toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-title">审核意见</div>
+                    <textarea class="audit-reason" id="auditReasonInput" placeholder="请输入审核意见（可选）"></textarea>
+                </div>
+            `;
+
+            document.getElementById('auditModal').classList.add('show');
+        }
+
+        function closeAuditModal() {
+            document.getElementById('auditModal').classList.remove('show');
+            currentAuditId = null;
+        }
+
+        function approveAudit() {
+            if (!currentAuditId) return;
+            const reason = document.getElementById('auditReasonInput').value.trim();
+
+            const item = auditData.find(d => d.id === currentAuditId);
+            if (item) {
+                item.status = 'approved';
+                item.auditTime = new Date().toLocaleString('zh-CN');
+                item.auditor = '当前用户';
+                item.auditReason = reason || '审核通过';
+
+                renderTable();
+                updateSummary();
+                closeAuditModal();
+                alert('审核通过！可以打印拣货单了。');
+            }
+        }
+
+        function rejectAudit() {
+            if (!currentAuditId) return;
+            const reason = document.getElementById('auditReasonInput').value.trim();
+
+            if (!reason) {
+                alert('请填写拒绝原因');
+                return;
+            }
+
+            const item = auditData.find(d => d.id === currentAuditId);
+            if (item) {
+                item.status = 'rejected';
+                item.auditTime = new Date().toLocaleString('zh-CN');
+                item.auditor = '当前用户';
+                item.auditReason = reason;
+
+                renderTable();
+                updateSummary();
+                closeAuditModal();
+                alert('已拒绝该审核');
+            }
+        }
+
+        function viewDetail(id) {
+            const item = auditData.find(d => d.id === id);
+            if (!item) return;
+
+            let detailText = `订单号：${item.id}\n往来单位：${item.partner}\n下单时间：${item.orderTime}\n支付方式：${item.payTypeText}\n提交人：${item.submitter}\n商品数量：${item.productCount}\n订单金额：¥${item.orderAmount.toFixed(2)}\n收货人：${item.receiver}\n联系电话：${item.mobile}\n收货地址：${item.address}\n审核状态：${item.status === 'pending' ? '待审核' : item.status === 'approved' ? '已通过' : '已拒绝'}`;
+            
+            if (item.auditTime) {
+                detailText += `\n审核时间：${item.auditTime}\n审核人：${item.auditor}`;
+            }
+            if (item.auditReason) {
+                detailText += `\n审核意见：${item.auditReason}`;
+            }
+
+            alert(detailText);
+        }
+
+        function bindEvents() {
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                renderTable();
+                updateSummary();
+            });
+
+            document.getElementById('approveBtn').addEventListener('click', approveAudit);
+            document.getElementById('rejectBtn').addEventListener('click', rejectAudit);
+
+            ['statusSelect', 'partnerInput', 'orderNoInput', 'payTypeSelect', 'dateStart', 'dateEnd'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', () => {
+                        renderTable();
+                        updateSummary();
+                    });
+                    if (el.tagName === 'INPUT') {
+                        el.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                renderTable();
+                                updateSummary();
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

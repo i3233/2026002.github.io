@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>桌台管理 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/桌台管理.css">
+</head>
+<body class="table-management-body">
+    <div class="table-management-container">
+        <!-- 页面标题 -->
+        <div class="table-management-header">
+            <h1 class="table-management-title">桌台管理</h1>
+            <p class="table-management-subtitle">管理餐厅桌台信息，包括桌台号、容纳人数、区域、状态等</p>
+        </div>
+
+        <!-- 搜索栏和操作按钮区 -->
+        <div class="table-management-toolbar">
+            <!-- 左侧搜索栏 -->
+            <div class="table-management-search">
+                <input type="text" class="table-management-search-input" id="tableSearchInput" placeholder="🔍 搜索桌台号、区域">
+            </div>
+
+            <!-- 右侧操作按钮 -->
+            <div class="table-management-actions">
+                <button class="table-management-btn table-management-btn-primary" id="addTableBtn">
+                    <span class="table-management-btn-icon">+</span>
+                    新增桌台
+                </button>
+                <button class="table-management-btn table-management-btn-outline" id="batchSetBtn">
+                    批量设置
+                </button>
+                <button class="table-management-btn table-management-btn-outline" id="importBtn">导入</button>
+                <button class="table-management-btn table-management-btn-outline" id="exportBtn">导出</button>
+            </div>
+        </div>
+
+        <!-- 筛选标签 -->
+        <div class="table-management-filters">
+            <button class="table-management-filter-btn active" data-status="all">全部</button>
+            <button class="table-management-filter-btn" data-status="available">空闲</button>
+            <button class="table-management-filter-btn" data-status="occupied">使用中</button>
+            <button class="table-management-filter-btn" data-status="reserved">已预订</button>
+            <button class="table-management-filter-btn" data-status="disabled">已禁用</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="table-management-summary-row">
+            <div class="table-management-summary-card">
+                <div class="table-management-summary-label">桌台总数</div>
+                <div class="table-management-summary-value table-management-summary-value-blue">
+                    <span id="summaryTotalCount">0</span>
+                </div>
+            </div>
+            <div class="table-management-summary-card">
+                <div class="table-management-summary-label">空闲桌台</div>
+                <div class="table-management-summary-value table-management-summary-value-green">
+                    <span id="summaryAvailableCount">0</span>
+                </div>
+            </div>
+            <div class="table-management-summary-card">
+                <div class="table-management-summary-label">使用中</div>
+                <div class="table-management-summary-value table-management-summary-value-red">
+                    <span id="summaryOccupiedCount">0</span>
+                </div>
+            </div>
+            <div class="table-management-summary-card">
+                <div class="table-management-summary-label">已预订</div>
+                <div class="table-management-summary-value table-management-summary-value-orange">
+                    <span id="summaryReservedCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="table-management-content">
+            <!-- 数据表格 -->
+            <div class="table-management-table-section">
+                <div class="table-management-table-wrapper">
+                    <table class="table-management-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <label class="table-management-checkbox-label">
+                                        <input type="checkbox" id="selectAllCheckbox">
+                                    </label>
+                                </th>
+                                <th>桌台号</th>
+                                <th>区域</th>
+                                <th>容纳人数</th>
+                                <th>当前状态</th>
+                                <th>当前订单</th>
+                                <th>用餐人数</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableTableBody">
+                            <!-- 数据将动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 底部分页器 -->
+            <div class="table-management-pagination">
+                <div class="table-management-pagination-left">
+                    <span class="table-management-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+                <div class="table-management-pagination-right">
+                    <button class="table-management-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                    <div class="table-management-pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <button class="table-management-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                    <span class="table-management-pagination-info">每页显示</span>
+                    <select class="table-management-pagination-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑桌台弹窗 -->
+    <div class="table-management-modal" id="tableModal" style="display: none;">
+        <div class="table-management-modal-backdrop" onclick="closeTableModal()"></div>
+        <div class="table-management-modal-content">
+            <div class="table-management-modal-header">
+                <h2 class="table-management-modal-title" id="tableModalTitle">新增桌台</h2>
+                <button class="table-management-modal-close" onclick="closeTableModal()">×</button>
+            </div>
+            <div class="table-management-modal-body">
+                <div class="table-management-form-group">
+                    <label class="table-management-form-label">
+                        <span class="table-management-form-label-icon">!</span>
+                        桌台号
+                    </label>
+                    <input type="text" class="table-management-form-input" id="tableNoInput" placeholder="请输入桌台号，如：A01">
+                </div>
+                <div class="table-management-form-group">
+                    <label class="table-management-form-label">
+                        <span class="table-management-form-label-icon">!</span>
+                        区域
+                    </label>
+                    <select class="table-management-form-select" id="areaSelect">
+                        <option value="">请选择区域</option>
+                        <option value="大厅">大厅</option>
+                        <option value="包间">包间</option>
+                        <option value="VIP区">VIP区</option>
+                        <option value="露台">露台</option>
+                        <option value="包房">包房</option>
+                    </select>
+                </div>
+                <div class="table-management-form-group">
+                    <label class="table-management-form-label">
+                        <span class="table-management-form-label-icon">!</span>
+                        容纳人数
+                    </label>
+                    <input type="number" class="table-management-form-input" id="capacityInput" placeholder="请输入容纳人数" min="1" step="1">
+                </div>
+                <div class="table-management-form-group">
+                    <label class="table-management-form-label">状态</label>
+                    <select class="table-management-form-select" id="statusSelect">
+                        <option value="available">空闲</option>
+                        <option value="occupied">使用中</option>
+                        <option value="reserved">已预订</option>
+                        <option value="disabled">已禁用</option>
+                    </select>
+                </div>
+                <div class="table-management-form-group">
+                    <label class="table-management-form-label">备注</label>
+                    <textarea class="table-management-form-textarea" id="remarkInput" placeholder="请输入备注信息" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="table-management-modal-footer">
+                <button class="table-management-btn table-management-btn-cancel" onclick="closeTableModal()">取消</button>
+                <button class="table-management-btn table-management-btn-primary" id="saveTableBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/桌台管理.js"></script>
+</body>
+</html>

@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小程序配置 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .miniprogram-config-page {
+            display: flex;
+            height: calc(100vh - 60px);
+            background-color: var(--color-neutral-50);
+            overflow: hidden;
+        }
+
+        /* 左侧配置菜单 */
+        .config-sidebar {
+            width: 240px;
+            background-color: #ffffff;
+            border-right: 1px solid var(--color-neutral-200);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            position: sticky;
+            top: 0;
+            background-color: #ffffff;
+            z-index: 10;
+        }
+
+        .sidebar-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .sidebar-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .config-menu {
+            padding: var(--spacing-md);
+        }
+
+        .menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .menu-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .menu-item.active {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .menu-item-icon {
+            font-size: var(--font-size-lg);
+        }
+
+        .menu-item-text {
+            flex: 1;
+            font-size: var(--font-size-sm);
+        }
+
+        /* 配置内容区 */
+        .config-content {
+            width: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: var(--spacing-lg);
+            flex-shrink: 0;
+        }
+
+        .config-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .config-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        /* 图片上传 */
+        .image-upload {
+            border: 2px dashed var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .image-upload:hover {
+            border-color: var(--color-primary);
+            background-color: rgba(44, 131, 235, 0.05);
+        }
+
+        .image-upload-icon {
+            font-size: 32px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .image-preview {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-md);
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--color-neutral-200);
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-item .remove-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .switch-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .switch-item:last-child {
+            border-bottom: none;
+        }
+
+        .switch-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        .switch-desc {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 复选框组 */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            cursor: pointer;
+        }
+
+        /* 时间段选择 */
+        .time-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .time-range input {
+            flex: 1;
+        }
+
+        /* 表格容器 */
+        .table-wrapper-config {
+            overflow-x: auto;
+            overflow-y: visible;
+            margin-top: var(--spacing-md);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            text-align: left;
+            border-bottom: 1px solid var(--color-neutral-200);
+            font-size: var(--font-size-xs);
+        }
+
+        /* 默认单元格样式 */
+        .data-table td:not(.allow-wrap),
+        .data-table th:not(.allow-wrap) {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .data-table th {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 特定列允许换行 */
+        .data-table td.allow-wrap,
+        .data-table th.allow-wrap {
+            white-space: normal;
+            word-break: break-word;
+            max-width: 150px;
+        }
+
+        /* 操作列固定宽度 */
+        .data-table td.actions-cell,
+        .data-table th.actions-cell {
+            width: 100px;
+            min-width: 100px;
+            max-width: 100px;
+        }
+
+        /* 图片列固定宽度 */
+        .data-table td.image-cell,
+        .data-table th.image-cell {
+            width: 60px;
+            min-width: 60px;
+            max-width: 60px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        /* 右侧预览区域 */
+        .preview-area {
+            flex: 1;
+            min-width: 500px;
+            background-color: var(--color-neutral-100);
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            border-left: 1px solid var(--color-neutral-200);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .preview-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .preview-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .preview-tab {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-sm);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+        }
+
+        .preview-tab.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 手机预览框 */
+        .phone-preview {
+            width: 375px;
+            margin: 0 auto;
+            background-color: #000000;
+            border-radius: 24px;
+            padding: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 667px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-status-bar {
+            height: 20px;
+            background-color: #000000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--spacing-sm);
+            font-size: 10px;
+            color: #ffffff;
+        }
+
+        .phone-content {
+            height: calc(100% - 20px);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* 小程序页面样式 */
+        .mp-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: var(--spacing-lg);
+            color: #ffffff;
+        }
+
+        .mp-shop-name {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .mp-shop-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .mp-navbar {
+            display: flex;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--color-neutral-200);
+            padding: var(--spacing-sm);
+        }
+
+        .mp-nav-item {
+            flex: 1;
+            text-align: center;
+            padding: var(--spacing-sm);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-sm);
+        }
+
+        .mp-nav-item.active {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .mp-product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+        }
+
+        .mp-product-item {
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mp-product-image {
+            width: 100%;
+            height: 120px;
+            background-color: var(--color-neutral-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+        }
+
+        .mp-product-info {
+            padding: var(--spacing-sm);
+        }
+
+        .mp-product-name {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .mp-product-price {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-error);
+        }
+
+        .mp-order-item {
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mp-order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .mp-order-status {
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .mp-progress-bar {
+            height: 4px;
+            background-color: var(--color-neutral-200);
+            border-radius: 2px;
+            margin: var(--spacing-sm) 0;
+            overflow: hidden;
+        }
+
+        .mp-progress-fill {
+            height: 100%;
+            background-color: var(--color-primary);
+            transition: width 0.3s ease;
+        }
+
+        .mp-timeline {
+            padding: var(--spacing-md);
+        }
+
+        .mp-timeline-item {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            position: relative;
+        }
+
+        .mp-timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 24px;
+            bottom: -12px;
+            width: 2px;
+            background-color: var(--color-neutral-200);
+        }
+
+        .mp-timeline-item:last-child::before {
+            display: none;
+        }
+
+        .mp-timeline-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--color-neutral-300);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .mp-timeline-item.active .mp-timeline-dot {
+            background-color: var(--color-primary);
+        }
+
+        .mp-timeline-content {
+            flex: 1;
+        }
+
+        .mp-timeline-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .mp-timeline-time {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .mp-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+        }
+
+        .mp-stat-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mp-stat-value {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .mp-stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .mp-photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-sm);
+        }
+
+        .mp-photo-item {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            background-color: var(--color-neutral-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-2xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .category-tree {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .category-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-100);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .category-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .category-children {
+            padding-left: var(--spacing-xl);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        @media (max-width: 1400px) {
+            .config-sidebar {
+                width: 200px;
+            }
+
+            .config-content {
+                width: 400px;
+            }
+
+            .preview-area {
+                min-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="miniprogram-config-page">
+        <!-- 左侧配置菜单 -->
+        <div class="config-sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">小程序配置</h2>
+                <div class="sidebar-subtitle">可视化配置小程序页面</div>
+            </div>
+
+            <div class="config-menu">
+                <div class="menu-item active" data-menu="basic">
+                    <span class="menu-item-icon">⚙</span>
+                    <span class="menu-item-text">基础配置</span>
+                </div>
+                <div class="menu-item" data-menu="product">
+                    <span class="menu-item-icon">📦</span>
+                    <span class="menu-item-text">商品添加</span>
+                </div>
+                <div class="menu-item" data-menu="delivery">
+                    <span class="menu-item-icon">🚚</span>
+                    <span class="menu-item-text">配送员管理</span>
+                </div>
+                <div class="menu-item" data-menu="order">
+                    <span class="menu-item-icon">📋</span>
+                    <span class="menu-item-text">用户订单查看</span>
+                </div>
+                <div class="menu-item" data-menu="orderManage">
+                    <span class="menu-item-icon">📊</span>
+                    <span class="menu-item-text">订单管理</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中间配置内容区 -->
+        <div class="config-content" id="configContent">
+            <!-- JS 动态渲染配置内容 -->
+        </div>
+
+        <!-- 右侧预览区域 -->
+        <div class="preview-area">
+            <div class="preview-header">
+                <h3 class="preview-title">小程序预览</h3>
+                <div>
+                    <button class="btn btn-primary btn-sm" id="saveBtn">保存</button>
+                </div>
+            </div>
+
+            <div class="preview-tabs" id="previewTabs">
+                <!-- JS 动态生成预览标签 -->
+            </div>
+
+            <div class="phone-preview">
+                <div class="phone-screen">
+                    <div class="phone-status-bar">
+                        <span>9:41</span>
+                        <span>📶 📶 🔋</span>
+                    </div>
+                    <div class="phone-content" id="phoneContent">
+                        <!-- JS 动态渲染预览内容 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类管理模态框 -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">分类管理</h3>
+                <button class="modal-close" onclick="closeCategoryModal()">×</button>
+            </div>
+            <div class="modal-body" id="categoryModalBody">
+                <!-- JS 渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 配送照片预览模态框 -->
+    <div class="modal" id="photoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">配送照片</h3>
+                <button class="modal-close" onclick="closePhotoModal()">×</button>
+            </div>
+            <div class="modal-body" id="photoModalBody">
+                <!-- JS 渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置数据
+        const configData = {
+            basic: {
+                shopName: '雅安好物商城',
+                shopLogo: '',
+                shopDesc: '雅安本地优质商品，新鲜直达',
+                servicePhone: '0835-1234567',
+                businessHours: { start: '09:00', end: '21:00' },
+                enableShop: true,
+                enableDelivery: true,
+                enablePickup: true,
+                showStock: true,
+                paymentMethods: { wechat: true, alipay: true },
+                enableCombinedPayment: false,
+                paymentSuccessPage: 'order'
+            },
+            products: [],
+            categories: [
+                { id: 1, name: '全部商品', parentId: 0, order: 0, enabled: true },
+                { id: 2, name: '蔬菜瓜果', parentId: 0, order: 1, enabled: true },
+                { id: 3, name: '肉蛋鱼虾', parentId: 0, order: 2, enabled: true },
+                { id: 4, name: '水果', parentId: 2, order: 0, enabled: true },
+                { id: 5, name: '蔬菜', parentId: 2, order: 1, enabled: true }
+            ],
+            deliveryStaff: [],
+            deliveryRules: {
+                requirePhoto: true,
+                photoNodes: ['arrival', 'complete'],
+                photoCount: 2
+            },
+            orders: []
+        };
+
+        let currentMenu = 'basic';
+        let currentPreviewTab = 'home';
+
+        // 模拟数据
+        const mockProducts = [
+            { id: 1, name: '新鲜苹果', category: '水果', price: 12.50, originalPrice: 15.00, stock: 100, status: 'on', images: [], platforms: ['business', 'merchant'] },
+            { id: 2, name: '有机白菜', category: '蔬菜', price: 8.00, originalPrice: 10.00, stock: 50, status: 'on', images: [], platforms: ['business'] }
+        ];
+
+        const mockDeliveryStaff = [
+            { id: 1, name: '张配送', mobile: '13800000001', status: 'idle', completedOrders: 25 },
+            { id: 2, name: '李配送', mobile: '13800000002', status: 'delivering', completedOrders: 18 }
+        ];
+
+        const mockOrders = [
+            { id: 'ORD001', userName: '用户A', mobile: '13800000010', orderTime: '2025-01-31 10:30:00', status: 'delivering', amount: 125.50, deliveryMethod: '配送', products: [{ name: '商品A', qty: 2, price: 50.00 }] },
+            { id: 'ORD002', userName: '用户B', mobile: '13800000011', orderTime: '2025-01-31 11:00:00', status: 'completed', amount: 88.00, deliveryMethod: '自取', products: [{ name: '商品B', qty: 1, price: 88.00 }] }
+        ];
+
+        function init() {
+            renderConfigContent();
+            renderPreview();
+            bindEvents();
+            loadSavedConfig();
+        }
+
+        function renderConfigContent() {
+            const content = document.getElementById('configContent');
+            
+            switch (currentMenu) {
+                case 'basic':
+                    content.innerHTML = renderBasicConfig();
+                    break;
+                case 'product':
+                    content.innerHTML = renderProductConfig();
+                    break;
+                case 'delivery':
+                    content.innerHTML = renderDeliveryConfig();
+                    break;
+                case 'order':
+                    content.innerHTML = renderOrderConfig();
+                    break;
+                case 'orderManage':
+                    content.innerHTML = renderOrderManageConfig();
+                    break;
+            }
+        }
+
+        function renderBasicConfig() {
+            const config = configData.basic;
+            return `
+                <div class="config-section">
+                    <div class="config-section-title">商城基础信息</div>
+                    <div class="form-group">
+                        <label class="form-label">商城名称 <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="shopName" value="${config.shopName}" 
+                               onchange="updateBasicConfig('shopName', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商城 Logo</label>
+                        <div class="image-upload" onclick="document.getElementById('logoInput').click()">
+                            <div class="image-upload-icon">📷</div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">点击上传Logo</div>
+                            <input type="file" id="logoInput" accept="image/*" style="display: none;" onchange="handleLogoUpload(event)">
+                        </div>
+                        <div class="image-preview" id="logoPreview">
+                            ${config.shopLogo ? `<div class="image-preview-item">
+                                <img src="${config.shopLogo}" alt="Logo">
+                                <button class="remove-btn" onclick="removeLogo()">×</button>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商城简介</label>
+                        <textarea class="form-textarea" id="shopDesc" onchange="updateBasicConfig('shopDesc', this.value)">${config.shopDesc}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">客服电话</label>
+                        <input type="tel" class="form-input" id="servicePhone" value="${config.servicePhone}" 
+                               onchange="updateBasicConfig('servicePhone', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">营业时间</label>
+                        <div class="time-range">
+                            <input type="time" class="form-input" id="businessStart" value="${config.businessHours.start}" 
+                                   onchange="updateBusinessHours()">
+                            <span>至</span>
+                            <input type="time" class="form-input" id="businessEnd" value="${config.businessHours.end}" 
+                                   onchange="updateBusinessHours()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">功能开关</div>
+                    <div class="switch-item">
+                        <div>
+                            <div class="switch-label">是否开启商城</div>
+                            <div class="switch-desc">关闭后，小程序将无法访问</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enableShop" ${config.enableShop ? 'checked' : ''} 
+                                   onchange="updateBasicConfig('enableShop', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-item">
+                        <div>
+                            <div class="switch-label">是否支持配送</div>
+                            <div class="switch-desc">开启后，用户可以选择配送服务</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enableDelivery" ${config.enableDelivery ? 'checked' : ''} 
+                                   onchange="updateBasicConfig('enableDelivery', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-item">
+                        <div>
+                            <div class="switch-label">是否支持到店自取</div>
+                            <div class="switch-desc">开启后，用户可以选择到店自取</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enablePickup" ${config.enablePickup ? 'checked' : ''} 
+                                   onchange="updateBasicConfig('enablePickup', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-item">
+                        <div>
+                            <div class="switch-label">是否展示库存数量</div>
+                            <div class="switch-desc">开启后，商品详情页会显示库存数量</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showStock" ${config.showStock ? 'checked' : ''} 
+                                   onchange="updateBasicConfig('showStock', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">支付配置</div>
+                    <div class="form-group">
+                        <label class="form-label">支付方式</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="wechatPay" ${config.paymentMethods.wechat ? 'checked' : ''} 
+                                       onchange="updatePaymentMethod('wechat', this.checked)">
+                                <label for="wechatPay">微信支付</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="alipayPay" ${config.paymentMethods.alipay ? 'checked' : ''} 
+                                       onchange="updatePaymentMethod('alipay', this.checked)">
+                                <label for="alipayPay">支付宝支付</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switch-item">
+                        <div>
+                            <div class="switch-label">是否支持组合支付</div>
+                            <div class="switch-desc">开启后，用户可以使用多种支付方式组合支付</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enableCombinedPayment" ${config.enableCombinedPayment ? 'checked' : ''} 
+                                   onchange="updateBasicConfig('enableCombinedPayment', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">支付成功跳转页面</label>
+                        <select class="form-select" id="paymentSuccessPage" onchange="updateBasicConfig('paymentSuccessPage', this.value)">
+                            <option value="order" ${config.paymentSuccessPage === 'order' ? 'selected' : ''}>订单详情</option>
+                            <option value="home" ${config.paymentSuccessPage === 'home' ? 'selected' : ''}>首页</option>
+                            <option value="orderList" ${config.paymentSuccessPage === 'orderList' ? 'selected' : ''}>订单列表</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProductConfig() {
+            return `
+                <div class="config-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                        <div class="config-section-title" style="margin: 0;">商品列表</div>
+                        <button class="btn btn-primary btn-sm" onclick="openProductModal()">新增商品</button>
+                    </div>
+                    <div class="table-wrapper-config">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="image-cell">商品图</th>
+                                    <th class="allow-wrap">商品名称</th>
+                                    <th>分类</th>
+                                    <th>价格</th>
+                                    <th>库存</th>
+                                    <th>状态</th>
+                                    <th class="actions-cell">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                ${renderProductTable()}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="config-section" id="productEditPanel" style="display: none;">
+                    <div class="config-section-title">商品编辑</div>
+                    <div class="form-group">
+                        <label class="form-label">商品名称 <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="productName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品主图（多图上传）</label>
+                        <div class="image-upload" onclick="document.getElementById('productImagesInput').click()">
+                            <div class="image-upload-icon">📷</div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">点击上传商品图片</div>
+                            <input type="file" id="productImagesInput" accept="image/*" multiple style="display: none;" onchange="handleProductImagesUpload(event)">
+                        </div>
+                        <div class="image-preview" id="productImagesPreview"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品详情</label>
+                        <textarea class="form-textarea" id="productDesc" placeholder="请输入商品详情"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">价格 <span class="required">*</span></label>
+                            <input type="number" class="form-input" id="productPrice" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">原价</label>
+                            <input type="number" class="form-input" id="productOriginalPrice" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">库存数量</label>
+                        <input type="number" class="form-input" id="productStock" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品分类 <span class="required">*</span></label>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <select class="form-select" id="productCategory" style="flex: 1;"></select>
+                            <button class="btn btn-outline btn-sm" onclick="openCategoryModal()">分类管理</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品展示平台</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="platformBusiness" checked>
+                                <label for="platformBusiness">业务平台</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="platformMerchant">
+                                <label for="platformMerchant">商户平台</label>
+                            </div>
+                        </div>
+                        <div class="form-hint">勾选业务平台后，商品将在用户端按距离自动推荐最近商家</div>
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end; margin-top: var(--spacing-lg);">
+                        <button class="btn btn-outline" onclick="cancelProductEdit()">取消</button>
+                        <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProductTable() {
+            if (mockProducts.length === 0) {
+                return '<tr><td colspan="7" class="empty-state">暂无商品，点击"新增商品"添加</td></tr>';
+            }
+            return mockProducts.map(product => `
+                <tr>
+                    <td class="image-cell">
+                        <div style="width: 40px; height: 40px; background-color: var(--color-neutral-100); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; margin: 0 auto;">📦</div>
+                    </td>
+                    <td class="allow-wrap" title="${product.name}">${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>¥${product.price.toFixed(2)}</td>
+                    <td>${product.stock}</td>
+                    <td><span style="padding: 2px 6px; border-radius: var(--radius-sm); font-size: 10px; background-color: ${product.status === 'on' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)'}; color: ${product.status === 'on' ? 'var(--color-success)' : 'var(--color-error)'};">${product.status === 'on' ? '上架' : '下架'}</span></td>
+                    <td class="actions-cell">
+                        <div class="table-actions">
+                            <button class="btn btn-outline btn-sm" onclick="editProduct(${product.id})" title="编辑">编辑</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})" title="删除">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDeliveryConfig() {
+            const rules = configData.deliveryRules;
+            return `
+                <div class="config-section">
+                    <div class="config-section-title">配送员列表</div>
+                    <div class="table-wrapper-config">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>手机号</th>
+                                    <th>状态</th>
+                                    <th>订单数</th>
+                                    <th class="actions-cell">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            ${mockDeliveryStaff.map(staff => `
+                                <tr>
+                                    <td>${staff.name}</td>
+                                    <td>${staff.mobile}</td>
+                                    <td><span style="padding: 2px 6px; border-radius: var(--radius-sm); font-size: 10px; background-color: ${staff.status === 'idle' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)'}; color: ${staff.status === 'idle' ? 'var(--color-success)' : '#ff9800'};">
+                                        ${staff.status === 'idle' ? '空闲' : '配送中'}
+                                    </span></td>
+                                    <td>${staff.completedOrders}</td>
+                                    <td class="actions-cell">
+                                        <div class="table-actions">
+                                            <button class="btn btn-outline btn-sm" onclick="viewDeliveryDetail(${staff.id})" title="查看">查看</button>
+                                            <button class="btn btn-danger btn-sm" onclick="disableStaff(${staff.id})" title="禁用">禁用</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">配送规则配置</div>
+                    <div class="switch-item">
+                        <div>
+                            <div class="switch-label">是否必须拍照</div>
+                            <div class="switch-desc">开启后，配送员必须上传照片才能完成配送</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="requirePhoto" ${rules.requirePhoto ? 'checked' : ''} 
+                                   onchange="updateDeliveryRule('requirePhoto', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">拍照节点选择</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="photoNodeArrival" ${rules.photoNodes.includes('arrival') ? 'checked' : ''} 
+                                       onchange="updatePhotoNodes()">
+                                <label for="photoNodeArrival">到达目的地</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="photoNodeComplete" ${rules.photoNodes.includes('complete') ? 'checked' : ''} 
+                                       onchange="updatePhotoNodes()">
+                                <label for="photoNodeComplete">完成配送</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">上传照片数量要求</label>
+                        <select class="form-select" id="photoCount" onchange="updateDeliveryRule('photoCount', parseInt(this.value))">
+                            <option value="1" ${rules.photoCount === 1 ? 'selected' : ''}>1张</option>
+                            <option value="2" ${rules.photoCount === 2 ? 'selected' : ''}>2张</option>
+                            <option value="3" ${rules.photoCount === 3 ? 'selected' : ''}>3张</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">配送记录查看</div>
+                    <div class="table-wrapper-config">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>配送员</th>
+                                    <th>配送时间</th>
+                                    <th class="actions-cell">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>ORD001</td>
+                                <td>张配送</td>
+                                <td>2025-01-31<br>11:30:00</td>
+                                <td class="actions-cell"><button class="btn btn-outline btn-sm" onclick="viewDeliveryPhotos('ORD001')" title="查看照片">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td>ORD002</td>
+                                <td>李配送</td>
+                                <td>2025-01-31<br>12:00:00</td>
+                                <td class="actions-cell"><button class="btn btn-outline btn-sm" onclick="viewDeliveryPhotos('ORD002')" title="查看照片">查看</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderOrderConfig() {
+            return `
+                <div class="config-section">
+                    <div class="config-section-title">筛选条件</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">用户昵称/手机</label>
+                            <input type="text" class="form-input" id="orderUserSearch" placeholder="输入用户信息搜索">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">下单时间</label>
+                            <input type="date" class="form-input" id="orderDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">订单状态</label>
+                        <select class="form-select" id="orderStatusFilter">
+                            <option value="">全部状态</option>
+                            <option value="pending">待支付</option>
+                            <option value="paid">已支付</option>
+                            <option value="delivering">配送中</option>
+                            <option value="completed">已完成</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">用户订单列表</div>
+                    <div class="table-wrapper-config">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th class="allow-wrap">用户信息</th>
+                                    <th class="allow-wrap">商品信息</th>
+                                    <th>配送</th>
+                                    <th>状态</th>
+                                    <th class="actions-cell">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            ${mockOrders.map(order => `
+                                <tr>
+                                    <td>${order.id}</td>
+                                    <td class="allow-wrap">${order.userName}<br><span style="font-size: 10px; color: var(--color-text-secondary);">${order.mobile}</span></td>
+                                    <td class="allow-wrap">${order.products.map(p => `${p.name} x${p.qty}`).join('<br>')}</td>
+                                    <td>${order.deliveryMethod}</td>
+                                    <td><span style="padding: 2px 6px; border-radius: var(--radius-sm); font-size: 10px; background-color: rgba(40, 167, 69, 0.1); color: var(--color-success);">
+                                        ${order.status === 'delivering' ? '配送中' : order.status === 'completed' ? '已完成' : '待支付'}
+                                    </span></td>
+                                    <td class="actions-cell"><button class="btn btn-outline btn-sm" onclick="viewOrderDetail('${order.id}')" title="查看详情">查看</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="config-section" id="orderDetailPanel" style="display: none;">
+                    <div class="config-section-title">订单详情</div>
+                    <div id="orderDetailContent"></div>
+                </div>
+            `;
+        }
+
+        function renderOrderManageConfig() {
+            return `
+                <div class="config-section">
+                    <div class="config-section-title">订单总览看板</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div style="background-color: var(--color-neutral-50); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-primary);">25</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs);">今日订单数</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div style="background-color: var(--color-neutral-50); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: #ff9800;">8</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs);">配送中订单</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div style="background-color: var(--color-neutral-50); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-success);">15</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs);">已完成订单</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div style="background-color: var(--color-neutral-50); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-error);">2</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs);">异常订单</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">筛选条件</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">时间范围</label>
+                            <input type="date" class="form-input" id="manageDateStart">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">至</label>
+                            <input type="date" class="form-input" id="manageDateEnd">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">状态</label>
+                            <select class="form-select" id="manageStatusFilter">
+                                <option value="">全部状态</option>
+                                <option value="pending">待支付</option>
+                                <option value="paid">已支付</option>
+                                <option value="delivering">配送中</option>
+                                <option value="completed">已完成</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">配送方式</label>
+                            <select class="form-select" id="manageDeliveryFilter">
+                                <option value="">全部</option>
+                                <option value="delivery">配送</option>
+                                <option value="pickup">自取</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="config-section-title">订单列表</div>
+                    <div class="table-wrapper-config">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>用户</th>
+                                    <th>金额</th>
+                                    <th>进度</th>
+                                    <th>更新时间</th>
+                                    <th class="actions-cell">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            ${mockOrders.map(order => `
+                                <tr>
+                                    <td>${order.id}</td>
+                                    <td>${order.userName}</td>
+                                    <td>¥${order.amount.toFixed(2)}</td>
+                                    <td>
+                                        <div style="width: 80px; height: 4px; background-color: var(--color-neutral-200); border-radius: 2px; overflow: hidden;">
+                                            <div style="width: ${order.status === 'completed' ? '100' : order.status === 'delivering' ? '75' : '25'}%; height: 100%; background-color: var(--color-primary);"></div>
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 10px;">${order.orderTime.split(' ')[0]}<br>${order.orderTime.split(' ')[1]}</td>
+                                    <td class="actions-cell"><button class="btn btn-outline btn-sm" onclick="viewOrderProgress('${order.id}')" title="查看进度">查看</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="config-section" id="orderProgressPanel" style="display: none;">
+                    <div class="config-section-title">订单进度详情</div>
+                    <div id="orderProgressContent"></div>
+                </div>
+            `;
+        }
+
+        function renderPreview() {
+            const phoneContent = document.getElementById('phoneContent');
+            const previewTabs = document.getElementById('previewTabs');
+
+            // 根据当前菜单显示不同的预览标签
+            let tabs = [];
+            switch (currentMenu) {
+                case 'basic':
+                    tabs = [{ id: 'home', name: '首页' }];
+                    break;
+                case 'product':
+                    tabs = [{ id: 'productList', name: '商品列表' }, { id: 'productDetail', name: '商品详情' }];
+                    break;
+                case 'delivery':
+                    tabs = [{ id: 'deliveryStaff', name: '配送员端' }];
+                    break;
+                case 'order':
+                    tabs = [{ id: 'userOrder', name: '我的订单' }];
+                    break;
+                case 'orderManage':
+                    tabs = [{ id: 'orderManage', name: '订单管理' }];
+                    break;
+            }
+
+            previewTabs.innerHTML = tabs.map(tab => `
+                <div class="preview-tab ${tab.id === currentPreviewTab ? 'active' : ''}" 
+                     onclick="switchPreviewTab('${tab.id}')">${tab.name}</div>
+            `).join('');
+
+            // 渲染预览内容
+            switch (currentMenu) {
+                case 'basic':
+                    phoneContent.innerHTML = renderHomePreview();
+                    break;
+                case 'product':
+                    if (currentPreviewTab === 'productList') {
+                        phoneContent.innerHTML = renderProductListPreview();
+                    } else {
+                        phoneContent.innerHTML = renderProductDetailPreview();
+                    }
+                    break;
+                case 'delivery':
+                    phoneContent.innerHTML = renderDeliveryStaffPreview();
+                    break;
+                case 'order':
+                    phoneContent.innerHTML = renderUserOrderPreview();
+                    break;
+                case 'orderManage':
+                    phoneContent.innerHTML = renderOrderManagePreview();
+                    break;
+            }
+        }
+
+        function renderHomePreview() {
+            const config = configData.basic;
+            return `
+                <div class="mp-header">
+                    ${config.shopLogo ? `<div class="mp-shop-logo"><img src="${config.shopLogo}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : '<div class="mp-shop-logo">LOGO</div>'}
+                    <div class="mp-shop-name">${config.shopName}</div>
+                    <div style="font-size: var(--font-size-xs); opacity: 0.9;">${config.shopDesc}</div>
+                </div>
+                <div class="mp-navbar">
+                    <div class="mp-nav-item active">首页</div>
+                    <div class="mp-nav-item">分类</div>
+                    <div class="mp-nav-item">购物车</div>
+                    <div class="mp-nav-item">我的</div>
+                </div>
+                <div style="padding: var(--spacing-md); background-color: #ffffff;">
+                    <input type="text" class="mp-search-input" placeholder="搜索商品" readonly>
+                </div>
+                <div style="padding: var(--spacing-sm); background-color: #ffffff; margin-top: var(--spacing-xs);">
+                    <div style="display: flex; gap: var(--spacing-xs); overflow-x: auto;">
+                        <div class="mp-category-item active">全部</div>
+                        <div class="mp-category-item">分类1</div>
+                        <div class="mp-category-item">分类2</div>
+                    </div>
+                </div>
+                <div class="mp-product-grid">
+                    <div class="mp-product-item">
+                        <div class="mp-product-image">商品图</div>
+                        <div class="mp-product-info">
+                            <div class="mp-product-name">商品名称</div>
+                            <div class="mp-product-price">¥0.00</div>
+                        </div>
+                    </div>
+                    <div class="mp-product-item">
+                        <div class="mp-product-image">商品图</div>
+                        <div class="mp-product-info">
+                            <div class="mp-product-name">商品名称</div>
+                            <div class="mp-product-price">¥0.00</div>
+                        </div>
+                    </div>
+                </div>
+                ${config.paymentMethods.wechat || config.paymentMethods.alipay ? `
+                    <div style="padding: var(--spacing-md); background-color: #ffffff; margin-top: var(--spacing-xs); border-top: 1px solid var(--color-neutral-200);">
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">支付方式：</div>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            ${config.paymentMethods.wechat ? '<span style="padding: 4px 8px; background-color: rgba(9, 187, 7, 0.1); color: #09bb07; border-radius: var(--radius-sm); font-size: var(--font-size-xs);">微信支付</span>' : ''}
+                            ${config.paymentMethods.alipay ? '<span style="padding: 4px 8px; background-color: rgba(0, 168, 255, 0.1); color: #00a8ff; border-radius: var(--radius-sm); font-size: var(--font-size-xs);">支付宝</span>' : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderProductListPreview() {
+            return `
+                <div style="padding: var(--spacing-md); background-color: #ffffff;">
+                    <input type="text" class="mp-search-input" placeholder="搜索商品" readonly>
+                </div>
+                <div style="padding: var(--spacing-sm); background-color: #ffffff; margin-top: var(--spacing-xs);">
+                    <div style="display: flex; gap: var(--spacing-xs); overflow-x: auto;">
+                        <div class="mp-category-item active">全部</div>
+                        <div class="mp-category-item">分类1</div>
+                        <div class="mp-category-item">分类2</div>
+                    </div>
+                </div>
+                <div class="mp-product-grid">
+                    ${mockProducts.map(product => `
+                        <div class="mp-product-item">
+                            <div class="mp-product-image">📦</div>
+                            <div class="mp-product-info">
+                                <div class="mp-product-name">${product.name}</div>
+                                <div class="mp-product-price">¥${product.price.toFixed(2)}</div>
+                                ${configData.basic.showStock ? `<div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 2px;">库存：${product.stock}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderProductDetailPreview() {
+            const product = mockProducts[0] || {};
+            return `
+                <div style="position: relative;">
+                    <div style="width: 100%; height: 200px; background-color: var(--color-neutral-100); display: flex; align-items: center; justify-content: center; font-size: 48px;">📦</div>
+                </div>
+                <div style="padding: var(--spacing-md); background-color: #ffffff;">
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-sm);">${product.name || '商品名称'}</div>
+                    <div style="display: flex; align-items: baseline; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm);">
+                        <span style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-error);">¥${(product.price || 0).toFixed(2)}</span>
+                        ${product.originalPrice ? `<span style="font-size: var(--font-size-sm); color: var(--color-text-secondary); text-decoration: line-through;">¥${product.originalPrice.toFixed(2)}</span>` : ''}
+                    </div>
+                    ${configData.basic.showStock ? `<div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">库存：${product.stock || 0}</div>` : ''}
+                    <div style="padding: var(--spacing-sm); background-color: var(--color-neutral-50); border-radius: var(--radius-md); margin-top: var(--spacing-md);">
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">商品详情</div>
+                        <div style="margin-top: var(--spacing-xs); font-size: var(--font-size-sm);">${product.desc || '商品详情描述...'}</div>
+                    </div>
+                    ${product.platforms && product.platforms.includes('business') ? `
+                        <div style="padding: var(--spacing-sm); background-color: rgba(44, 131, 235, 0.1); border-radius: var(--radius-md); margin-top: var(--spacing-sm);">
+                            <div style="font-size: var(--font-size-xs); color: var(--color-primary);">📍 距离最近商家：XX商家（1.2km）</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderDeliveryStaffPreview() {
+            return `
+                <div style="padding: var(--spacing-md); background-color: #ffffff;">
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-md);">订单详情</div>
+                    <div style="padding: var(--spacing-md); background-color: var(--color-neutral-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                        <div style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">订单号：ORD001</div>
+                        <div style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">收货地址：四川省雅安市XX路XX号</div>
+                        <div style="font-size: var(--font-size-sm);">联系电话：13800000010</div>
+                    </div>
+                    ${configData.deliveryRules.requirePhoto ? `
+                        <div style="padding: var(--spacing-md); background-color: #ffffff; border-top: 1px solid var(--color-neutral-200);">
+                            <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">拍照上传</div>
+                            ${configData.deliveryRules.photoNodes.includes('arrival') ? `
+                                <div style="margin-bottom: var(--spacing-sm);">
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">到达目的地</div>
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-xs);">
+                                        ${Array(configData.deliveryRules.photoCount).fill(0).map(() => `
+                                            <div style="aspect-ratio: 1; background-color: var(--color-neutral-100); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: var(--font-size-xs);">📷</div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${configData.deliveryRules.photoNodes.includes('complete') ? `
+                                <div>
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">完成配送</div>
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-xs);">
+                                        ${Array(configData.deliveryRules.photoCount).fill(0).map(() => `
+                                            <div style="aspect-ratio: 1; background-color: var(--color-neutral-100); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: var(--font-size-xs);">📷</div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderUserOrderPreview() {
+            return `
+                <div style="padding: var(--spacing-md); background-color: #ffffff;">
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-md);">我的订单</div>
+                    ${mockOrders.map(order => `
+                        <div class="mp-order-item">
+                            <div class="mp-order-header">
+                                <div>
+                                    <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);">订单号：${order.id}</div>
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 2px;">${order.orderTime}</div>
+                                </div>
+                                <span class="mp-order-status">${order.status === 'completed' ? '已完成' : order.status === 'delivering' ? '配送中' : '待支付'}</span>
+                            </div>
+                            ${order.status === 'delivering' || order.status === 'completed' ? `
+                                <div class="mp-progress-bar">
+                                    <div class="mp-progress-fill" style="width: ${order.status === 'completed' ? '100' : '75'}%;"></div>
+                                </div>
+                            ` : ''}
+                            <div style="margin-top: var(--spacing-sm);">
+                                ${order.products.map(p => `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-xs);">
+                                        <span style="font-size: var(--font-size-sm);">${p.name} x${p.qty}</span>
+                                        <span style="font-size: var(--font-size-sm);">¥${(p.price * p.qty).toFixed(2)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid var(--color-neutral-100);">
+                                <span style="font-size: var(--font-size-sm);">合计：<span style="font-weight: var(--font-weight-bold); color: var(--color-error);">¥${order.amount.toFixed(2)}</span></span>
+                                ${order.status === 'completed' ? `
+                                    <button style="padding: 4px 12px; background-color: var(--color-primary); color: #ffffff; border: none; border-radius: var(--radius-sm); font-size: var(--font-size-xs); cursor: pointer;" onclick="viewDeliveryPhotos('${order.id}')">查看配送照片</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderOrderManagePreview() {
+            return `
+                <div style="padding: var(--spacing-md); background-color: #ffffff;">
+                    <div class="mp-stats-grid">
+                        <div class="mp-stat-card">
+                            <div class="mp-stat-value">25</div>
+                            <div class="mp-stat-label">今日订单</div>
+                        </div>
+                        <div class="mp-stat-card">
+                            <div class="mp-stat-value" style="color: #ff9800;">8</div>
+                            <div class="mp-stat-label">配送中</div>
+                        </div>
+                        <div class="mp-stat-card">
+                            <div class="mp-stat-value" style="color: var(--color-success);">15</div>
+                            <div class="mp-stat-label">已完成</div>
+                        </div>
+                        <div class="mp-stat-card">
+                            <div class="mp-stat-value" style="color: var(--color-error);">2</div>
+                            <div class="mp-stat-label">异常</div>
+                        </div>
+                    </div>
+                    ${mockOrders.map(order => `
+                        <div class="mp-order-item" style="margin-top: var(--spacing-sm);">
+                            <div class="mp-order-header">
+                                <div>
+                                    <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);">${order.id}</div>
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 2px;">${order.userName} | ¥${order.amount.toFixed(2)}</div>
+                                </div>
+                                <span class="mp-order-status">${order.status === 'completed' ? '已完成' : order.status === 'delivering' ? '配送中' : '待支付'}</span>
+                            </div>
+                            <div class="mp-progress-bar">
+                                <div class="mp-progress-fill" style="width: ${order.status === 'completed' ? '100' : order.status === 'delivering' ? '75' : '25'}%;"></div>
+                            </div>
+                            <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: var(--spacing-xs);">更新时间：${order.orderTime}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function bindEvents() {
+            // 菜单切换
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMenu = this.dataset.menu;
+                    currentPreviewTab = currentMenu === 'product' ? 'productList' : 'home';
+                    renderConfigContent();
+                    renderPreview();
+                });
+            });
+
+            // 保存按钮
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const data = {
+                    config: configData,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('miniprogramConfig', JSON.stringify(data));
+                alert('配置已保存！');
+            });
+        }
+
+        function switchPreviewTab(tabId) {
+            currentPreviewTab = tabId;
+            document.querySelectorAll('.preview-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === (tabId === 'productList' ? '商品列表' : tabId === 'productDetail' ? '商品详情' : '首页')) {
+                    tab.classList.add('active');
+                }
+            });
+            renderPreview();
+        }
+
+        function updateBasicConfig(key, value) {
+            configData.basic[key] = value;
+            renderPreview();
+        }
+
+        function updateBusinessHours() {
+            configData.basic.businessHours = {
+                start: document.getElementById('businessStart').value,
+                end: document.getElementById('businessEnd').value
+            };
+        }
+
+        function updatePaymentMethod(method, enabled) {
+            configData.basic.paymentMethods[method] = enabled;
+            renderPreview();
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    configData.basic.shopLogo = e.target.result;
+                    renderConfigContent();
+                    renderPreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeLogo() {
+            configData.basic.shopLogo = '';
+            renderConfigContent();
+            renderPreview();
+        }
+
+        function handleProductImagesUpload(event) {
+            // 处理商品图片上传
+            alert('图片上传功能');
+        }
+
+        function openProductModal() {
+            document.getElementById('productEditPanel').style.display = 'block';
+            renderCategorySelect();
+        }
+
+        function cancelProductEdit() {
+            document.getElementById('productEditPanel').style.display = 'none';
+        }
+
+        function saveProduct() {
+            alert('保存商品功能');
+            cancelProductEdit();
+        }
+
+        function editProduct(id) {
+            const product = mockProducts.find(p => p.id === id);
+            if (product) {
+                document.getElementById('productEditPanel').style.display = 'block';
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productOriginalPrice').value = product.originalPrice || '';
+                document.getElementById('productStock').value = product.stock;
+                renderCategorySelect();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('确定要删除这个商品吗？')) {
+                alert('删除商品功能');
+            }
+        }
+
+        function renderCategorySelect() {
+            const select = document.getElementById('productCategory');
+            select.innerHTML = '<option value="">请选择分类</option>';
+            configData.categories.filter(c => c.enabled).forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+        }
+
+        function openCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            const body = document.getElementById('categoryModalBody');
+            body.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                    <button class="btn btn-primary btn-sm" onclick="addCategory()">新增分类</button>
+                </div>
+                <div class="category-tree">
+                    ${renderCategoryTree()}
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function renderCategoryTree(parentId = 0, level = 0) {
+            const children = configData.categories.filter(c => c.parentId === parentId);
+            if (children.length === 0) return '';
+            
+            return children.map(cat => {
+                const subTree = renderCategoryTree(cat.id, level + 1);
+                return `
+                    <div class="category-item" style="padding-left: ${level * 20 + 16}px;">
+                        <input type="checkbox" ${cat.enabled ? 'checked' : ''} onchange="toggleCategory(${cat.id}, this.checked)">
+                        <span style="flex: 1;">${cat.name}</span>
+                        <input type="number" value="${cat.order}" style="width: 60px; padding: 2px 4px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-sm);" 
+                               onchange="updateCategoryOrder(${cat.id}, this.value)">
+                        <button class="btn btn-outline btn-sm" onclick="editCategory(${cat.id})">编辑</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id})">删除</button>
+                    </div>
+                    ${subTree}
+                `;
+            }).join('');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('show');
+        }
+
+        function toggleCategory(id, enabled) {
+            const cat = configData.categories.find(c => c.id === id);
+            if (cat) {
+                cat.enabled = enabled;
+            }
+        }
+
+        function updateCategoryOrder(id, order) {
+            const cat = configData.categories.find(c => c.id === id);
+            if (cat) {
+                cat.order = parseInt(order);
+            }
+        }
+
+        function addCategory() {
+            const name = prompt('请输入分类名称：');
+            if (name) {
+                const newId = Math.max(...configData.categories.map(c => c.id)) + 1;
+                configData.categories.push({
+                    id: newId,
+                    name: name,
+                    parentId: 0,
+                    order: 0,
+                    enabled: true
+                });
+                openCategoryModal();
+            }
+        }
+
+        function editCategory(id) {
+            const cat = configData.categories.find(c => c.id === id);
+            if (cat) {
+                const newName = prompt('请输入新分类名称：', cat.name);
+                if (newName) {
+                    cat.name = newName;
+                    openCategoryModal();
+                }
+            }
+        }
+
+        function deleteCategory(id) {
+            if (confirm('确定要删除这个分类吗？')) {
+                configData.categories = configData.categories.filter(c => c.id !== id);
+                openCategoryModal();
+            }
+        }
+
+        function updateDeliveryRule(key, value) {
+            configData.deliveryRules[key] = value;
+            renderPreview();
+        }
+
+        function updatePhotoNodes() {
+            const nodes = [];
+            if (document.getElementById('photoNodeArrival').checked) nodes.push('arrival');
+            if (document.getElementById('photoNodeComplete').checked) nodes.push('complete');
+            configData.deliveryRules.photoNodes = nodes;
+            renderPreview();
+        }
+
+        function viewDeliveryDetail(id) {
+            alert('查看配送员详情');
+        }
+
+        function disableStaff(id) {
+            if (confirm('确定要禁用这个配送员吗？')) {
+                alert('禁用配送员功能');
+            }
+        }
+
+        function viewDeliveryPhotos(orderId) {
+            const modal = document.getElementById('photoModal');
+            const body = document.getElementById('photoModalBody');
+            body.innerHTML = `
+                <div style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">订单号：${orderId}</div>
+                <div class="mp-photo-grid">
+                    ${Array(6).fill(0).map((_, i) => `
+                        <div class="mp-photo-item">照片${i + 1}</div>
+                    `).join('')}
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.remove('show');
+        }
+
+        function viewOrderDetail(orderId) {
+            const order = mockOrders.find(o => o.id === orderId);
+            if (order) {
+                document.getElementById('orderDetailPanel').style.display = 'block';
+                document.getElementById('orderDetailContent').innerHTML = `
+                    <div style="padding: var(--spacing-md); background-color: var(--color-neutral-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                        <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">用户信息</div>
+                        <div style="font-size: var(--font-size-sm);">${order.userName}</div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 2px;">${order.mobile}</div>
+                    </div>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">商品清单</div>
+                        ${order.products.map(p => `
+                            <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm); background-color: var(--color-neutral-50); border-radius: var(--radius-sm); margin-bottom: var(--spacing-xs);">
+                                <span>${p.name} x${p.qty}</span>
+                                <span>¥${(p.price * p.qty).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">订单金额明细</div>
+                        <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm);">
+                            <span>商品总额</span>
+                            <span>¥${order.amount.toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm); border-top: 1px solid var(--color-neutral-200);">
+                            <span style="font-weight: var(--font-weight-medium);">合计</span>
+                            <span style="font-weight: var(--font-weight-bold); color: var(--color-error);">¥${order.amount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">配送信息</div>
+                        <div style="font-size: var(--font-size-sm);">配送方式：${order.deliveryMethod}</div>
+                        ${order.status === 'completed' ? `
+                            <div style="margin-top: var(--spacing-sm);">
+                                <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">📷 配送到点照片</div>
+                                <div class="mp-photo-grid">
+                                    ${Array(3).fill(0).map((_, i) => `
+                                        <div class="mp-photo-item">照片${i + 1}</div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                renderPreview();
+            }
+        }
+
+        function viewOrderProgress(orderId) {
+            const order = mockOrders.find(o => o.id === orderId);
+            if (order) {
+                document.getElementById('orderProgressPanel').style.display = 'block';
+                const steps = [
+                    { name: '下单', time: order.orderTime, active: true },
+                    { name: '支付成功', time: order.orderTime, active: order.status !== 'pending' },
+                    { name: '商家接单', time: order.orderTime, active: order.status !== 'pending' },
+                    { name: '配送中', time: order.orderTime, active: order.status === 'delivering' || order.status === 'completed' },
+                    { name: '已完成', time: order.orderTime, active: order.status === 'completed' }
+                ];
+                document.getElementById('orderProgressContent').innerHTML = `
+                    <div class="mp-timeline">
+                        ${steps.map((step, index) => `
+                            <div class="mp-timeline-item ${step.active ? 'active' : ''}">
+                                <div class="mp-timeline-dot"></div>
+                                <div class="mp-timeline-content">
+                                    <div class="mp-timeline-title">${step.name}</div>
+                                    <div class="mp-timeline-time">${step.time}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                renderPreview();
+            }
+        }
+
+        function loadSavedConfig() {
+            const saved = localStorage.getItem('miniprogramConfig');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.config) {
+                        Object.assign(configData, data.config);
+                        renderConfigContent();
+                        renderPreview();
+                    }
+                } catch (e) {
+                    console.error('加载配置失败', e);
+                }
+            }
+        }
+
+        // 全局函数
+        window.switchPreviewTab = switchPreviewTab;
+        window.updateBasicConfig = updateBasicConfig;
+        window.updateBusinessHours = updateBusinessHours;
+        window.updatePaymentMethod = updatePaymentMethod;
+        window.handleLogoUpload = handleLogoUpload;
+        window.removeLogo = removeLogo;
+        window.handleProductImagesUpload = handleProductImagesUpload;
+        window.openProductModal = openProductModal;
+        window.cancelProductEdit = cancelProductEdit;
+        window.saveProduct = saveProduct;
+        window.editProduct = editProduct;
+        window.deleteProduct = deleteProduct;
+        window.openCategoryModal = openCategoryModal;
+        window.closeCategoryModal = closeCategoryModal;
+        window.toggleCategory = toggleCategory;
+        window.updateCategoryOrder = updateCategoryOrder;
+        window.addCategory = addCategory;
+        window.editCategory = editCategory;
+        window.deleteCategory = deleteCategory;
+        window.updateDeliveryRule = updateDeliveryRule;
+        window.updatePhotoNodes = updatePhotoNodes;
+        window.viewDeliveryDetail = viewDeliveryDetail;
+        window.disableStaff = disableStaff;
+        window.viewDeliveryPhotos = viewDeliveryPhotos;
+        window.closePhotoModal = closePhotoModal;
+        window.viewOrderDetail = viewOrderDetail;
+        window.viewOrderProgress = viewOrderProgress;
+
+        init();
+    </script>
+</body>
+</html>

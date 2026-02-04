@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点单 - 收银台</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/点单.css">
+</head>
+<body class="order-page-body">
+    <div class="order-page-container">
+        <!-- 左边点单区 -->
+        <aside class="order-left-panel">
+            <!-- 上边：客户信息区 -->
+            <div class="order-customer-section">
+                <!-- 客户选择区 -->
+                <div class="order-customer-select">
+                    <button class="order-customer-link" id="selectCustomerBtn">
+                        <span class="order-customer-icon">👤</span>
+                        <span>点击选择客户</span>
+                    </button>
+                    <button class="order-btn order-btn-primary order-storage-btn" id="storageBtn">储值</button>
+                </div>
+                <!-- 会员信息展示 -->
+                <div class="order-member-info">
+                    <div class="order-member-item">
+                        <span class="order-member-label">余额</span>
+                        <span class="order-member-value" id="memberBalance">0.00</span>
+                    </div>
+                    <div class="order-member-item">
+                        <span class="order-member-label">权益卡</span>
+                        <span class="order-member-value" id="memberCard">0</span>
+                    </div>
+                    <div class="order-member-item">
+                        <span class="order-member-label">优惠券</span>
+                        <span class="order-member-value" id="memberCoupon">0</span>
+                    </div>
+                    <div class="order-member-item">
+                        <span class="order-member-label">积分</span>
+                        <span class="order-member-value" id="memberPoints">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间：点单显示区 -->
+            <div class="order-items-section">
+                <div class="order-items-header">
+                    <h3 class="order-items-title">点单列表</h3>
+                </div>
+                <div class="order-items-list" id="orderItemsList">
+                    <!-- 空状态 -->
+                    <div class="order-items-empty" id="orderItemsEmpty">
+                        <div class="order-empty-icon">🛒</div>
+                        <div class="order-empty-text">暂无菜品</div>
+                    </div>
+                    <!-- 菜品列表将动态生成 -->
+                </div>
+            </div>
+
+            <!-- 底部：优惠和结算区 -->
+            <div class="order-settlement-section">
+                <!-- 优惠信息 -->
+                <div class="order-discount-bar">
+                    <span class="order-discount-text" id="discountText">无优惠</span>
+                    <button class="order-btn order-btn-outline order-modify-discount-btn" id="modifyDiscountBtn">修改优惠</button>
+                </div>
+                <!-- 合计价格和收银按钮 -->
+                <div class="order-total-section">
+                    <div class="order-total-info">
+                        <div class="order-total-label">合计</div>
+                        <div class="order-total-price" id="totalPrice">¥0.00</div>
+                    </div>
+                    <button class="order-btn order-btn-primary order-btn-large order-checkout-btn" id="checkoutBtn">收银</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 中间号牌区 -->
+        <div class="order-middle-panel">
+            <div class="order-number-section">
+                <!-- 区块标题 -->
+                <div class="order-number-header">
+                    <h3 class="order-number-title">号牌</h3>
+                </div>
+                
+                <!-- 功能按钮区 -->
+                <div class="order-number-actions">
+                    <!-- 整单打包开关 -->
+                    <div class="order-action-item">
+                        <label class="order-switch">
+                            <input type="checkbox" id="packSwitch">
+                            <span class="order-switch-slider"></span>
+                        </label>
+                        <span class="order-action-text">整单打包</span>
+                    </div>
+                    
+                    <!-- 清空按钮 -->
+                    <button class="order-action-btn" id="clearBtn">清空</button>
+                    
+                    <!-- 取单按钮 -->
+                    <button class="order-action-btn" id="takeOrderBtn">取单</button>
+                    
+                    <!-- 整单打折\减免按钮 -->
+                    <button class="order-action-btn" id="discountBtn">整单打折\减免</button>
+                    
+                    <!-- 整单备注按钮 -->
+                    <button class="order-action-btn" id="remarkBtn">整单备注</button>
+                    
+                    <!-- 团购券先核销按钮 -->
+                    <button class="order-action-btn" id="grouponBtn">团购券先核销</button>
+                </div>
+                
+                <!-- 底部滚动控制 -->
+                <div class="order-number-footer">
+                    <button class="order-scroll-btn" id="scrollUpBtn">向上滑</button>
+                    <button class="order-scroll-btn" id="scrollDownBtn">向下滑</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右边商品区 -->
+        <main class="order-right-panel">
+            <!-- 顶部搜索和工具栏 -->
+            <div class="order-product-toolbar">
+                <!-- 左侧搜索条 -->
+                <div class="order-search-section">
+                    <input type="text" class="order-search-input" id="productSearchInput" placeholder="🔍 商品名称">
+                </div>
+                <!-- 右侧功能按钮 -->
+                <div class="order-toolbar-buttons">
+                    <button class="order-tool-btn order-tool-btn-outline" id="tempProductBtn" title="临时商品">临时商品</button>
+                    <button class="order-tool-btn" id="settingsBtn" title="设置">设置</button>
+                    <button class="order-tool-btn" id="viewLargeBtn" title="大图模式">大</button>
+                    <button class="order-tool-btn" id="viewMediumBtn" title="中图模式">中</button>
+                    <button class="order-tool-btn" id="viewSmallBtn" title="小图模式">小</button>
+                    <button class="order-tool-btn" id="refreshBtn" title="刷新">🔄</button>
+                </div>
+            </div>
+            
+            <!-- 商品分类标签栏 -->
+            <div class="order-category-tabs">
+                <div class="order-category-tabs-wrapper" id="categoryTabsWrapper">
+                    <button class="order-category-tab active" data-category="all">全部</button>
+                    <button class="order-category-tab" data-category="soft-drink">软饮</button>
+                    <button class="order-category-tab" data-category="beer">啤酒</button>
+                    <button class="order-category-tab" data-category="snack">小号</button>
+                    <button class="order-category-tab" data-category="other">其它</button>
+                    <button class="order-category-tab" data-category="wine">洋酒</button>
+                    <button class="order-category-tab" data-category="special">特色</button>
+                    <button class="order-category-tab" data-category="rainbow">彩虹</button>
+                    <button class="order-category-tab" data-category="package">套餐</button>
+                    <button class="order-category-tab" data-category="chinese">中餐</button>
+                </div>
+            </div>
+
+            <!-- 商品展示区 -->
+            <div class="order-product-content">
+                <div class="order-products-grid" id="productsGrid">
+                    <!-- 商品卡片将动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 底部固定按钮区 -->
+            <div class="order-payment-bar">
+                <button class="order-payment-btn order-payment-btn-outline" id="scanPayBtn">扫付</button>
+                <button class="order-payment-btn order-payment-btn-outline" id="cashPayBtn">现金</button>
+                <button class="order-payment-btn order-payment-btn-douyin" id="douyinPayBtn">
+                    <span class="douyin-logo">抖音</span>
+                </button>
+                <button class="order-payment-btn order-payment-btn-primary" id="payLaterBtn">先吃后付</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 弹窗容器 -->
+    <div id="modalContainer"></div>
+
+    <script src="../../../js/点单.js"></script>
+</body>
+</html>

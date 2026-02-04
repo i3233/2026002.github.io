@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>往来汇总 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .partner-summary-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 顶部操作按钮栏 */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 筛选条件区域 */
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item--full {
+            flex: 1 1 100%;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        /* 统计摘要区域 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 180px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            position: relative;
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-indicator {
+            position: absolute;
+            top: var(--spacing-sm);
+            right: var(--spacing-sm);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .summary-indicator.blue {
+            background-color: var(--color-primary);
+        }
+
+        .summary-indicator.red {
+            background-color: var(--color-error);
+        }
+
+        .summary-indicator.green {
+            background-color: var(--color-success);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .amount-positive {
+            color: var(--color-success);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .amount-negative {
+            color: var(--color-error);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .mobile-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+            margin-left: var(--spacing-xs);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .action-btn.receive {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .action-btn.receive:hover {
+            background-color: var(--color-success);
+            color: #ffffff;
+        }
+
+        .action-btn.pay {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .action-btn.pay:hover {
+            background-color: var(--color-error);
+            color: #ffffff;
+        }
+
+        .action-btn.history {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .action-btn.history:hover {
+            background-color: var(--color-primary);
+            color: #ffffff;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active):not(:disabled) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* 收款/付款表单 */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-group label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* 往来历程表格 */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--spacing-md);
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--color-neutral-200);
+            font-size: var(--font-size-sm);
+        }
+
+        .history-table th {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .history-table tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .history-type-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        .history-type-tag.purchase {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .history-type-tag.return {
+            background-color: rgba(255, 140, 66, 0.1);
+            color: #ff8c42;
+        }
+
+        .history-type-tag.receive {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .history-type-tag.pay {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        /* 往来单位信息卡片 */
+        .partner-info-card {
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .partner-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .partner-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .partner-info-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .partner-info-value {
+            font-size: var(--font-size-base);
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="partner-summary-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">往来汇总</h1>
+                <div class="page-subtitle">管理和查看往来单位应收应付信息，支持收款付款和往来历程查询</div>
+            </div>
+        </div>
+
+        <!-- 顶部操作按钮栏 -->
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-outline" id="exportBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="printListBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">🖨</span>
+                        <span>打印列表</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="summaryBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">📊</span>
+                        <span>往来汇总</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选条件区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>往来单位类型</label>
+                    <select id="partnerTypeSelect">
+                        <option value="">全部类型</option>
+                        <option value="supplier">供应商</option>
+                        <option value="customer">客户</option>
+                        <option value="both">供应商+客户</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>余额筛选</label>
+                    <select id="balanceFilterSelect">
+                        <option value="">全部</option>
+                        <option value="receivable">有应收</option>
+                        <option value="payable">有应付</option>
+                        <option value="zero">余额为零</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>快捷搜索</label>
+                    <input type="text" id="quickSearchInput" placeholder="输入单位名称、联系人、手机号搜索">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" id="searchBtn">搜索</button>
+            </div>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <span class="summary-indicator red"></span>
+                <div class="summary-label">应收总额(元)</div>
+                <div class="summary-value summary-value-red" id="totalReceivable">0.00</div>
+            </div>
+            <div class="summary-card">
+                <span class="summary-indicator blue"></span>
+                <div class="summary-label">应付总额(元)</div>
+                <div class="summary-value summary-value-blue" id="totalPayable">0.00</div>
+            </div>
+            <div class="summary-card">
+                <span class="summary-indicator green"></span>
+                <div class="summary-label">往来单位数</div>
+                <div class="summary-value summary-value-green" id="partnerCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">净余额(元)</div>
+                <div class="summary-value summary-value-blue" id="netBalance">0.00</div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>序号</th>
+                            <th class="sortable" data-sort="name">往来单位</th>
+                            <th>联系人</th>
+                            <th>手机号</th>
+                            <th class="text-right sortable" data-sort="receivable">应收(元)</th>
+                            <th class="text-right sortable" data-sort="payable">应付(元)</th>
+                            <th class="text-right sortable" data-sort="balance">余额(元)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="5" class="text-right">合计：</td>
+                            <td class="text-right" id="totalReceivableCell">0.00</td>
+                            <td class="text-right" id="totalPayableCell">0.00</td>
+                            <td class="text-right" id="totalBalanceCell">0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收款模态框 -->
+    <div class="modal" id="receiveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">收款</h3>
+                <button class="modal-close" onclick="closeReceiveModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="partner-info-card" id="receivePartnerInfo">
+                    <!-- 往来单位信息 -->
+                </div>
+                <div class="form-group">
+                    <label>收款金额 <span class="required">*</span></label>
+                    <input type="number" id="receiveAmount" step="0.01" min="0.01" placeholder="请输入收款金额">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>收款账户</label>
+                        <select id="receiveAccount">
+                            <option value="cash">现金账户</option>
+                            <option value="bank">银行账户</option>
+                            <option value="alipay">支付宝账户</option>
+                            <option value="wechat">微信账户</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>收款日期</label>
+                        <input type="date" id="receiveDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="receiveRemark" placeholder="请输入备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeReceiveModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmReceive()">确认收款</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 付款模态框 -->
+    <div class="modal" id="payModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">付款</h3>
+                <button class="modal-close" onclick="closePayModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="partner-info-card" id="payPartnerInfo">
+                    <!-- 往来单位信息 -->
+                </div>
+                <div class="form-group">
+                    <label>付款金额 <span class="required">*</span></label>
+                    <input type="number" id="payAmount" step="0.01" min="0.01" placeholder="请输入付款金额">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>付款账户</label>
+                        <select id="payAccount">
+                            <option value="cash">现金账户</option>
+                            <option value="bank">银行账户</option>
+                            <option value="alipay">支付宝账户</option>
+                            <option value="wechat">微信账户</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>付款日期</label>
+                        <input type="date" id="payDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="payRemark" placeholder="请输入备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePayModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmPay()">确认付款</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 往来历程模态框 -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title">往来历程</h3>
+                <button class="modal-close" onclick="closeHistoryModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="partner-info-card" id="historyPartnerInfo">
+                    <!-- 往来单位信息 -->
+                </div>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>类型</th>
+                            <th>单号</th>
+                            <th class="text-right">应收金额</th>
+                            <th class="text-right">应付金额</th>
+                            <th class="text-right">已收金额</th>
+                            <th class="text-right">已付金额</th>
+                            <th class="text-right">余额</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeHistoryModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟往来单位数据
+        const partnerData = [
+            {
+                id: 'PARTNER001',
+                name: '雅安本地供应商A',
+                contact: '张老板',
+                mobile: '13800000001',
+                type: 'supplier',
+                receivable: 0.00,
+                payable: 800.00,
+                balance: -800.00,
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER002',
+                name: '成都批发商B',
+                contact: '李经理',
+                mobile: '13800000002',
+                type: 'supplier',
+                receivable: 0.00,
+                payable: 560.00,
+                balance: -560.00,
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER003',
+                name: '雅安本地供应商C',
+                contact: '王总',
+                mobile: '13800000003',
+                type: 'supplier',
+                receivable: 0.00,
+                payable: 1500.00,
+                balance: -1500.00,
+                mobileBound: false
+            },
+            {
+                id: 'PARTNER004',
+                name: '茶叶供应商D',
+                contact: '赵老板',
+                mobile: '13800000004',
+                type: 'supplier',
+                receivable: 0.00,
+                payable: 1497.00,
+                balance: -1497.00,
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER005',
+                name: '雅安批发商A',
+                contact: '张老板',
+                mobile: '13800000010',
+                type: 'customer',
+                receivable: 5000.00,
+                payable: 0.00,
+                balance: 5000.00,
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER006',
+                name: '成都批发商B',
+                contact: '李经理',
+                mobile: '13800000011',
+                type: 'customer',
+                receivable: 3000.00,
+                payable: 0.00,
+                balance: 3000.00,
+                mobileBound: true
+            },
+            {
+                id: 'PARTNER007',
+                name: '雅安批发商C',
+                contact: '王总',
+                mobile: '13800000012',
+                type: 'customer',
+                receivable: 8500.00,
+                payable: 0.00,
+                balance: 8500.00,
+                mobileBound: false
+            }
+        ];
+
+        // 模拟往来历程数据
+        const historyData = {
+            'PARTNER001': [
+                {
+                    date: '2025-01-15',
+                    type: 'purchase',
+                    typeText: '采购进货',
+                    orderNo: 'JH20250115001',
+                    receivable: 0.00,
+                    payable: 1800.20,
+                    received: 1000.20,
+                    paid: 0.00,
+                    balance: -800.00,
+                    remark: '首批到货'
+                },
+                {
+                    date: '2025-01-20',
+                    type: 'receive',
+                    typeText: '收款',
+                    orderNo: 'SK20250120001',
+                    receivable: 0.00,
+                    payable: 0.00,
+                    received: 1000.20,
+                    paid: 0.00,
+                    balance: -800.00,
+                    remark: '部分收款'
+                }
+            ],
+            'PARTNER002': [
+                {
+                    date: '2025-01-16',
+                    type: 'purchase',
+                    typeText: '采购进货',
+                    orderNo: 'JH20250116001',
+                    receivable: 0.00,
+                    payable: 1200.00,
+                    received: 640.00,
+                    paid: 0.00,
+                    balance: -560.00,
+                    remark: ''
+                },
+                {
+                    date: '2025-01-18',
+                    type: 'receive',
+                    typeText: '收款',
+                    orderNo: 'SK20250118001',
+                    receivable: 0.00,
+                    payable: 0.00,
+                    received: 640.00,
+                    paid: 0.00,
+                    balance: -560.00,
+                    remark: '部分收款'
+                }
+            ],
+            'PARTNER005': [
+                {
+                    date: '2025-01-26',
+                    type: 'purchase',
+                    typeText: '批发订单',
+                    orderNo: 'PF20250126001',
+                    receivable: 5000.00,
+                    payable: 0.00,
+                    received: 0.00,
+                    paid: 0.00,
+                    balance: 5000.00,
+                    remark: '商家自助(实付)'
+                }
+            ],
+            'PARTNER006': [
+                {
+                    date: '2025-01-26',
+                    type: 'purchase',
+                    typeText: '批发订单',
+                    orderNo: 'PF20250126002',
+                    receivable: 3000.00,
+                    payable: 0.00,
+                    received: 0.00,
+                    paid: 0.00,
+                    balance: 3000.00,
+                    remark: '商家自助(赊账)'
+                }
+            ]
+        };
+
+        let currentPage = 1;
+        let pageSize = 20;
+        let sortField = '';
+        let sortOrder = '';
+        let selectedIds = new Set();
+        let filteredData = [...partnerData];
+        let currentPartnerId = null;
+
+        // 初始化
+        function init() {
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('receiveDate').value = today;
+            document.getElementById('payDate').value = today;
+            
+            renderTable();
+            updatePagination();
+            updateSummary();
+            bindEvents();
+        }
+
+        // 获取筛选后的数据
+        function getFilteredData() {
+            let data = [...partnerData];
+            
+            const partnerType = document.getElementById('partnerTypeSelect').value;
+            const balanceFilter = document.getElementById('balanceFilterSelect').value;
+            const quickSearch = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            
+            if (partnerType) {
+                if (partnerType === 'supplier') {
+                    data = data.filter(item => item.type === 'supplier');
+                } else if (partnerType === 'customer') {
+                    data = data.filter(item => item.type === 'customer');
+                }
+                // 'both' 表示不过滤
+            }
+            
+            if (balanceFilter) {
+                if (balanceFilter === 'receivable') {
+                    data = data.filter(item => item.receivable > 0);
+                } else if (balanceFilter === 'payable') {
+                    data = data.filter(item => item.payable > 0);
+                } else if (balanceFilter === 'zero') {
+                    data = data.filter(item => item.balance === 0);
+                }
+            }
+            
+            if (quickSearch) {
+                data = data.filter(item => 
+                    item.name.toLowerCase().includes(quickSearch) ||
+                    item.contact.toLowerCase().includes(quickSearch) ||
+                    item.mobile.includes(quickSearch)
+                );
+            }
+            
+            return data;
+        }
+
+        // 更新统计摘要
+        function updateSummary() {
+            const data = getFilteredData();
+            
+            // 应收总额
+            const totalReceivable = data.reduce((sum, item) => sum + item.receivable, 0);
+            
+            // 应付总额
+            const totalPayable = data.reduce((sum, item) => sum + item.payable, 0);
+            
+            // 往来单位数
+            const partnerCount = data.length;
+            
+            // 净余额（应收-应付）
+            const netBalance = totalReceivable - totalPayable;
+            
+            // 更新显示
+            document.getElementById('totalReceivable').textContent = totalReceivable.toFixed(2);
+            document.getElementById('totalPayable').textContent = totalPayable.toFixed(2);
+            document.getElementById('partnerCount').textContent = partnerCount;
+            document.getElementById('netBalance').textContent = netBalance.toFixed(2);
+            
+            // 净余额颜色
+            const netBalanceElement = document.getElementById('netBalance');
+            netBalanceElement.className = 'summary-value ' + (netBalance >= 0 ? 'summary-value-green' : 'summary-value-red');
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            filteredData = getFilteredData();
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                const balanceClass = item.balance >= 0 ? 'amount-positive' : 'amount-negative';
+                const balanceText = item.balance >= 0 ? `+${item.balance.toFixed(2)}` : item.balance.toFixed(2);
+                
+                row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${item.id}">
+                    </td>
+                    <td>${startIndex + index + 1}</td>
+                    <td>
+                        <span class="link-text" onclick="viewPartnerDetail('${item.id}')">${item.name}</span>
+                    </td>
+                    <td>${item.contact}</td>
+                    <td>
+                        ${item.mobile}
+                        ${item.mobileBound ? '<span class="mobile-badge" title="已绑定，可用于收银台提货折扣">已绑定</span>' : ''}
+                    </td>
+                    <td class="text-right amount-positive">${item.receivable.toFixed(2)}</td>
+                    <td class="text-right amount-negative">${item.payable.toFixed(2)}</td>
+                    <td class="text-right ${balanceClass}">${balanceText}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${item.receivable > 0 ? `<button class="action-btn receive" onclick="openReceiveModal('${item.id}')">收款</button>` : ''}
+                            ${item.payable > 0 ? `<button class="action-btn pay" onclick="openPayModal('${item.id}')">付款</button>` : ''}
+                            <button class="action-btn history" onclick="openHistoryModal('${item.id}')">往来历程</button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // 更新合计行
+            const totalReceivable = filteredData.reduce((sum, item) => sum + item.receivable, 0);
+            const totalPayable = filteredData.reduce((sum, item) => sum + item.payable, 0);
+            const totalBalance = filteredData.reduce((sum, item) => sum + item.balance, 0);
+            
+            document.getElementById('totalReceivableCell').textContent = totalReceivable.toFixed(2);
+            document.getElementById('totalPayableCell').textContent = totalPayable.toFixed(2);
+            document.getElementById('totalBalanceCell').textContent = totalBalance.toFixed(2);
+
+            updateSelectedInfo();
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalRecords = filteredData.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            document.getElementById('totalRecords').textContent = totalRecords;
+
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-page-btn';
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    updatePagination();
+                }
+            };
+            paginationPages.appendChild(prevBtn);
+
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                if (totalPages > 7 && i !== 1 && i !== totalPages && Math.abs(i - currentPage) > 1) {
+                    if (Math.abs(i - currentPage) === 2) {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'pagination-info';
+                        ellipsis.textContent = '...';
+                        paginationPages.appendChild(ellipsis);
+                    }
+                    continue;
+                }
+                
+                const btn = document.createElement('button');
+                btn.className = 'pagination-page-btn' + (i === currentPage ? ' active' : '');
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                    updatePagination();
+                };
+                paginationPages.appendChild(btn);
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-page-btn';
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                    updatePagination();
+                }
+            };
+            paginationPages.appendChild(nextBtn);
+        }
+
+        // 打开收款模态框
+        function openReceiveModal(partnerId) {
+            currentPartnerId = partnerId;
+            const partner = partnerData.find(p => p.id === partnerId);
+            if (!partner) return;
+
+            // 显示往来单位信息
+            const infoHtml = `
+                <div class="partner-info-grid">
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">往来单位</div>
+                        <div class="partner-info-value">${partner.name}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">联系人</div>
+                        <div class="partner-info-value">${partner.contact}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">手机号</div>
+                        <div class="partner-info-value">${partner.mobile}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">应收金额</div>
+                        <div class="partner-info-value amount-positive">${partner.receivable.toFixed(2)} 元</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('receivePartnerInfo').innerHTML = infoHtml;
+
+            // 设置最大收款金额
+            document.getElementById('receiveAmount').max = partner.receivable;
+            document.getElementById('receiveAmount').value = partner.receivable > 0 ? partner.receivable.toFixed(2) : '';
+
+            document.getElementById('receiveModal').classList.add('show');
+        }
+
+        // 关闭收款模态框
+        function closeReceiveModal() {
+            document.getElementById('receiveModal').classList.remove('show');
+            currentPartnerId = null;
+            // 清空表单
+            document.getElementById('receiveAmount').value = '';
+            document.getElementById('receiveRemark').value = '';
+        }
+
+        // 确认收款
+        function confirmReceive() {
+            const amount = parseFloat(document.getElementById('receiveAmount').value);
+            const account = document.getElementById('receiveAccount').value;
+            const date = document.getElementById('receiveDate').value;
+            const remark = document.getElementById('receiveRemark').value;
+
+            if (!amount || amount <= 0) {
+                alert('请输入有效的收款金额');
+                return;
+            }
+
+            const partner = partnerData.find(p => p.id === currentPartnerId);
+            if (amount > partner.receivable) {
+                alert('收款金额不能超过应收金额');
+                return;
+            }
+
+            // 模拟收款
+            partner.receivable -= amount;
+            partner.balance = partner.receivable - partner.payable;
+
+            // 添加到往来历程
+            if (!historyData[currentPartnerId]) {
+                historyData[currentPartnerId] = [];
+            }
+            historyData[currentPartnerId].unshift({
+                date: date,
+                type: 'receive',
+                typeText: '收款',
+                orderNo: 'SK' + new Date().getTime(),
+                receivable: 0.00,
+                payable: 0.00,
+                received: amount,
+                paid: 0.00,
+                balance: partner.balance,
+                remark: remark || '收款'
+            });
+
+            alert(`收款成功！\n收款金额：${amount.toFixed(2)} 元\n收款账户：${account}\n收款日期：${date}`);
+            closeReceiveModal();
+            renderTable();
+            updateSummary();
+        }
+
+        // 打开付款模态框
+        function openPayModal(partnerId) {
+            currentPartnerId = partnerId;
+            const partner = partnerData.find(p => p.id === partnerId);
+            if (!partner) return;
+
+            // 显示往来单位信息
+            const infoHtml = `
+                <div class="partner-info-grid">
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">往来单位</div>
+                        <div class="partner-info-value">${partner.name}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">联系人</div>
+                        <div class="partner-info-value">${partner.contact}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">手机号</div>
+                        <div class="partner-info-value">${partner.mobile}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">应付金额</div>
+                        <div class="partner-info-value amount-negative">${partner.payable.toFixed(2)} 元</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('payPartnerInfo').innerHTML = infoHtml;
+
+            // 设置最大付款金额
+            document.getElementById('payAmount').max = partner.payable;
+            document.getElementById('payAmount').value = partner.payable > 0 ? partner.payable.toFixed(2) : '';
+
+            document.getElementById('payModal').classList.add('show');
+        }
+
+        // 关闭付款模态框
+        function closePayModal() {
+            document.getElementById('payModal').classList.remove('show');
+            currentPartnerId = null;
+            // 清空表单
+            document.getElementById('payAmount').value = '';
+            document.getElementById('payRemark').value = '';
+        }
+
+        // 确认付款
+        function confirmPay() {
+            const amount = parseFloat(document.getElementById('payAmount').value);
+            const account = document.getElementById('payAccount').value;
+            const date = document.getElementById('payDate').value;
+            const remark = document.getElementById('payRemark').value;
+
+            if (!amount || amount <= 0) {
+                alert('请输入有效的付款金额');
+                return;
+            }
+
+            const partner = partnerData.find(p => p.id === currentPartnerId);
+            if (amount > partner.payable) {
+                alert('付款金额不能超过应付金额');
+                return;
+            }
+
+            // 模拟付款
+            partner.payable -= amount;
+            partner.balance = partner.receivable - partner.payable;
+
+            // 添加到往来历程
+            if (!historyData[currentPartnerId]) {
+                historyData[currentPartnerId] = [];
+            }
+            historyData[currentPartnerId].unshift({
+                date: date,
+                type: 'pay',
+                typeText: '付款',
+                orderNo: 'FK' + new Date().getTime(),
+                receivable: 0.00,
+                payable: 0.00,
+                received: 0.00,
+                paid: amount,
+                balance: partner.balance,
+                remark: remark || '付款'
+            });
+
+            alert(`付款成功！\n付款金额：${amount.toFixed(2)} 元\n付款账户：${account}\n付款日期：${date}`);
+            closePayModal();
+            renderTable();
+            updateSummary();
+        }
+
+        // 打开往来历程模态框
+        function openHistoryModal(partnerId) {
+            currentPartnerId = partnerId;
+            const partner = partnerData.find(p => p.id === partnerId);
+            if (!partner) return;
+
+            // 显示往来单位信息
+            const infoHtml = `
+                <div class="partner-info-grid">
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">往来单位</div>
+                        <div class="partner-info-value">${partner.name}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">联系人</div>
+                        <div class="partner-info-value">${partner.contact}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">手机号</div>
+                        <div class="partner-info-value">${partner.mobile} ${partner.mobileBound ? '<span class="mobile-badge">已绑定</span>' : ''}</div>
+                    </div>
+                    <div class="partner-info-item">
+                        <div class="partner-info-label">当前余额</div>
+                        <div class="partner-info-value ${partner.balance >= 0 ? 'amount-positive' : 'amount-negative'}">${partner.balance >= 0 ? '+' : ''}${partner.balance.toFixed(2)} 元</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('historyPartnerInfo').innerHTML = infoHtml;
+
+            // 渲染往来历程表格
+            const history = historyData[partnerId] || [];
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--color-text-secondary);">暂无往来记录</td></tr>';
+            } else {
+                history.forEach(item => {
+                    const row = document.createElement('tr');
+                    const balanceClass = item.balance >= 0 ? 'amount-positive' : 'amount-negative';
+                    const balanceText = item.balance >= 0 ? `+${item.balance.toFixed(2)}` : item.balance.toFixed(2);
+                    
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td><span class="history-type-tag ${item.type}">${item.typeText}</span></td>
+                        <td>${item.orderNo}</td>
+                        <td class="text-right amount-positive">${item.receivable.toFixed(2)}</td>
+                        <td class="text-right amount-negative">${item.payable.toFixed(2)}</td>
+                        <td class="text-right amount-positive">${item.received.toFixed(2)}</td>
+                        <td class="text-right amount-negative">${item.paid.toFixed(2)}</td>
+                        <td class="text-right ${balanceClass}">${balanceText}</td>
+                        <td>${item.remark || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            document.getElementById('historyModal').classList.add('show');
+        }
+
+        // 关闭往来历程模态框
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('show');
+            currentPartnerId = null;
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 全选
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checked = this.checked;
+                document.querySelectorAll('.row-checkbox').forEach(cb => {
+                    cb.checked = checked;
+                    if (checked) {
+                        selectedIds.add(cb.dataset.id);
+                    } else {
+                        selectedIds.delete(cb.dataset.id);
+                    }
+                });
+                document.getElementById('bottomSelectAll').checked = checked;
+                updateSelectedInfo();
+            });
+
+            document.getElementById('bottomSelectAll').addEventListener('change', function() {
+                document.getElementById('selectAll').checked = this.checked;
+                document.getElementById('selectAll').dispatchEvent(new Event('change'));
+            });
+
+            // 行复选框
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('row-checkbox')) {
+                    const id = e.target.dataset.id;
+                    if (e.target.checked) {
+                        selectedIds.add(id);
+                    } else {
+                        selectedIds.delete(id);
+                    }
+                    updateSelectAllState();
+                    updateSelectedInfo();
+                }
+            });
+
+            // 排序
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    if (sortField === field) {
+                        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortField = field;
+                        sortOrder = 'asc';
+                    }
+                    // 更新排序图标
+                    document.querySelectorAll('th.sortable').forEach(t => {
+                        t.classList.remove('asc', 'desc');
+                    });
+                    this.classList.add(sortOrder);
+                    // 这里可以添加排序逻辑
+                    renderTable();
+                });
+            });
+
+            // 搜索
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateSummary();
+            });
+
+            // 筛选条件变化
+            ['partnerTypeSelect', 'balanceFilterSelect'].forEach(id => {
+                document.getElementById(id).addEventListener('change', function() {
+                    currentPage = 1;
+                    renderTable();
+                    updatePagination();
+                    updateSummary();
+                });
+            });
+
+            // 快捷搜索
+            document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchBtn').click();
+                }
+            });
+
+            // 分页大小
+            document.getElementById('pageSizeSelect').addEventListener('change', function() {
+                pageSize = parseInt(this.value);
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+            });
+
+            // 跳转页面
+            document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const page = parseInt(this.value);
+                    const totalPages = Math.ceil(filteredData.length / pageSize);
+                    if (page >= 1 && page <= totalPages) {
+                        currentPage = page;
+                        renderTable();
+                        updatePagination();
+                    }
+                }
+            });
+
+            // 按钮事件
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                alert('导出功能');
+            });
+
+            document.getElementById('printListBtn').addEventListener('click', () => {
+                alert('打印列表功能');
+            });
+
+            document.getElementById('summaryBtn').addEventListener('click', () => {
+                const data = getFilteredData();
+                const totalReceivable = data.reduce((sum, item) => sum + item.receivable, 0);
+                const totalPayable = data.reduce((sum, item) => sum + item.payable, 0);
+                const netBalance = totalReceivable - totalPayable;
+                const supplierCount = data.filter(item => item.type === 'supplier').length;
+                const customerCount = data.filter(item => item.type === 'customer').length;
+                
+                alert(`往来汇总统计：\n应收总额：${totalReceivable.toFixed(2)} 元\n应付总额：${totalPayable.toFixed(2)} 元\n净余额：${netBalance.toFixed(2)} 元\n供应商数：${supplierCount} 家\n客户数：${customerCount} 家`);
+            });
+
+            // 点击模态框外部关闭
+            document.getElementById('receiveModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeReceiveModal();
+                }
+            });
+
+            document.getElementById('payModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePayModal();
+                }
+            });
+
+            document.getElementById('historyModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeHistoryModal();
+                }
+            });
+        }
+
+        // 更新全选状态
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selectAll').checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+            document.getElementById('bottomSelectAll').checked = document.getElementById('selectAll').checked;
+        }
+
+        // 更新选中信息
+        function updateSelectedInfo() {
+            document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
+        }
+
+        // 查看往来单位详情
+        function viewPartnerDetail(id) {
+            const item = partnerData.find(d => d.id === id);
+            if (item) {
+                alert(`往来单位详情：\n单位名称：${item.name}\n联系人：${item.contact}\n手机号：${item.mobile}\n类型：${item.type === 'supplier' ? '供应商' : '客户'}\n应收：${item.receivable.toFixed(2)} 元\n应付：${item.payable.toFixed(2)} 元\n余额：${item.balance.toFixed(2)} 元\n手机绑定：${item.mobileBound ? '已绑定（可用于收银台提货折扣）' : '未绑定'}`);
+            }
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

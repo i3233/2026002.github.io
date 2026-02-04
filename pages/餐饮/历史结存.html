@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史结存 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/餐饮历史结存.css">
+</head>
+<body class="history-settlement-body">
+    <div class="history-settlement-container">
+        <!-- 页面标题 -->
+        <div class="history-settlement-header">
+            <div>
+                <h1 class="history-settlement-title">历史结存</h1>
+                <div class="history-settlement-subtitle">查询历史日期的商品结存记录</div>
+            </div>
+        </div>
+
+        <!-- 筛选工具栏 -->
+        <div class="history-settlement-filter-toolbar">
+            <div class="history-settlement-filter-item">
+                <label>开始日期：</label>
+                <input type="date" id="startDate" value="">
+            </div>
+            <div class="history-settlement-filter-item">
+                <label>结束日期：</label>
+                <input type="date" id="endDate" value="">
+            </div>
+            <div class="history-settlement-filter-item">
+                <label>商品类型：</label>
+                <select id="productTypeSelect">
+                    <option value="">全部类型</option>
+                    <option value="normal">普通商品</option>
+                    <option value="package">套餐商品</option>
+                    <option value="weight">称重商品</option>
+                </select>
+            </div>
+            <div class="history-settlement-filter-item">
+                <label>分类：</label>
+                <select id="categorySelect">
+                    <option value="">全部分类</option>
+                    <option value="chinese">中餐</option>
+                    <option value="rainbow">彩虹斗酒</option>
+                    <option value="special">特色斗酒</option>
+                    <option value="wine">洋酒香槟</option>
+                    <option value="beer">啤酒</option>
+                    <option value="snack">小吃系列</option>
+                    <option value="other">其他系列</option>
+                    <option value="package">优惠套餐</option>
+                </select>
+            </div>
+            <button class="history-settlement-btn history-settlement-btn-primary" id="queryBtn">查询</button>
+            <button class="history-settlement-btn history-settlement-btn-outline" id="exportBtn">
+                <span class="history-settlement-btn-icon">↑</span>
+                导出
+            </button>
+        </div>
+
+        <!-- 历史结存记录列表 -->
+        <div class="history-settlement-table-container">
+            <div class="history-settlement-table-header">
+                <h3 class="history-settlement-table-title">历史结存记录</h3>
+                <div class="history-settlement-table-actions">
+                    <button class="history-settlement-btn history-settlement-btn-outline" id="refreshBtn">刷新</button>
+                </div>
+            </div>
+            <div class="history-settlement-table-wrapper">
+                <table class="history-settlement-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">序号</th>
+                            <th class="sortable" data-sort="date">结存日期</th>
+                            <th class="text-right">商品总数</th>
+                            <th class="text-right">期初库存金额</th>
+                            <th class="text-right">本期入库金额</th>
+                            <th class="text-right">本期出库金额</th>
+                            <th class="text-right">期末库存金额</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="history-settlement-table-footer-row">
+                            <td colspan="2" class="text-right">合计：</td>
+                            <td class="text-right" id="totalProductCount">0</td>
+                            <td class="text-right" id="totalBeginningAmount">¥0.00</td>
+                            <td class="text-right" id="totalInAmount">¥0.00</td>
+                            <td class="text-right" id="totalOutAmount">¥0.00</td>
+                            <td class="text-right" id="totalEndingAmount">¥0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部分页器 -->
+            <div class="history-settlement-bottom-toolbar">
+                <div class="history-settlement-bottom-left">
+                    <span class="history-settlement-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+                <div class="history-settlement-bottom-right">
+                    <button class="history-settlement-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                    <div class="history-settlement-pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <button class="history-settlement-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                    <span class="history-settlement-pagination-info">每页显示</span>
+                    <select class="history-settlement-page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="history-settlement-modal" id="detailModal" style="display: none;">
+        <div class="history-settlement-modal-backdrop" onclick="closeDetailModal()"></div>
+        <div class="history-settlement-modal-content history-settlement-modal-large">
+            <div class="history-settlement-modal-header">
+                <h2 class="history-settlement-modal-title" id="detailModalTitle">结存详情</h2>
+                <button class="history-settlement-modal-close" onclick="closeDetailModal()">×</button>
+            </div>
+            <div class="history-settlement-modal-body">
+                <div id="detailModalContent">
+                    <!-- JS 渲染 -->
+                </div>
+            </div>
+            <div class="history-settlement-modal-footer">
+                <button class="history-settlement-btn history-settlement-btn-cancel" onclick="closeDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/餐饮历史结存.js"></script>
+</body>
+</html>

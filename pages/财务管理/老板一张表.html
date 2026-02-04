@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老板一张表 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .boss-dashboard-page {
+            padding: var(--spacing-lg);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+
+        .page-title {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-base);
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: var(--spacing-xs);
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            backdrop-filter: blur(10px);
+        }
+
+        .date-selector label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+        }
+
+        .date-selector select {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+        }
+
+        /* 核心指标大卡片 */
+        .core-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .core-metric-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .core-metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-success) 100%);
+        }
+
+        .core-metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .core-metric-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+        }
+
+        .core-metric-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #ffffff;
+        }
+
+        .core-metric-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #ffffff;
+        }
+
+        .core-metric-label {
+            font-size: var(--font-size-base);
+            opacity: 0.9;
+            margin-bottom: var(--spacing-sm);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .core-metric-value {
+            font-size: 3rem;
+            font-weight: var(--font-weight-bold);
+            line-height: 1.2;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .core-metric-change {
+            font-size: var(--font-size-sm);
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .change-icon {
+            font-size: var(--font-size-base);
+        }
+
+        /* 关键指标网格 */
+        .key-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .key-metric-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .key-metric-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .key-metric-card.success {
+            border-left-color: var(--color-success);
+        }
+
+        .key-metric-card.warning {
+            border-left-color: #ff9800;
+        }
+
+        .key-metric-card.danger {
+            border-left-color: var(--color-error);
+        }
+
+        .key-metric-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .key-metric-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        .key-metric-unit {
+            font-size: var(--font-size-base);
+            color: var(--color-text-secondary);
+            margin-left: 4px;
+        }
+
+        /* 业务概览区域 */
+        .business-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .overview-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .overview-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .overview-card-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-success) 100%);
+            border-radius: 2px;
+        }
+
+        .top-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .top-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-100);
+            transition: background-color 0.2s ease;
+        }
+
+        .top-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .top-list-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .top-list-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-bold);
+            color: #ffffff;
+            margin-right: var(--spacing-sm);
+        }
+
+        .top-list-rank.rank-1 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .top-list-rank.rank-2 {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+            color: var(--color-text-primary);
+        }
+
+        .top-list-rank.rank-3 {
+            background: linear-gradient(135deg, #cd7f32 0%, #e6a857 100%);
+        }
+
+        .top-list-rank.rank-other {
+            background-color: var(--color-neutral-300);
+        }
+
+        .top-list-name {
+            flex: 1;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .top-list-value {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+
+        .top-list-desc {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-left: var(--spacing-sm);
+        }
+
+        /* 财务健康度 */
+        .health-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .health-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            min-width: 100px;
+        }
+
+        .health-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--color-neutral-200);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .health-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-success) 0%, var(--color-primary) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .health-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .core-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .business-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-md);
+            }
+
+            .core-metric-value {
+                font-size: 2rem;
+            }
+
+            .key-metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="boss-dashboard-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">老板一张表</h1>
+                <div class="page-subtitle">核心业务数据一览</div>
+            </div>
+            <div class="date-selector">
+                <label>统计周期：</label>
+                <select id="periodSelect">
+                    <option value="today">今日</option>
+                    <option value="week">本周</option>
+                    <option value="month" selected>本月</option>
+                    <option value="quarter">本季度</option>
+                    <option value="year">本年</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 核心指标大卡片 -->
+        <div class="core-metrics">
+            <div class="core-metric-card primary">
+                <div class="core-metric-label">销售总额</div>
+                <div class="core-metric-value" id="totalSales">¥2,700,000</div>
+                <div class="core-metric-change">
+                    <span class="change-icon">↗</span>
+                    <span>较上月增长 12.5%</span>
+                </div>
+            </div>
+            <div class="core-metric-card success">
+                <div class="core-metric-label">净利润</div>
+                <div class="core-metric-value" id="netProfit">¥320,000</div>
+                <div class="core-metric-change">
+                    <span class="change-icon">↗</span>
+                    <span>较上月增长 8.3%</span>
+                </div>
+            </div>
+            <div class="core-metric-card warning">
+                <div class="core-metric-label">资金余额</div>
+                <div class="core-metric-value" id="fundBalance">¥313,000</div>
+                <div class="core-metric-change">
+                    <span class="change-icon">↗</span>
+                    <span>较上月增长 5.2%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关键指标网格 -->
+        <div class="key-metrics-grid">
+            <div class="key-metric-card">
+                <div class="key-metric-label">订单数量</div>
+                <div class="key-metric-value">
+                    4,320
+                    <span class="key-metric-unit">单</span>
+                </div>
+            </div>
+            <div class="key-metric-card success">
+                <div class="key-metric-label">毛利率</div>
+                <div class="key-metric-value">
+                    26.3
+                    <span class="key-metric-unit">%</span>
+                </div>
+            </div>
+            <div class="key-metric-card">
+                <div class="key-metric-label">平均客单价</div>
+                <div class="key-metric-value">
+                    ¥625
+                    <span class="key-metric-unit"></span>
+                </div>
+            </div>
+            <div class="key-metric-card warning">
+                <div class="key-metric-label">应收总额</div>
+                <div class="key-metric-value">
+                    ¥185,000
+                    <span class="key-metric-unit"></span>
+                </div>
+            </div>
+            <div class="key-metric-card danger">
+                <div class="key-metric-label">应付总额</div>
+                <div class="key-metric-value">
+                    ¥125,000
+                    <span class="key-metric-unit"></span>
+                </div>
+            </div>
+            <div class="key-metric-card">
+                <div class="key-metric-label">库存余额</div>
+                <div class="key-metric-value">
+                    ¥1,450,000
+                    <span class="key-metric-unit"></span>
+                </div>
+            </div>
+            <div class="key-metric-card success">
+                <div class="key-metric-label">客户数量</div>
+                <div class="key-metric-value">
+                    1,280
+                    <span class="key-metric-unit">人</span>
+                </div>
+            </div>
+            <div class="key-metric-card">
+                <div class="key-metric-label">员工数量</div>
+                <div class="key-metric-value">
+                    55
+                    <span class="key-metric-unit">人</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 业务概览区域 -->
+        <div class="business-overview">
+            <!-- TOP部门业绩 -->
+            <div class="overview-card">
+                <div class="overview-card-title">TOP 部门业绩</div>
+                <ul class="top-list" id="topDepartments">
+                    <!-- JS 渲染 -->
+                </ul>
+            </div>
+
+            <!-- TOP员工业绩 -->
+            <div class="overview-card">
+                <div class="overview-card-title">TOP 员工业绩</div>
+                <ul class="top-list" id="topEmployees">
+                    <!-- JS 渲染 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 财务健康度 -->
+        <div class="overview-card">
+            <div class="overview-card-title">财务健康度</div>
+            <div class="health-indicator">
+                <div class="health-label">资金周转率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" style="width: 85%"></div>
+                </div>
+                <div class="health-value">85%</div>
+            </div>
+            <div class="health-indicator">
+                <div class="health-label">库存周转率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" style="width: 72%"></div>
+                </div>
+                <div class="health-value">72%</div>
+            </div>
+            <div class="health-indicator">
+                <div class="health-label">应收账款周转率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" style="width: 68%"></div>
+                </div>
+                <div class="health-value">68%</div>
+            </div>
+            <div class="health-indicator">
+                <div class="health-label">利润率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" style="width: 78%"></div>
+                </div>
+                <div class="health-value">78%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TOP部门数据
+        const topDepartments = [
+            { name: '销售部', sales: 850000, orders: 1250, rank: 1 },
+            { name: '线上销售部', sales: 720000, orders: 1800, rank: 2 },
+            { name: '批发部', sales: 650000, orders: 320, rank: 3 },
+            { name: '门店部', sales: 480000, orders: 950, rank: 4 }
+        ];
+
+        // TOP员工数据
+        const topEmployees = [
+            { name: '张三', sales: 125000, orders: 185, rank: 1 },
+            { name: '李四', sales: 118000, orders: 172, rank: 2 },
+            { name: '王五', sales: 112000, orders: 280, rank: 3 },
+            { name: '赵六', sales: 105000, orders: 52, rank: 4 },
+            { name: '钱七', sales: 98000, orders: 145, rank: 5 }
+        ];
+
+        function formatCurrency(value) {
+            return '¥' + value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function renderTopDepartments() {
+            const container = document.getElementById('topDepartments');
+            container.innerHTML = '';
+
+            topDepartments.forEach(dept => {
+                const li = document.createElement('li');
+                li.className = 'top-list-item';
+                const rankClass = dept.rank <= 3 ? `rank-${dept.rank}` : 'rank-other';
+                
+                li.innerHTML = `
+                    <div style="display: flex; align-items: center; flex: 1;">
+                        <span class="top-list-rank ${rankClass}">${dept.rank}</span>
+                        <span class="top-list-name">${dept.name}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <span class="top-list-value">${formatCurrency(dept.sales)}</span>
+                        <span class="top-list-desc">${dept.orders} 单</span>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function renderTopEmployees() {
+            const container = document.getElementById('topEmployees');
+            container.innerHTML = '';
+
+            topEmployees.forEach(emp => {
+                const li = document.createElement('li');
+                li.className = 'top-list-item';
+                const rankClass = emp.rank <= 3 ? `rank-${emp.rank}` : 'rank-other';
+                
+                li.innerHTML = `
+                    <div style="display: flex; align-items: center; flex: 1;">
+                        <span class="top-list-rank ${rankClass}">${emp.rank}</span>
+                        <span class="top-list-name">${emp.name}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <span class="top-list-value">${formatCurrency(emp.sales)}</span>
+                        <span class="top-list-desc">${emp.orders} 单</span>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function init() {
+            renderTopDepartments();
+            renderTopEmployees();
+
+            // 周期选择变化
+            document.getElementById('periodSelect').addEventListener('change', function() {
+                // 这里可以根据周期重新加载数据
+                console.log('周期切换:', this.value);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

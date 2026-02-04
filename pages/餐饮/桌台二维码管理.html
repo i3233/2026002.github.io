@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>桌台二维码管理 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/桌台二维码管理.css">
+</head>
+<body class="table-qrcode-body">
+    <div class="table-qrcode-container">
+        <!-- 页面标题 -->
+        <div class="table-qrcode-header">
+            <h1 class="table-qrcode-title">桌台二维码管理</h1>
+            <p class="table-qrcode-subtitle">为桌台生成和管理二维码，方便顾客扫码点餐</p>
+        </div>
+
+        <!-- 搜索栏和操作按钮区 -->
+        <div class="table-qrcode-toolbar">
+            <!-- 左侧搜索栏 -->
+            <div class="table-qrcode-search">
+                <input type="text" class="table-qrcode-search-input" id="tableSearchInput" placeholder="🔍 搜索桌台号、区域">
+            </div>
+
+            <!-- 右侧操作按钮 -->
+            <div class="table-qrcode-actions">
+                <button class="table-qrcode-btn table-qrcode-btn-primary" id="batchGenerateBtn">
+                    <span class="table-qrcode-btn-icon">+</span>
+                    批量生成
+                </button>
+                <button class="table-qrcode-btn table-qrcode-btn-outline" id="batchDownloadBtn">
+                    <span class="table-qrcode-btn-icon">↓</span>
+                    批量下载
+                </button>
+                <button class="table-qrcode-btn table-qrcode-btn-outline" id="batchPrintBtn">
+                    <span class="table-qrcode-btn-icon">🖨</span>
+                    批量打印
+                </button>
+                <button class="table-qrcode-btn table-qrcode-btn-outline" id="refreshBtn">刷新</button>
+            </div>
+        </div>
+
+        <!-- 筛选标签 -->
+        <div class="table-qrcode-filters">
+            <button class="table-qrcode-filter-btn active" data-status="all">全部</button>
+            <button class="table-qrcode-filter-btn" data-status="generated">已生成</button>
+            <button class="table-qrcode-filter-btn" data-status="not-generated">未生成</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="table-qrcode-summary-row">
+            <div class="table-qrcode-summary-card">
+                <div class="table-qrcode-summary-label">桌台总数</div>
+                <div class="table-qrcode-summary-value table-qrcode-summary-value-blue">
+                    <span id="summaryTotalCount">0</span>
+                </div>
+            </div>
+            <div class="table-qrcode-summary-card">
+                <div class="table-qrcode-summary-label">已生成二维码</div>
+                <div class="table-qrcode-summary-value table-qrcode-summary-value-green">
+                    <span id="summaryGeneratedCount">0</span>
+                </div>
+            </div>
+            <div class="table-qrcode-summary-card">
+                <div class="table-qrcode-summary-label">未生成二维码</div>
+                <div class="table-qrcode-summary-value table-qrcode-summary-value-red">
+                    <span id="summaryNotGeneratedCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="table-qrcode-content">
+            <!-- 二维码列表 -->
+            <div class="table-qrcode-grid" id="qrcodeGrid">
+                <!-- JS 渲染 -->
+            </div>
+
+            <!-- 底部分页器 -->
+            <div class="table-qrcode-pagination">
+                <div class="table-qrcode-pagination-left">
+                    <span class="table-qrcode-pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+                <div class="table-qrcode-pagination-right">
+                    <button class="table-qrcode-pagination-btn" id="prevPageBtn" disabled>上一页</button>
+                    <div class="table-qrcode-pagination-pages" id="paginationPages">
+                        <!-- JS 渲染 -->
+                    </div>
+                    <button class="table-qrcode-pagination-btn" id="nextPageBtn" disabled>下一页</button>
+                    <span class="table-qrcode-pagination-info">每页显示</span>
+                    <select class="table-qrcode-pagination-select" id="pageSizeSelect">
+                        <option value="12" selected>12 条/页</option>
+                        <option value="24">24 条/页</option>
+                        <option value="48">48 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 二维码预览弹窗 -->
+    <div class="table-qrcode-modal" id="qrcodePreviewModal" style="display: none;">
+        <div class="table-qrcode-modal-backdrop" onclick="closeQrcodePreviewModal()"></div>
+        <div class="table-qrcode-modal-content">
+            <div class="table-qrcode-modal-header">
+                <h2 class="table-qrcode-modal-title" id="qrcodePreviewTitle">二维码预览</h2>
+                <button class="table-qrcode-modal-close" onclick="closeQrcodePreviewModal()">×</button>
+            </div>
+            <div class="table-qrcode-modal-body">
+                <div class="qrcode-preview-container">
+                    <div class="qrcode-preview-qrcode" id="qrcodePreviewImage">
+                        <!-- JS 渲染二维码 -->
+                    </div>
+                    <div class="qrcode-preview-info">
+                        <div class="qrcode-preview-info-item">
+                            <span class="qrcode-preview-info-label">桌台号：</span>
+                            <span class="qrcode-preview-info-value" id="previewTableNo">-</span>
+                        </div>
+                        <div class="qrcode-preview-info-item">
+                            <span class="qrcode-preview-info-label">区域：</span>
+                            <span class="qrcode-preview-info-value" id="previewArea">-</span>
+                        </div>
+                        <div class="qrcode-preview-info-item">
+                            <span class="qrcode-preview-info-label">二维码链接：</span>
+                            <span class="qrcode-preview-info-value" id="previewUrl">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-qrcode-modal-footer">
+                <button class="table-qrcode-btn table-qrcode-btn-outline" id="downloadQrcodeBtn">下载</button>
+                <button class="table-qrcode-btn table-qrcode-btn-primary" id="printQrcodeBtn">打印</button>
+                <button class="table-qrcode-btn table-qrcode-btn-cancel" onclick="closeQrcodePreviewModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="../../js/桌台二维码管理.js"></script>
+</body>
+</html>

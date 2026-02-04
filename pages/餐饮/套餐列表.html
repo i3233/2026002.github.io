@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>套餐列表 - 餐饮</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/套餐列表.css">
+</head>
+<body class="package-list-body">
+    <div class="package-list-container">
+        <!-- 搜索栏和操作按钮区 -->
+        <div class="package-list-toolbar">
+            <!-- 左侧搜索栏 -->
+            <div class="package-list-search">
+                <input type="text" class="package-list-search-input" id="packageSearchInput" placeholder="🔍 搜索套餐名称">
+            </div>
+
+            <!-- 右侧操作按钮 -->
+            <div class="package-list-actions">
+                <button class="package-list-btn package-list-btn-primary" id="createPackageBtn">
+                    + 新建套餐
+                </button>
+                <div class="package-list-dropdown">
+                    <button class="package-list-btn package-list-btn-outline" id="batchActionBtn">
+                        批量操作 ▼
+                    </button>
+                    <div class="package-list-dropdown-menu" id="batchActionMenu" style="display: none;">
+                        <a href="#" class="package-list-dropdown-item" onclick="batchAction('modifyCategory'); return false;">修改分类</a>
+                        <a href="#" class="package-list-dropdown-item product-list-dropdown-item-danger" onclick="batchAction('delete'); return false;">删除</a>
+                        <a href="#" class="package-list-dropdown-item" onclick="batchAction('enable'); return false;">启用</a>
+                        <a href="#" class="package-list-dropdown-item product-list-dropdown-item-danger" onclick="batchAction('disable'); return false;">禁用</a>
+                    </div>
+                </div>
+                <button class="package-list-btn package-list-btn-outline" id="importBtn">套餐导入</button>
+                <button class="package-list-btn package-list-btn-outline" id="exportBtn">套餐导出</button>
+            </div>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="package-list-filters">
+            <div class="package-list-filter-group">
+                <label class="package-list-filter-label">分类:</label>
+                <div class="package-list-filter-buttons">
+                    <button class="package-list-filter-btn active" data-category="all">全部</button>
+                    <button class="package-list-filter-btn" data-category="discount">优惠套餐</button>
+                    <button class="package-list-filter-btn" data-category="combo">组合套餐</button>
+                    <button class="package-list-filter-btn" data-category="special">特色套餐</button>
+                </div>
+            </div>
+            <div class="package-list-filter-group">
+                <label class="package-list-filter-label">状态:</label>
+                <div class="package-list-filter-buttons">
+                    <button class="package-list-filter-btn active" data-status="all">全部</button>
+                    <button class="package-list-filter-btn" data-status="on">在售</button>
+                    <button class="package-list-filter-btn" data-status="off">停售</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 套餐列表表格 -->
+        <div class="package-list-table-section">
+            <div class="package-list-table-wrapper">
+                <table class="package-list-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label class="package-list-checkbox-label">
+                                    <input type="checkbox" id="selectAllCheckbox">
+                                </label>
+                            </th>
+                            <th>套餐信息</th>
+                            <th>分类</th>
+                            <th>套餐价</th>
+                            <th>原价</th>
+                            <th>包含商品</th>
+                            <th>销量</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packageTableBody">
+                        <!-- 套餐数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 底部分页器 -->
+        <div class="package-list-pagination">
+            <div class="package-list-pagination-left">
+                <button class="package-list-btn package-list-btn-outline" id="prevPageBtn">上一页</button>
+                <div class="package-list-pagination-pages" id="paginationPages">
+                    <!-- 页码将动态生成 -->
+                </div>
+                <button class="package-list-btn package-list-btn-outline" id="nextPageBtn">下一页</button>
+            </div>
+            <div class="package-list-pagination-right">
+                <span>每页显示：</span>
+                <select class="package-list-page-size" id="pageSizeSelect">
+                    <option value="10" selected>10 条/页</option>
+                    <option value="20">20 条/页</option>
+                    <option value="50">50 条/页</option>
+                    <option value="100">100 条/页</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建套餐弹窗 -->
+    <div class="package-list-modal" id="createPackageModal" style="display: none;">
+        <div class="package-list-modal-backdrop" onclick="closeCreatePackageModal()"></div>
+        <div class="package-list-modal-content package-list-modal-package">
+            <div class="package-list-modal-header">
+                <div class="package-list-modal-header-left">
+                    <h3 class="package-list-modal-title">新建套餐</h3>
+                    <button class="package-list-status-toggle active" id="packageStatusToggle">
+                        <span class="package-list-status-toggle-text">启用</span>
+                    </button>
+                </div>
+                <button class="package-list-modal-close" onclick="closeCreatePackageModal()">×</button>
+            </div>
+            <div class="package-list-modal-body package-list-package-form">
+                <!-- 左侧图片上传区 -->
+                <aside class="package-list-form-sidebar">
+                    <!-- 封面图片 -->
+                    <div class="package-list-form-section">
+                        <div class="package-list-form-label">
+                            <span class="package-list-form-label-icon">!</span>
+                            <span>封面图片</span>
+                        </div>
+                        <div class="package-list-form-hint">图片建议尺寸为100*100px</div>
+                        <div class="package-list-upload-area" id="packageCoverImageUpload">
+                            <div class="package-list-upload-icon">☁️</div>
+                            <div class="package-list-upload-text">点击或拖拽上传</div>
+                            <input type="file" id="packageCoverImageInput" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="package-list-uploaded-image" id="packageCoverImagePreview" style="display: none;">
+                            <img id="packageCoverImagePreviewImg" src="" alt="封面图片">
+                            <button class="package-list-remove-image" onclick="removePackageCoverImage()">×</button>
+                        </div>
+                    </div>
+
+                    <!-- 一键AI绘图 -->
+                    <button class="package-list-btn package-list-btn-ai" id="packageAiDrawBtn">
+                        <span class="package-list-btn-icon">🎨</span>
+                        一键AI绘图
+                    </button>
+                </aside>
+
+                <!-- 右侧表单区 -->
+                <main class="package-list-form-main">
+                    <!-- 套餐名称 -->
+                    <div class="package-list-form-group">
+                        <label class="package-list-form-label">
+                            <span class="package-list-form-label-icon">!</span>
+                            套餐名称
+                        </label>
+                        <input type="text" class="package-list-form-input" id="packageNameInput" placeholder="请输入套餐名称">
+                    </div>
+
+                    <!-- 套餐描述 -->
+                    <div class="package-list-form-group">
+                        <label class="package-list-form-label">套餐描述</label>
+                        <textarea class="package-list-form-textarea" id="packageDescriptionInput" placeholder="请输入套餐描述" rows="3"></textarea>
+                    </div>
+
+                    <!-- 价格 -->
+                    <div class="package-list-form-row">
+                        <div class="package-list-form-group">
+                            <label class="package-list-form-label">
+                                <span class="package-list-form-label-icon">!</span>
+                                套餐价
+                            </label>
+                            <input type="number" class="package-list-form-input" id="packagePriceInput" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="package-list-form-group">
+                            <label class="package-list-form-label">
+                                <span class="package-list-form-label-icon">!</span>
+                                原价
+                            </label>
+                            <input type="number" class="package-list-form-input" id="packageOriginalPriceInput" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+
+                    <!-- 分类 -->
+                    <div class="package-list-form-group">
+                        <label class="package-list-form-label">
+                            <span class="package-list-form-label-icon">!</span>
+                            分类
+                        </label>
+                        <select class="package-list-form-select" id="packageCategorySelect">
+                            <option value="">请选择分类</option>
+                            <option value="discount">优惠套餐</option>
+                            <option value="combo">组合套餐</option>
+                            <option value="special">特色套餐</option>
+                        </select>
+                    </div>
+
+                    <!-- 包含商品 -->
+                    <div class="package-list-form-group">
+                        <label class="package-list-form-label">
+                            <span class="package-list-form-label-icon">!</span>
+                            包含商品
+                        </label>
+                        <div class="package-list-products-selector">
+                            <div class="package-list-products-selected" id="selectedProductsList">
+                                <div class="package-list-empty-hint">请选择商品</div>
+                            </div>
+                            <button type="button" class="package-list-btn package-list-btn-outline" onclick="showProductSelector()">
+                                <span>+</span> 选择商品
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 排序 -->
+                    <div class="package-list-form-group">
+                        <label class="package-list-form-label">排序</label>
+                        <input type="number" class="package-list-form-input" id="packageSortInput" value="0" min="0">
+                    </div>
+                </main>
+            </div>
+            <div class="package-list-modal-footer">
+                <div class="package-list-modal-footer-left">
+                    <label class="package-list-form-label">是否启用:</label>
+                    <label class="package-list-switch">
+                        <input type="checkbox" id="packageEnableSwitch" checked>
+                        <span class="package-list-switch-slider"></span>
+                    </label>
+                </div>
+                <button class="package-list-btn package-list-btn-primary package-list-btn-lg" onclick="savePackage()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品选择弹窗 -->
+    <div class="package-list-modal" id="productSelectorModal" style="display: none;">
+        <div class="package-list-modal-backdrop" onclick="closeProductSelector()"></div>
+        <div class="package-list-modal-content package-list-modal-selector">
+            <div class="package-list-modal-header">
+                <h3 class="package-list-modal-title">选择商品</h3>
+                <button class="package-list-modal-close" onclick="closeProductSelector()">×</button>
+            </div>
+            <div class="package-list-modal-body">
+                <div class="package-list-selector-search">
+                    <input type="text" class="package-list-form-input" id="productSelectorSearchInput" placeholder="搜索商品名称">
+                </div>
+                <div class="package-list-selector-list" id="productSelectorList">
+                    <!-- 商品列表将动态生成 -->
+                </div>
+            </div>
+            <div class="package-list-modal-footer">
+                <button class="package-list-btn package-list-btn-cancel" onclick="closeProductSelector()">取消</button>
+                <button class="package-list-btn package-list-btn-primary" onclick="confirmProductSelection()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 套餐导入弹窗 -->
+    <div class="package-list-modal" id="importPackageModal" style="display: none;">
+        <div class="package-list-modal-backdrop" onclick="closeImportPackageModal()"></div>
+        <div class="package-list-modal-content package-list-modal-import">
+            <div class="package-list-modal-header">
+                <h3 class="package-list-modal-title">套餐导入</h3>
+                <button class="package-list-modal-close" onclick="closeImportPackageModal()">×</button>
+            </div>
+            <div class="package-list-modal-body package-list-import-body">
+                <!-- 左侧文件上传区 -->
+                <div class="package-list-import-upload-area" id="importFileUploadArea">
+                    <div class="package-list-import-file-icon">📊</div>
+                    <div class="package-list-import-file-name" id="importFileName">套餐表格文件.CSV</div>
+                    <input type="file" id="importFileInput" accept=".csv" style="display: none;">
+                </div>
+
+                <!-- 右侧信息区 -->
+                <div class="package-list-import-info-area">
+                    <h4 class="package-list-import-info-title">上传表格文件</h4>
+                    <div class="package-list-import-info-text">
+                        按照表格录入待导入的信息,必须是CSV文件格式(单次上传不能超过5000条)
+                    </div>
+                    <a href="#" class="package-list-import-download-link" onclick="downloadPackageTemplate(); return false;">下载模板</a>
+                    <button class="package-list-btn package-list-btn-primary package-list-btn-lg package-list-import-upload-btn" id="startUploadBtn" onclick="startPackageUpload()">
+                        开始上传
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../../css/餐饮商品列表.css">
+    <script src="../../js/套餐列表.js"></script>
+</body>
+</html>
+
