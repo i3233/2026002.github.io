@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>套餐列表 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        /* 套餐列表页面专用样式，整体风格对齐商品列表 */
+        .package-list-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Tab标签导航 */
+        .tabs-nav {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .tab-nav-item {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            position: relative;
+        }
+
+        .tab-nav-item:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .tab-nav-item.active {
+            color: var(--color-primary);
+            background-color: rgba(44, 131, 235, 0.1);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .tab-nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: var(--color-primary);
+            border-radius: var(--radius-full);
+        }
+
+        /* 筛选区域（简化版：时间 + 搜索） */
+        .filter-section {
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        /* 批量操作区域 */
+        .batch-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .batch-actions.hidden {
+            display: none;
+        }
+
+        .selected-count {
+            margin-right: var(--spacing-md);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th {
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-sm);
+            border-bottom: 2px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable:hover {
+            background-color: var(--color-neutral-100);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 复选框 */
+        .checkbox-cell {
+            width: 50px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 套餐主图和名称 */
+        .package-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .package-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-200);
+        }
+
+        .package-name {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            cursor: pointer;
+        }
+
+        .package-name:hover {
+            color: var(--color-primary);
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .status-tag.offline {
+            background-color: var(--color-secondary);
+        }
+
+        /* 价格显示 */
+        .price {
+            color: var(--color-error);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .origin-price {
+            text-decoration: line-through;
+            color: var(--color-text-secondary);
+            margin-left: var(--spacing-xs);
+        }
+
+        .save-amount {
+            color: var(--color-success);
+            font-size: var(--font-size-xs);
+            margin-left: var(--spacing-xs);
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-neutral-300);
+            background-color: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn-icon.delete:hover {
+            border-color: var(--color-error);
+            color: var(--color-error);
+        }
+
+        .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background-color: #ffffff;
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .pagination-info {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .pagination-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 弹窗遮罩与容器（沿用商品列表风格） */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: var(--z-index-modal-backdrop);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-lg);
+            min-width: 800px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: var(--z-index-modal);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            color: var(--color-text-secondary);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        /* 新建套餐弹窗布局：左右两栏 */
+        .package-edit-layout {
+            display: flex;
+            gap: var(--spacing-lg);
+            min-height: 320px;
+        }
+
+        .package-edit-left {
+            flex: 3;
+            border-right: 1px solid var(--color-neutral-200);
+            padding-right: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .package-edit-right {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .section-title-sm {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .section-desc-sm {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-field-inline {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-field-inline label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-field-inline input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-field-inline input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .package-base-info {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .package-thumb-placeholder {
+            width: 72px;
+            height: 72px;
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--color-neutral-300);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            font-size: 28px;
+        }
+
+        .package-selected-list {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-200);
+            padding: var(--spacing-sm);
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .package-selected-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px dashed var(--color-neutral-200);
+        }
+
+        .package-selected-item:last-child {
+            border-bottom: none;
+        }
+
+        .package-selected-main {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .package-selected-main img {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--color-neutral-200);
+        }
+
+        .package-selected-name {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-primary);
+        }
+
+        .package-selected-sub {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .package-selected-qty {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .package-selected-qty input {
+            width: 60px;
+            padding: 2px 4px;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .package-selected-remove {
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .package-selected-remove:hover {
+            color: var(--color-error);
+        }
+
+        .package-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .package-summary strong {
+            color: var(--color-text-primary);
+        }
+
+        .text-danger {
+            color: var(--color-error);
+        }
+
+        .text-success {
+            color: var(--color-success);
+        }
+
+        /* 简化版商品选择表格（弹窗左侧） */
+        .select-table-wrapper {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-200);
+            overflow: hidden;
+        }
+
+        .select-table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .select-table-wrapper th,
+        .select-table-wrapper td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .select-filter-row {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .select-filter-row input {
+            flex: 1;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .select-filter-row input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .select-product-name {
+            cursor: pointer;
+        }
+
+        .select-product-name:hover {
+            color: var(--color-primary);
+        }
+
+        @media (max-width: 1200px) {
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .package-edit-layout {
+                flex-direction: column;
+            }
+
+            .package-edit-left {
+                border-right: none;
+                border-bottom: 1px solid var(--color-neutral-200);
+                padding-right: 0;
+                padding-bottom: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="package-list-page">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1 class="page-title">套餐列表</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="createPackageBtn">新建套餐</button>
+                <button class="btn btn-primary">套餐导出</button>
+                <button class="btn btn-primary">更新销量</button>
+            </div>
+        </div>
+
+        <!-- Tab标签导航 -->
+        <div class="tabs-nav">
+            <button class="tab-nav-item active" data-tab="all">全部</button>
+            <button class="tab-nav-item" data-tab="selling">销售中</button>
+            <button class="tab-nav-item" data-tab="offline">下架中</button>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>添加时间</label>
+                    <div class="date-range">
+                        <input type="date" id="startDate" value="2025-01-01">
+                        <span>至</span>
+                        <input type="date" id="endDate" value="2025-12-31">
+                    </div>
+                </div>
+                <div class="filter-item">
+                    <label>搜索套餐</label>
+                    <input type="text" id="searchInput" placeholder="支持输入套餐ID或名称搜索">
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量操作区域 -->
+        <div class="batch-actions hidden" id="batchActions">
+            <span class="selected-count">已选择 <span id="selectedCount">0</span> 项</span>
+            <button class="btn btn-outline" id="batchOnlineBtn">批量上架</button>
+            <button class="btn btn-outline" id="batchOfflineBtn">批量下架</button>
+            <button class="btn btn-outline" id="batchDeleteBtn">批量删除</button>
+        </div>
+
+        <!-- 表格容器 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th class="sortable" data-sort="id">套餐ID</th>
+                            <th>套餐名称</th>
+                            <th>套餐价格</th>
+                            <th>原价合计</th>
+                            <th>节省金额</th>
+                            <th>商品数量</th>
+                            <th>添加时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packageTableBody">
+                        <!-- 数据由JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- 分页 -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    共 <span id="totalCount">0</span> 条数据，每页显示 10 条
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" disabled>上一页</button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn" disabled>下一页</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新建/编辑套餐弹窗 -->
+        <div class="modal-overlay" id="packageModalOverlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="packageModalTitle">新建套餐</h3>
+                    <button class="modal-close" id="packageModalClose">
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="package-edit-layout">
+                        <!-- 左侧：选择商品 -->
+                        <section class="package-edit-left">
+                            <div>
+                                <div class="section-title-sm">选择套餐商品</div>
+                                <div class="section-desc-sm">
+                                    从下方商品列表勾选要加入套餐的商品，可为每个商品设置数量，右侧会自动计算原价合计与建议套餐价。
+                                </div>
+                                <div class="select-filter-row">
+                                    <input type="text" id="productSearchInput" placeholder="输入商品名称或ID搜索">
+                                </div>
+                                <div class="select-table-wrapper">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 32px; text-align: center;">选</th>
+                                                <th>商品</th>
+                                                <th>售价</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="selectProductTableBody">
+                                            <!-- 商品数据由JS渲染 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 右侧：套餐信息 + 已选商品列表 + 价格设置 -->
+                        <section class="package-edit-right">
+                            <div>
+                                <div class="section-title-sm">套餐基础信息</div>
+                                <div class="package-base-info">
+                                    <div class="package-thumb-placeholder" id="packageThumbPlaceholder">🧩</div>
+                                    <div style="flex: 1;">
+                                        <div class="form-field-inline">
+                                            <label for="packageNameInput">套餐名称 <span style="color: var(--color-error);">*</span></label>
+                                            <input type="text" id="packageNameInput" placeholder="请输入套餐名称">
+                                        </div>
+                                        <div class="section-desc-sm">
+                                            暂不接入真实上传，当前示例以占位图表示套餐主图。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="section-title-sm">已选商品（组合明细）</div>
+                                <div class="section-desc-sm" id="selectedTips">
+                                    暂未选择商品，请在左侧列表勾选要加入套餐的商品。
+                                </div>
+                                <div class="package-selected-list" id="packageSelectedList">
+                                    <!-- 已选商品由JS渲染 -->
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="section-title-sm">套餐价格设置</div>
+                                <div class="form-field-inline">
+                                    <label for="packagePriceInput">套餐售价 <span style="color: var(--color-error);">*</span></label>
+                                    <input type="number" id="packagePriceInput" min="0" step="0.01" placeholder="请输入套餐售价">
+                                </div>
+                                <div class="package-summary" id="packageSummary">
+                                    <span>原价合计：<strong id="originPriceText">¥0.00</strong></span>
+                                    <span>套餐售价：<strong id="packagePriceText">¥0.00</strong></span>
+                                    <span>节省金额：<strong id="saveAmountText">¥0.00</strong></span>
+                                    <span id="packageValidationText" class="text-danger" style="display:none;"></span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="packageModalCancel">取消</button>
+                    <button class="btn btn-primary" id="packageModalConfirm">保存套餐</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 商品数据（可视为来自商品列表的简化版数据）
+        const products = [
+            {
+                id: 5940,
+                name: '熊猫基地',
+                image: '../../images/01.jpg',
+                price: 120.00,
+            },
+            {
+                id: 5941,
+                name: '碧峰峡风景区',
+                image: '../../images/02.jpg',
+                price: 80.00,
+            },
+            {
+                id: 5942,
+                name: '雨城廊桥',
+                image: '../../images/03.jpg',
+                price: 60.00,
+            },
+            {
+                id: 5943,
+                name: '荥经严道砂锅',
+                image: '../../images/04.jpg',
+                price: 50.00,
+            },
+            {
+                id: 5944,
+                name: '二郎山风景区',
+                image: '../../images/05.jpg',
+                price: 90.00,
+            },
+            {
+                id: 5945,
+                name: '上里古镇',
+                image: '../../images/06.jpg',
+                price: 70.00,
+            }
+        ];
+
+        // 套餐数据
+        const packages = [
+            {
+                id: 1001,
+                name: '雅安经典双景打卡套餐',
+                image: '../../images/01.jpg',
+                price: 168.00,
+                originPrice: 200.00,
+                items: [
+                    { productId: 5940, name: '熊猫基地', image: '../../images/01.jpg', price: 120.00, quantity: 1 },
+                    { productId: 5944, name: '二郎山风景区', image: '../../images/05.jpg', price: 80.00, quantity: 1 }
+                ],
+                status: 'selling',
+                addTime: '2025-08-26'
+            },
+            {
+                id: 1002,
+                name: '雅安人文美食体验套餐',
+                image: '../../images/04.jpg',
+                price: 99.00,
+                originPrice: 130.00,
+                items: [
+                    { productId: 5943, name: '荥经严道砂锅', image: '../../images/04.jpg', price: 50.00, quantity: 1 },
+                    { productId: 5945, name: '上里古镇', image: '../../images/06.jpg', price: 70.00, quantity: 1 }
+                ],
+                status: 'offline',
+                addTime: '2025-08-20'
+            }
+        ];
+
+        let filteredPackages = [...packages];
+        let currentTab = 'all';
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // 新建/编辑套餐时的临时状态
+        let editingPackageId = null; // null 表示新建
+        let selectedItems = []; // { productId, name, image, price, quantity }
+
+        const packageTableBody = document.getElementById('packageTableBody');
+
+        // 渲染套餐表格
+        function renderPackageTable() {
+            packageTableBody.innerHTML = '';
+
+            filteredPackages.forEach(pkg => {
+                const tr = document.createElement('tr');
+                const itemCount = pkg.items ? pkg.items.reduce((sum, item) => sum + (item.quantity || 0), 0) : 0;
+                const saveAmount = (pkg.originPrice - pkg.price).toFixed(2);
+                tr.dataset.id = pkg.id;
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${pkg.id}">
+                    </td>
+                    <td>${pkg.id}</td>
+                    <td>
+                        <div class="package-info">
+                            <img src="${pkg.image || '../../images/01.jpg'}" alt="${pkg.name}" class="package-image" onerror="this.src='../../images/01.jpg'">
+                            <span class="package-name" data-id="${pkg.id}">${pkg.name}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="price">¥${pkg.price.toFixed(2)}</span>
+                    </td>
+                    <td>
+                        <span class="origin-price">¥${pkg.originPrice.toFixed(2)}</span>
+                    </td>
+                    <td>
+                        <span class="save-amount">省 ¥${saveAmount}</span>
+                    </td>
+                    <td>${itemCount}</td>
+                    <td>${pkg.addTime}</td>
+                    <td>
+                        <span class="status-tag ${pkg.status === 'offline' ? 'offline' : ''}">
+                            ${pkg.status === 'selling' ? '销售中' : '下架中'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-btn" data-id="${pkg.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon copy-btn" data-id="${pkg.id}" title="复制">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/>
+                                    <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-btn" data-id="${pkg.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                packageTableBody.appendChild(tr);
+            });
+
+            document.getElementById('totalCount').textContent = filteredPackages.length;
+            updateSelectedCount();
+        }
+
+        // Tab切换
+        document.querySelectorAll('.tab-nav-item').forEach(tab => {
+            tab.addEventListener('click', function () {
+                document.querySelectorAll('.tab-nav-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentTab = this.dataset.tab;
+                filterPackages();
+            });
+        });
+
+        // 筛选 + 排序
+        function filterPackages() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            filteredPackages = packages.filter(pkg => {
+                // Tab状态
+                if (currentTab === 'selling' && pkg.status !== 'selling') return false;
+                if (currentTab === 'offline' && pkg.status !== 'offline') return false;
+
+                // 搜索
+                if (search) {
+                    const searchLower = search.toLowerCase();
+                    if (!pkg.id.toString().includes(searchLower) &&
+                        !pkg.name.toLowerCase().includes(searchLower)) {
+                        return false;
+                    }
+                }
+
+                // 日期
+                if (startDate && pkg.addTime < startDate) return false;
+                if (endDate && pkg.addTime > endDate) return false;
+
+                return true;
+            });
+
+            // 排序
+            if (sortColumn) {
+                filteredPackages.sort((a, b) => {
+                    let aVal = a[sortColumn];
+                    let bVal = b[sortColumn];
+                    if (typeof aVal === 'string') {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+            }
+
+            renderPackageTable();
+        }
+
+        // 排序事件
+        document.querySelectorAll('.sortable').forEach(th => {
+            th.addEventListener('click', function () {
+                const column = this.dataset.sort;
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = column;
+                    sortDirection = 'asc';
+                }
+
+                document.querySelectorAll('.sortable').forEach(t => t.classList.remove('asc', 'desc'));
+                this.classList.add(sortDirection);
+
+                filterPackages();
+            });
+        });
+
+        // 全选
+        document.getElementById('selectAll').addEventListener('change', function () {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
+        });
+
+        // 行复选框变化
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                updateSelectedCount();
+                const allChecked = document.querySelectorAll('.row-checkbox:checked').length === filteredPackages.length;
+                document.getElementById('selectAll').checked = allChecked && filteredPackages.length > 0;
+            }
+        });
+
+        // 更新选中数量与批量操作条显示
+        function updateSelectedCount() {
+            const count = document.querySelectorAll('.row-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = count;
+            const batchActions = document.getElementById('batchActions');
+            if (count > 0) {
+                batchActions.classList.remove('hidden');
+            } else {
+                batchActions.classList.add('hidden');
+            }
+        }
+
+        // 搜索和日期变化
+        document.getElementById('startDate').addEventListener('change', filterPackages);
+        document.getElementById('endDate').addEventListener('change', filterPackages);
+        document.getElementById('searchInput').addEventListener('input', filterPackages);
+
+        // 批量操作（示例：仅修改本地状态）
+        function getSelectedPackageIds() {
+            const ids = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                ids.push(parseInt(cb.dataset.id, 10));
+            });
+            return ids;
+        }
+
+        document.getElementById('batchOnlineBtn').addEventListener('click', function () {
+            const ids = getSelectedPackageIds();
+            if (!ids.length) return;
+            packages.forEach(p => {
+                if (ids.includes(p.id)) {
+                    p.status = 'selling';
+                }
+            });
+            filterPackages();
+        });
+
+        document.getElementById('batchOfflineBtn').addEventListener('click', function () {
+            const ids = getSelectedPackageIds();
+            if (!ids.length) return;
+            packages.forEach(p => {
+                if (ids.includes(p.id)) {
+                    p.status = 'offline';
+                }
+            });
+            filterPackages();
+        });
+
+        document.getElementById('batchDeleteBtn').addEventListener('click', function () {
+            const ids = getSelectedPackageIds();
+            if (!ids.length) return;
+            if (!confirm('确定要删除选中的套餐吗？')) return;
+            for (let i = packages.length - 1; i >= 0; i--) {
+                if (ids.includes(packages[i].id)) {
+                    packages.splice(i, 1);
+                }
+            }
+            filterPackages();
+        });
+
+        // 新建/编辑套餐弹窗相关
+        const packageModal = document.getElementById('packageModalOverlay');
+        const packageModalTitle = document.getElementById('packageModalTitle');
+        const packageModalClose = document.getElementById('packageModalClose');
+        const packageModalCancel = document.getElementById('packageModalCancel');
+        const packageModalConfirm = document.getElementById('packageModalConfirm');
+        const packageNameInput = document.getElementById('packageNameInput');
+        const packagePriceInput = document.getElementById('packagePriceInput');
+        const productSearchInput = document.getElementById('productSearchInput');
+        const selectProductTableBody = document.getElementById('selectProductTableBody');
+        const packageSelectedList = document.getElementById('packageSelectedList');
+        const selectedTips = document.getElementById('selectedTips');
+        const originPriceText = document.getElementById('originPriceText');
+        const packagePriceText = document.getElementById('packagePriceText');
+        const saveAmountText = document.getElementById('saveAmountText');
+        const packageValidationText = document.getElementById('packageValidationText');
+
+        function openPackageModal(isEdit = false, pkg = null) {
+            editingPackageId = isEdit && pkg ? pkg.id : null;
+            if (isEdit && pkg) {
+                packageModalTitle.textContent = '编辑套餐';
+                packageNameInput.value = pkg.name;
+                packagePriceInput.value = pkg.price.toFixed(2);
+                selectedItems = pkg.items.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    image: item.image,
+                    price: item.price,
+                    quantity: item.quantity
+                }));
+            } else {
+                packageModalTitle.textContent = '新建套餐';
+                packageNameInput.value = '';
+                packagePriceInput.value = '';
+                selectedItems = [];
+            }
+            productSearchInput.value = '';
+            renderSelectProductTable();
+            renderSelectedItems();
+            updatePriceSummary();
+            packageValidationText.style.display = 'none';
+            packageValidationText.textContent = '';
+            packageModal.classList.add('show');
+        }
+
+        function closePackageModal() {
+            packageModal.classList.remove('show');
+        }
+
+        document.getElementById('createPackageBtn').addEventListener('click', function () {
+            openPackageModal(false, null);
+        });
+
+        if (packageModalClose) {
+            packageModalClose.addEventListener('click', closePackageModal);
+        }
+        if (packageModalCancel) {
+            packageModalCancel.addEventListener('click', closePackageModal);
+        }
+        packageModal.addEventListener('click', function (e) {
+            if (e.target === packageModal) {
+                closePackageModal();
+            }
+        });
+
+        // 渲染商品选择表格
+        function renderSelectProductTable() {
+            const keyword = productSearchInput.value.toLowerCase();
+            selectProductTableBody.innerHTML = '';
+            products
+                .filter(p => {
+                    if (!keyword) return true;
+                    const kw = keyword.toLowerCase();
+                    return p.id.toString().includes(kw) || p.name.toLowerCase().includes(kw);
+                })
+                .forEach(p => {
+                    const tr = document.createElement('tr');
+                    const selected = selectedItems.some(item => item.productId === p.id);
+                    tr.innerHTML = `
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="select-product-checkbox" data-id="${p.id}" ${selected ? 'checked' : ''}>
+                        </td>
+                        <td>
+                            <span class="select-product-name" data-id="${p.id}">${p.name}</span>
+                        </td>
+                        <td>¥${p.price.toFixed(2)}</td>
+                    `;
+                    selectProductTableBody.appendChild(tr);
+                });
+        }
+
+        productSearchInput.addEventListener('input', renderSelectProductTable);
+
+        // 处理选中/取消选中商品
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('select-product-checkbox')) {
+                const productId = parseInt(e.target.dataset.id, 10);
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                if (e.target.checked) {
+                    const existed = selectedItems.find(item => item.productId === productId);
+                    if (existed) {
+                        existed.quantity = existed.quantity || 1;
+                    } else {
+                        selectedItems.push({
+                            productId: product.id,
+                            name: product.name,
+                            image: product.image,
+                            price: product.price,
+                            quantity: 1
+                        });
+                    }
+                } else {
+                    selectedItems = selectedItems.filter(item => item.productId !== productId);
+                }
+                renderSelectedItems();
+                updatePriceSummary();
+            }
+        });
+
+        // 点击名称也切换选择
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('select-product-name')) {
+                const id = e.target.dataset.id;
+                const checkbox = document.querySelector('.select-product-checkbox[data-id="' + id + '"]');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+
+        // 渲染右侧已选商品列表
+        function renderSelectedItems() {
+            packageSelectedList.innerHTML = '';
+            if (!selectedItems.length) {
+                selectedTips.textContent = '暂未选择商品，请在左侧列表勾选要加入套餐的商品。';
+                return;
+            }
+            selectedTips.textContent = '已选 ' + selectedItems.length + ' 个商品，可单独设置数量。';
+
+            selectedItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'package-selected-item';
+                div.dataset.productId = item.productId;
+                div.innerHTML = `
+                    <div class="package-selected-main">
+                        <img src="${item.image || '../../images/01.jpg'}" alt="${item.name}" onerror="this.src='../../images/01.jpg'">
+                        <div>
+                            <div class="package-selected-name">${item.name}</div>
+                            <div class="package-selected-sub">单价：¥${item.price.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="package-selected-qty">
+                        <span>数量</span>
+                        <input type="number" min="1" step="1" class="selected-qty-input" data-product-id="${item.productId}" value="${item.quantity || 1}">
+                        <span class="package-selected-remove" data-product-id="${item.productId}">移除</span>
+                    </div>
+                `;
+                packageSelectedList.appendChild(div);
+            });
+        }
+
+        // 已选商品数量变化与移除
+        document.addEventListener('input', function (e) {
+            if (e.target.classList.contains('selected-qty-input')) {
+                const productId = parseInt(e.target.dataset.productId, 10);
+                const qty = Math.max(1, parseInt(e.target.value || '1', 10));
+                e.target.value = qty;
+                const item = selectedItems.find(i => i.productId === productId);
+                if (item) {
+                    item.quantity = qty;
+                    updatePriceSummary();
+                }
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('package-selected-remove')) {
+                const productId = parseInt(e.target.dataset.productId, 10);
+                selectedItems = selectedItems.filter(i => i.productId !== productId);
+                // 同步左侧复选框
+                const checkbox = document.querySelector('.select-product-checkbox[data-id="' + productId + '"]');
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+                renderSelectedItems();
+                updatePriceSummary();
+            }
+        });
+
+        // 更新价格汇总区
+        function calculateOriginPrice() {
+            return selectedItems.reduce((sum, item) => {
+                const qty = item.quantity || 1;
+                return sum + item.price * qty;
+            }, 0);
+        }
+
+        function updatePriceSummary() {
+            const originPrice = calculateOriginPrice();
+            originPriceText.textContent = '¥' + originPrice.toFixed(2);
+
+            let packagePrice = parseFloat(packagePriceInput.value);
+            if (isNaN(packagePrice)) {
+                packagePrice = 0;
+            }
+            packagePriceText.textContent = '¥' + packagePrice.toFixed(2);
+
+            const saveAmount = Math.max(0, originPrice - packagePrice);
+            saveAmountText.textContent = '¥' + saveAmount.toFixed(2);
+
+            // 校验提示
+            if (packagePrice <= 0) {
+                packageValidationText.style.display = 'block';
+                packageValidationText.textContent = '请设置大于 0 的套餐售价。';
+            } else if (originPrice > 0 && packagePrice > originPrice) {
+                packageValidationText.style.display = 'block';
+                packageValidationText.textContent = '套餐售价不应高于原价合计，请检查价格设置。';
+            } else {
+                packageValidationText.style.display = 'none';
+                packageValidationText.textContent = '';
+            }
+        }
+
+        packagePriceInput.addEventListener('input', updatePriceSummary);
+
+        // 保存套餐（前端示例：更新本地数组并刷新表格）
+        if (packageModalConfirm) {
+            packageModalConfirm.addEventListener('click', function () {
+                const name = packageNameInput.value.trim();
+                let price = parseFloat(packagePriceInput.value);
+                const originPrice = calculateOriginPrice();
+
+                if (!name) {
+                    alert('请填写套餐名称');
+                    return;
+                }
+                if (!selectedItems.length) {
+                    alert('请至少选择一个商品组成套餐');
+                    return;
+                }
+                if (isNaN(price) || price <= 0) {
+                    alert('请填写有效的套餐售价（大于 0）');
+                    return;
+                }
+                if (originPrice > 0 && price > originPrice) {
+                    if (!confirm('套餐售价高于原价合计，是否仍然保存？')) {
+                        return;
+                    }
+                }
+
+                price = parseFloat(price.toFixed(2));
+                const now = new Date();
+                const addTime = now.toISOString().slice(0, 10); // yyyy-mm-dd
+
+                if (editingPackageId) {
+                    const pkg = packages.find(p => p.id === editingPackageId);
+                    if (pkg) {
+                        pkg.name = name;
+                        pkg.price = price;
+                        pkg.originPrice = parseFloat(originPrice.toFixed(2));
+                        pkg.items = selectedItems.map(item => ({
+                            productId: item.productId,
+                            name: item.name,
+                            image: item.image,
+                            price: item.price,
+                            quantity: item.quantity || 1
+                        }));
+                    }
+                } else {
+                    const newId = packages.length ? Math.max(...packages.map(p => p.id)) + 1 : 1001;
+                    const newPackage = {
+                        id: newId,
+                        name,
+                        image: selectedItems[0]?.image || '../../images/01.jpg',
+                        price,
+                        originPrice: parseFloat(originPrice.toFixed(2)),
+                        items: selectedItems.map(item => ({
+                            productId: item.productId,
+                            name: item.name,
+                            image: item.image,
+                            price: item.price,
+                            quantity: item.quantity || 1
+                        })),
+                        status: 'selling',
+                        addTime
+                    };
+                    packages.unshift(newPackage);
+                }
+
+                filterPackages();
+                closePackageModal();
+            });
+        }
+
+        // 列表上的编辑、复制、删除按钮
+        document.addEventListener('click', function (e) {
+            const editBtn = e.target.closest('.edit-btn');
+            const copyBtn = e.target.closest('.copy-btn');
+            const deleteBtn = e.target.closest('.delete-btn');
+            const nameEl = e.target.closest('.package-name');
+
+            if (editBtn) {
+                const id = parseInt(editBtn.dataset.id, 10);
+                const pkg = packages.find(p => p.id === id);
+                if (pkg) {
+                    openPackageModal(true, pkg);
+                }
+            }
+
+            if (nameEl) {
+                const id = parseInt(nameEl.dataset.id, 10);
+                const pkg = packages.find(p => p.id === id);
+                if (pkg) {
+                    openPackageModal(true, pkg);
+                }
+            }
+
+            if (copyBtn) {
+                const id = parseInt(copyBtn.dataset.id, 10);
+                const pkg = packages.find(p => p.id === id);
+                if (pkg) {
+                    const newId = packages.length ? Math.max(...packages.map(p => p.id)) + 1 : 1001;
+                    const now = new Date();
+                    const addTime = now.toISOString().slice(0, 10);
+                    const copied = JSON.parse(JSON.stringify(pkg));
+                    copied.id = newId;
+                    copied.name = pkg.name + ' - 副本';
+                    copied.addTime = addTime;
+                    packages.unshift(copied);
+                    filterPackages();
+                }
+            }
+
+            if (deleteBtn) {
+                const id = parseInt(deleteBtn.dataset.id, 10);
+                if (!confirm('确定要删除该套餐吗？')) return;
+                const index = packages.findIndex(p => p.id === id);
+                if (index > -1) {
+                    packages.splice(index, 1);
+                    filterPackages();
+                }
+            }
+        });
+
+        // 初始化
+        filterPackages();
+        renderSelectProductTable();
+    </script>
+</body>
+</html>

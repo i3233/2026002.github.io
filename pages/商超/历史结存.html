@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史结存 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .history-statement-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 筛选工具栏 */
+        .filter-toolbar {
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-item label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-item--date-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-item--date-range input {
+            flex: 1;
+        }
+
+        .filter-item--date-range span {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 统计摘要区域 */
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .summary-icon {
+            font-size: var(--font-size-xl);
+            opacity: 0.3;
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-orange {
+            color: #ff8c42;
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        /* 历史记录列表 */
+        .history-list-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .history-list-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-list-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .history-list-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .history-list-body {
+            padding: var(--spacing-md);
+        }
+
+        .history-item {
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .history-item:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-card);
+            transform: translateY(-2px);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .history-item-date {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        .history-item-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .history-item-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .history-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .history-stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .history-stat-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .history-stat-value.amount {
+            color: var(--color-primary);
+        }
+
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 详情弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .detail-modal {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 1400px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* 进存销统计卡片 */
+        .inventory-stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .inventory-stat-card {
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+        }
+
+        .inventory-stat-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-neutral-200);
+        }
+
+        .inventory-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .inventory-stat-row:last-child {
+            border-bottom: none;
+            font-weight: var(--font-weight-medium);
+            padding-top: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .inventory-stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .inventory-stat-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .inventory-stat-value.amount {
+            color: var(--color-primary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        @media (max-width: 1200px) {
+            .filter-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .history-item-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="history-statement-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">历史结存</h1>
+                <div class="page-subtitle">查看历史日期的商品进存销情况和结存信息</div>
+            </div>
+        </div>
+
+        <!-- 筛选工具栏 -->
+        <div class="filter-toolbar">
+            <div class="filter-item filter-item--date-range">
+                <label>日期范围：</label>
+                <input type="date" id="startDate" value="">
+                <span>至</span>
+                <input type="date" id="endDate" value="">
+            </div>
+            <div class="filter-item">
+                <label>仓库：</label>
+                <select id="warehouseSelect">
+                    <option value="">全部仓库</option>
+                    <!-- 选项由JS动态生成 -->
+                </select>
+            </div>
+            <button class="btn btn-primary" id="queryBtn">查询</button>
+            <button class="btn btn-outline" id="exportBtn">
+                <span class="btn-icon-text">
+                    <span class="btn-icon-text-symbol">↑</span>
+                    <span>导出</span>
+                </span>
+            </button>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="summary-section">
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">总进货金额</span>
+                    <span class="summary-icon">📦</span>
+                </div>
+                <div class="summary-value summary-value-blue" id="totalPurchaseAmount">¥0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">总销售金额</span>
+                    <span class="summary-icon">💰</span>
+                </div>
+                <div class="summary-value summary-value-green" id="totalSalesAmount">¥0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">平均库存</span>
+                    <span class="summary-icon">📊</span>
+                </div>
+                <div class="summary-value summary-value-orange" id="avgInventoryQty">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">平均库存金额</span>
+                    <span class="summary-icon">💵</span>
+                </div>
+                <div class="summary-value summary-value-red" id="avgInventoryAmount">¥0.00</div>
+            </div>
+        </div>
+
+        <!-- 历史记录列表 -->
+        <div class="history-list-container">
+            <div class="history-list-header">
+                <h3 class="history-list-title">历史结存记录</h3>
+                <div class="history-list-actions">
+                    <button class="btn btn-outline" id="refreshBtn">刷新</button>
+                </div>
+            </div>
+            <div class="history-list-body" id="historyListBody">
+                <!-- JS 渲染 -->
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧信息 -->
+                <div class="bottom-left">
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="10" selected>10 条/页</option>
+                        <option value="20">20 条/页</option>
+                        <option value="50">50 条/页</option>
+                    </select>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="detail-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="detailModalTitle">结存详情</h3>
+                <button class="modal-close" id="closeDetailModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 进存销统计卡片 -->
+                <div class="inventory-stats-section" id="detailStatsSection">
+                    <!-- 统计卡片由JS动态生成 -->
+                </div>
+
+                <!-- 商品结存明细表格 -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">商品结存明细</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-outline" id="detailPrintBtn">打印</button>
+                            <button class="btn btn-outline" id="detailExportBtn">导出</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="text-center">序号</th>
+                                    <th>产品ID</th>
+                                    <th class="sortable" data-sort="name">产品名称</th>
+                                    <th>规格型号</th>
+                                    <th>分类</th>
+                                    <th class="text-right">期初库存</th>
+                                    <th class="text-right">本期入库</th>
+                                    <th class="text-right">本期出库</th>
+                                    <th class="text-right">调拨入库</th>
+                                    <th class="text-right">调拨出库</th>
+                                    <th class="text-right sortable" data-sort="inventory">期末库存</th>
+                                    <th class="text-right">单位</th>
+                                    <th class="text-right">平均成本</th>
+                                    <th class="text-right">库存金额</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody">
+                                <!-- JS 渲染 -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-footer-row">
+                                    <td colspan="5" class="text-right">合计：</td>
+                                    <td class="text-right" id="detailTotalBeginningQty">0</td>
+                                    <td class="text-right" id="detailTotalInQty">0</td>
+                                    <td class="text-right" id="detailTotalOutQty">0</td>
+                                    <td class="text-right" id="detailTotalTransferInQty">0</td>
+                                    <td class="text-right" id="detailTotalTransferOutQty">0</td>
+                                    <td class="text-right" id="detailTotalEndingQty">0</td>
+                                    <td colspan="2"></td>
+                                    <td class="text-right" id="detailTotalInventoryAmount">¥0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟仓库数据
+        const warehouses = [
+            { id: 'WH001', name: '主仓库' },
+            { id: 'WH002', name: '分仓库A' },
+            { id: 'WH003', name: '分仓库B' },
+            { id: 'WH004', name: '临时仓库' }
+        ];
+
+        // 模拟历史结存记录数据
+        const historyStatementData = [
+            {
+                date: '2025-01-31',
+                purchaseOrderCount: 8,
+                purchaseQty: 1050,
+                purchaseAmount: 12500.00,
+                returnOrderCount: 2,
+                returnQty: 15,
+                returnAmount: 450.00,
+                netPurchaseAmount: 12050.00,
+                salesOrderCount: 25,
+                salesQty: 935,
+                salesAmount: 18500.00,
+                salesReturnOrderCount: 1,
+                salesReturnQty: 5,
+                salesReturnAmount: 150.00,
+                netSalesAmount: 18350.00,
+                beginningInventoryQty: 2285,
+                beginningInventoryAmount: 68250.00,
+                currentInQty: 1050,
+                currentOutQty: 935,
+                transferInQty: 15,
+                transferOutQty: 17,
+                endingInventoryQty: 2398,
+                endingInventoryAmount: 69830.00,
+                products: [
+                    {
+                        id: 'PRD001',
+                        name: '隔热垫',
+                        spec: '30cm×30cm',
+                        category: '厨房用品',
+                        unit: '个',
+                        beginningQty: 120,
+                        beginningAmount: 1500.00,
+                        inQty: 50,
+                        outQty: 43,
+                        transferInQty: 10,
+                        transferOutQty: 5,
+                        endingQty: 132,
+                        avgCost: 12.50,
+                        inventoryAmount: 1650.00
+                    },
+                    {
+                        id: 'PRD002',
+                        name: 'p-6炒锅',
+                        spec: '32cm',
+                        category: '厨房用品',
+                        unit: '个',
+                        beginningQty: 85,
+                        beginningAmount: 13430.00,
+                        inQty: 20,
+                        outQty: 18,
+                        transferInQty: 0,
+                        transferOutQty: 2,
+                        endingQty: 85,
+                        avgCost: 158.00,
+                        inventoryAmount: 13430.00
+                    },
+                    {
+                        id: 'PRD003',
+                        name: '雅安茶叶',
+                        spec: '500g/盒',
+                        category: '食品',
+                        unit: '盒',
+                        beginningQty: 150,
+                        beginningAmount: 6750.00,
+                        inQty: 100,
+                        outQty: 120,
+                        transferInQty: 5,
+                        transferOutQty: 0,
+                        endingQty: 135,
+                        avgCost: 45.00,
+                        inventoryAmount: 6075.00
+                    }
+                ]
+            },
+            {
+                date: '2025-01-30',
+                purchaseOrderCount: 6,
+                purchaseQty: 800,
+                purchaseAmount: 9800.00,
+                returnOrderCount: 1,
+                returnQty: 10,
+                returnAmount: 300.00,
+                netPurchaseAmount: 9500.00,
+                salesOrderCount: 22,
+                salesQty: 850,
+                salesAmount: 16500.00,
+                salesReturnOrderCount: 0,
+                salesReturnQty: 0,
+                salesReturnAmount: 0.00,
+                netSalesAmount: 16500.00,
+                beginningInventoryQty: 2200,
+                beginningAmount: 65000.00,
+                currentInQty: 800,
+                currentOutQty: 850,
+                transferInQty: 10,
+                transferOutQty: 5,
+                endingInventoryQty: 2155,
+                endingInventoryAmount: 63550.00,
+                products: []
+            },
+            {
+                date: '2025-01-29',
+                purchaseOrderCount: 7,
+                purchaseQty: 920,
+                purchaseAmount: 11200.00,
+                returnOrderCount: 1,
+                returnQty: 8,
+                returnAmount: 250.00,
+                netPurchaseAmount: 10950.00,
+                salesOrderCount: 20,
+                salesQty: 780,
+                salesAmount: 15200.00,
+                salesReturnOrderCount: 1,
+                salesReturnQty: 3,
+                salesReturnAmount: 100.00,
+                netSalesAmount: 15100.00,
+                beginningInventoryQty: 2150,
+                beginningAmount: 63000.00,
+                currentInQty: 920,
+                currentOutQty: 780,
+                transferInQty: 8,
+                transferOutQty: 3,
+                endingInventoryQty: 2295,
+                endingInventoryAmount: 67200.00,
+                products: []
+            },
+            {
+                date: '2025-01-28',
+                purchaseOrderCount: 5,
+                purchaseQty: 650,
+                purchaseAmount: 8200.00,
+                returnOrderCount: 0,
+                returnQty: 0,
+                returnAmount: 0.00,
+                netPurchaseAmount: 8200.00,
+                salesOrderCount: 18,
+                salesQty: 720,
+                salesAmount: 14200.00,
+                salesReturnOrderCount: 0,
+                salesReturnQty: 0,
+                salesReturnAmount: 0.00,
+                netSalesAmount: 14200.00,
+                beginningInventoryQty: 2100,
+                beginningAmount: 61500.00,
+                currentInQty: 650,
+                currentOutQty: 720,
+                transferInQty: 5,
+                transferOutQty: 2,
+                endingInventoryQty: 2033,
+                endingInventoryAmount: 59500.00,
+                products: []
+            },
+            {
+                date: '2025-01-27',
+                purchaseOrderCount: 9,
+                purchaseQty: 1100,
+                purchaseAmount: 13200.00,
+                returnOrderCount: 2,
+                returnQty: 20,
+                returnAmount: 500.00,
+                netPurchaseAmount: 12700.00,
+                salesOrderCount: 24,
+                salesQty: 950,
+                salesAmount: 17800.00,
+                salesReturnOrderCount: 1,
+                salesReturnQty: 4,
+                salesReturnAmount: 120.00,
+                netSalesAmount: 17680.00,
+                beginningInventoryQty: 2050,
+                beginningAmount: 60000.00,
+                currentInQty: 1100,
+                currentOutQty: 950,
+                transferInQty: 12,
+                transferOutQty: 8,
+                endingInventoryQty: 2204,
+                endingInventoryAmount: 64480.00,
+                products: []
+            }
+        ];
+
+        // 当前状态
+        let filteredHistoryData = [...historyStatementData];
+        let currentPage = 1;
+        let pageSize = 10;
+        let currentDetailDate = null;
+
+        // 初始化
+        function init() {
+            // 设置默认日期范围（最近7天）
+            const today = new Date();
+            const sevenDaysAgo = new Date(today);
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = sevenDaysAgo.toISOString().split('T')[0];
+
+            // 初始化仓库选择器
+            const warehouseSelect = document.getElementById('warehouseSelect');
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseSelect.appendChild(option);
+            });
+
+            // 加载数据
+            loadHistoryData();
+        }
+
+        // 加载历史数据
+        function loadHistoryData() {
+            // 筛选数据
+            filterHistoryData();
+            
+            // 计算统计
+            calculateSummary();
+            
+            // 渲染列表
+            renderHistoryList();
+        }
+
+        // 筛选历史数据
+        function filterHistoryData() {
+            filteredHistoryData = [...historyStatementData];
+
+            // 日期范围筛选
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (startDate) {
+                filteredHistoryData = filteredHistoryData.filter(item => item.date >= startDate);
+            }
+            if (endDate) {
+                filteredHistoryData = filteredHistoryData.filter(item => item.date <= endDate);
+            }
+
+            // 仓库筛选（当前示例数据没有仓库字段，暂时跳过）
+            const warehouseId = document.getElementById('warehouseSelect').value;
+
+            // 按日期倒序排列（最新的在前）
+            filteredHistoryData.sort((a, b) => b.date.localeCompare(a.date));
+        }
+
+        // 计算统计摘要
+        function calculateSummary() {
+            const totalPurchaseAmount = filteredHistoryData.reduce((sum, item) => sum + item.purchaseAmount, 0);
+            const totalSalesAmount = filteredHistoryData.reduce((sum, item) => sum + item.salesAmount, 0);
+            const avgInventoryQty = filteredHistoryData.length > 0 
+                ? Math.round(filteredHistoryData.reduce((sum, item) => sum + item.endingInventoryQty, 0) / filteredHistoryData.length)
+                : 0;
+            const avgInventoryAmount = filteredHistoryData.length > 0
+                ? filteredHistoryData.reduce((sum, item) => sum + item.endingInventoryAmount, 0) / filteredHistoryData.length
+                : 0;
+
+            document.getElementById('totalPurchaseAmount').textContent = '¥' + totalPurchaseAmount.toFixed(2);
+            document.getElementById('totalSalesAmount').textContent = '¥' + totalSalesAmount.toFixed(2);
+            document.getElementById('avgInventoryQty').textContent = avgInventoryQty;
+            document.getElementById('avgInventoryAmount').textContent = '¥' + avgInventoryAmount.toFixed(2);
+        }
+
+        // 渲染历史记录列表
+        function renderHistoryList() {
+            const listBody = document.getElementById('historyListBody');
+            listBody.innerHTML = '';
+
+            if (filteredHistoryData.length === 0) {
+                listBody.innerHTML = '<div style="padding: var(--spacing-lg); text-align: center; color: var(--color-text-secondary);">暂无历史记录</div>';
+                updatePagination(0, 1);
+                return;
+            }
+
+            // 分页
+            const totalPages = Math.ceil(filteredHistoryData.length / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredHistoryData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.dataset.date = item.date;
+                
+                historyItem.innerHTML = `
+                    <div class="history-item-header">
+                        <div class="history-item-date">${item.date}</div>
+                        <div class="history-item-actions">
+                            <button class="btn-link view-detail-btn" data-date="${item.date}">查看详情</button>
+                            <button class="btn-link print-detail-btn" data-date="${item.date}">打印</button>
+                        </div>
+                    </div>
+                    <div class="history-item-stats">
+                        <div class="history-stat-item">
+                            <span class="history-stat-label">进货金额</span>
+                            <span class="history-stat-value amount">¥${item.purchaseAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="history-stat-item">
+                            <span class="history-stat-label">销售金额</span>
+                            <span class="history-stat-value amount">¥${item.salesAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="history-stat-item">
+                            <span class="history-stat-label">期初库存</span>
+                            <span class="history-stat-value">${item.beginningInventoryQty}</span>
+                        </div>
+                        <div class="history-stat-item">
+                            <span class="history-stat-label">期末库存</span>
+                            <span class="history-stat-value">${item.endingInventoryQty}</span>
+                        </div>
+                        <div class="history-stat-item">
+                            <span class="history-stat-label">期初金额</span>
+                            <span class="history-stat-value amount">¥${item.beginningInventoryAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="history-stat-item">
+                            <span class="history-stat-label">期末金额</span>
+                            <span class="history-stat-value amount">¥${item.endingInventoryAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+                listBody.appendChild(historyItem);
+            });
+
+            // 绑定事件
+            bindHistoryListEvents();
+            updatePagination(filteredHistoryData.length, totalPages);
+        }
+
+        // 绑定历史列表事件
+        function bindHistoryListEvents() {
+            // 查看详情
+            document.querySelectorAll('.view-detail-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const date = this.dataset.date;
+                    showDetail(date);
+                });
+            });
+
+            // 打印
+            document.querySelectorAll('.print-detail-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const date = this.dataset.date;
+                    alert(`打印 ${date} 的结存单（示例）\n正在准备打印...`);
+                });
+            });
+
+            // 点击整行查看详情
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const date = this.dataset.date;
+                    showDetail(date);
+                });
+            });
+        }
+
+        // 显示详情
+        function showDetail(date) {
+            currentDetailDate = date;
+            const record = historyStatementData.find(item => item.date === date);
+            
+            if (!record) {
+                alert('未找到该日期的结存记录');
+                return;
+            }
+
+            // 更新弹窗标题
+            document.getElementById('detailModalTitle').textContent = `${date} 结存详情`;
+
+            // 渲染进存销统计
+            renderDetailStats(record);
+
+            // 渲染商品明细表格
+            renderDetailTable(record.products.length > 0 ? record.products : generateDetailProducts(record));
+
+            // 显示弹窗
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        // 生成详情商品数据（如果记录中没有商品数据）
+        function generateDetailProducts(record) {
+            // 基于统计数据生成示例商品数据
+            return [
+                {
+                    id: 'PRD001',
+                    name: '隔热垫',
+                    spec: '30cm×30cm',
+                    category: '厨房用品',
+                    unit: '个',
+                    beginningQty: Math.floor(record.beginningInventoryQty * 0.05),
+                    beginningAmount: record.beginningInventoryAmount * 0.02,
+                    inQty: Math.floor(record.currentInQty * 0.05),
+                    outQty: Math.floor(record.currentOutQty * 0.05),
+                    transferInQty: record.transferInQty,
+                    transferOutQty: record.transferOutQty,
+                    endingQty: Math.floor(record.endingInventoryQty * 0.05),
+                    avgCost: 12.50,
+                    inventoryAmount: record.endingInventoryAmount * 0.02
+                },
+                {
+                    id: 'PRD002',
+                    name: 'p-6炒锅',
+                    spec: '32cm',
+                    category: '厨房用品',
+                    unit: '个',
+                    beginningQty: Math.floor(record.beginningInventoryQty * 0.04),
+                    beginningAmount: record.beginningInventoryAmount * 0.20,
+                    inQty: Math.floor(record.currentInQty * 0.02),
+                    outQty: Math.floor(record.currentOutQty * 0.02),
+                    transferInQty: 0,
+                    transferOutQty: 0,
+                    endingQty: Math.floor(record.endingInventoryQty * 0.04),
+                    avgCost: 158.00,
+                    inventoryAmount: record.endingInventoryAmount * 0.20
+                },
+                {
+                    id: 'PRD003',
+                    name: '雅安茶叶',
+                    spec: '500g/盒',
+                    category: '食品',
+                    unit: '盒',
+                    beginningQty: Math.floor(record.beginningInventoryQty * 0.07),
+                    beginningAmount: record.beginningInventoryAmount * 0.10,
+                    inQty: Math.floor(record.currentInQty * 0.10),
+                    outQty: Math.floor(record.currentOutQty * 0.13),
+                    transferInQty: 0,
+                    transferOutQty: 0,
+                    endingQty: Math.floor(record.endingInventoryQty * 0.06),
+                    avgCost: 45.00,
+                    inventoryAmount: record.endingInventoryAmount * 0.09
+                }
+            ];
+        }
+
+        // 渲染详情统计
+        function renderDetailStats(record) {
+            const statsSection = document.getElementById('detailStatsSection');
+            statsSection.innerHTML = `
+                <!-- 进货统计 -->
+                <div class="inventory-stat-card">
+                    <div class="inventory-stat-title">进货统计</div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">进货单数</span>
+                        <span class="inventory-stat-value">${record.purchaseOrderCount}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">进货数量</span>
+                        <span class="inventory-stat-value">${record.purchaseQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">进货金额</span>
+                        <span class="inventory-stat-value amount">¥${record.purchaseAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">退货单数</span>
+                        <span class="inventory-stat-value">${record.returnOrderCount}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">退货数量</span>
+                        <span class="inventory-stat-value">${record.returnQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">退货金额</span>
+                        <span class="inventory-stat-value amount">¥${record.returnAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">净进货</span>
+                        <span class="inventory-stat-value amount">¥${record.netPurchaseAmount.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <!-- 销售统计 -->
+                <div class="inventory-stat-card">
+                    <div class="inventory-stat-title">销售统计</div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">销售单数</span>
+                        <span class="inventory-stat-value">${record.salesOrderCount}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">销售数量</span>
+                        <span class="inventory-stat-value">${record.salesQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">销售金额</span>
+                        <span class="inventory-stat-value amount">¥${record.salesAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">退货单数</span>
+                        <span class="inventory-stat-value">${record.salesReturnOrderCount}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">退货数量</span>
+                        <span class="inventory-stat-value">${record.salesReturnQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">退货金额</span>
+                        <span class="inventory-stat-value amount">¥${record.salesReturnAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">净销售</span>
+                        <span class="inventory-stat-value amount">¥${record.netSalesAmount.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <!-- 库存统计 -->
+                <div class="inventory-stat-card">
+                    <div class="inventory-stat-title">库存统计</div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">期初库存</span>
+                        <span class="inventory-stat-value">${record.beginningInventoryQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">期初金额</span>
+                        <span class="inventory-stat-value amount">¥${record.beginningInventoryAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">本期入库</span>
+                        <span class="inventory-stat-value">${record.currentInQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">本期出库</span>
+                        <span class="inventory-stat-value">${record.currentOutQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">调拨入库</span>
+                        <span class="inventory-stat-value">${record.transferInQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">调拨出库</span>
+                        <span class="inventory-stat-value">${record.transferOutQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">期末库存</span>
+                        <span class="inventory-stat-value">${record.endingInventoryQty}</span>
+                    </div>
+                    <div class="inventory-stat-row">
+                        <span class="inventory-stat-label">期末金额</span>
+                        <span class="inventory-stat-value amount">¥${record.endingInventoryAmount.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染详情表格
+        function renderDetailTable(products) {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无商品数据</td></tr>';
+                updateDetailTotals([]);
+                return;
+            }
+
+            products.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-center">${index + 1}</td>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.spec}</td>
+                    <td>${item.category}</td>
+                    <td class="text-right">${item.beginningQty}</td>
+                    <td class="text-right">${item.inQty}</td>
+                    <td class="text-right">${item.outQty}</td>
+                    <td class="text-right">${item.transferInQty}</td>
+                    <td class="text-right">${item.transferOutQty}</td>
+                    <td class="text-right">${item.endingQty}</td>
+                    <td class="text-right">${item.unit}</td>
+                    <td class="text-right">¥${item.avgCost.toFixed(2)}</td>
+                    <td class="text-right">¥${item.inventoryAmount.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateDetailTotals(products);
+        }
+
+        // 更新详情合计
+        function updateDetailTotals(products) {
+            const totalBeginningQty = products.reduce((sum, item) => sum + item.beginningQty, 0);
+            const totalInQty = products.reduce((sum, item) => sum + item.inQty, 0);
+            const totalOutQty = products.reduce((sum, item) => sum + item.outQty, 0);
+            const totalTransferInQty = products.reduce((sum, item) => sum + item.transferInQty, 0);
+            const totalTransferOutQty = products.reduce((sum, item) => sum + item.transferOutQty, 0);
+            const totalEndingQty = products.reduce((sum, item) => sum + item.endingQty, 0);
+            const totalInventoryAmount = products.reduce((sum, item) => sum + item.inventoryAmount, 0);
+
+            document.getElementById('detailTotalBeginningQty').textContent = totalBeginningQty;
+            document.getElementById('detailTotalInQty').textContent = totalInQty;
+            document.getElementById('detailTotalOutQty').textContent = totalOutQty;
+            document.getElementById('detailTotalTransferInQty').textContent = totalTransferInQty;
+            document.getElementById('detailTotalTransferOutQty').textContent = totalTransferOutQty;
+            document.getElementById('detailTotalEndingQty').textContent = totalEndingQty;
+            document.getElementById('detailTotalInventoryAmount').textContent = '¥' + totalInventoryAmount.toFixed(2);
+        }
+
+        // 关闭详情弹窗
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('show');
+            currentDetailDate = null;
+        }
+
+        // 更新分页
+        function updatePagination(totalRecords, totalPages) {
+            document.getElementById('totalRecords').textContent = totalRecords;
+
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-page-btn';
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderHistoryList();
+                }
+            });
+            paginationPages.appendChild(prevBtn);
+
+            // 页码按钮
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstBtn = document.createElement('button');
+                firstBtn.className = 'pagination-page-btn';
+                firstBtn.textContent = '1';
+                firstBtn.addEventListener('click', () => {
+                    currentPage = 1;
+                    renderHistoryList();
+                });
+                paginationPages.appendChild(firstBtn);
+
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-page-btn';
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderHistoryList();
+                });
+                paginationPages.appendChild(pageBtn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+
+                const lastBtn = document.createElement('button');
+                lastBtn.className = 'pagination-page-btn';
+                lastBtn.textContent = totalPages;
+                lastBtn.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    renderHistoryList();
+                });
+                paginationPages.appendChild(lastBtn);
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-page-btn';
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderHistoryList();
+                }
+            });
+            paginationPages.appendChild(nextBtn);
+        }
+
+        // 事件绑定
+        document.getElementById('queryBtn').addEventListener('click', function() {
+            currentPage = 1;
+            loadHistoryData();
+        });
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('导出历史结存（示例）\n正在导出Excel文件...');
+        });
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            loadHistoryData();
+        });
+        document.getElementById('closeDetailModal').addEventListener('click', closeDetailModal);
+        document.getElementById('detailPrintBtn').addEventListener('click', function() {
+            if (currentDetailDate) {
+                alert(`打印 ${currentDetailDate} 的结存单（示例）\n正在准备打印...`);
+            }
+        });
+        document.getElementById('detailExportBtn').addEventListener('click', function() {
+            if (currentDetailDate) {
+                alert(`导出 ${currentDetailDate} 的结存单（示例）\n正在导出Excel文件...`);
+            }
+        });
+
+        // 点击弹窗外部关闭
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+
+        // 分页大小变化
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            renderHistoryList();
+        });
+
+        // 跳转页面
+        document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const page = parseInt(this.value);
+                const totalPages = Math.ceil(filteredHistoryData.length / pageSize);
+                if (page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    renderHistoryList();
+                } else {
+                    alert(`请输入1-${totalPages}之间的页码`);
+                }
+            }
+        });
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

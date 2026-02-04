@@ -1,0 +1,3217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品分类 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        /* 商品分类页面专用样式 */
+        .category-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        /* 一级菜单 */
+        .level1-menu {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .level1-menu-item {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            color: var(--color-text-primary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            white-space: nowrap;
+        }
+
+        .level1-menu-item:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .level1-menu-item.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 主内容区 */
+        .main-content-area {
+            flex: 1;
+            display: flex;
+            gap: var(--spacing-lg);
+            overflow: hidden;
+        }
+
+        /* 左侧楼栋菜单 */
+        .building-menu {
+            width: 200px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .building-menu-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .building-menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .building-menu-item:hover {
+            background-color: var(--color-neutral-50);
+            color: var(--color-primary);
+        }
+
+        .building-menu-item.active {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 右侧内容区 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* 二级菜单 */
+        .level2-menu {
+            display: flex;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            background-color: var(--color-neutral-50);
+            overflow-x: auto;
+        }
+
+        .level2-menu-item {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .level2-menu-item:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .level2-menu-item.active {
+            color: var(--color-primary);
+            background-color: rgba(44, 131, 235, 0.1);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .level2-menu-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: var(--color-primary);
+            border-radius: var(--radius-full);
+        }
+
+        /* 内容区域 */
+        .content-section {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .action-bar-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-sm);
+            border-bottom: 2px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background-color: var(--color-success);
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .status-tag.offline {
+            background-color: var(--color-secondary);
+        }
+
+        .status-tag.error {
+            background-color: var(--color-error);
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-neutral-300);
+            background-color: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn-icon.delete:hover {
+            border-color: var(--color-error);
+            color: var(--color-error);
+        }
+
+        .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            margin-top: var(--spacing-md);
+        }
+
+        .pagination-info {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .pagination-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 隐藏内容 */
+        .content-panel {
+            display: none;
+        }
+
+        .content-panel.active {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        /* ========== 弹窗样式 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: var(--z-index-modal-backdrop);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-lg);
+            min-width: 400px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: var(--z-index-modal);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            color: var(--color-text-secondary);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        /* ========== 报警监控样式 ========== */
+        /* 监控类型切换标签 */
+        .alarm-type-tab {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            color: var(--color-text-primary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            white-space: nowrap;
+        }
+
+        .alarm-type-tab:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .alarm-type-tab.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 报警卡片容器 */
+        .alarm-cards-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* 全屏模式 */
+        .alarm-cards-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: var(--z-index-modal);
+            background-color: #ffffff;
+            padding: var(--spacing-xl);
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        /* 报警卡片 */
+        .alarm-card {
+            background-color: #ffffff;
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-base) var(--ease-in-out);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            min-height: 120px;
+        }
+
+        .alarm-card:hover {
+            box-shadow: var(--shadow-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .alarm-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .alarm-card-name {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .alarm-card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            white-space: nowrap;
+        }
+
+        .alarm-card-status.online {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .alarm-card-status.offline {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--color-secondary);
+        }
+
+        .alarm-card-status.alarm {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .alarm-card-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .alarm-card-status.online .alarm-card-status-dot {
+            background-color: var(--color-success);
+        }
+
+        .alarm-card-status.offline .alarm-card-status-dot {
+            background-color: var(--color-secondary);
+        }
+
+        .alarm-card-status.alarm .alarm-card-status-dot {
+            background-color: var(--color-error);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .alarm-card-location {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: auto;
+        }
+
+        /* 响应式：小屏幕时减少列数 */
+        @media (max-width: 1920px) {
+            .alarm-cards-container {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .alarm-cards-container.fullscreen {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        @media (max-width: 1600px) {
+            .alarm-cards-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .alarm-cards-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .alarm-cards-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="category-page">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1 class="page-title">商品分类</h1>
+        </div>
+
+        <!-- 一级菜单 -->
+        <div class="level1-menu" id="level1Menu">
+            <button class="level1-menu-item active" data-category="power">电力监控</button>
+            <button class="level1-menu-item" data-category="fire">防火监控</button>
+            <button class="level1-menu-item" data-category="water">防水监控</button>
+            <button class="level1-menu-item" data-category="gateway">网关</button>
+            <button class="level1-menu-item" data-category="alarm">监控报警</button>
+            <button class="level1-menu-item" data-category="screen">监测大屏</button>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content-area">
+            <!-- 左侧楼栋菜单 -->
+            <div class="building-menu">
+                <div class="building-menu-title">楼栋信息</div>
+                <div class="building-menu-item active" data-building="all">全部</div>
+                <div class="building-menu-item" data-building="1">1栋</div>
+                <div class="building-menu-item" data-building="2">2栋</div>
+            </div>
+
+            <!-- 右侧内容区 -->
+            <div class="content-area">
+                <!-- 电力监控二级菜单 -->
+                <div class="level2-menu" id="powerLevel2Menu">
+                    <button class="level2-menu-item active" data-tab="power-list">电力列表</button>
+                    <button class="level2-menu-item" data-tab="device-name">设备名称</button>
+                    <button class="level2-menu-item" data-tab="type-management">类型管理</button>
+                    <button class="level2-menu-item" data-tab="power-management">功率管理</button>
+                    <button class="level2-menu-item" data-tab="spec-management">规格管理</button>
+                </div>
+
+                <!-- 防火监控二级菜单 -->
+                <div class="level2-menu" id="fireLevel2Menu" style="display: none;">
+                    <button class="level2-menu-item active" data-tab="fire-list">防火列表</button>
+                    <button class="level2-menu-item" data-tab="fire-device-name">设备名称</button>
+                    <button class="level2-menu-item" data-tab="fire-type-management">类型管理</button>
+                    <button class="level2-menu-item" data-tab="fire-power-management">功率管理</button>
+                    <button class="level2-menu-item" data-tab="fire-spec-management">规格管理</button>
+                </div>
+
+                <!-- 防水监控二级菜单 -->
+                <div class="level2-menu" id="waterLevel2Menu" style="display: none;">
+                    <button class="level2-menu-item active" data-tab="water-list">防水列表</button>
+                    <button class="level2-menu-item" data-tab="water-device-name">设备名称</button>
+                    <button class="level2-menu-item" data-tab="water-type-management">类型管理</button>
+                    <button class="level2-menu-item" data-tab="water-power-management">功率管理</button>
+                    <button class="level2-menu-item" data-tab="water-spec-management">规格管理</button>
+                </div>
+
+                <!-- 网关二级菜单 -->
+                <div class="level2-menu" id="gatewayLevel2Menu" style="display: none;">
+                    <button class="level2-menu-item active" data-tab="gateway-list">网关列表</button>
+                </div>
+
+                <!-- 监控报警二级菜单 -->
+                <div class="level2-menu" id="alarmLevel2Menu" style="display: none;">
+                    <button class="level2-menu-item active" data-tab="alarm-list">报警监控</button>
+                </div>
+
+                <!-- 监测大屏二级菜单 -->
+                <div class="level2-menu" id="screenLevel2Menu" style="display: none;">
+                    <button class="level2-menu-item active" data-tab="screen-info">大屏信息</button>
+                </div>
+
+                <!-- 内容区域 -->
+                <div class="content-section">
+                    <!-- 电力列表内容 -->
+                    <div class="content-panel active" id="power-list-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">电力列表</div>
+                            <button class="btn btn-primary" id="addDeviceBtn">新增设备</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>编号</th>
+                                            <th>设备名称</th>
+                                            <th>分组</th>
+                                            <th>类型</th>
+                                            <th>功率档位</th>
+                                            <th>规格</th>
+                                            <th>安装位置</th>
+                                            <th>状态</th>
+                                            <th>开关控制</th>
+                                            <th>备注</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="powerListTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- 分页 -->
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    共 <span id="totalCount">8</span> 条数据，每页显示 10 条
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" disabled>上一页</button>
+                                    <button class="pagination-btn active">1</button>
+                                    <button class="pagination-btn" disabled>下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 设备名称内容 -->
+                    <div class="content-panel" id="device-name-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">设备名称</div>
+                            <button class="btn btn-primary" id="addDeviceNameBtn">新增设备</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>设备名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="deviceNameTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-panel" id="type-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">类型管理</div>
+                            <button class="btn btn-primary" id="addTypeBtn">新增类型</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>类型名称</th>
+                                            <th>描述</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="typeManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-panel" id="power-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">功率管理</div>
+                            <button class="btn btn-primary" id="addPowerBtn">新增功率</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>功率名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="powerManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-panel" id="spec-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">规格管理</div>
+                            <button class="btn btn-primary" id="addSpecBtn">新增规格</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>规格名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="specManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防火监控内容面板 -->
+                    <!-- 防火列表 -->
+                    <div class="content-panel" id="fire-list-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">防火列表</div>
+                            <button class="btn btn-primary" id="addFireDeviceBtn">新增设备</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>编号</th>
+                                            <th>设备名称</th>
+                                            <th>分组</th>
+                                            <th>类型</th>
+                                            <th>功率档位</th>
+                                            <th>规格</th>
+                                            <th>安装位置</th>
+                                            <th>状态</th>
+                                            <th>开关控制</th>
+                                            <th>备注</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fireListTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    共 <span id="fireTotalCount">0</span> 条数据，每页显示 10 条
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" disabled>上一页</button>
+                                    <button class="pagination-btn active">1</button>
+                                    <button class="pagination-btn" disabled>下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防火设备名称 -->
+                    <div class="content-panel" id="fire-device-name-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">设备名称</div>
+                            <button class="btn btn-primary" id="addFireDeviceNameBtn">新增设备</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>设备名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fireDeviceNameTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防火类型管理 -->
+                    <div class="content-panel" id="fire-type-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">类型管理</div>
+                            <button class="btn btn-primary" id="addFireTypeBtn">新增类型</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>类型名称</th>
+                                            <th>描述</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fireTypeManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防火功率管理 -->
+                    <div class="content-panel" id="fire-power-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">功率管理</div>
+                            <button class="btn btn-primary" id="addFirePowerBtn">新增功率</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>功率名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="firePowerManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防火规格管理 -->
+                    <div class="content-panel" id="fire-spec-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">规格管理</div>
+                            <button class="btn btn-primary" id="addFireSpecBtn">新增规格</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>规格名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fireSpecManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防水监控内容面板 -->
+                    <!-- 防水列表 -->
+                    <div class="content-panel" id="water-list-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">防水列表</div>
+                            <button class="btn btn-primary" id="addWaterDeviceBtn">新增设备</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>编号</th>
+                                            <th>设备名称</th>
+                                            <th>分组</th>
+                                            <th>类型</th>
+                                            <th>功率档位</th>
+                                            <th>规格</th>
+                                            <th>安装位置</th>
+                                            <th>状态</th>
+                                            <th>开关控制</th>
+                                            <th>备注</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waterListTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    共 <span id="waterTotalCount">0</span> 条数据，每页显示 10 条
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" disabled>上一页</button>
+                                    <button class="pagination-btn active">1</button>
+                                    <button class="pagination-btn" disabled>下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防水设备名称 -->
+                    <div class="content-panel" id="water-device-name-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">设备名称</div>
+                            <button class="btn btn-primary" id="addWaterDeviceNameBtn">新增设备</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>设备名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waterDeviceNameTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防水类型管理 -->
+                    <div class="content-panel" id="water-type-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">类型管理</div>
+                            <button class="btn btn-primary" id="addWaterTypeBtn">新增类型</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>类型名称</th>
+                                            <th>描述</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waterTypeManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防水功率管理 -->
+                    <div class="content-panel" id="water-power-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">功率管理</div>
+                            <button class="btn btn-primary" id="addWaterPowerBtn">新增功率</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>功率名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waterPowerManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防水规格管理 -->
+                    <div class="content-panel" id="water-spec-management-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">规格管理</div>
+                            <button class="btn btn-primary" id="addWaterSpecBtn">新增规格</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>规格名称</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waterSpecManagementTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 网关列表内容 -->
+                    <div class="content-panel" id="gateway-list-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">网关列表</div>
+                            <button class="btn btn-primary" id="addGatewayBtn">新增网关</button>
+                        </div>
+                        <!-- 搜索栏 -->
+                        <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); background-color: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); white-space: nowrap;">搜索网关：</label>
+                                <input type="text" id="gatewaySearchInput" placeholder="请输入网关名称、编号或描述" style="flex: 1; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); transition: all var(--transition-base) var(--ease-in-out);">
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>网关名称</th>
+                                            <th>网关编号</th>
+                                            <th>描述</th>
+                                            <th>所属分组</th>
+                                            <th>关联设备数</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gatewayListTableBody">
+                                        <!-- 数据由JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 监控报警内容 -->
+                    <div class="content-panel" id="alarm-list-panel">
+                        <div class="action-bar">
+                            <div class="action-bar-title">报警监控</div>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <button class="btn btn-outline" id="fullscreenBtn">全屏模式</button>
+                                <button class="btn btn-primary" id="dataSummaryBtn">数据汇总</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 监控类型切换标签 -->
+                        <div style="display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); padding: var(--spacing-md); background-color: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <button class="alarm-type-tab active" data-type="power">电力监控</button>
+                            <button class="alarm-type-tab" data-type="fire">防火监控</button>
+                            <button class="alarm-type-tab" data-type="water">防水监控</button>
+                        </div>
+
+                        <!-- 报警卡片区域 -->
+                        <div id="alarmCardsContainer" class="alarm-cards-container">
+                            <!-- 卡片由JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 监测大屏内容 -->
+                    <div class="content-panel" id="screen-info-panel">
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-lg); padding: var(--spacing-lg);">
+                            <!-- 链接预览区域 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">链接预览</h3>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md); background-color: var(--color-neutral-50); border-radius: var(--radius-md);">
+                                    <div style="flex: 1; padding: var(--spacing-sm) var(--spacing-md); background-color: #ffffff; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-family: var(--font-family-mono); font-size: var(--font-size-sm); word-break: break-all;" id="screenLinkDisplay">http://dsp.scpsyd.cn/#/login?redirect=/police</div>
+                                    <button class="btn btn-primary" id="copyLinkBtn">一键复制</button>
+                                </div>
+                            </div>
+
+                            <!-- 使用说明区域 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">使用说明</h3>
+                                </div>
+                                <div style="padding: var(--spacing-md);">
+                                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--spacing-md);">
+                                        <li style="display: flex; align-items: flex-start; gap: var(--spacing-sm);">
+                                            <span style="color: var(--color-primary); font-weight: var(--font-weight-bold);">•</span>
+                                            <span style="color: var(--color-text-primary); line-height: var(--line-height-relaxed);">点击"一键复制"按钮即可复制链接</span>
+                                        </li>
+                                        <li style="display: flex; align-items: flex-start; gap: var(--spacing-sm);">
+                                            <span style="color: var(--color-primary); font-weight: var(--font-weight-bold);">•</span>
+                                            <span style="color: var(--color-text-primary); line-height: var(--line-height-relaxed);">复制成功后，可以将链接分享给其他用户</span>
+                                        </li>
+                                        <li style="display: flex; align-items: flex-start; gap: var(--spacing-sm);">
+                                            <span style="color: var(--color-primary); font-weight: var(--font-weight-bold);">•</span>
+                                            <span style="color: var(--color-text-primary); line-height: var(--line-height-relaxed);">用户通过此链接可以直接访问大屏报警系统</span>
+                                        </li>
+                                        <li style="display: flex; align-items: flex-start; gap: var(--spacing-sm);">
+                                            <span style="color: var(--color-primary); font-weight: var(--font-weight-bold);">•</span>
+                                            <span style="color: var(--color-text-primary); line-height: var(--line-height-relaxed);">链接已自动包含必要的参数配置</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据汇总弹窗 -->
+    <div class="modal-overlay" id="dataSummaryModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">数据汇总</h3>
+                <button class="modal-close" id="dataSummaryClose">
+                    <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-lg);">
+                    <div style="padding: var(--spacing-lg); background-color: var(--color-neutral-50); border-radius: var(--radius-md); text-align: center;">
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">设备总数</div>
+                        <div id="summaryTotalCount" style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); color: var(--color-primary);">0</div>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background-color: var(--color-neutral-50); border-radius: var(--radius-md); text-align: center;">
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">在线数量</div>
+                        <div id="summaryOnlineCount" style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); color: var(--color-success);">0</div>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background-color: var(--color-neutral-50); border-radius: var(--radius-md); text-align: center;">
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">离线数量</div>
+                        <div id="summaryOfflineCount" style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); color: var(--color-secondary);">0</div>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background-color: var(--color-neutral-50); border-radius: var(--radius-md); text-align: center;">
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">报警数量</div>
+                        <div id="summaryAlarmCount" style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); color: var(--color-error);">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="dataSummaryConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前选中的一级菜单
+        let currentLevel1Category = 'power';
+        // 当前选中的楼栋
+        let currentBuilding = 'all';
+        // 当前选中的二级菜单
+        let currentLevel2Tab = 'power-list';
+
+        // 电力列表数据
+        const powerListData = [
+            {
+                id: 'P001',
+                name: '电力监控设备A',
+                group: '主配电室',
+                type: '智能电表',
+                powerLevel: '高功率',
+                spec: '380V/50A',
+                location: '1栋-1层-101',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'P002',
+                name: '电力监控设备B',
+                group: '副配电室',
+                type: '智能电表',
+                powerLevel: '中功率',
+                spec: '220V/30A',
+                location: '1栋-2层-201',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'P003',
+                name: '电力监控设备C',
+                group: '主配电室',
+                type: '电压监测器',
+                powerLevel: '低功率',
+                spec: '220V/10A',
+                location: '2栋-1层-102',
+                status: 'offline',
+                switchControl: false,
+                remark: '设备离线'
+            },
+            {
+                id: 'P004',
+                name: '电力监控设备D',
+                group: '副配电室',
+                type: '智能电表',
+                powerLevel: '高功率',
+                spec: '380V/50A',
+                location: '2栋-2层-202',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'P005',
+                name: '电力监控设备E',
+                group: '主配电室',
+                type: '电流监测器',
+                powerLevel: '中功率',
+                spec: '220V/30A',
+                location: '1栋-3层-301',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'P006',
+                name: '电力监控设备F',
+                group: '副配电室',
+                type: '智能电表',
+                powerLevel: '低功率',
+                spec: '220V/10A',
+                location: '2栋-3层-302',
+                status: 'error',
+                switchControl: false,
+                remark: '故障报警'
+            },
+            {
+                id: 'P007',
+                name: '电力监控设备G',
+                group: '主配电室',
+                type: '电压监测器',
+                powerLevel: '高功率',
+                spec: '380V/50A',
+                location: '1栋-4层-401',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'P008',
+                name: '电力监控设备H',
+                group: '副配电室',
+                type: '智能电表',
+                powerLevel: '中功率',
+                spec: '220V/30A',
+                location: '2栋-4层-402',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            }
+        ];
+
+        // 设备名称数据
+        const deviceNameData = [
+            { id: 1, name: '智能开关' },
+            { id: 2, name: '智能开关48型' }
+        ];
+
+        // 类型管理数据
+        const typeManagementData = [
+            { id: 1, name: '智能电表', description: '用于监测电力使用情况的智能电表设备', status: 'enabled' },
+            { id: 2, name: '电压监测器', description: '监测电压变化情况的监测设备', status: 'enabled' },
+            { id: 3, name: '电流监测器', description: '监测电流变化情况的监测设备', status: 'disabled' }
+        ];
+
+        // 功率管理数据
+        const powerManagementData = [
+            { id: 1, name: '高功率' },
+            { id: 2, name: '中功率' },
+            { id: 3, name: '低功率' }
+        ];
+
+        // 规格管理数据
+        const specManagementData = [
+            { id: 1, name: '380V/50A' },
+            { id: 2, name: '220V/30A' },
+            { id: 3, name: '220V/10A' }
+        ];
+
+        // 防火监控数据
+        const fireListData = [
+            {
+                id: 'F001',
+                name: '防火监控设备A',
+                group: '主防火区',
+                type: '烟雾探测器',
+                powerLevel: '高功率',
+                spec: '380V/50A',
+                location: '1栋-1层-101',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'F002',
+                name: '防火监控设备B',
+                group: '副防火区',
+                type: '温度传感器',
+                powerLevel: '中功率',
+                spec: '220V/30A',
+                location: '1栋-2层-201',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'F003',
+                name: '防火监控设备C',
+                group: '主防火区',
+                type: '烟雾探测器',
+                powerLevel: '低功率',
+                spec: '220V/10A',
+                location: '2栋-1层-102',
+                status: 'offline',
+                switchControl: false,
+                remark: '设备离线'
+            }
+        ];
+
+        const fireDeviceNameData = [
+            { id: 1, name: '烟雾探测器' },
+            { id: 2, name: '温度传感器' }
+        ];
+
+        const fireTypeManagementData = [
+            { id: 1, name: '烟雾探测器', description: '用于检测烟雾浓度的防火设备', status: 'enabled' },
+            { id: 2, name: '温度传感器', description: '监测环境温度变化的传感器', status: 'enabled' },
+            { id: 3, name: '火焰探测器', description: '检测火焰的专用探测器', status: 'disabled' }
+        ];
+
+        const firePowerManagementData = [
+            { id: 1, name: '高功率' },
+            { id: 2, name: '中功率' },
+            { id: 3, name: '低功率' }
+        ];
+
+        const fireSpecManagementData = [
+            { id: 1, name: '380V/50A' },
+            { id: 2, name: '220V/30A' },
+            { id: 3, name: '220V/10A' }
+        ];
+
+        // 防水监控数据
+        const waterListData = [
+            {
+                id: 'W001',
+                name: '防水监控设备A',
+                group: '主防水区',
+                type: '水位传感器',
+                powerLevel: '高功率',
+                spec: '380V/50A',
+                location: '1栋-1层-101',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'W002',
+                name: '防水监控设备B',
+                group: '副防水区',
+                type: '湿度传感器',
+                powerLevel: '中功率',
+                spec: '220V/30A',
+                location: '1栋-2层-201',
+                status: 'online',
+                switchControl: true,
+                remark: '正常运行'
+            },
+            {
+                id: 'W003',
+                name: '防水监控设备C',
+                group: '主防水区',
+                type: '水位传感器',
+                powerLevel: '低功率',
+                spec: '220V/10A',
+                location: '2栋-1层-102',
+                status: 'offline',
+                switchControl: false,
+                remark: '设备离线'
+            }
+        ];
+
+        const waterDeviceNameData = [
+            { id: 1, name: '水位传感器' },
+            { id: 2, name: '湿度传感器' }
+        ];
+
+        const waterTypeManagementData = [
+            { id: 1, name: '水位传感器', description: '用于检测水位高度的防水设备', status: 'enabled' },
+            { id: 2, name: '湿度传感器', description: '监测环境湿度变化的传感器', status: 'enabled' },
+            { id: 3, name: '漏水检测器', description: '检测漏水的专用设备', status: 'disabled' }
+        ];
+
+        const waterPowerManagementData = [
+            { id: 1, name: '高功率' },
+            { id: 2, name: '中功率' },
+            { id: 3, name: '低功率' }
+        ];
+
+        const waterSpecManagementData = [
+            { id: 1, name: '380V/50A' },
+            { id: 2, name: '220V/30A' },
+            { id: 3, name: '220V/10A' }
+        ];
+
+        // 网关数据
+        const gatewayListData = [
+            {
+                id: 1,
+                name: '主网关A',
+                code: 'GW001',
+                description: '主网关设备，负责电力监控系统',
+                group: '主配电室',
+                deviceCount: 15
+            },
+            {
+                id: 2,
+                name: '副网关B',
+                code: 'GW002',
+                description: '副网关设备，负责防火监控系统',
+                group: '副防火区',
+                deviceCount: 8
+            },
+            {
+                id: 3,
+                name: '网关C',
+                code: 'GW003',
+                description: '网关设备，负责防水监控系统',
+                group: '主防水区',
+                deviceCount: 12
+            },
+            {
+                id: 4,
+                name: '网关D',
+                code: 'GW004',
+                description: '备用网关设备',
+                group: '备用区',
+                deviceCount: 5
+            }
+        ];
+
+        // 报警监控数据
+        const alarmData = {
+            power: [
+                { id: 'A001', name: '电力监控设备A', location: '1栋 1楼-测试', status: 'online' },
+                { id: 'A002', name: '电力监控设备B', location: '1栋 2楼-测试', status: 'online' },
+                { id: 'A003', name: '电力监控设备C', location: '1栋 3楼-测试', status: 'offline' },
+                { id: 'A004', name: '电力监控设备D', location: '2栋 1楼-测试', status: 'online' },
+                { id: 'A005', name: '电力监控设备E', location: '2栋 2楼-测试', status: 'alarm' },
+                { id: 'A006', name: '电力监控设备F', location: '2栋 3楼-测试', status: 'online' },
+                { id: 'A007', name: '电力监控设备G', location: '1栋 4楼-测试', status: 'offline' },
+                { id: 'A008', name: '电力监控设备H', location: '2栋 4楼-测试', status: 'online' },
+                { id: 'A009', name: '电力监控设备I', location: '1栋 5楼-测试', status: 'alarm' },
+                { id: 'A010', name: '电力监控设备J', location: '2栋 5楼-测试', status: 'online' },
+                { id: 'A011', name: '电力监控设备K', location: '1栋 6楼-测试', status: 'online' },
+                { id: 'A012', name: '电力监控设备L', location: '2栋 6楼-测试', status: 'offline' },
+                { id: 'A013', name: '电力监控设备M', location: '1栋 7楼-测试', status: 'online' },
+                { id: 'A014', name: '电力监控设备N', location: '2栋 7楼-测试', status: 'alarm' },
+                { id: 'A015', name: '电力监控设备O', location: '1栋 8楼-测试', status: 'online' },
+                { id: 'A016', name: '电力监控设备P', location: '2栋 8楼-测试', status: 'online' },
+                { id: 'A017', name: '电力监控设备Q', location: '1栋 9楼-测试', status: 'offline' },
+                { id: 'A018', name: '电力监控设备R', location: '2栋 9楼-测试', status: 'online' }
+            ],
+            fire: [
+                { id: 'F001', name: '防火监控设备A', location: '1栋 1楼-测试', status: 'online' },
+                { id: 'F002', name: '防火监控设备B', location: '1栋 2楼-测试', status: 'online' },
+                { id: 'F003', name: '防火监控设备C', location: '1栋 3楼-测试', status: 'alarm' },
+                { id: 'F004', name: '防火监控设备D', location: '2栋 1楼-测试', status: 'online' },
+                { id: 'F005', name: '防火监控设备E', location: '2栋 2楼-测试', status: 'offline' },
+                { id: 'F006', name: '防火监控设备F', location: '2栋 3楼-测试', status: 'online' },
+                { id: 'F007', name: '防火监控设备G', location: '1栋 4楼-测试', status: 'online' },
+                { id: 'F008', name: '防火监控设备H', location: '2栋 4楼-测试', status: 'alarm' },
+                { id: 'F009', name: '防火监控设备I', location: '1栋 5楼-测试', status: 'online' },
+                { id: 'F010', name: '防火监控设备J', location: '2栋 5楼-测试', status: 'offline' },
+                { id: 'F011', name: '防火监控设备K', location: '1栋 6楼-测试', status: 'online' },
+                { id: 'F012', name: '防火监控设备L', location: '2栋 6楼-测试', status: 'online' }
+            ],
+            water: [
+                { id: 'W001', name: '防水监控设备A', location: '1栋 1楼-测试', status: 'online' },
+                { id: 'W002', name: '防水监控设备B', location: '1栋 2楼-测试', status: 'offline' },
+                { id: 'W003', name: '防水监控设备C', location: '1栋 3楼-测试', status: 'online' },
+                { id: 'W004', name: '防水监控设备D', location: '2栋 1楼-测试', status: 'alarm' },
+                { id: 'W005', name: '防水监控设备E', location: '2栋 2楼-测试', status: 'online' },
+                { id: 'W006', name: '防水监控设备F', location: '2栋 3楼-测试', status: 'online' },
+                { id: 'W007', name: '防水监控设备G', location: '1栋 4楼-测试', status: 'online' },
+                { id: 'W008', name: '防水监控设备H', location: '2栋 4楼-测试', status: 'offline' },
+                { id: 'W009', name: '防水监控设备I', location: '1栋 5楼-测试', status: 'alarm' },
+                { id: 'W010', name: '防水监控设备J', location: '2栋 5楼-测试', status: 'online' },
+                { id: 'W011', name: '防水监控设备K', location: '1栋 6楼-测试', status: 'online' },
+                { id: 'W012', name: '防水监控设备L', location: '2栋 6楼-测试', status: 'online' },
+                { id: 'W013', name: '防水监控设备M', location: '1栋 7楼-测试', status: 'offline' },
+                { id: 'W014', name: '防水监控设备N', location: '2栋 7楼-测试', status: 'online' },
+                { id: 'W015', name: '防水监控设备O', location: '1栋 8楼-测试', status: 'online' }
+            ]
+        };
+
+        // 当前选中的报警类型
+        let currentAlarmType = 'power';
+        // 是否全屏模式
+        let isFullscreen = false;
+
+        // 渲染报警卡片
+        function renderAlarmCards() {
+            const container = document.getElementById('alarmCardsContainer');
+            container.innerHTML = '';
+
+            const devices = alarmData[currentAlarmType] || [];
+            
+            devices.forEach(device => {
+                const card = document.createElement('div');
+                card.className = 'alarm-card';
+                
+                const statusText = device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '报警';
+                const statusClass = device.status;
+                
+                card.innerHTML = `
+                    <div class="alarm-card-header">
+                        <div class="alarm-card-name">${device.name}</div>
+                        <div class="alarm-card-status ${statusClass}">
+                            <span class="alarm-card-status-dot"></span>
+                            ${statusText}
+                        </div>
+                    </div>
+                    <div class="alarm-card-location">${device.location}</div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // 计算数据汇总
+        function calculateDataSummary() {
+            const devices = alarmData[currentAlarmType] || [];
+            const total = devices.length;
+            const online = devices.filter(d => d.status === 'online').length;
+            const offline = devices.filter(d => d.status === 'offline').length;
+            const alarm = devices.filter(d => d.status === 'alarm').length;
+            
+            return {
+                total,
+                online,
+                offline,
+                alarm
+            };
+        }
+
+        // 显示数据汇总弹窗
+        function showDataSummary() {
+            const summary = calculateDataSummary();
+            document.getElementById('summaryTotalCount').textContent = summary.total;
+            document.getElementById('summaryOnlineCount').textContent = summary.online;
+            document.getElementById('summaryOfflineCount').textContent = summary.offline;
+            document.getElementById('summaryAlarmCount').textContent = summary.alarm;
+            document.getElementById('dataSummaryModalOverlay').classList.add('show');
+        }
+
+        // 关闭数据汇总弹窗
+        function closeDataSummary() {
+            document.getElementById('dataSummaryModalOverlay').classList.remove('show');
+        }
+
+        // 切换全屏模式
+        function toggleFullscreen() {
+            const container = document.getElementById('alarmCardsContainer');
+            const btn = document.getElementById('fullscreenBtn');
+            
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                container.classList.add('fullscreen');
+                btn.textContent = '退出全屏';
+            } else {
+                container.classList.remove('fullscreen');
+                btn.textContent = '全屏模式';
+            }
+        }
+
+        // 渲染规格管理表格
+        function renderSpecManagementTable() {
+            const tbody = document.getElementById('specManagementTableBody');
+            tbody.innerHTML = '';
+
+            specManagementData.forEach(spec => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${spec.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-spec-btn" data-id="${spec.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-spec-btn" data-id="${spec.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ========== 防火监控渲染函数 ==========
+        // 渲染防火列表表格
+        function renderFireListTable() {
+            const tbody = document.getElementById('fireListTableBody');
+            tbody.innerHTML = '';
+
+            let filteredData = fireListData;
+            if (currentBuilding !== 'all') {
+                const buildingNum = currentBuilding;
+                filteredData = fireListData.filter(item => {
+                    return item.location.startsWith(buildingNum + '栋');
+                });
+            }
+
+            filteredData.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.id}</td>
+                    <td>${device.name}</td>
+                    <td>${device.group}</td>
+                    <td>${device.type}</td>
+                    <td>${device.powerLevel}</td>
+                    <td>${device.spec}</td>
+                    <td>${device.location}</td>
+                    <td>
+                        <span class="status-tag ${device.status === 'offline' ? 'offline' : device.status === 'error' ? 'error' : ''}">
+                            ${device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '故障'}
+                        </span>
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="switch-control" data-id="${device.id}" data-type="fire" ${device.switchControl ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td>${device.remark}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon log-btn" data-id="${device.id}" data-type="fire" title="日志">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon edit-btn" data-id="${device.id}" data-type="fire" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-btn" data-id="${device.id}" data-type="fire" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('fireTotalCount').textContent = filteredData.length;
+        }
+
+        // 渲染防火设备名称表格
+        function renderFireDeviceNameTable() {
+            const tbody = document.getElementById('fireDeviceNameTableBody');
+            tbody.innerHTML = '';
+
+            fireDeviceNameData.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-fire-device-name-btn" data-id="${device.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-fire-device-name-btn" data-id="${device.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染防火类型管理表格
+        function renderFireTypeManagementTable() {
+            const tbody = document.getElementById('fireTypeManagementTableBody');
+            tbody.innerHTML = '';
+
+            fireTypeManagementData.forEach(type => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${type.name}</td>
+                    <td>${type.description}</td>
+                    <td>
+                        <span class="status-tag ${type.status === 'enabled' ? '' : 'offline'}">
+                            ${type.status === 'enabled' ? '启用' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-fire-type-btn" data-id="${type.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-fire-type-btn" data-id="${type.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染防火功率管理表格
+        function renderFirePowerManagementTable() {
+            const tbody = document.getElementById('firePowerManagementTableBody');
+            tbody.innerHTML = '';
+
+            firePowerManagementData.forEach(power => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${power.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-fire-power-btn" data-id="${power.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-fire-power-btn" data-id="${power.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染防火规格管理表格
+        function renderFireSpecManagementTable() {
+            const tbody = document.getElementById('fireSpecManagementTableBody');
+            tbody.innerHTML = '';
+
+            fireSpecManagementData.forEach(spec => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${spec.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-fire-spec-btn" data-id="${spec.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-fire-spec-btn" data-id="${spec.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ========== 防水监控渲染函数 ==========
+        // 渲染防水列表表格
+        function renderWaterListTable() {
+            const tbody = document.getElementById('waterListTableBody');
+            tbody.innerHTML = '';
+
+            let filteredData = waterListData;
+            if (currentBuilding !== 'all') {
+                const buildingNum = currentBuilding;
+                filteredData = waterListData.filter(item => {
+                    return item.location.startsWith(buildingNum + '栋');
+                });
+            }
+
+            filteredData.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.id}</td>
+                    <td>${device.name}</td>
+                    <td>${device.group}</td>
+                    <td>${device.type}</td>
+                    <td>${device.powerLevel}</td>
+                    <td>${device.spec}</td>
+                    <td>${device.location}</td>
+                    <td>
+                        <span class="status-tag ${device.status === 'offline' ? 'offline' : device.status === 'error' ? 'error' : ''}">
+                            ${device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '故障'}
+                        </span>
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="switch-control" data-id="${device.id}" data-type="water" ${device.switchControl ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td>${device.remark}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon log-btn" data-id="${device.id}" data-type="water" title="日志">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon edit-btn" data-id="${device.id}" data-type="water" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-btn" data-id="${device.id}" data-type="water" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('waterTotalCount').textContent = filteredData.length;
+        }
+
+        // 渲染防水设备名称表格
+        function renderWaterDeviceNameTable() {
+            const tbody = document.getElementById('waterDeviceNameTableBody');
+            tbody.innerHTML = '';
+
+            waterDeviceNameData.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-water-device-name-btn" data-id="${device.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-water-device-name-btn" data-id="${device.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染防水类型管理表格
+        function renderWaterTypeManagementTable() {
+            const tbody = document.getElementById('waterTypeManagementTableBody');
+            tbody.innerHTML = '';
+
+            waterTypeManagementData.forEach(type => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${type.name}</td>
+                    <td>${type.description}</td>
+                    <td>
+                        <span class="status-tag ${type.status === 'enabled' ? '' : 'offline'}">
+                            ${type.status === 'enabled' ? '启用' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-water-type-btn" data-id="${type.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-water-type-btn" data-id="${type.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染防水功率管理表格
+        function renderWaterPowerManagementTable() {
+            const tbody = document.getElementById('waterPowerManagementTableBody');
+            tbody.innerHTML = '';
+
+            waterPowerManagementData.forEach(power => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${power.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-water-power-btn" data-id="${power.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-water-power-btn" data-id="${power.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染防水规格管理表格
+        function renderWaterSpecManagementTable() {
+            const tbody = document.getElementById('waterSpecManagementTableBody');
+            tbody.innerHTML = '';
+
+            waterSpecManagementData.forEach(spec => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${spec.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-water-spec-btn" data-id="${spec.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-water-spec-btn" data-id="${spec.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ========== 网关渲染函数 ==========
+        // 渲染网关列表表格
+        let filteredGatewayData = [...gatewayListData];
+
+        function renderGatewayListTable() {
+            const tbody = document.getElementById('gatewayListTableBody');
+            tbody.innerHTML = '';
+
+            filteredGatewayData.forEach(gateway => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${gateway.name}</td>
+                    <td>${gateway.code}</td>
+                    <td>${gateway.description}</td>
+                    <td>${gateway.group}</td>
+                    <td>${gateway.deviceCount}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-gateway-btn" data-id="${gateway.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-gateway-btn" data-id="${gateway.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染功率管理表格
+        function renderPowerManagementTable() {
+            const tbody = document.getElementById('powerManagementTableBody');
+            tbody.innerHTML = '';
+
+            powerManagementData.forEach(power => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${power.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-power-btn" data-id="${power.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-power-btn" data-id="${power.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染类型管理表格
+        function renderTypeManagementTable() {
+            const tbody = document.getElementById('typeManagementTableBody');
+            tbody.innerHTML = '';
+
+            typeManagementData.forEach(type => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${type.name}</td>
+                    <td>${type.description}</td>
+                    <td>
+                        <span class="status-tag ${type.status === 'enabled' ? '' : 'offline'}">
+                            ${type.status === 'enabled' ? '启用' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-type-btn" data-id="${type.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-type-btn" data-id="${type.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染设备名称表格
+        function renderDeviceNameTable() {
+            const tbody = document.getElementById('deviceNameTableBody');
+            tbody.innerHTML = '';
+
+            deviceNameData.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.name}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-device-name-btn" data-id="${device.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-device-name-btn" data-id="${device.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染电力列表表格
+        function renderPowerListTable() {
+            const tbody = document.getElementById('powerListTableBody');
+            tbody.innerHTML = '';
+
+            // 根据楼栋筛选
+            let filteredData = powerListData;
+            if (currentBuilding !== 'all') {
+                const buildingNum = currentBuilding;
+                filteredData = powerListData.filter(item => {
+                    return item.location.startsWith(buildingNum + '栋');
+                });
+            }
+
+            filteredData.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.id}</td>
+                    <td>${device.name}</td>
+                    <td>${device.group}</td>
+                    <td>${device.type}</td>
+                    <td>${device.powerLevel}</td>
+                    <td>${device.spec}</td>
+                    <td>${device.location}</td>
+                    <td>
+                        <span class="status-tag ${device.status === 'offline' ? 'offline' : device.status === 'error' ? 'error' : ''}">
+                            ${device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '故障'}
+                        </span>
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="switch-control" data-id="${device.id}" ${device.switchControl ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td>${device.remark}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon log-btn" data-id="${device.id}" title="日志">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon edit-btn" data-id="${device.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-btn" data-id="${device.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // 更新总数
+            document.getElementById('totalCount').textContent = filteredData.length;
+        }
+
+        // 一级菜单切换
+        document.querySelectorAll('.level1-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.level1-menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                currentLevel1Category = this.dataset.category;
+                
+                // 根据一级菜单显示对应的二级菜单和内容
+                updateContentByCategory();
+            });
+        });
+
+        // 楼栋菜单切换
+        document.querySelectorAll('.building-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.building-menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                currentBuilding = this.dataset.building;
+                
+                // 重新渲染表格
+                if (currentLevel2Tab === 'power-list') {
+                    renderPowerListTable();
+                } else if (currentLevel2Tab === 'fire-list') {
+                    renderFireListTable();
+                } else if (currentLevel2Tab === 'water-list') {
+                    renderWaterListTable();
+                }
+            });
+        });
+
+        // 二级菜单切换
+        document.querySelectorAll('.level2-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.level2-menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                currentLevel2Tab = this.dataset.tab;
+                
+                // 显示对应的内容面板
+                document.querySelectorAll('.content-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                const targetPanel = document.getElementById(currentLevel2Tab + '-panel');
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                }
+                
+                // 根据选中的二级菜单渲染对应的表格
+                if (currentLevel2Tab === 'device-name') {
+                    renderDeviceNameTable();
+                } else if (currentLevel2Tab === 'power-list') {
+                    renderPowerListTable();
+                } else if (currentLevel2Tab === 'type-management') {
+                    renderTypeManagementTable();
+                } else if (currentLevel2Tab === 'power-management') {
+                    renderPowerManagementTable();
+                } else if (currentLevel2Tab === 'spec-management') {
+                    renderSpecManagementTable();
+                } else if (currentLevel2Tab === 'fire-list') {
+                    renderFireListTable();
+                } else if (currentLevel2Tab === 'fire-device-name') {
+                    renderFireDeviceNameTable();
+                } else if (currentLevel2Tab === 'fire-type-management') {
+                    renderFireTypeManagementTable();
+                } else if (currentLevel2Tab === 'fire-power-management') {
+                    renderFirePowerManagementTable();
+                } else if (currentLevel2Tab === 'fire-spec-management') {
+                    renderFireSpecManagementTable();
+                } else if (currentLevel2Tab === 'water-list') {
+                    renderWaterListTable();
+                } else if (currentLevel2Tab === 'water-device-name') {
+                    renderWaterDeviceNameTable();
+                } else if (currentLevel2Tab === 'water-type-management') {
+                    renderWaterTypeManagementTable();
+                } else if (currentLevel2Tab === 'water-power-management') {
+                    renderWaterPowerManagementTable();
+                } else if (currentLevel2Tab === 'water-spec-management') {
+                    renderWaterSpecManagementTable();
+                } else if (currentLevel2Tab === 'gateway-list') {
+                    renderGatewayListTable();
+                } else if (currentLevel2Tab === 'alarm-list') {
+                    renderAlarmCards();
+                } else if (currentLevel2Tab === 'screen-info') {
+                    // 监测大屏页面不需要额外渲染
+                }
+            });
+        });
+
+        // 根据一级菜单更新内容
+        function updateContentByCategory() {
+            // 隐藏所有二级菜单
+            document.getElementById('powerLevel2Menu').style.display = 'none';
+            document.getElementById('fireLevel2Menu').style.display = 'none';
+            document.getElementById('waterLevel2Menu').style.display = 'none';
+            document.getElementById('gatewayLevel2Menu').style.display = 'none';
+            document.getElementById('alarmLevel2Menu').style.display = 'none';
+            document.getElementById('screenLevel2Menu').style.display = 'none';
+            
+            // 隐藏所有内容面板
+            document.querySelectorAll('.content-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // 控制左侧楼栋菜单的显示/隐藏
+            const buildingMenu = document.querySelector('.building-menu');
+            if (currentLevel1Category === 'screen') {
+                // 监测大屏页面隐藏左侧楼栋菜单
+                buildingMenu.style.display = 'none';
+            } else {
+                // 其他页面显示左侧楼栋菜单
+                buildingMenu.style.display = 'block';
+            }
+
+            if (currentLevel1Category === 'power') {
+                // 显示电力监控的二级菜单
+                document.getElementById('powerLevel2Menu').style.display = 'flex';
+                document.getElementById('power-list-panel').classList.add('active');
+                currentLevel2Tab = 'power-list';
+                document.querySelectorAll('#powerLevel2Menu .level2-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === 'power-list') {
+                        item.classList.add('active');
+                    }
+                });
+                renderPowerListTable();
+            } else if (currentLevel1Category === 'fire') {
+                // 显示防火监控的二级菜单
+                document.getElementById('fireLevel2Menu').style.display = 'flex';
+                document.getElementById('fire-list-panel').classList.add('active');
+                currentLevel2Tab = 'fire-list';
+                document.querySelectorAll('#fireLevel2Menu .level2-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === 'fire-list') {
+                        item.classList.add('active');
+                    }
+                });
+                renderFireListTable();
+            } else if (currentLevel1Category === 'water') {
+                // 显示防水监控的二级菜单
+                document.getElementById('waterLevel2Menu').style.display = 'flex';
+                document.getElementById('water-list-panel').classList.add('active');
+                currentLevel2Tab = 'water-list';
+                document.querySelectorAll('#waterLevel2Menu .level2-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === 'water-list') {
+                        item.classList.add('active');
+                    }
+                });
+                renderWaterListTable();
+            } else if (currentLevel1Category === 'gateway') {
+                // 显示网关的二级菜单
+                document.getElementById('gatewayLevel2Menu').style.display = 'flex';
+                document.getElementById('gateway-list-panel').classList.add('active');
+                currentLevel2Tab = 'gateway-list';
+                document.querySelectorAll('#gatewayLevel2Menu .level2-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === 'gateway-list') {
+                        item.classList.add('active');
+                    }
+                });
+                filteredGatewayData = [...gatewayListData];
+                renderGatewayListTable();
+            } else if (currentLevel1Category === 'alarm') {
+                // 显示监控报警的二级菜单
+                document.getElementById('alarmLevel2Menu').style.display = 'flex';
+                document.getElementById('alarm-list-panel').classList.add('active');
+                currentLevel2Tab = 'alarm-list';
+                document.querySelectorAll('#alarmLevel2Menu .level2-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === 'alarm-list') {
+                        item.classList.add('active');
+                    }
+                });
+                currentAlarmType = 'power';
+                document.querySelectorAll('.alarm-type-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.dataset.type === 'power') {
+                        tab.classList.add('active');
+                    }
+                });
+                renderAlarmCards();
+            } else if (currentLevel1Category === 'screen') {
+                // 显示监测大屏的二级菜单
+                document.getElementById('screenLevel2Menu').style.display = 'flex';
+                document.getElementById('screen-info-panel').classList.add('active');
+                currentLevel2Tab = 'screen-info';
+                document.querySelectorAll('#screenLevel2Menu .level2-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.tab === 'screen-info') {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // 开关控制
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('switch-control')) {
+                const deviceId = e.target.dataset.id;
+                const isChecked = e.target.checked;
+                console.log(`设备 ${deviceId} 开关状态: ${isChecked ? '开启' : '关闭'}`);
+                // 这里可以添加实际的开关控制逻辑
+            }
+        });
+
+        // 操作按钮事件
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.log-btn')) {
+                const deviceId = e.target.closest('.log-btn').dataset.id;
+                alert(`查看设备 ${deviceId} 的日志`);
+            }
+            if (e.target.closest('.edit-btn')) {
+                const deviceId = e.target.closest('.edit-btn').dataset.id;
+                alert(`编辑设备 ${deviceId}`);
+            }
+            if (e.target.closest('.delete-btn')) {
+                const deviceId = e.target.closest('.delete-btn').dataset.id;
+                const deviceType = e.target.closest('.delete-btn').dataset.type;
+                if (confirm(`确定要删除设备 ${deviceId} 吗？`)) {
+                    if (deviceType === 'fire') {
+                        const index = fireListData.findIndex(d => d.id === deviceId);
+                        if (index > -1) {
+                            fireListData.splice(index, 1);
+                            renderFireListTable();
+                        }
+                    } else if (deviceType === 'water') {
+                        const index = waterListData.findIndex(d => d.id === deviceId);
+                        if (index > -1) {
+                            waterListData.splice(index, 1);
+                            renderWaterListTable();
+                        }
+                    } else {
+                        const index = powerListData.findIndex(d => d.id === deviceId);
+                        if (index > -1) {
+                            powerListData.splice(index, 1);
+                            renderPowerListTable();
+                        }
+                    }
+                }
+            }
+            // 设备名称编辑按钮
+            if (e.target.closest('.edit-device-name-btn')) {
+                const deviceId = parseInt(e.target.closest('.edit-device-name-btn').dataset.id);
+                const device = deviceNameData.find(d => d.id === deviceId);
+                if (device) {
+                    const newName = prompt('请输入新的设备名称：', device.name);
+                    if (newName && newName.trim()) {
+                        device.name = newName.trim();
+                        renderDeviceNameTable();
+                    }
+                }
+            }
+            // 设备名称删除按钮
+            if (e.target.closest('.delete-device-name-btn')) {
+                const deviceId = parseInt(e.target.closest('.delete-device-name-btn').dataset.id);
+                const device = deviceNameData.find(d => d.id === deviceId);
+                if (device && confirm(`确定要删除设备 "${device.name}" 吗？`)) {
+                    const index = deviceNameData.findIndex(d => d.id === deviceId);
+                    if (index > -1) {
+                        deviceNameData.splice(index, 1);
+                        renderDeviceNameTable();
+                    }
+                }
+            }
+            // 类型管理编辑按钮
+            if (e.target.closest('.edit-type-btn')) {
+                const typeId = parseInt(e.target.closest('.edit-type-btn').dataset.id);
+                const type = typeManagementData.find(t => t.id === typeId);
+                if (type) {
+                    const newName = prompt('请输入类型名称：', type.name);
+                    if (newName && newName.trim()) {
+                        const newDescription = prompt('请输入描述：', type.description);
+                        if (newDescription !== null) {
+                            type.name = newName.trim();
+                            type.description = newDescription.trim();
+                            renderTypeManagementTable();
+                        }
+                    }
+                }
+            }
+            // 类型管理删除按钮
+            if (e.target.closest('.delete-type-btn')) {
+                const typeId = parseInt(e.target.closest('.delete-type-btn').dataset.id);
+                const type = typeManagementData.find(t => t.id === typeId);
+                if (type && confirm(`确定要删除类型 "${type.name}" 吗？`)) {
+                    const index = typeManagementData.findIndex(t => t.id === typeId);
+                    if (index > -1) {
+                        typeManagementData.splice(index, 1);
+                        renderTypeManagementTable();
+                    }
+                }
+            }
+            // 功率管理编辑按钮
+            if (e.target.closest('.edit-power-btn')) {
+                const powerId = parseInt(e.target.closest('.edit-power-btn').dataset.id);
+                const power = powerManagementData.find(p => p.id === powerId);
+                if (power) {
+                    const newName = prompt('请输入功率名称：', power.name);
+                    if (newName && newName.trim()) {
+                        power.name = newName.trim();
+                        renderPowerManagementTable();
+                    }
+                }
+            }
+            // 功率管理删除按钮
+            if (e.target.closest('.delete-power-btn')) {
+                const powerId = parseInt(e.target.closest('.delete-power-btn').dataset.id);
+                const power = powerManagementData.find(p => p.id === powerId);
+                if (power && confirm(`确定要删除功率 "${power.name}" 吗？`)) {
+                    const index = powerManagementData.findIndex(p => p.id === powerId);
+                    if (index > -1) {
+                        powerManagementData.splice(index, 1);
+                        renderPowerManagementTable();
+                    }
+                }
+            }
+            // 规格管理编辑按钮
+            if (e.target.closest('.edit-spec-btn')) {
+                const specId = parseInt(e.target.closest('.edit-spec-btn').dataset.id);
+                const spec = specManagementData.find(s => s.id === specId);
+                if (spec) {
+                    const newName = prompt('请输入规格名称：', spec.name);
+                    if (newName && newName.trim()) {
+                        spec.name = newName.trim();
+                        renderSpecManagementTable();
+                    }
+                }
+            }
+            // 规格管理删除按钮
+            if (e.target.closest('.delete-spec-btn')) {
+                const specId = parseInt(e.target.closest('.delete-spec-btn').dataset.id);
+                const spec = specManagementData.find(s => s.id === specId);
+                if (spec && confirm(`确定要删除规格 "${spec.name}" 吗？`)) {
+                    const index = specManagementData.findIndex(s => s.id === specId);
+                    if (index > -1) {
+                        specManagementData.splice(index, 1);
+                        renderSpecManagementTable();
+                    }
+                }
+            }
+            // ========== 防火监控事件处理 ==========
+            // 防火设备名称编辑按钮
+            if (e.target.closest('.edit-fire-device-name-btn')) {
+                const deviceId = parseInt(e.target.closest('.edit-fire-device-name-btn').dataset.id);
+                const device = fireDeviceNameData.find(d => d.id === deviceId);
+                if (device) {
+                    const newName = prompt('请输入新的设备名称：', device.name);
+                    if (newName && newName.trim()) {
+                        device.name = newName.trim();
+                        renderFireDeviceNameTable();
+                    }
+                }
+            }
+            // 防火设备名称删除按钮
+            if (e.target.closest('.delete-fire-device-name-btn')) {
+                const deviceId = parseInt(e.target.closest('.delete-fire-device-name-btn').dataset.id);
+                const device = fireDeviceNameData.find(d => d.id === deviceId);
+                if (device && confirm(`确定要删除设备 "${device.name}" 吗？`)) {
+                    const index = fireDeviceNameData.findIndex(d => d.id === deviceId);
+                    if (index > -1) {
+                        fireDeviceNameData.splice(index, 1);
+                        renderFireDeviceNameTable();
+                    }
+                }
+            }
+            // 防火类型管理编辑按钮
+            if (e.target.closest('.edit-fire-type-btn')) {
+                const typeId = parseInt(e.target.closest('.edit-fire-type-btn').dataset.id);
+                const type = fireTypeManagementData.find(t => t.id === typeId);
+                if (type) {
+                    const newName = prompt('请输入类型名称：', type.name);
+                    if (newName && newName.trim()) {
+                        const newDescription = prompt('请输入描述：', type.description);
+                        if (newDescription !== null) {
+                            type.name = newName.trim();
+                            type.description = newDescription.trim();
+                            renderFireTypeManagementTable();
+                        }
+                    }
+                }
+            }
+            // 防火类型管理删除按钮
+            if (e.target.closest('.delete-fire-type-btn')) {
+                const typeId = parseInt(e.target.closest('.delete-fire-type-btn').dataset.id);
+                const type = fireTypeManagementData.find(t => t.id === typeId);
+                if (type && confirm(`确定要删除类型 "${type.name}" 吗？`)) {
+                    const index = fireTypeManagementData.findIndex(t => t.id === typeId);
+                    if (index > -1) {
+                        fireTypeManagementData.splice(index, 1);
+                        renderFireTypeManagementTable();
+                    }
+                }
+            }
+            // 防火功率管理编辑按钮
+            if (e.target.closest('.edit-fire-power-btn')) {
+                const powerId = parseInt(e.target.closest('.edit-fire-power-btn').dataset.id);
+                const power = firePowerManagementData.find(p => p.id === powerId);
+                if (power) {
+                    const newName = prompt('请输入功率名称：', power.name);
+                    if (newName && newName.trim()) {
+                        power.name = newName.trim();
+                        renderFirePowerManagementTable();
+                    }
+                }
+            }
+            // 防火功率管理删除按钮
+            if (e.target.closest('.delete-fire-power-btn')) {
+                const powerId = parseInt(e.target.closest('.delete-fire-power-btn').dataset.id);
+                const power = firePowerManagementData.find(p => p.id === powerId);
+                if (power && confirm(`确定要删除功率 "${power.name}" 吗？`)) {
+                    const index = firePowerManagementData.findIndex(p => p.id === powerId);
+                    if (index > -1) {
+                        firePowerManagementData.splice(index, 1);
+                        renderFirePowerManagementTable();
+                    }
+                }
+            }
+            // 防火规格管理编辑按钮
+            if (e.target.closest('.edit-fire-spec-btn')) {
+                const specId = parseInt(e.target.closest('.edit-fire-spec-btn').dataset.id);
+                const spec = fireSpecManagementData.find(s => s.id === specId);
+                if (spec) {
+                    const newName = prompt('请输入规格名称：', spec.name);
+                    if (newName && newName.trim()) {
+                        spec.name = newName.trim();
+                        renderFireSpecManagementTable();
+                    }
+                }
+            }
+            // 防火规格管理删除按钮
+            if (e.target.closest('.delete-fire-spec-btn')) {
+                const specId = parseInt(e.target.closest('.delete-fire-spec-btn').dataset.id);
+                const spec = fireSpecManagementData.find(s => s.id === specId);
+                if (spec && confirm(`确定要删除规格 "${spec.name}" 吗？`)) {
+                    const index = fireSpecManagementData.findIndex(s => s.id === specId);
+                    if (index > -1) {
+                        fireSpecManagementData.splice(index, 1);
+                        renderFireSpecManagementTable();
+                    }
+                }
+            }
+            // ========== 防水监控事件处理 ==========
+            // 防水设备名称编辑按钮
+            if (e.target.closest('.edit-water-device-name-btn')) {
+                const deviceId = parseInt(e.target.closest('.edit-water-device-name-btn').dataset.id);
+                const device = waterDeviceNameData.find(d => d.id === deviceId);
+                if (device) {
+                    const newName = prompt('请输入新的设备名称：', device.name);
+                    if (newName && newName.trim()) {
+                        device.name = newName.trim();
+                        renderWaterDeviceNameTable();
+                    }
+                }
+            }
+            // 防水设备名称删除按钮
+            if (e.target.closest('.delete-water-device-name-btn')) {
+                const deviceId = parseInt(e.target.closest('.delete-water-device-name-btn').dataset.id);
+                const device = waterDeviceNameData.find(d => d.id === deviceId);
+                if (device && confirm(`确定要删除设备 "${device.name}" 吗？`)) {
+                    const index = waterDeviceNameData.findIndex(d => d.id === deviceId);
+                    if (index > -1) {
+                        waterDeviceNameData.splice(index, 1);
+                        renderWaterDeviceNameTable();
+                    }
+                }
+            }
+            // 防水类型管理编辑按钮
+            if (e.target.closest('.edit-water-type-btn')) {
+                const typeId = parseInt(e.target.closest('.edit-water-type-btn').dataset.id);
+                const type = waterTypeManagementData.find(t => t.id === typeId);
+                if (type) {
+                    const newName = prompt('请输入类型名称：', type.name);
+                    if (newName && newName.trim()) {
+                        const newDescription = prompt('请输入描述：', type.description);
+                        if (newDescription !== null) {
+                            type.name = newName.trim();
+                            type.description = newDescription.trim();
+                            renderWaterTypeManagementTable();
+                        }
+                    }
+                }
+            }
+            // 防水类型管理删除按钮
+            if (e.target.closest('.delete-water-type-btn')) {
+                const typeId = parseInt(e.target.closest('.delete-water-type-btn').dataset.id);
+                const type = waterTypeManagementData.find(t => t.id === typeId);
+                if (type && confirm(`确定要删除类型 "${type.name}" 吗？`)) {
+                    const index = waterTypeManagementData.findIndex(t => t.id === typeId);
+                    if (index > -1) {
+                        waterTypeManagementData.splice(index, 1);
+                        renderWaterTypeManagementTable();
+                    }
+                }
+            }
+            // 防水功率管理编辑按钮
+            if (e.target.closest('.edit-water-power-btn')) {
+                const powerId = parseInt(e.target.closest('.edit-water-power-btn').dataset.id);
+                const power = waterPowerManagementData.find(p => p.id === powerId);
+                if (power) {
+                    const newName = prompt('请输入功率名称：', power.name);
+                    if (newName && newName.trim()) {
+                        power.name = newName.trim();
+                        renderWaterPowerManagementTable();
+                    }
+                }
+            }
+            // 防水功率管理删除按钮
+            if (e.target.closest('.delete-water-power-btn')) {
+                const powerId = parseInt(e.target.closest('.delete-water-power-btn').dataset.id);
+                const power = waterPowerManagementData.find(p => p.id === powerId);
+                if (power && confirm(`确定要删除功率 "${power.name}" 吗？`)) {
+                    const index = waterPowerManagementData.findIndex(p => p.id === powerId);
+                    if (index > -1) {
+                        waterPowerManagementData.splice(index, 1);
+                        renderWaterPowerManagementTable();
+                    }
+                }
+            }
+            // 防水规格管理编辑按钮
+            if (e.target.closest('.edit-water-spec-btn')) {
+                const specId = parseInt(e.target.closest('.edit-water-spec-btn').dataset.id);
+                const spec = waterSpecManagementData.find(s => s.id === specId);
+                if (spec) {
+                    const newName = prompt('请输入规格名称：', spec.name);
+                    if (newName && newName.trim()) {
+                        spec.name = newName.trim();
+                        renderWaterSpecManagementTable();
+                    }
+                }
+            }
+            // 防水规格管理删除按钮
+            if (e.target.closest('.delete-water-spec-btn')) {
+                const specId = parseInt(e.target.closest('.delete-water-spec-btn').dataset.id);
+                const spec = waterSpecManagementData.find(s => s.id === specId);
+                if (spec && confirm(`确定要删除规格 "${spec.name}" 吗？`)) {
+                    const index = waterSpecManagementData.findIndex(s => s.id === specId);
+                    if (index > -1) {
+                        waterSpecManagementData.splice(index, 1);
+                        renderWaterSpecManagementTable();
+                    }
+                }
+            }
+            // ========== 网关事件处理 ==========
+            // 网关编辑按钮
+            if (e.target.closest('.edit-gateway-btn')) {
+                const gatewayId = parseInt(e.target.closest('.edit-gateway-btn').dataset.id);
+                const gateway = gatewayListData.find(g => g.id === gatewayId);
+                if (gateway) {
+                    const newName = prompt('请输入网关名称：', gateway.name);
+                    if (newName && newName.trim()) {
+                        const newCode = prompt('请输入网关编号：', gateway.code);
+                        if (newCode && newCode.trim()) {
+                            const newDescription = prompt('请输入描述：', gateway.description);
+                            if (newDescription !== null) {
+                                const newGroup = prompt('请输入所属分组：', gateway.group);
+                                if (newGroup !== null) {
+                                    gateway.name = newName.trim();
+                                    gateway.code = newCode.trim();
+                                    gateway.description = newDescription.trim();
+                                    gateway.group = newGroup.trim();
+                                    // 重新筛选并渲染
+                                    filterGatewayData();
+                                    renderGatewayListTable();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // 网关删除按钮
+            if (e.target.closest('.delete-gateway-btn')) {
+                const gatewayId = parseInt(e.target.closest('.delete-gateway-btn').dataset.id);
+                const gateway = gatewayListData.find(g => g.id === gatewayId);
+                if (gateway && confirm(`确定要删除网关 "${gateway.name}" 吗？`)) {
+                    const index = gatewayListData.findIndex(g => g.id === gatewayId);
+                    if (index > -1) {
+                        gatewayListData.splice(index, 1);
+                        // 重新筛选并渲染
+                        filterGatewayData();
+                        renderGatewayListTable();
+                    }
+                }
+            }
+        });
+
+        // 新增设备按钮（电力列表）
+        document.getElementById('addDeviceBtn').addEventListener('click', function() {
+            alert('打开新增设备对话框');
+            // 这里可以添加新增设备的逻辑
+        });
+
+        // 新增设备按钮（设备名称）
+        document.getElementById('addDeviceNameBtn').addEventListener('click', function() {
+            const newName = prompt('请输入设备名称：');
+            if (newName && newName.trim()) {
+                const newId = deviceNameData.length > 0 ? Math.max(...deviceNameData.map(d => d.id)) + 1 : 1;
+                deviceNameData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderDeviceNameTable();
+            }
+        });
+
+        // 新增类型按钮（类型管理）
+        document.getElementById('addTypeBtn').addEventListener('click', function() {
+            const newName = prompt('请输入类型名称：');
+            if (newName && newName.trim()) {
+                const newDescription = prompt('请输入描述：');
+                if (newDescription !== null) {
+                    const newId = typeManagementData.length > 0 ? Math.max(...typeManagementData.map(t => t.id)) + 1 : 1;
+                    typeManagementData.push({
+                        id: newId,
+                        name: newName.trim(),
+                        description: newDescription.trim(),
+                        status: 'enabled'
+                    });
+                    renderTypeManagementTable();
+                }
+            }
+        });
+
+        // 新增功率按钮（功率管理）
+        document.getElementById('addPowerBtn').addEventListener('click', function() {
+            const newName = prompt('请输入功率名称：');
+            if (newName && newName.trim()) {
+                const newId = powerManagementData.length > 0 ? Math.max(...powerManagementData.map(p => p.id)) + 1 : 1;
+                powerManagementData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderPowerManagementTable();
+            }
+        });
+
+        // 新增规格按钮（规格管理）
+        document.getElementById('addSpecBtn').addEventListener('click', function() {
+            const newName = prompt('请输入规格名称：');
+            if (newName && newName.trim()) {
+                const newId = specManagementData.length > 0 ? Math.max(...specManagementData.map(s => s.id)) + 1 : 1;
+                specManagementData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderSpecManagementTable();
+            }
+        });
+
+        // ========== 防火监控新增按钮 ==========
+        // 新增设备按钮（防火列表）
+        document.getElementById('addFireDeviceBtn').addEventListener('click', function() {
+            alert('打开新增设备对话框');
+        });
+
+        // 新增设备按钮（防火设备名称）
+        document.getElementById('addFireDeviceNameBtn').addEventListener('click', function() {
+            const newName = prompt('请输入设备名称：');
+            if (newName && newName.trim()) {
+                const newId = fireDeviceNameData.length > 0 ? Math.max(...fireDeviceNameData.map(d => d.id)) + 1 : 1;
+                fireDeviceNameData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderFireDeviceNameTable();
+            }
+        });
+
+        // 新增类型按钮（防火类型管理）
+        document.getElementById('addFireTypeBtn').addEventListener('click', function() {
+            const newName = prompt('请输入类型名称：');
+            if (newName && newName.trim()) {
+                const newDescription = prompt('请输入描述：');
+                if (newDescription !== null) {
+                    const newId = fireTypeManagementData.length > 0 ? Math.max(...fireTypeManagementData.map(t => t.id)) + 1 : 1;
+                    fireTypeManagementData.push({
+                        id: newId,
+                        name: newName.trim(),
+                        description: newDescription.trim(),
+                        status: 'enabled'
+                    });
+                    renderFireTypeManagementTable();
+                }
+            }
+        });
+
+        // 新增功率按钮（防火功率管理）
+        document.getElementById('addFirePowerBtn').addEventListener('click', function() {
+            const newName = prompt('请输入功率名称：');
+            if (newName && newName.trim()) {
+                const newId = firePowerManagementData.length > 0 ? Math.max(...firePowerManagementData.map(p => p.id)) + 1 : 1;
+                firePowerManagementData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderFirePowerManagementTable();
+            }
+        });
+
+        // 新增规格按钮（防火规格管理）
+        document.getElementById('addFireSpecBtn').addEventListener('click', function() {
+            const newName = prompt('请输入规格名称：');
+            if (newName && newName.trim()) {
+                const newId = fireSpecManagementData.length > 0 ? Math.max(...fireSpecManagementData.map(s => s.id)) + 1 : 1;
+                fireSpecManagementData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderFireSpecManagementTable();
+            }
+        });
+
+        // ========== 防水监控新增按钮 ==========
+        // 新增设备按钮（防水列表）
+        document.getElementById('addWaterDeviceBtn').addEventListener('click', function() {
+            alert('打开新增设备对话框');
+        });
+
+        // 新增设备按钮（防水设备名称）
+        document.getElementById('addWaterDeviceNameBtn').addEventListener('click', function() {
+            const newName = prompt('请输入设备名称：');
+            if (newName && newName.trim()) {
+                const newId = waterDeviceNameData.length > 0 ? Math.max(...waterDeviceNameData.map(d => d.id)) + 1 : 1;
+                waterDeviceNameData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderWaterDeviceNameTable();
+            }
+        });
+
+        // 新增类型按钮（防水类型管理）
+        document.getElementById('addWaterTypeBtn').addEventListener('click', function() {
+            const newName = prompt('请输入类型名称：');
+            if (newName && newName.trim()) {
+                const newDescription = prompt('请输入描述：');
+                if (newDescription !== null) {
+                    const newId = waterTypeManagementData.length > 0 ? Math.max(...waterTypeManagementData.map(t => t.id)) + 1 : 1;
+                    waterTypeManagementData.push({
+                        id: newId,
+                        name: newName.trim(),
+                        description: newDescription.trim(),
+                        status: 'enabled'
+                    });
+                    renderWaterTypeManagementTable();
+                }
+            }
+        });
+
+        // 新增功率按钮（防水功率管理）
+        document.getElementById('addWaterPowerBtn').addEventListener('click', function() {
+            const newName = prompt('请输入功率名称：');
+            if (newName && newName.trim()) {
+                const newId = waterPowerManagementData.length > 0 ? Math.max(...waterPowerManagementData.map(p => p.id)) + 1 : 1;
+                waterPowerManagementData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderWaterPowerManagementTable();
+            }
+        });
+
+        // 新增规格按钮（防水规格管理）
+        document.getElementById('addWaterSpecBtn').addEventListener('click', function() {
+            const newName = prompt('请输入规格名称：');
+            if (newName && newName.trim()) {
+                const newId = waterSpecManagementData.length > 0 ? Math.max(...waterSpecManagementData.map(s => s.id)) + 1 : 1;
+                waterSpecManagementData.push({
+                    id: newId,
+                    name: newName.trim()
+                });
+                renderWaterSpecManagementTable();
+            }
+        });
+
+        // ========== 网关新增按钮和搜索功能 ==========
+        // 网关搜索功能
+        function filterGatewayData() {
+            const searchValue = document.getElementById('gatewaySearchInput').value.toLowerCase().trim();
+            if (searchValue === '') {
+                filteredGatewayData = [...gatewayListData];
+            } else {
+                filteredGatewayData = gatewayListData.filter(gateway => {
+                    return gateway.name.toLowerCase().includes(searchValue) ||
+                           gateway.code.toLowerCase().includes(searchValue) ||
+                           gateway.description.toLowerCase().includes(searchValue);
+                });
+            }
+            renderGatewayListTable();
+        }
+
+        // 网关搜索输入框事件
+        document.getElementById('gatewaySearchInput').addEventListener('input', filterGatewayData);
+
+        // 新增网关按钮
+        document.getElementById('addGatewayBtn').addEventListener('click', function() {
+            const newName = prompt('请输入网关名称：');
+            if (newName && newName.trim()) {
+                const newCode = prompt('请输入网关编号：');
+                if (newCode && newCode.trim()) {
+                    const newDescription = prompt('请输入描述：');
+                    if (newDescription !== null) {
+                        const newGroup = prompt('请输入所属分组：');
+                        if (newGroup !== null) {
+                            const deviceCount = prompt('请输入关联设备数：', '0');
+                            const newId = gatewayListData.length > 0 ? Math.max(...gatewayListData.map(g => g.id)) + 1 : 1;
+                            gatewayListData.push({
+                                id: newId,
+                                name: newName.trim(),
+                                code: newCode.trim(),
+                                description: newDescription.trim(),
+                                group: newGroup.trim(),
+                                deviceCount: parseInt(deviceCount) || 0
+                            });
+                            // 重新筛选并渲染
+                            filterGatewayData();
+                        }
+                    }
+                }
+            }
+        });
+
+        // ========== 报警监控事件处理 ==========
+        // 监控类型切换
+        document.querySelectorAll('.alarm-type-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.alarm-type-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentAlarmType = this.dataset.type;
+                renderAlarmCards();
+            });
+        });
+
+        // 全屏模式按钮
+        document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+
+        // 数据汇总按钮
+        document.getElementById('dataSummaryBtn').addEventListener('click', showDataSummary);
+
+        // 关闭数据汇总弹窗
+        document.getElementById('dataSummaryClose').addEventListener('click', closeDataSummary);
+        document.getElementById('dataSummaryConfirm').addEventListener('click', closeDataSummary);
+
+        // 点击遮罩关闭弹窗
+        document.getElementById('dataSummaryModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDataSummary();
+            }
+        });
+
+        // ESC键退出全屏
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
+
+        // ========== 监测大屏事件处理 ==========
+        // 一键复制链接
+        document.getElementById('copyLinkBtn').addEventListener('click', function() {
+            const linkText = document.getElementById('screenLinkDisplay').textContent;
+            
+            // 使用现代 Clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(linkText).then(function() {
+                    // 复制成功，显示提示
+                    const originalText = this.textContent;
+                    this.textContent = '已复制';
+                    this.style.backgroundColor = 'var(--color-success)';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.backgroundColor = '';
+                    }, 2000);
+                }.bind(this)).catch(function(err) {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动复制链接');
+                });
+            } else {
+                // 降级方案：使用传统方法
+                const textArea = document.createElement('textarea');
+                textArea.value = linkText;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        const originalText = this.textContent;
+                        this.textContent = '已复制';
+                        this.style.backgroundColor = 'var(--color-success)';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.style.backgroundColor = '';
+                        }, 2000);
+                    } else {
+                        alert('复制失败，请手动复制链接');
+                    }
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动复制链接');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+        });
+
+        // 初始化
+        renderPowerListTable();
+    </script>
+</body>
+</html>

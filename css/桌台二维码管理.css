@@ -1,0 +1,535 @@
+/* 桌台二维码管理页面样式 */
+
+.table-qrcode-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.table-qrcode-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 页面标题 */
+.table-qrcode-header {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.table-qrcode-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.table-qrcode-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* 搜索栏和操作按钮区 */
+.table-qrcode-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+}
+
+.table-qrcode-search {
+    flex: 1;
+    max-width: 400px;
+}
+
+.table-qrcode-search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.table-qrcode-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.table-qrcode-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.table-qrcode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.table-qrcode-btn-icon {
+    font-size: var(--font-size-base);
+}
+
+.table-qrcode-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.table-qrcode-btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.table-qrcode-btn-outline {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-300);
+}
+
+.table-qrcode-btn-outline:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.table-qrcode-btn-cancel {
+    background-color: #ffffff;
+    color: var(--color-text-secondary);
+    border-color: var(--color-neutral-300);
+}
+
+.table-qrcode-btn-cancel:hover {
+    border-color: var(--color-neutral-400);
+    color: var(--color-text-primary);
+}
+
+/* 筛选标签 */
+.table-qrcode-filters {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.table-qrcode-filter-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.table-qrcode-filter-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.table-qrcode-filter-btn.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+/* 统计卡片 */
+.table-qrcode-summary-row {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.table-qrcode-summary-card {
+    flex: 1;
+    min-width: 200px;
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.table-qrcode-summary-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.table-qrcode-summary-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+}
+
+.table-qrcode-summary-value-blue {
+    color: var(--color-primary);
+}
+
+.table-qrcode-summary-value-green {
+    color: var(--color-success);
+}
+
+.table-qrcode-summary-value-red {
+    color: var(--color-error);
+}
+
+/* 主内容区 */
+.table-qrcode-content {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+}
+
+/* 二维码网格 */
+.table-qrcode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.table-qrcode-card {
+    background-color: var(--color-neutral-50);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all var(--transition-base) var(--ease-in-out);
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.table-qrcode-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.table-qrcode-card-header {
+    margin-bottom: var(--spacing-sm);
+}
+
+.table-qrcode-card-table-no {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.table-qrcode-card-area {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    padding: 2px 8px;
+    background-color: var(--color-neutral-200);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+.table-qrcode-card-qrcode {
+    width: 100%;
+    max-width: 150px;
+    height: 150px;
+    margin: var(--spacing-sm) auto;
+    background-color: #ffffff;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm);
+    box-sizing: border-box;
+}
+
+.table-qrcode-card-qrcode img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.table-qrcode-card-qrcode-placeholder {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.table-qrcode-card-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    justify-content: center;
+    margin-top: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.table-qrcode-card-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.table-qrcode-card-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.table-qrcode-card-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.table-qrcode-card-btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* 分页器 */
+.table-qrcode-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) 0;
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+.table-qrcode-pagination-left,
+.table-qrcode-pagination-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.table-qrcode-pagination-info {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.table-qrcode-pagination-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.table-qrcode-pagination-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.table-qrcode-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.table-qrcode-pagination-pages {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.table-qrcode-pagination-page-btn {
+    min-width: 32px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.table-qrcode-pagination-page-btn.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.table-qrcode-pagination-page-btn:hover:not(.active) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.table-qrcode-pagination-select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+/* 弹窗样式 */
+.table-qrcode-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: calc(var(--z-index-modal) + 1);
+}
+
+.table-qrcode-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.table-qrcode-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: calc(var(--z-index-modal) + 2);
+    width: 500px;
+}
+
+.table-qrcode-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.table-qrcode-modal-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.table-qrcode-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background-color: transparent;
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.table-qrcode-modal-close:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-primary);
+}
+
+.table-qrcode-modal-body {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.table-qrcode-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+/* 二维码预览 */
+.qrcode-preview-container {
+    text-align: center;
+}
+
+.qrcode-preview-qrcode {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto var(--spacing-lg);
+    background-color: #ffffff;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+    box-sizing: border-box;
+}
+
+.qrcode-preview-qrcode img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.qrcode-preview-info {
+    text-align: left;
+    margin-top: var(--spacing-lg);
+}
+
+.qrcode-preview-info-item {
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.qrcode-preview-info-label {
+    color: var(--color-text-secondary);
+    margin-right: var(--spacing-xs);
+}
+
+.qrcode-preview-info-value {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 1200px) {
+    .table-qrcode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .table-qrcode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--spacing-md);
+    }
+}

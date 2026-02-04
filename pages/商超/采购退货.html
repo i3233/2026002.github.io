@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>采购退货 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .purchase-return-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 顶部工具栏整体卡片（风格同采购订单） */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .toolbar-left,
+        .toolbar-center,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .toolbar-left {
+            flex: 1.6;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .toolbar-right {
+            flex: 1;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-search-input {
+            flex: 1;
+            min-width: 180px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .toolbar-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 页面标题条 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 统计卡片区域 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 220px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-unit {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .status-pill {
+            color: var(--color-primary);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+        }
+
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left,
+            .toolbar-center,
+            .toolbar-right {
+                justify-content: flex-start;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="purchase-return-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">采购退货</h1>
+                <div class="page-subtitle">退货管理系统列表页，用于管理和追踪退货/退款订单。</div>
+            </div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="toolbar-card">
+            <!-- 左侧按钮组 -->
+            <div class="toolbar-left">
+                <button class="btn btn-primary">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">＋</span>
+                        <span>新增</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出详情</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊕</span>
+                        <span>退货单</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">≡</span>
+                        <span>属性</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">●</span>
+                        <span>汇总</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- 中间搜索区 -->
+            <div class="toolbar-center">
+                <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：支持按单号、往来单位等关键字">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧功能 -->
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊙</span>
+                        <span>统计</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" title="切换为列表视图">列表</button>
+                <button class="btn btn-outline" title="切换为详情视图">详情</button>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">退货总额 (元)</div>
+                <div class="summary-value summary-value-blue">
+                    <span>106.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">应付总额 (元) ☆</div>
+                <div class="summary-value summary-value-blue">
+                    <span>-106.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">退货数量</div>
+                <div class="summary-value summary-value-green">
+                    <span>17</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>⊙ 单号</th>
+                            <th class="sortable" data-sort="date">日期</th>
+                            <th>往来单位</th>
+                            <th>项目</th>
+                            <th>员工</th>
+                            <th>备注</th>
+                            <th class="text-right">数量</th>
+                            <th class="text-right">退货金额</th>
+                            <th class="text-right">应付余额</th>
+                            <th>订单状态</th>
+                            <th>附件</th>
+                            <th>录入员</th>
+                            <th class="sortable" data-sort="recordTime">录入时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="returnTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="7" class="text-right">合计：</td>
+                            <td class="text-right" id="totalQtyCell">17.00</td>
+                            <td class="text-right" id="totalAmountCell">106.00</td>
+                            <td class="text-right" id="totalPayableCell">-106.00</td>
+                            <td colspan="5"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="btn btn-outline" id="batchFinanceBtn">财务处理</button>
+                    <button class="btn btn-outline" id="batchDeleteBtn">删除</button>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 4 条记录</span>
+                    <div class="pagination-pages">
+                        <button class="pagination-page-btn active">1</button>
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 静态退货数据（共 4 条记录）
+        const returns = [
+            {
+                id: 'TH20250826001',
+                date: '2025-08-26',
+                partner: '天蓝商行',
+                project: '餐厅',
+                staff: '',
+                remark: '',
+                qty: 5.00,
+                amount: 30.00,
+                payable: -30.00,
+                status: '已成交',
+                attachment: '',
+                recorder: '系统管理员',
+                recordTime: '2025-08-26 09:30:00'
+            },
+            {
+                id: 'TH20250826002',
+                date: '2025-08-26',
+                partner: '天蓝商行',
+                project: '餐厅',
+                staff: '',
+                remark: '',
+                qty: 4.00,
+                amount: 24.00,
+                payable: -24.00,
+                status: '已成交',
+                attachment: '',
+                recorder: '系统管理员',
+                recordTime: '2025-08-26 11:15:21'
+            },
+            {
+                id: 'TH20250827001',
+                date: '2025-08-27',
+                partner: '天蓝商行',
+                project: '餐厅',
+                staff: '',
+                remark: '',
+                qty: 3.00,
+                amount: 18.00,
+                payable: -18.00,
+                status: '已成交',
+                attachment: '',
+                recorder: '系统管理员',
+                recordTime: '2025-08-27 10:02:13'
+            },
+            {
+                id: 'TH20250828001',
+                date: '2025-08-28',
+                partner: '天蓝商行',
+                project: '餐厅',
+                staff: '',
+                remark: '',
+                qty: 5.00,
+                amount: 34.00,
+                payable: -34.00,
+                status: '已成交',
+                attachment: '',
+                recorder: '系统管理员',
+                recordTime: '2025-08-28 16:40:55'
+            }
+        ];
+
+        let filteredReturns = [...returns];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        const tbody = document.getElementById('returnTableBody');
+
+        function renderTable() {
+            tbody.innerHTML = '';
+            filteredReturns.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = item.id;
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${item.id}">
+                    </td>
+                    <td>
+                        <span class="link-text order-link" data-id="${item.id}">${item.id}</span>
+                    </td>
+                    <td>${item.date}</td>
+                    <td>${item.partner}</td>
+                    <td>${item.project}</td>
+                    <td>${item.staff || '-'}</td>
+                    <td>${item.remark || '-'}</td>
+                    <td class="text-right">${item.qty.toFixed(2)}</td>
+                    <td class="text-right">${item.amount.toFixed(2)}</td>
+                    <td class="text-right">${item.payable.toFixed(2)}</td>
+                    <td>
+                        <span class="status-pill status-link" data-id="${item.id}">${item.status}</span>
+                    </td>
+                    <td>${item.attachment || '-'}</td>
+                    <td>${item.recorder}</td>
+                    <td>${item.recordTime}</td>
+                    <td>
+                        <button class="btn-link view-btn" data-id="${item.id}">查看</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateSelectedInfo();
+        }
+
+        // 排序（支持日期和录入时间）
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            filteredReturns.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                if (column === 'date' || column === 'recordTime') {
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                }
+                return 0;
+            });
+
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            const th = document.querySelector('th.sortable[data-sort="' + column + '"]');
+            if (th) {
+                th.classList.add(sortDirection);
+            }
+
+            renderTable();
+        }
+
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.sort;
+                sortData(col);
+            });
+        });
+
+        // 快捷搜索（前端模糊过滤）
+        function doQuickSearch() {
+            const kw = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            if (!kw) {
+                filteredReturns = [...returns];
+            } else {
+                filteredReturns = returns.filter(p => {
+                    return (
+                        p.id.toLowerCase().includes(kw) ||
+                        p.partner.toLowerCase().includes(kw) ||
+                        p.project.toLowerCase().includes(kw)
+                    );
+                });
+            }
+            renderTable();
+        }
+
+        document.getElementById('quickSearchBtn').addEventListener('click', doQuickSearch);
+        document.getElementById('quickSearchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                doQuickSearch();
+            }
+        });
+
+        // 全选 / 反选
+        const selectAll = document.getElementById('selectAll');
+        const bottomSelectAll = document.getElementById('bottomSelectAll');
+
+        function getSelectedIds() {
+            const ids = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                ids.push(cb.dataset.id);
+            });
+            return ids;
+        }
+
+        function updateSelectedInfo() {
+            const ids = getSelectedIds();
+            document.getElementById('selectedInfo').textContent = '已选择 ' + ids.length + ' 条记录';
+        }
+
+        function syncSelectAll() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const allChecked = checkedCount > 0 && checkedCount === checkboxes.length;
+            selectAll.checked = allChecked;
+            bottomSelectAll.checked = allChecked;
+            updateSelectedInfo();
+        }
+
+        selectAll.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => (cb.checked = checked));
+            bottomSelectAll.checked = checked;
+            updateSelectedInfo();
+        });
+
+        bottomSelectAll.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => (cb.checked = checked));
+            selectAll.checked = checked;
+            updateSelectedInfo();
+        });
+
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                syncSelectAll();
+            }
+        });
+
+        // 底部批量操作（示意）
+        document.getElementById('batchFinanceBtn').addEventListener('click', function () {
+            const ids = getSelectedIds();
+            if (!ids.length) {
+                alert('请先勾选需要处理的退货订单。');
+                return;
+            }
+            alert('财务处理（示例）：共选择 ' + ids.length + ' 条，单号：\\n' + ids.join('\\n'));
+        });
+
+        document.getElementById('batchDeleteBtn').addEventListener('click', function () {
+            const ids = getSelectedIds();
+            if (!ids.length) {
+                alert('请先勾选需要删除的退货订单。');
+                return;
+            }
+            if (!confirm('确定要删除选中的订单吗？当前仅为前端示例，不会真实删除数据。')) {
+                return;
+            }
+            alert('已模拟删除 ' + ids.length + ' 条记录（示例）。');
+        });
+
+        // 单号 / 状态 / 查看 按钮交互（示意）
+        document.addEventListener('click', function (e) {
+            const orderLink = e.target.closest('.order-link');
+            const statusLink = e.target.closest('.status-link');
+            const viewBtn = e.target.closest('.view-btn');
+
+            if (orderLink) {
+                const id = orderLink.dataset.id;
+                alert('查看退货单详情（示例）\\n单号：' + id);
+            }
+
+            if (statusLink) {
+                const id = statusLink.dataset.id;
+                alert('订单状态操作（示例）\\n单号：' + id + '\\n当前状态：已成交');
+            }
+
+            if (viewBtn) {
+                const id = viewBtn.dataset.id;
+                alert('查看退货记录详细信息（示例）\\n单号：' + id);
+            }
+        });
+
+        // 更多搜索按钮示意
+        document.getElementById('moreSearchBtn').addEventListener('click', function () {
+            alert('更多搜索（示例）：这里可以展开高级筛选条件，如退货日期范围、往来单位、项目、状态等。');
+        });
+
+        // 初始化
+        renderTable();
+    </script>
+</body>
+</html>

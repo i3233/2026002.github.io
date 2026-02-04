@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品标签 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        /* 页面整体 */
+        .tag-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面头部，对齐商品列表/套餐列表 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* 筛选 / 统计卡片 */
+        .filter-section {
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .tag-stat-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 160px;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            background-color: var(--color-neutral-50);
+            border: 1px solid var(--color-neutral-200);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        .stat-sub {
+            margin-top: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th {
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-sm);
+            border-bottom: 2px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable:hover {
+            background-color: var(--color-neutral-100);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 复选框 */
+        .checkbox-cell {
+            width: 50px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 标签样式 */
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .tag-pill--primary {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .tag-pill--danger {
+            background-color: rgba(220, 53, 69, 0.08);
+            color: var(--color-error);
+        }
+
+        .tag-pill--success {
+            background-color: rgba(40, 167, 69, 0.08);
+            color: var(--color-success);
+        }
+
+        .tag-preview-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 开关控件（沿用商品列表样式） */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn-icon.delete:hover {
+            border-color: var(--color-error);
+            color: var(--color-error);
+        }
+
+        .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 批量操作条 */
+        .batch-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .batch-actions.hidden {
+            display: none;
+        }
+
+        .selected-count {
+            margin-right: var(--spacing-md);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background-color: #ffffff;
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .pagination-info {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .pagination-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: var(--z-index-modal-backdrop);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-lg);
+            min-width: 400px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: var(--z-index-modal);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            color: var(--color-text-secondary);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .form-field {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .field-help {
+            margin-top: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tag-page">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1 class="page-title">商品标签</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="addTagBtn">新增标签</button>
+                <!--<button class="btn btn-outline" id="tagGuideBtn">标签使用说明</button>-->
+            </div>
+        </div>
+
+        <!-- 筛选 & 统计 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>标签名称</label>
+                    <input type="text" id="searchNameInput" placeholder="支持输入标签名称搜索">
+                </div>
+                <div class="filter-item">
+                    <label>应用范围</label>
+                    <select id="scopeSelect">
+                        <option value="">全部</option>
+                        <option value="list">仅商品列表</option>
+                        <option value="detail">仅商品详情</option>
+                        <option value="both">列表 + 详情</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>启用状态</label>
+                    <select id="statusSelect">
+                        <option value="">全部</option>
+                        <option value="enabled">已启用</option>
+                        <option value="disabled">未启用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="tag-stat-row">
+                <div class="stat-card">
+                    <div class="stat-label">标签总数</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-sub">包含所有启用和未启用的标签。</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">已启用标签</div>
+                    <div class="stat-value" id="statEnabled">0</div>
+                    <div class="stat-sub">当前在前台有展示效果的标签数量。</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">绑定商品总数（示例）</div>
+                    <div class="stat-value" id="statBindCount">0</div>
+                    <div class="stat-sub">用于大致了解标签整体使用情况。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量操作区域 -->
+        <div class="batch-actions hidden" id="batchActions">
+            <span class="selected-count">已选择 <span id="selectedCount">0</span> 个标签</span>
+            <button class="btn btn-outline" id="batchEnableBtn">批量启用</button>
+            <button class="btn btn-outline" id="batchDisableBtn">批量停用</button>
+            <button class="btn btn-outline" id="batchDeleteBtn">批量删除</button>
+        </div>
+
+        <!-- 标签表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th class="sortable" data-sort="id">ID</th>
+                            <th>标签名称</th>
+                            <th>展示样式</th>
+                            <th>应用范围</th>
+                            <th class="sortable" data-sort="sort">排序</th>
+                            <th>绑定商品数</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tagTableBody">
+                        <!-- 由 JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- 分页 -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    共 <span id="totalCount">0</span> 条数据，每页显示 10 条
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" disabled>上一页</button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn" disabled>下一页</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增/编辑 标签弹窗 -->
+        <div class="modal-overlay" id="tagModalOverlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="tagModalTitle">新增标签</h3>
+                    <button class="modal-close" id="tagModalClose">
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-field">
+                        <label for="tagNameInput">标签名称 <span style="color: var(--color-error);">*</span></label>
+                        <input type="text" id="tagNameInput" placeholder="例如：新品、热销、限时抢购 等">
+                        <div class="field-help">建议控制在 2~6 个汉字以内，便于前台展示。</div>
+                    </div>
+                    <div class="form-field">
+                        <label for="tagStyleSelect">展示样式</label>
+                        <select id="tagStyleSelect">
+                            <option value="primary">蓝色强调（适合“新品”、“推荐”）</option>
+                            <option value="success">绿色强调（适合“自营”、“官方”）</option>
+                            <option value="danger">红色强调（适合“热卖”、“限时抢购”）</option>
+                        </select>
+                        <div class="field-help">仅示意不同颜色样式，具体前台可按设计稿实现。</div>
+                    </div>
+                    <div class="form-field">
+                        <label for="tagScopeSelect">应用范围</label>
+                        <select id="tagScopeSelect">
+                            <option value="both">列表 + 详情</option>
+                            <option value="list">仅商品列表页</option>
+                            <option value="detail">仅商品详情页</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="tagSortInput">排序值</label>
+                        <input type="number" id="tagSortInput" value="100" min="0">
+                        <div class="field-help">数值越大，排序越靠前，建议与商品列表排序规则保持一致。</div>
+                    </div>
+                    <div class="form-field">
+                        <label for="tagRemarkInput">备注说明</label>
+                        <textarea id="tagRemarkInput" placeholder="可填写此标签的使用说明，例如适用商品类型或显示规则。"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="tagModalCancel">取消</button>
+                    <button class="btn btn-primary" id="tagModalConfirm">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 静态演示用标签数据
+        const tags = [
+            {
+                id: 1,
+                name: '新品',
+                style: 'primary',
+                scope: 'both',
+                sort: 200,
+                productCount: 18,
+                enabled: true
+            },
+            {
+                id: 2,
+                name: '热销',
+                style: 'danger',
+                scope: 'list',
+                sort: 180,
+                productCount: 32,
+                enabled: true
+            },
+            {
+                id: 3,
+                name: '自营',
+                style: 'success',
+                scope: 'both',
+                sort: 160,
+                productCount: 12,
+                enabled: true
+            },
+            {
+                id: 4,
+                name: '限时抢购',
+                style: 'danger',
+                scope: 'detail',
+                sort: 140,
+                productCount: 5,
+                enabled: false
+            },
+            {
+                id: 5,
+                name: '产地直供',
+                style: 'primary',
+                scope: 'detail',
+                sort: 120,
+                productCount: 7,
+                enabled: false
+            }
+        ];
+
+        let filteredTags = [...tags];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let editingTagId = null;
+
+        const tagTableBody = document.getElementById('tagTableBody');
+
+        // 渲染标签表格
+        function renderTagTable() {
+            tagTableBody.innerHTML = '';
+            filteredTags.forEach(tag => {
+                const tr = document.createElement('tr');
+                const styleClass =
+                    tag.style === 'danger'
+                        ? 'tag-pill tag-pill--danger'
+                        : tag.style === 'success'
+                            ? 'tag-pill tag-pill--success'
+                            : 'tag-pill tag-pill--primary';
+                const scopeText =
+                    tag.scope === 'list'
+                        ? '仅商品列表'
+                        : tag.scope === 'detail'
+                            ? '仅商品详情'
+                            : '列表 + 详情';
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${tag.id}">
+                    </td>
+                    <td>${tag.id}</td>
+                    <td>${tag.name}</td>
+                    <td>
+                        <span class="${styleClass}">
+                            <span class="tag-preview-dot"></span>
+                            <span>${tag.name}</span>
+                        </span>
+                    </td>
+                    <td>${scopeText}</td>
+                    <td>${tag.sort}</td>
+                    <td>${tag.productCount}</td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="tag-enable-toggle" data-id="${tag.id}" ${tag.enabled ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit-btn" data-id="${tag.id}" title="编辑">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete delete-btn" data-id="${tag.id}" title="删除">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tagTableBody.appendChild(tr);
+            });
+
+            document.getElementById('totalCount').textContent = filteredTags.length;
+            updateBatchBar();
+            updateStats();
+        }
+
+        // 统计卡片
+        function updateStats() {
+            document.getElementById('statTotal').textContent = tags.length;
+            const enabledCount = tags.filter(t => t.enabled).length;
+            document.getElementById('statEnabled').textContent = enabledCount;
+            const bindSum = tags.reduce((sum, t) => sum + (t.productCount || 0), 0);
+            document.getElementById('statBindCount').textContent = bindSum;
+        }
+
+        // 筛选
+        function filterTags() {
+            const nameKw = document.getElementById('searchNameInput').value.toLowerCase();
+            const scopeVal = document.getElementById('scopeSelect').value;
+            const statusVal = document.getElementById('statusSelect').value;
+
+            filteredTags = tags.filter(tag => {
+                if (nameKw) {
+                    if (!tag.name.toLowerCase().includes(nameKw)) return false;
+                }
+                if (scopeVal) {
+                    if (tag.scope !== scopeVal) return false;
+                }
+                if (statusVal === 'enabled' && !tag.enabled) return false;
+                if (statusVal === 'disabled' && tag.enabled) return false;
+                return true;
+            });
+
+            // 排序
+            if (sortColumn) {
+                filteredTags.sort((a, b) => {
+                    let aVal = a[sortColumn];
+                    let bVal = b[sortColumn];
+                    if (typeof aVal === 'string') {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+            }
+
+            renderTagTable();
+        }
+
+        document.getElementById('searchNameInput').addEventListener('input', filterTags);
+        document.getElementById('scopeSelect').addEventListener('change', filterTags);
+        document.getElementById('statusSelect').addEventListener('change', filterTags);
+
+        // 排序
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', function () {
+                const col = this.dataset.sort;
+                if (sortColumn === col) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = col;
+                    sortDirection = 'asc';
+                }
+                document.querySelectorAll('th.sortable').forEach(t => t.classList.remove('asc', 'desc'));
+                this.classList.add(sortDirection);
+                filterTags();
+            });
+        });
+
+        // 批量选择
+        document.getElementById('selectAll').addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            updateBatchBar();
+        });
+
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                const allChecked = document.querySelectorAll('.row-checkbox:checked').length === filteredTags.length;
+                document.getElementById('selectAll').checked = allChecked && filteredTags.length > 0;
+                updateBatchBar();
+            }
+
+            if (e.target.classList.contains('tag-enable-toggle')) {
+                const id = parseInt(e.target.dataset.id, 10);
+                const tag = tags.find(t => t.id === id);
+                if (tag) {
+                    tag.enabled = e.target.checked;
+                    updateStats();
+                }
+            }
+        });
+
+        function getSelectedTagIds() {
+            const ids = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                ids.push(parseInt(cb.dataset.id, 10));
+            });
+            return ids;
+        }
+
+        function updateBatchBar() {
+            const count = document.querySelectorAll('.row-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = count;
+            const bar = document.getElementById('batchActions');
+            if (count > 0) {
+                bar.classList.remove('hidden');
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        // 批量操作（仅前端演示）
+        document.getElementById('batchEnableBtn').addEventListener('click', function () {
+            const ids = getSelectedTagIds();
+            if (!ids.length) return;
+            tags.forEach(tag => {
+                if (ids.includes(tag.id)) {
+                    tag.enabled = true;
+                }
+            });
+            filterTags();
+        });
+
+        document.getElementById('batchDisableBtn').addEventListener('click', function () {
+            const ids = getSelectedTagIds();
+            if (!ids.length) return;
+            tags.forEach(tag => {
+                if (ids.includes(tag.id)) {
+                    tag.enabled = false;
+                }
+            });
+            filterTags();
+        });
+
+        document.getElementById('batchDeleteBtn').addEventListener('click', function () {
+            const ids = getSelectedTagIds();
+            if (!ids.length) return;
+            if (!confirm('确定要删除选中的标签吗？仅为前端示例，不会影响真实数据。')) return;
+            for (let i = tags.length - 1; i >= 0; i--) {
+                if (ids.includes(tags[i].id)) {
+                    tags.splice(i, 1);
+                }
+            }
+            filterTags();
+        });
+
+        // 新增/编辑标签弹窗
+        const tagModalOverlay = document.getElementById('tagModalOverlay');
+        const tagModalTitle = document.getElementById('tagModalTitle');
+        const tagModalClose = document.getElementById('tagModalClose');
+        const tagModalCancel = document.getElementById('tagModalCancel');
+        const tagModalConfirm = document.getElementById('tagModalConfirm');
+        const tagNameInput = document.getElementById('tagNameInput');
+        const tagStyleSelect = document.getElementById('tagStyleSelect');
+        const tagScopeSelect = document.getElementById('tagScopeSelect');
+        const tagSortInput = document.getElementById('tagSortInput');
+        const tagRemarkInput = document.getElementById('tagRemarkInput');
+
+        function openTagModal(isEdit = false, tag = null) {
+            if (isEdit && tag) {
+                editingTagId = tag.id;
+                tagModalTitle.textContent = '编辑标签';
+                tagNameInput.value = tag.name;
+                tagStyleSelect.value = tag.style;
+                tagScopeSelect.value = tag.scope;
+                tagSortInput.value = tag.sort;
+                tagRemarkInput.value = tag.remark || '';
+            } else {
+                editingTagId = null;
+                tagModalTitle.textContent = '新增标签';
+                tagNameInput.value = '';
+                tagStyleSelect.value = 'primary';
+                tagScopeSelect.value = 'both';
+                tagSortInput.value = 100;
+                tagRemarkInput.value = '';
+            }
+            tagModalOverlay.classList.add('show');
+        }
+
+        function closeTagModal() {
+            tagModalOverlay.classList.remove('show');
+        }
+
+        document.getElementById('addTagBtn').addEventListener('click', function () {
+            openTagModal(false, null);
+        });
+
+        if (tagModalClose) {
+            tagModalClose.addEventListener('click', closeTagModal);
+        }
+        if (tagModalCancel) {
+            tagModalCancel.addEventListener('click', closeTagModal);
+        }
+
+        tagModalOverlay.addEventListener('click', function (e) {
+            if (e.target === tagModalOverlay) {
+                closeTagModal();
+            }
+        });
+
+        if (tagModalConfirm) {
+            tagModalConfirm.addEventListener('click', function () {
+                const name = tagNameInput.value.trim();
+                const style = tagStyleSelect.value;
+                const scope = tagScopeSelect.value;
+                let sort = parseInt(tagSortInput.value || '0', 10);
+                if (!name) {
+                    alert('请填写标签名称');
+                    return;
+                }
+                if (isNaN(sort)) sort = 0;
+
+                if (editingTagId) {
+                    const tag = tags.find(t => t.id === editingTagId);
+                    if (tag) {
+                        tag.name = name;
+                        tag.style = style;
+                        tag.scope = scope;
+                        tag.sort = sort;
+                        tag.remark = tagRemarkInput.value.trim();
+                    }
+                } else {
+                    const newId = tags.length ? Math.max(...tags.map(t => t.id)) + 1 : 1;
+                    tags.push({
+                        id: newId,
+                        name,
+                        style,
+                        scope,
+                        sort,
+                        productCount: 0,
+                        enabled: true,
+                        remark: tagRemarkInput.value.trim()
+                    });
+                }
+
+                filterTags();
+                closeTagModal();
+            });
+        }
+
+        // 列表按钮：编辑/删除
+        document.addEventListener('click', function (e) {
+            const editBtn = e.target.closest('.edit-btn');
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (editBtn) {
+                const id = parseInt(editBtn.dataset.id, 10);
+                const tag = tags.find(t => t.id === id);
+                if (tag) {
+                    openTagModal(true, tag);
+                }
+            }
+            if (deleteBtn) {
+                const id = parseInt(deleteBtn.dataset.id, 10);
+                if (!confirm('确定要删除该标签吗？仅为前端示例，不会影响真实数据。')) return;
+                const index = tags.findIndex(t => t.id === id);
+                if (index > -1) {
+                    tags.splice(index, 1);
+                    filterTags();
+                }
+            }
+        });
+
+        // 标签使用说明按钮：简单弹个提示
+        document.getElementById('tagGuideBtn').addEventListener('click', function () {
+            alert('此页面用于统一管理商品标签，包括：新增、编辑、启用/停用和查看使用情况。当前为静态前端示例，后续可接入真实数据接口。');
+        });
+
+        // 初始化
+        filterTags();
+    </script>
+</body>
+</html>
+

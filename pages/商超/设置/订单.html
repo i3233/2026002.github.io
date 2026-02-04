@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单设置 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <style>
+        .order-settings-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .settings-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .settings-card-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item-left {
+            flex: 1;
+            margin-right: var(--spacing-lg);
+        }
+
+        .setting-item-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .setting-item-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .setting-item-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-shrink: 0;
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 输入框 */
+        .form-input,
+        .form-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-input--small {
+            width: 120px;
+        }
+
+        .form-input--medium {
+            width: 200px;
+        }
+
+        /* 操作按钮区域 */
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        /* 帮助图标 */
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid var(--color-neutral-300);
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            cursor: help;
+            margin-left: var(--spacing-xs);
+        }
+
+        .help-icon:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        @media (max-width: 1200px) {
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .setting-item-right {
+                width: 100%;
+                margin-top: var(--spacing-sm);
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="order-settings-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">订单设置</h1>
+                <div class="page-subtitle">配置订单相关的系统设置和默认参数</div>
+            </div>
+        </div>
+
+        <!-- 订单基础设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">订单基础设置</h3>
+                    <div class="settings-card-desc">设置订单的基础默认值和生成规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单号生成规则
+                        <span class="help-icon" title="设置订单号的生成规则，如：YYYYMMDD+序号">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单号的生成规则，支持日期、序号等变量</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="orderNoRule">
+                        <option value="dateSeq" selected>日期+序号（如：20260131001）</option>
+                        <option value="dateTimeSeq">日期时间+序号（如：20260131120001）</option>
+                        <option value="random">随机号（如：RND123456789）</option>
+                        <option value="custom">自定义规则</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单号前缀
+                        <span class="help-icon" title="订单号的前缀，如：PO、SO等">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单号的前缀标识（如：PO-采购订单、SO-销售订单）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="text" class="form-input form-input--small" id="orderNoPrefix" value="PO" placeholder="PO">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认订单状态
+                        <span class="help-icon" title="新创建订单的默认状态">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新创建订单的默认状态</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="defaultOrderStatus">
+                        <option value="pending" selected>待审核</option>
+                        <option value="confirmed">已确认</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单自动取消时间（小时）
+                        <span class="help-icon" title="未支付订单自动取消的时间">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置未支付订单自动取消的时间（0表示不自动取消）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="autoCancelHours" value="24" min="0">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用订单备注
+                        <span class="help-icon" title="是否允许订单添加备注">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，创建订单时可以添加备注信息</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableOrderRemark" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单审核设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">订单审核设置</h3>
+                    <div class="settings-card-desc">设置订单审核流程和规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用订单审核
+                        <span class="help-icon" title="是否启用订单审核功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单创建后需要经过审核才能继续处理</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableOrderAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        审核金额阈值（元）
+                        <span class="help-icon" title="超过此金额的订单需要审核">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单金额阈值，超过此金额的订单需要审核（0表示所有订单都需要审核）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="auditAmountThreshold" value="0" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        批发订单审核
+                        <span class="help-icon" title="批发订单是否需要审核">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，所有批发订单都需要经过财务审核</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableWholesaleAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        赊账订单审核
+                        <span class="help-icon" title="赊账订单是否需要审核">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，所有赊账订单都需要经过财务审核</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableCreditAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        审核通过后自动打印
+                        <span class="help-icon" title="审核通过后是否自动打印拣货单">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单审核通过后自动打印拣货单</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoPrintAfterAudit">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单打印设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">订单打印设置</h3>
+                    <div class="settings-card-desc">设置订单打印相关的配置</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认打印机
+                        <span class="help-icon" title="订单打印时使用的默认打印机">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单打印时使用的默认打印机</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="defaultPrinter">
+                        <option value="">未设置</option>
+                        <option value="printer1" selected>打印机1（收银台）</option>
+                        <option value="printer2">打印机2（仓库）</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        打印模板
+                        <span class="help-icon" title="订单打印使用的模板">?</span>
+                    </div>
+                    <div class="setting-item-desc">选择订单打印使用的模板样式</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="printTemplate">
+                        <option value="standard" selected>标准模板</option>
+                        <option value="compact">紧凑模板</option>
+                        <option value="detailed">详细模板</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        自动打印拣货单
+                        <span class="help-icon" title="订单创建后是否自动打印拣货单">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单创建后自动打印拣货单（仅限已支付订单）</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoPrintPickingList">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        打印份数
+                        <span class="help-icon" title="每次打印的份数">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置每次打印订单的份数</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="printCopies" value="1" min="1" max="10">
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单通知设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">订单通知设置</h3>
+                    <div class="settings-card-desc">设置订单状态变更时的通知规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单创建通知
+                        <span class="help-icon" title="订单创建时是否发送通知">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单创建时会发送通知给相关人员</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifyOnCreate" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单审核通知
+                        <span class="help-icon" title="订单审核时是否发送通知">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单审核通过或拒绝时会发送通知</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifyOnAudit" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单完成通知
+                        <span class="help-icon" title="订单完成时是否发送通知">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单完成时会发送通知给客户</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifyOnComplete" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        订单取消通知
+                        <span class="help-icon" title="订单取消时是否发送通知">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单取消时会发送通知给相关人员</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifyOnCancel" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单统计设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">订单统计设置</h3>
+                    <div class="settings-card-desc">设置订单统计相关的参数</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        统计周期
+                        <span class="help-icon" title="订单统计的时间周期">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单统计的时间周期</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="statisticsPeriod">
+                        <option value="daily" selected>按日统计</option>
+                        <option value="weekly">按周统计</option>
+                        <option value="monthly">按月统计</option>
+                        <option value="yearly">按年统计</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        自动生成统计报表
+                        <span class="help-icon" title="是否自动生成订单统计报表">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，系统会自动生成订单统计报表</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoGenerateReport">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="settings-actions">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                // 订单基础设置
+                orderNoRule: document.getElementById('orderNoRule').value,
+                orderNoPrefix: document.getElementById('orderNoPrefix').value,
+                defaultOrderStatus: document.getElementById('defaultOrderStatus').value,
+                autoCancelHours: parseInt(document.getElementById('autoCancelHours').value),
+                enableOrderRemark: document.getElementById('enableOrderRemark').checked,
+                
+                // 订单审核设置
+                enableOrderAudit: document.getElementById('enableOrderAudit').checked,
+                auditAmountThreshold: parseFloat(document.getElementById('auditAmountThreshold').value),
+                enableWholesaleAudit: document.getElementById('enableWholesaleAudit').checked,
+                enableCreditAudit: document.getElementById('enableCreditAudit').checked,
+                autoPrintAfterAudit: document.getElementById('autoPrintAfterAudit').checked,
+                
+                // 订单打印设置
+                defaultPrinter: document.getElementById('defaultPrinter').value,
+                printTemplate: document.getElementById('printTemplate').value,
+                autoPrintPickingList: document.getElementById('autoPrintPickingList').checked,
+                printCopies: parseInt(document.getElementById('printCopies').value),
+                
+                // 订单通知设置
+                notifyOnCreate: document.getElementById('notifyOnCreate').checked,
+                notifyOnAudit: document.getElementById('notifyOnAudit').checked,
+                notifyOnComplete: document.getElementById('notifyOnComplete').checked,
+                notifyOnCancel: document.getElementById('notifyOnCancel').checked,
+                
+                // 订单统计设置
+                statisticsPeriod: document.getElementById('statisticsPeriod').value,
+                autoGenerateReport: document.getElementById('autoGenerateReport').checked
+            };
+
+            // 模拟保存
+            console.log('保存设置：', settings);
+            alert('设置保存成功！');
+        }
+
+        // 重置设置
+        function resetSettings() {
+            if (!confirm('确定要重置所有设置吗？将恢复到默认值。')) {
+                return;
+            }
+
+            // 重置所有设置到默认值
+            document.getElementById('orderNoRule').value = 'dateSeq';
+            document.getElementById('orderNoPrefix').value = 'PO';
+            document.getElementById('defaultOrderStatus').value = 'pending';
+            document.getElementById('autoCancelHours').value = '24';
+            document.getElementById('enableOrderRemark').checked = true;
+            
+            document.getElementById('enableOrderAudit').checked = true;
+            document.getElementById('auditAmountThreshold').value = '0';
+            document.getElementById('enableWholesaleAudit').checked = true;
+            document.getElementById('enableCreditAudit').checked = true;
+            document.getElementById('autoPrintAfterAudit').checked = false;
+            
+            document.getElementById('defaultPrinter').value = 'printer1';
+            document.getElementById('printTemplate').value = 'standard';
+            document.getElementById('autoPrintPickingList').checked = false;
+            document.getElementById('printCopies').value = '1';
+            
+            document.getElementById('notifyOnCreate').checked = true;
+            document.getElementById('notifyOnAudit').checked = true;
+            document.getElementById('notifyOnComplete').checked = true;
+            document.getElementById('notifyOnCancel').checked = true;
+            
+            document.getElementById('statisticsPeriod').value = 'daily';
+            document.getElementById('autoGenerateReport').checked = false;
+
+            alert('设置已重置为默认值');
+        }
+
+        // 事件绑定
+        document.getElementById('saveBtn').addEventListener('click', saveSettings);
+        document.getElementById('resetBtn').addEventListener('click', resetSettings);
+    </script>
+</body>
+</html>

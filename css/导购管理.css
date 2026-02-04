@@ -1,0 +1,565 @@
+/* ============================================
+   导购/拣货/服务员管理页面样式
+   ============================================ */
+
+.guide-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.guide-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* ========== 页面标题和操作栏 ========== */
+.guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+}
+
+.guide-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.guide-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* ========== 筛选和搜索区 ========== */
+.guide-filters {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.guide-filter-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.guide-filter-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.guide-filter-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.guide-filter-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    background-color: var(--color-neutral-50);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.guide-filter-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.guide-filter-btn-active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.guide-search-wrapper {
+    flex: 1;
+    min-width: 200px;
+}
+
+.guide-search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.guide-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* ========== 表格区域 ========== */
+.guide-table-section {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.guide-table-wrapper {
+    overflow-x: auto;
+}
+
+.guide-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.guide-table thead {
+    background-color: var(--color-neutral-50);
+}
+
+.guide-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+    white-space: nowrap;
+}
+
+.guide-table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.guide-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.guide-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 类型标签 */
+.guide-type-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+}
+
+.guide-type-badge-guide {
+    background-color: rgba(44, 131, 235, 0.1);
+    color: var(--color-primary);
+}
+
+.guide-type-badge-picker {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-success);
+}
+
+.guide-type-badge-waiter {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--color-warning);
+}
+
+/* 负责区域显示 */
+.guide-areas-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.guide-area-tag {
+    display: inline-block;
+    padding: 2px var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+}
+
+/* 状态标签 */
+.guide-status-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+}
+
+.guide-status-badge-active {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-success);
+}
+
+.guide-status-badge-inactive {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--color-error);
+}
+
+/* 操作按钮 */
+.guide-action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+/* ========== 弹窗样式 ========== */
+.guide-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-modal);
+}
+
+.guide-modal-content {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.guide-modal-large {
+    max-width: 800px;
+}
+
+.guide-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.guide-modal-header h3 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.guide-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: var(--color-neutral-100);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-secondary);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.guide-modal-close:hover {
+    background-color: var(--color-neutral-200);
+    color: var(--color-text-primary);
+}
+
+.guide-modal-body {
+    padding: var(--spacing-lg);
+    flex: 1;
+}
+
+.guide-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+/* ========== 表单样式 ========== */
+.guide-form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.guide-form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.guide-required {
+    color: var(--color-error);
+}
+
+.guide-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.guide-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.guide-input:disabled {
+    background-color: var(--color-neutral-100);
+    cursor: not-allowed;
+}
+
+.guide-form-tip {
+    display: block;
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.guide-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    resize: vertical;
+    transition: all var(--transition-base) var(--ease-in-out);
+    font-family: var(--font-family-base);
+    box-sizing: border-box;
+}
+
+.guide-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* ========== 负责区域设置 ========== */
+.guide-areas-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.guide-areas-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    min-height: 100px;
+    padding: var(--spacing-md);
+    background-color: var(--color-neutral-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-200);
+}
+
+.guide-area-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: #ffffff;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-200);
+}
+
+.guide-area-item-input {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.guide-area-item-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.guide-area-item-delete {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent;
+    color: var(--color-error);
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    transition: all var(--transition-base) var(--ease-in-out);
+    border-radius: var(--radius-sm);
+}
+
+.guide-area-item-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.guide-areas-empty {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-md);
+}
+
+/* ========== 开关样式 ========== */
+.guide-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.guide-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.guide-switch-slider {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    background-color: var(--color-neutral-300);
+    transition: var(--transition-base);
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+.guide-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    transition: var(--transition-base);
+    border-radius: 50%;
+}
+
+.guide-switch input:checked + .guide-switch-slider {
+    background-color: var(--color-primary);
+}
+
+.guide-switch input:checked + .guide-switch-slider:before {
+    transform: translateX(20px);
+}
+
+.guide-switch-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+/* ========== 按钮样式 ========== */
+.guide-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.guide-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.guide-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.guide-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.guide-btn-secondary {
+    background-color: var(--color-secondary);
+    color: #ffffff;
+}
+
+.guide-btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-neutral-600);
+}
+
+.guide-btn-outline {
+    background-color: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.guide-btn-outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.guide-btn-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.guide-btn-text {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.guide-btn-text:hover:not(:disabled) {
+    background-color: rgba(44, 131, 235, 0.1);
+}
+
+.guide-btn-danger {
+    background-color: transparent;
+    border-color: var(--color-error);
+    color: var(--color-error);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+}
+
+.guide-btn-danger:hover:not(:disabled) {
+    background-color: var(--color-error);
+    color: #ffffff;
+}

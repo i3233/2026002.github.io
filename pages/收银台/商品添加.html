@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品添加 - 收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/商品添加.css">
+</head>
+<body class="product-add-body">
+    <div class="product-add-container">
+        <!-- 顶部导航标签栏 -->
+        <div class="product-tabs">
+            <button class="product-tab active" data-tab="product">商品</button>
+            <button class="product-tab" data-tab="package">套餐</button>
+            <button class="product-tab" data-tab="spec">规格</button>
+            <button class="product-tab" data-tab="attribute">属性</button>
+            <button class="product-tab" data-tab="topping">加料</button>
+        </div>
+
+        <!-- 筛选和搜索区 -->
+        <div class="product-filters-section">
+            <!-- 分类筛选按钮组 -->
+            <div class="product-filter-group">
+                <div class="product-filter-label">分类：</div>
+                <div class="product-filter-buttons" id="categoryFilters">
+                    <button class="product-filter-btn product-filter-btn-active" data-category="all">全部</button>
+                    <button class="product-filter-btn" data-category="package">优惠套餐</button>
+                    <button class="product-filter-btn" data-category="rainbow">彩虹斗酒</button>
+                    <button class="product-filter-btn" data-category="special">特色斗酒</button>
+                    <button class="product-filter-btn" data-category="wine">洋酒香槟</button>
+                    <button class="product-filter-btn" data-category="other">其他系列</button>
+                    <button class="product-filter-btn" data-category="snack">小吃系列</button>
+                    <button class="product-filter-btn" data-category="beer">啤酒</button>
+                    <button class="product-filter-btn" data-category="soft-drink">软饮系列</button>
+                    <button class="product-filter-btn" data-category="housekeeping">家政</button>
+                    <button class="product-filter-btn" data-category="chinese">中餐</button>
+                    <button class="product-filter-btn" data-category="department">百货</button>
+                </div>
+            </div>
+
+            <!-- 状态筛选和搜索 -->
+            <div class="product-filter-row">
+                <!-- 状态筛选按钮组 -->
+                <div class="product-filter-group">
+                    <div class="product-filter-label">状态：</div>
+                    <div class="product-filter-buttons">
+                        <button class="product-status-btn product-status-btn-active" data-status="all">全部</button>
+                        <button class="product-status-btn" data-status="on">上架</button>
+                        <button class="product-status-btn" data-status="off">下架</button>
+                    </div>
+                </div>
+
+                <!-- 搜索框 -->
+                <div class="product-search-wrapper">
+                    <input type="text" class="product-search-input" id="productSearchInput" placeholder="请输入商品名称">
+                    <span class="product-search-icon">🔍</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品数据表格 -->
+        <div class="product-table-section">
+            <div class="product-table-wrapper">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>商品名称</th>
+                            <th>价格</th>
+                            <th>剩余库存</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <!-- 商品数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/商品添加.js"></script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+/* 餐饮当日结存单页面样式 */
+
+.daily-settlement-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.daily-settlement-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 页面标题 */
+.daily-settlement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.daily-settlement-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.daily-settlement-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* 筛选工具栏 */
+.daily-settlement-filter-toolbar {
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.daily-settlement-filter-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.daily-settlement-filter-item label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.daily-settlement-filter-item select,
+.daily-settlement-filter-item input {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.daily-settlement-filter-item select:focus,
+.daily-settlement-filter-item input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.daily-settlement-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.daily-settlement-btn-icon {
+    font-size: var(--font-size-base);
+}
+
+.daily-settlement-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.daily-settlement-btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.daily-settlement-btn-outline {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-300);
+}
+
+.daily-settlement-btn-outline:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* 统计摘要区域 */
+.daily-settlement-summary-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.daily-settlement-summary-card {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.daily-settlement-summary-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.daily-settlement-summary-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.daily-settlement-summary-icon {
+    font-size: var(--font-size-xl);
+    opacity: 0.3;
+}
+
+.daily-settlement-summary-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-xs);
+}
+
+.daily-settlement-summary-value-blue {
+    color: var(--color-primary);
+}
+
+.daily-settlement-summary-value-green {
+    color: var(--color-success);
+}
+
+.daily-settlement-summary-value-orange {
+    color: #ff8c42;
+}
+
+.daily-settlement-summary-value-red {
+    color: var(--color-error);
+}
+
+.daily-settlement-summary-change {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.daily-settlement-summary-change.positive {
+    color: var(--color-success);
+}
+
+.daily-settlement-summary-change.negative {
+    color: var(--color-error);
+}
+
+/* 进存销统计卡片 */
+.daily-settlement-inventory-stats-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.daily-settlement-inventory-stat-card {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+}
+
+.daily-settlement-inventory-stat-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-neutral-200);
+}
+
+.daily-settlement-inventory-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.daily-settlement-inventory-stat-row:last-child {
+    border-bottom: none;
+    font-weight: var(--font-weight-medium);
+    padding-top: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+.daily-settlement-inventory-stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.daily-settlement-inventory-stat-value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.daily-settlement-inventory-stat-amount {
+    color: var(--color-primary);
+}
+
+/* 表格容器 */
+.daily-settlement-table-container {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.daily-settlement-table-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.daily-settlement-table-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.daily-settlement-table-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.daily-settlement-table-wrapper {
+    overflow-x: auto;
+}
+
+.daily-settlement-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.daily-settlement-table thead {
+    background-color: var(--color-neutral-50);
+}
+
+.daily-settlement-table th,
+.daily-settlement-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--color-neutral-200);
+    white-space: nowrap;
+}
+
+.daily-settlement-table th {
+    text-align: left;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.daily-settlement-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: var(--spacing-xl);
+}
+
+.daily-settlement-table th.sortable::after {
+    content: '↕';
+    position: absolute;
+    right: var(--spacing-sm);
+    color: var(--color-neutral-400);
+    font-size: var(--font-size-xs);
+}
+
+.daily-settlement-table th.sortable.asc::after {
+    content: '↑';
+    color: var(--color-primary);
+}
+
+.daily-settlement-table th.sortable.desc::after {
+    content: '↓';
+    color: var(--color-primary);
+}
+
+.daily-settlement-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.daily-settlement-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* 合计行 */
+.daily-settlement-table-footer-row {
+    background-color: var(--color-neutral-50);
+    font-weight: var(--font-weight-medium);
+}
+
+/* 商品类型标签 */
+.product-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+}
+
+.product-type-badge.type-normal {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+}
+
+.product-type-badge.type-package {
+    background-color: rgba(156, 39, 176, 0.1);
+    color: #9C27B0;
+}
+
+.product-type-badge.type-weight {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+/* 分类标签 */
+.category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-secondary);
+}
+
+/* 底部工具栏 */
+.daily-settlement-bottom-toolbar {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+.daily-settlement-bottom-left,
+.daily-settlement-bottom-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.daily-settlement-pagination-info {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.daily-settlement-pagination-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.daily-settlement-pagination-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.daily-settlement-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.daily-settlement-pagination-pages {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.daily-settlement-pagination-page-btn {
+    min-width: 24px;
+    padding: 2px 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-300);
+    background-color: #ffffff;
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.daily-settlement-pagination-page-btn.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.daily-settlement-pagination-page-btn:hover:not(.active) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.daily-settlement-page-size-select {
+    padding: 2px 8px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-300);
+    font-size: var(--font-size-xs);
+}
+
+@media (max-width: 1200px) {
+    .daily-settlement-filter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .daily-settlement-filter-item {
+        width: 100%;
+    }
+
+    .daily-settlement-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .daily-settlement-bottom-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

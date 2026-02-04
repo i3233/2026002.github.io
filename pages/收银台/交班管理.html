@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交班管理 - 收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/交班管理.css">
+</head>
+<body class="shift-body">
+    <div class="shift-container">
+        <!-- 页面标题和操作栏 -->
+        <div class="shift-header">
+            <h1 class="shift-title">交班管理</h1>
+            <div class="shift-actions">
+                <button class="shift-btn shift-btn-primary" id="createShiftBtn">创建交班</button>
+                <button class="shift-btn shift-btn-outline" id="printAllBtn">批量打印</button>
+            </div>
+        </div>
+
+        <!-- 筛选和搜索区 -->
+        <div class="shift-filters">
+            <!-- 日期筛选 -->
+            <div class="shift-filter-group">
+                <label class="shift-filter-label">日期：</label>
+                <input type="date" class="shift-input" id="startDate">
+                <span class="shift-filter-separator">至</span>
+                <input type="date" class="shift-input" id="endDate">
+            </div>
+
+            <!-- 收银员筛选 -->
+            <div class="shift-filter-group">
+                <label class="shift-filter-label">收银员：</label>
+                <select class="shift-input" id="cashierFilter">
+                    <option value="">全部</option>
+                    <option value="1">张三 (C001)</option>
+                    <option value="2">李四 (C002)</option>
+                    <option value="3">王五 (C003)</option>
+                </select>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="shift-search-wrapper">
+                <input type="text" class="shift-search-input" id="shiftSearchInput" placeholder="🔍 搜索交班单号">
+            </div>
+
+            <!-- 查询按钮 -->
+            <button class="shift-btn shift-btn-primary" id="searchBtn">查询</button>
+        </div>
+
+        <!-- 交班记录列表 -->
+        <div class="shift-table-section">
+            <div class="shift-table-wrapper">
+                <table class="shift-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label class="shift-checkbox-label">
+                                    <input type="checkbox" id="selectAllCheckbox">
+                                    <span>全选</span>
+                                </label>
+                            </th>
+                            <th>交班单号</th>
+                            <th>交班时间</th>
+                            <th>收银员</th>
+                            <th>订单数量</th>
+                            <th>收款金额</th>
+                            <th>现金</th>
+                            <th>微信</th>
+                            <th>支付宝</th>
+                            <th>其他</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shiftTableBody">
+                        <!-- 交班数据将动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="shift-pagination">
+            <div class="shift-pagination-info">
+                <span>共 <span id="totalRecords">0</span> 条记录</span>
+            </div>
+            <div class="shift-pagination-buttons">
+                <button class="shift-btn shift-btn-outline" id="prevPageBtn">上一页</button>
+                <span class="shift-pagination-current">
+                    第 <span id="currentPage">1</span> 页 / 共 <span id="totalPages">1</span> 页
+                </span>
+                <button class="shift-btn shift-btn-outline" id="nextPageBtn">下一页</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建交班弹窗 -->
+    <div id="createShiftModal" class="shift-modal" style="display: none;">
+        <div class="shift-modal-content shift-modal-large">
+            <div class="shift-modal-header">
+                <h3>创建交班</h3>
+                <button class="shift-modal-close" onclick="closeCreateShiftModal()">×</button>
+            </div>
+            <div class="shift-modal-body">
+                <div class="shift-summary-section">
+                    <h4 class="shift-section-title">交班汇总</h4>
+                    <div class="shift-summary-grid">
+                        <div class="shift-summary-item">
+                            <div class="shift-summary-label">订单数量</div>
+                            <div class="shift-summary-value" id="summaryOrderCount">0</div>
+                        </div>
+                        <div class="shift-summary-item">
+                            <div class="shift-summary-label">收款总额</div>
+                            <div class="shift-summary-value shift-summary-value-primary" id="summaryTotalAmount">¥0.00</div>
+                        </div>
+                        <div class="shift-summary-item">
+                            <div class="shift-summary-label">现金</div>
+                            <div class="shift-summary-value" id="summaryCash">¥0.00</div>
+                        </div>
+                        <div class="shift-summary-item">
+                            <div class="shift-summary-label">微信</div>
+                            <div class="shift-summary-value" id="summaryWechat">¥0.00</div>
+                        </div>
+                        <div class="shift-summary-item">
+                            <div class="shift-summary-label">支付宝</div>
+                            <div class="shift-summary-value" id="summaryAlipay">¥0.00</div>
+                        </div>
+                        <div class="shift-summary-item">
+                            <div class="shift-summary-label">其他</div>
+                            <div class="shift-summary-value" id="summaryOther">¥0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shift-form-section">
+                    <div class="shift-form-group">
+                        <label>交班备注</label>
+                        <textarea class="shift-textarea" id="shiftRemark" placeholder="请输入交班备注（可选）"></textarea>
+                    </div>
+                    <div class="shift-form-group">
+                        <label>接班收银员</label>
+                        <select class="shift-input" id="nextCashier">
+                            <option value="">请选择接班收银员</option>
+                            <option value="1">张三 (C001)</option>
+                            <option value="2">李四 (C002)</option>
+                            <option value="3">王五 (C003)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="shift-modal-footer">
+                <button class="shift-btn shift-btn-secondary" onclick="closeCreateShiftModal()">取消</button>
+                <button class="shift-btn shift-btn-outline" onclick="previewShift()">预览</button>
+                <button class="shift-btn shift-btn-primary" onclick="confirmCreateShift()">确认交班</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 交班详情弹窗 -->
+    <div id="shiftDetailModal" class="shift-modal" style="display: none;">
+        <div class="shift-modal-content shift-modal-large">
+            <div class="shift-modal-header">
+                <h3>交班详情</h3>
+                <button class="shift-modal-close" onclick="closeShiftDetailModal()">×</button>
+            </div>
+            <div class="shift-modal-body">
+                <div class="shift-detail-info" id="shiftDetailInfo">
+                    <!-- 交班详情将动态生成 -->
+                </div>
+            </div>
+            <div class="shift-modal-footer">
+                <button class="shift-btn shift-btn-secondary" onclick="closeShiftDetailModal()">关闭</button>
+                <button class="shift-btn shift-btn-primary" onclick="printShift()">打印交班单</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/交班管理.js"></script>
+</body>
+</html>

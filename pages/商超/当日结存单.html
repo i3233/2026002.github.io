@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当日结存单 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .daily-statement-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 筛选工具栏 */
+        .filter-toolbar {
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-item label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        /* 统计摘要区域 */
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .summary-icon {
+            font-size: var(--font-size-xl);
+            opacity: 0.3;
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-orange {
+            color: #ff8c42;
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        .summary-change {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .summary-change.positive {
+            color: var(--color-success);
+        }
+
+        .summary-change.negative {
+            color: var(--color-error);
+        }
+
+        /* 进存销统计卡片 */
+        .inventory-stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .inventory-stat-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+        }
+
+        .inventory-stat-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-neutral-200);
+        }
+
+        .inventory-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .inventory-stat-row:last-child {
+            border-bottom: none;
+            font-weight: var(--font-weight-medium);
+            padding-top: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .inventory-stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .inventory-stat-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .inventory-stat-value.amount {
+            color: var(--color-primary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        @media (max-width: 1200px) {
+            .filter-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="daily-statement-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">当日结存单</h1>
+                <div class="page-subtitle">查看当日商品的进存销情况和结存信息</div>
+            </div>
+        </div>
+
+        <!-- 筛选工具栏 -->
+        <div class="filter-toolbar">
+            <div class="filter-item">
+                <label>日期：</label>
+                <input type="date" id="statementDate" value="">
+            </div>
+            <div class="filter-item">
+                <label>仓库：</label>
+                <select id="warehouseSelect">
+                    <option value="">全部仓库</option>
+                    <!-- 选项由JS动态生成 -->
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>分类：</label>
+                <select id="categorySelect">
+                    <option value="">全部分类</option>
+                    <!-- 选项由JS动态生成 -->
+                </select>
+            </div>
+            <button class="btn btn-primary" id="queryBtn">查询</button>
+            <button class="btn btn-outline" id="printBtn">
+                <span class="btn-icon-text">
+                    <span class="btn-icon-text-symbol">🖨</span>
+                    <span>打印</span>
+                </span>
+            </button>
+            <button class="btn btn-outline" id="exportBtn">
+                <span class="btn-icon-text">
+                    <span class="btn-icon-text-symbol">↑</span>
+                    <span>导出</span>
+                </span>
+            </button>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="summary-section">
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">今日进货</span>
+                    <span class="summary-icon">📦</span>
+                </div>
+                <div class="summary-value summary-value-blue" id="todayPurchaseAmount">¥0.00</div>
+                <div class="summary-change" id="todayPurchaseChange">较昨日: +0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">今日销售</span>
+                    <span class="summary-icon">💰</span>
+                </div>
+                <div class="summary-value summary-value-green" id="todaySalesAmount">¥0.00</div>
+                <div class="summary-change" id="todaySalesChange">较昨日: +0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">当前库存</span>
+                    <span class="summary-icon">📊</span>
+                </div>
+                <div class="summary-value summary-value-orange" id="currentInventoryQty">0</div>
+                <div class="summary-change" id="currentInventoryChange">库存金额: ¥0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-label">库存金额</span>
+                    <span class="summary-icon">💵</span>
+                </div>
+                <div class="summary-value summary-value-red" id="currentInventoryAmount">¥0.00</div>
+                <div class="summary-change" id="currentInventoryAmountChange">较昨日: +0.00</div>
+            </div>
+        </div>
+
+        <!-- 进存销统计卡片 -->
+        <div class="inventory-stats-section">
+            <!-- 进货统计 -->
+            <div class="inventory-stat-card">
+                <div class="inventory-stat-title">进货统计</div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">进货单数</span>
+                    <span class="inventory-stat-value" id="purchaseOrderCount">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">进货数量</span>
+                    <span class="inventory-stat-value" id="purchaseQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">进货金额</span>
+                    <span class="inventory-stat-value amount" id="purchaseAmount">¥0.00</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">退货单数</span>
+                    <span class="inventory-stat-value" id="returnOrderCount">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">退货数量</span>
+                    <span class="inventory-stat-value" id="returnQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">退货金额</span>
+                    <span class="inventory-stat-value amount" id="returnAmount">¥0.00</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">净进货</span>
+                    <span class="inventory-stat-value amount" id="netPurchaseAmount">¥0.00</span>
+                </div>
+            </div>
+
+            <!-- 销售统计 -->
+            <div class="inventory-stat-card">
+                <div class="inventory-stat-title">销售统计</div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">销售单数</span>
+                    <span class="inventory-stat-value" id="salesOrderCount">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">销售数量</span>
+                    <span class="inventory-stat-value" id="salesQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">销售金额</span>
+                    <span class="inventory-stat-value amount" id="salesAmount">¥0.00</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">退货单数</span>
+                    <span class="inventory-stat-value" id="salesReturnOrderCount">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">退货数量</span>
+                    <span class="inventory-stat-value" id="salesReturnQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">退货金额</span>
+                    <span class="inventory-stat-value amount" id="salesReturnAmount">¥0.00</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">净销售</span>
+                    <span class="inventory-stat-value amount" id="netSalesAmount">¥0.00</span>
+                </div>
+            </div>
+
+            <!-- 库存统计 -->
+            <div class="inventory-stat-card">
+                <div class="inventory-stat-title">库存统计</div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">期初库存</span>
+                    <span class="inventory-stat-value" id="beginningInventoryQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">期初金额</span>
+                    <span class="inventory-stat-value amount" id="beginningInventoryAmount">¥0.00</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">本期入库</span>
+                    <span class="inventory-stat-value" id="currentInQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">本期出库</span>
+                    <span class="inventory-stat-value" id="currentOutQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">调拨入库</span>
+                    <span class="inventory-stat-value" id="transferInQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">调拨出库</span>
+                    <span class="inventory-stat-value" id="transferOutQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">期末库存</span>
+                    <span class="inventory-stat-value" id="endingInventoryQty">0</span>
+                </div>
+                <div class="inventory-stat-row">
+                    <span class="inventory-stat-label">期末金额</span>
+                    <span class="inventory-stat-value amount" id="endingInventoryAmount">¥0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品结存明细表格 -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">商品结存明细</h3>
+                <div class="table-actions">
+                    <button class="btn btn-outline" id="refreshBtn">刷新</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">序号</th>
+                            <th>产品ID</th>
+                            <th class="sortable" data-sort="name">产品名称</th>
+                            <th>规格型号</th>
+                            <th>分类</th>
+                            <th class="text-right">期初库存</th>
+                            <th class="text-right">本期入库</th>
+                            <th class="text-right">本期出库</th>
+                            <th class="text-right">调拨入库</th>
+                            <th class="text-right">调拨出库</th>
+                            <th class="text-right sortable" data-sort="inventory">期末库存</th>
+                            <th class="text-right">单位</th>
+                            <th class="text-right">平均成本</th>
+                            <th class="text-right">库存金额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statementTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="5" class="text-right">合计：</td>
+                            <td class="text-right" id="totalBeginningQty">0</td>
+                            <td class="text-right" id="totalInQty">0</td>
+                            <td class="text-right" id="totalOutQty">0</td>
+                            <td class="text-right" id="totalTransferInQty">0</td>
+                            <td class="text-right" id="totalTransferOutQty">0</td>
+                            <td class="text-right" id="totalEndingQty">0</td>
+                            <td colspan="2"></td>
+                            <td class="text-right" id="totalInventoryAmount">¥0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧信息 -->
+                <div class="bottom-left">
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟仓库数据
+        const warehouses = [
+            { id: 'WH001', name: '主仓库' },
+            { id: 'WH002', name: '分仓库A' },
+            { id: 'WH003', name: '分仓库B' },
+            { id: 'WH004', name: '临时仓库' }
+        ];
+
+        // 模拟分类数据
+        const categories = [
+            { id: 'CAT001', name: '厨房用品' },
+            { id: 'CAT002', name: '日用品' },
+            { id: 'CAT003', name: '食品' },
+            { id: 'CAT004', name: '饮料' },
+            { id: 'CAT005', name: '其他' }
+        ];
+
+        // 模拟当日结存数据
+        const dailyStatementData = [
+            {
+                id: 'PRD001',
+                name: '隔热垫',
+                spec: '30cm×30cm',
+                category: '厨房用品',
+                unit: '个',
+                beginningQty: 120,
+                beginningAmount: 1500.00,
+                inQty: 50,
+                outQty: 43,
+                transferInQty: 10,
+                transferOutQty: 5,
+                endingQty: 132,
+                avgCost: 12.50,
+                inventoryAmount: 1650.00
+            },
+            {
+                id: 'PRD002',
+                name: 'p-6炒锅',
+                spec: '32cm',
+                category: '厨房用品',
+                unit: '个',
+                beginningQty: 85,
+                beginningAmount: 13430.00,
+                inQty: 20,
+                outQty: 18,
+                transferInQty: 0,
+                transferOutQty: 2,
+                endingQty: 85,
+                avgCost: 158.00,
+                inventoryAmount: 13430.00
+            },
+            {
+                id: 'PRD003',
+                name: '雅安茶叶',
+                spec: '500g/盒',
+                category: '食品',
+                unit: '盒',
+                beginningQty: 150,
+                beginningAmount: 6750.00,
+                inQty: 100,
+                outQty: 120,
+                transferInQty: 5,
+                transferOutQty: 0,
+                endingQty: 135,
+                avgCost: 45.00,
+                inventoryAmount: 6075.00
+            },
+            {
+                id: 'PRD004',
+                name: '雅安花椒',
+                spec: '250g/袋',
+                category: '食品',
+                unit: '袋',
+                beginningQty: 200,
+                beginningAmount: 5600.00,
+                inQty: 150,
+                outQty: 180,
+                transferInQty: 0,
+                transferOutQty: 10,
+                endingQty: 160,
+                avgCost: 28.00,
+                inventoryAmount: 4480.00
+            },
+            {
+                id: 'PRD005',
+                name: '雅安腊肉',
+                spec: '500g/包',
+                category: '食品',
+                unit: '包',
+                beginningQty: 80,
+                beginningAmount: 3040.00,
+                inQty: 50,
+                outQty: 45,
+                transferInQty: 0,
+                transferOutQty: 0,
+                endingQty: 85,
+                avgCost: 38.00,
+                inventoryAmount: 3230.00
+            },
+            {
+                id: 'PRD006',
+                name: '熊猫玩偶',
+                spec: '20cm',
+                category: '其他',
+                unit: '个',
+                beginningQty: 400,
+                beginningAmount: 6000.00,
+                inQty: 200,
+                outQty: 180,
+                transferInQty: 0,
+                transferOutQty: 0,
+                endingQty: 420,
+                avgCost: 15.00,
+                inventoryAmount: 6300.00
+            },
+            {
+                id: 'PRD007',
+                name: '雅安明信片',
+                spec: '一套10张',
+                category: '其他',
+                unit: '套',
+                beginningQty: 800,
+                beginningAmount: 9600.00,
+                inQty: 300,
+                outQty: 280,
+                transferInQty: 0,
+                transferOutQty: 0,
+                endingQty: 820,
+                avgCost: 12.00,
+                inventoryAmount: 9840.00
+            },
+            {
+                id: 'PRD008',
+                name: '雅安特产礼盒',
+                spec: '1kg装',
+                category: '食品',
+                unit: '盒',
+                beginningQty: 100,
+                beginningAmount: 8800.00,
+                inQty: 80,
+                outQty: 75,
+                transferInQty: 0,
+                transferOutQty: 0,
+                endingQty: 105,
+                avgCost: 88.00,
+                inventoryAmount: 9240.00
+            },
+            {
+                id: 'PRD009',
+                name: '雅安蜂蜜',
+                spec: '500g/瓶',
+                category: '食品',
+                unit: '瓶',
+                beginningQty: 150,
+                beginningAmount: 5250.00,
+                inQty: 100,
+                outQty: 95,
+                transferInQty: 0,
+                transferOutQty: 0,
+                endingQty: 155,
+                avgCost: 35.00,
+                inventoryAmount: 5425.00
+            },
+            {
+                id: 'PRD010',
+                name: '不锈钢水杯',
+                spec: '500ml',
+                category: '日用品',
+                unit: '个',
+                beginningQty: 250,
+                beginningAmount: 6250.00,
+                inQty: 100,
+                outQty: 90,
+                transferInQty: 0,
+                transferOutQty: 0,
+                endingQty: 260,
+                avgCost: 25.00,
+                inventoryAmount: 6500.00
+            }
+        ];
+
+        // 当前状态
+        let filteredData = [...dailyStatementData];
+        let currentPage = 1;
+        let pageSize = 20;
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // 初始化
+        function init() {
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('statementDate').value = today;
+
+            // 初始化仓库选择器
+            const warehouseSelect = document.getElementById('warehouseSelect');
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseSelect.appendChild(option);
+            });
+
+            // 初始化分类选择器
+            const categorySelect = document.getElementById('categorySelect');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                categorySelect.appendChild(option);
+            });
+
+            // 加载数据
+            loadStatementData();
+        }
+
+        // 加载结存数据
+        function loadStatementData() {
+            // 计算统计数据
+            calculateStatistics();
+            
+            // 渲染表格
+            renderTable();
+        }
+
+        // 计算统计数据
+        function calculateStatistics() {
+            // 今日进货统计
+            const purchaseOrderCount = 8;
+            const purchaseQty = filteredData.reduce((sum, item) => sum + item.inQty, 0);
+            const purchaseAmount = 12500.00;
+            const returnOrderCount = 2;
+            const returnQty = 15;
+            const returnAmount = 450.00;
+            const netPurchaseAmount = purchaseAmount - returnAmount;
+
+            // 今日销售统计
+            const salesOrderCount = 25;
+            const salesQty = filteredData.reduce((sum, item) => sum + item.outQty, 0);
+            const salesAmount = 18500.00;
+            const salesReturnOrderCount = 1;
+            const salesReturnQty = 5;
+            const salesReturnAmount = 150.00;
+            const netSalesAmount = salesAmount - salesReturnAmount;
+
+            // 库存统计
+            const beginningInventoryQty = filteredData.reduce((sum, item) => sum + item.beginningQty, 0);
+            const beginningInventoryAmount = filteredData.reduce((sum, item) => sum + item.beginningAmount, 0);
+            const currentInQty = filteredData.reduce((sum, item) => sum + item.inQty, 0);
+            const currentOutQty = filteredData.reduce((sum, item) => sum + item.outQty, 0);
+            const transferInQty = filteredData.reduce((sum, item) => sum + item.transferInQty, 0);
+            const transferOutQty = filteredData.reduce((sum, item) => sum + item.transferOutQty, 0);
+            const endingInventoryQty = filteredData.reduce((sum, item) => sum + item.endingQty, 0);
+            const endingInventoryAmount = filteredData.reduce((sum, item) => sum + item.inventoryAmount, 0);
+
+            // 更新统计摘要
+            document.getElementById('todayPurchaseAmount').textContent = '¥' + purchaseAmount.toFixed(2);
+            document.getElementById('todayPurchaseChange').textContent = '较昨日: +' + (purchaseAmount * 0.1).toFixed(2);
+            document.getElementById('todaySalesAmount').textContent = '¥' + salesAmount.toFixed(2);
+            document.getElementById('todaySalesChange').textContent = '较昨日: +' + (salesAmount * 0.15).toFixed(2);
+            document.getElementById('currentInventoryQty').textContent = endingInventoryQty;
+            document.getElementById('currentInventoryChange').textContent = '库存金额: ¥' + endingInventoryAmount.toFixed(2);
+            document.getElementById('currentInventoryAmount').textContent = '¥' + endingInventoryAmount.toFixed(2);
+            document.getElementById('currentInventoryAmountChange').textContent = '较昨日: +' + ((endingInventoryAmount - beginningInventoryAmount) * 0.05).toFixed(2);
+
+            // 更新进存销统计
+            document.getElementById('purchaseOrderCount').textContent = purchaseOrderCount;
+            document.getElementById('purchaseQty').textContent = purchaseQty;
+            document.getElementById('purchaseAmount').textContent = '¥' + purchaseAmount.toFixed(2);
+            document.getElementById('returnOrderCount').textContent = returnOrderCount;
+            document.getElementById('returnQty').textContent = returnQty;
+            document.getElementById('returnAmount').textContent = '¥' + returnAmount.toFixed(2);
+            document.getElementById('netPurchaseAmount').textContent = '¥' + netPurchaseAmount.toFixed(2);
+
+            document.getElementById('salesOrderCount').textContent = salesOrderCount;
+            document.getElementById('salesQty').textContent = salesQty;
+            document.getElementById('salesAmount').textContent = '¥' + salesAmount.toFixed(2);
+            document.getElementById('salesReturnOrderCount').textContent = salesReturnOrderCount;
+            document.getElementById('salesReturnQty').textContent = salesReturnQty;
+            document.getElementById('salesReturnAmount').textContent = '¥' + salesReturnAmount.toFixed(2);
+            document.getElementById('netSalesAmount').textContent = '¥' + netSalesAmount.toFixed(2);
+
+            document.getElementById('beginningInventoryQty').textContent = beginningInventoryQty;
+            document.getElementById('beginningInventoryAmount').textContent = '¥' + beginningInventoryAmount.toFixed(2);
+            document.getElementById('currentInQty').textContent = currentInQty;
+            document.getElementById('currentOutQty').textContent = currentOutQty;
+            document.getElementById('transferInQty').textContent = transferInQty;
+            document.getElementById('transferOutQty').textContent = transferOutQty;
+            document.getElementById('endingInventoryQty').textContent = endingInventoryQty;
+            document.getElementById('endingInventoryAmount').textContent = '¥' + endingInventoryAmount.toFixed(2);
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('statementTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无数据</td></tr>';
+                updateTotals();
+                updatePagination(0, 1);
+                return;
+            }
+
+            // 排序
+            if (sortColumn) {
+                filteredData.sort((a, b) => {
+                    let aVal = a[sortColumn];
+                    let bVal = b[sortColumn];
+                    if (sortColumn === 'inventory') {
+                        aVal = a.endingQty;
+                        bVal = b.endingQty;
+                    }
+                    if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // 分页
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-center">${startIndex + index + 1}</td>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.spec}</td>
+                    <td>${item.category}</td>
+                    <td class="text-right">${item.beginningQty}</td>
+                    <td class="text-right">${item.inQty}</td>
+                    <td class="text-right">${item.outQty}</td>
+                    <td class="text-right">${item.transferInQty}</td>
+                    <td class="text-right">${item.transferOutQty}</td>
+                    <td class="text-right">${item.endingQty}</td>
+                    <td class="text-right">${item.unit}</td>
+                    <td class="text-right">¥${item.avgCost.toFixed(2)}</td>
+                    <td class="text-right">¥${item.inventoryAmount.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateTotals();
+            updatePagination(filteredData.length, totalPages);
+        }
+
+        // 更新合计
+        function updateTotals() {
+            const totalBeginningQty = filteredData.reduce((sum, item) => sum + item.beginningQty, 0);
+            const totalInQty = filteredData.reduce((sum, item) => sum + item.inQty, 0);
+            const totalOutQty = filteredData.reduce((sum, item) => sum + item.outQty, 0);
+            const totalTransferInQty = filteredData.reduce((sum, item) => sum + item.transferInQty, 0);
+            const totalTransferOutQty = filteredData.reduce((sum, item) => sum + item.transferOutQty, 0);
+            const totalEndingQty = filteredData.reduce((sum, item) => sum + item.endingQty, 0);
+            const totalInventoryAmount = filteredData.reduce((sum, item) => sum + item.inventoryAmount, 0);
+
+            document.getElementById('totalBeginningQty').textContent = totalBeginningQty;
+            document.getElementById('totalInQty').textContent = totalInQty;
+            document.getElementById('totalOutQty').textContent = totalOutQty;
+            document.getElementById('totalTransferInQty').textContent = totalTransferInQty;
+            document.getElementById('totalTransferOutQty').textContent = totalTransferOutQty;
+            document.getElementById('totalEndingQty').textContent = totalEndingQty;
+            document.getElementById('totalInventoryAmount').textContent = '¥' + totalInventoryAmount.toFixed(2);
+        }
+
+        // 更新分页
+        function updatePagination(totalRecords, totalPages) {
+            document.getElementById('totalRecords').textContent = totalRecords;
+
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-page-btn';
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            paginationPages.appendChild(prevBtn);
+
+            // 页码按钮
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstBtn = document.createElement('button');
+                firstBtn.className = 'pagination-page-btn';
+                firstBtn.textContent = '1';
+                firstBtn.addEventListener('click', () => {
+                    currentPage = 1;
+                    renderTable();
+                });
+                paginationPages.appendChild(firstBtn);
+
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-page-btn';
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTable();
+                });
+                paginationPages.appendChild(pageBtn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+
+                const lastBtn = document.createElement('button');
+                lastBtn.className = 'pagination-page-btn';
+                lastBtn.textContent = totalPages;
+                lastBtn.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    renderTable();
+                });
+                paginationPages.appendChild(lastBtn);
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-page-btn';
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            paginationPages.appendChild(nextBtn);
+        }
+
+        // 筛选数据
+        function filterData() {
+            filteredData = [...dailyStatementData];
+
+            // 仓库筛选
+            const warehouseId = document.getElementById('warehouseSelect').value;
+            // 这里可以根据仓库筛选，当前示例数据没有仓库字段，暂时跳过
+
+            // 分类筛选
+            const categoryId = document.getElementById('categorySelect').value;
+            if (categoryId) {
+                const categoryName = categories.find(c => c.id === categoryId)?.name;
+                if (categoryName) {
+                    filteredData = filteredData.filter(item => item.category === categoryName);
+                }
+            }
+
+            currentPage = 1;
+            loadStatementData();
+        }
+
+        // 排序
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            // 更新表头排序图标
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            const th = document.querySelector(`th.sortable[data-sort="${column}"]`);
+            if (th) {
+                th.classList.add(sortDirection);
+            }
+
+            renderTable();
+        }
+
+        // 事件绑定
+        document.getElementById('queryBtn').addEventListener('click', filterData);
+        document.getElementById('printBtn').addEventListener('click', function() {
+            alert('打印当日结存单（示例）\n正在准备打印...');
+        });
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('导出当日结存单（示例）\n正在导出Excel文件...');
+        });
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            filterData();
+        });
+
+        // 排序事件
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const column = this.dataset.sort;
+                sortData(column);
+            });
+        });
+
+        // 分页大小变化
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            renderTable();
+        });
+
+        // 跳转页面
+        document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const page = parseInt(this.value);
+                const totalPages = Math.ceil(filteredData.length / pageSize);
+                if (page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    renderTable();
+                } else {
+                    alert(`请输入1-${totalPages}之间的页码`);
+                }
+            }
+        });
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

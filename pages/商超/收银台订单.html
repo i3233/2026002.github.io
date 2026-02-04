@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收银台订单 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .cashier-order-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 收银台绑定区域 */
+        .cashier-bind-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .cashier-bind-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .cashier-bind-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        .cashier-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .cashier-select-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+
+        .cashier-select {
+            min-width: 200px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            background-color: #ffffff;
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .cashier-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .cashier-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .cashier-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .cashier-info-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .cashier-info-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .cashier-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .cashier-status-badge.online {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .cashier-status-badge.offline {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        /* 顶部工具栏 */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .toolbar-left,
+        .toolbar-center,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .toolbar-left {
+            flex: 1.6;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .toolbar-right {
+            flex: 1;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .toolbar-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 统计卡片 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 220px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        /* 订单状态 Tab */
+        .order-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .order-tab-btn {
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-full);
+            border: none;
+            background-color: transparent;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .order-tab-btn:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .order-tab-btn.active {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .status-pill {
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+        }
+
+        .status-pill--success {
+            color: var(--color-success);
+        }
+
+        .status-pill--primary {
+            color: var(--color-primary);
+        }
+
+        .status-pill--warning {
+            color: var(--color-warning);
+        }
+
+        .status-pill--error {
+            color: var(--color-error);
+        }
+
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            margin-right: var(--spacing-sm);
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-link.danger {
+            color: var(--color-error);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        /* 提示信息 */
+        .alert-info {
+            padding: var(--spacing-md);
+            background-color: rgba(23, 162, 184, 0.1);
+            border-left: 4px solid var(--color-info);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        .alert-warning {
+            padding: var(--spacing-md);
+            background-color: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--color-warning);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        /* 隐藏状态 */
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left,
+            .toolbar-center,
+            .toolbar-right {
+                justify-content: flex-start;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cashier-order-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">收银台订单</h1>
+                <div class="page-subtitle">管理收银台产生的订单，支持直接出库功能</div>
+            </div>
+        </div>
+
+        <!-- 收银台绑定区域 -->
+        <div class="cashier-bind-section">
+            <div class="cashier-bind-header">
+                <h2 class="cashier-bind-title">收银台绑定</h2>
+            </div>
+            
+            <div class="cashier-select-wrapper">
+                <label class="cashier-select-label">选择收银台：</label>
+                <select class="cashier-select" id="cashierSelect">
+                    <option value="">请选择收银台</option>
+                    <!-- 选项由JS动态生成 -->
+                </select>
+                <button class="btn btn-primary" id="bindCashierBtn">绑定</button>
+                <button class="btn btn-outline" id="unbindCashierBtn" style="display: none;">解绑</button>
+            </div>
+
+            <!-- 收银台信息（绑定后显示） -->
+            <div id="cashierInfo" class="cashier-info hidden">
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">收银台名称</span>
+                    <span class="cashier-info-value" id="cashierNameDisplay">-</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">收银台编号</span>
+                    <span class="cashier-info-value" id="cashierCodeDisplay">-</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">收银员</span>
+                    <span class="cashier-info-value" id="cashierStaffDisplay">-</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">状态</span>
+                    <span class="cashier-status-badge online" id="cashierStatusDisplay">在线</span>
+                </div>
+                <div class="cashier-info-item">
+                    <span class="cashier-info-label">绑定时间</span>
+                    <span class="cashier-info-value" id="cashierBindTimeDisplay">-</span>
+                </div>
+            </div>
+
+            <!-- 提示信息 -->
+            <div class="alert-info" id="bindInfoAlert" style="display: none;">
+                <strong>提示：</strong>已绑定收银台，订单完成后将自动出库。如需切换收银台，请先解绑当前收银台。
+            </div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="toolbar-card" id="toolbarCard" style="display: none;">
+            <!-- 左侧按钮组 -->
+            <div class="toolbar-left">
+                <button class="btn btn-outline" id="refreshOrdersBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↻</span>
+                        <span>刷新订单</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出详情</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊕</span>
+                        <span>销售单</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- 中间搜索区 -->
+            <div class="toolbar-center">
+                <input type="text" 
+                       class="toolbar-search-input" 
+                       id="quickSearchInput" 
+                       placeholder="快捷搜索：支持按订单号、会员、手机号等关键字">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧功能 -->
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊙</span>
+                        <span>统计</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 订单状态 Tab -->
+        <div class="order-tabs" id="orderTabs" style="display: none;">
+            <button class="order-tab-btn active" data-status="all">全部</button>
+            <button class="order-tab-btn" data-status="pending">待出库</button>
+            <button class="order-tab-btn" data-status="outbound">已出库</button>
+            <button class="order-tab-btn" data-status="completed">已完成</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="summary-row" id="summaryRow" style="display: none;">
+            <div class="summary-card">
+                <div class="summary-label">订单总额 (元)</div>
+                <div class="summary-value summary-value-blue">
+                    <span id="summaryTotalAmount">0.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">已出库订单</div>
+                <div class="summary-value summary-value-green">
+                    <span id="summaryOutboundCount">0</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">待出库订单</div>
+                <div class="summary-value summary-value-red">
+                    <span id="summaryPendingCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container" id="tableContainer" style="display: none;">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>⊙ 订单号</th>
+                            <th class="sortable" data-sort="orderTime">下单时间</th>
+                            <th>会员</th>
+                            <th>手机号</th>
+                            <th class="text-right">商品数量</th>
+                            <th class="text-right">订单金额</th>
+                            <th class="text-right">实收金额</th>
+                            <th>支付方式</th>
+                            <th>订单状态</th>
+                            <th>出库状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="5" class="text-right">合计：</td>
+                            <td class="text-right" id="totalQtyCell">0</td>
+                            <td class="text-right" id="totalAmountCell">0.00</td>
+                            <td class="text-right" id="totalPaidCell">0.00</td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="btn btn-primary" id="batchOutboundBtn">批量出库</button>
+                    <button class="btn btn-outline" id="batchExportBtn">批量导出</button>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟收银台数据
+        const cashiers = [
+            { id: 'CS001', name: '1号收银台', code: 'CS001', staff: '张三', status: 'online', location: '一楼大厅' },
+            { id: 'CS002', name: '2号收银台', code: 'CS002', staff: '李四', status: 'online', location: '一楼大厅' },
+            { id: 'CS003', name: '3号收银台', code: 'CS003', staff: '王五', status: 'offline', location: '二楼' },
+            { id: 'CS004', name: '4号收银台', code: 'CS004', staff: '赵六', status: 'online', location: '二楼' }
+        ];
+
+        // 模拟收银台订单数据
+        const cashierOrders = [
+            {
+                id: 'SY20250826001',
+                cashierId: 'CS001',
+                orderTime: '2025-08-26 09:12:30',
+                member: '张三',
+                mobile: '13800000001',
+                qty: 3,
+                amount: 299.90,
+                paid: 299.90,
+                payType: '现金',
+                status: '已完成',
+                outboundStatus: '已出库',
+                outboundTime: '2025-08-26 09:13:00'
+            },
+            {
+                id: 'SY20250826002',
+                cashierId: 'CS001',
+                orderTime: '2025-08-26 10:05:11',
+                member: '李四',
+                mobile: '13800000002',
+                qty: 2,
+                amount: 188.00,
+                paid: 188.00,
+                payType: '刷卡',
+                status: '已完成',
+                outboundStatus: '已出库',
+                outboundTime: '2025-08-26 10:05:30'
+            },
+            {
+                id: 'SY20250826003',
+                cashierId: 'CS002',
+                orderTime: '2025-08-26 11:20:45',
+                member: '王五',
+                mobile: '13800000003',
+                qty: 5,
+                amount: 520.00,
+                paid: 520.00,
+                payType: '微信支付',
+                status: '已完成',
+                outboundStatus: '待出库',
+                outboundTime: null
+            },
+            {
+                id: 'SY20250827001',
+                cashierId: 'CS001',
+                orderTime: '2025-08-27 09:03:10',
+                member: '赵六',
+                mobile: '13800000004',
+                qty: 1,
+                amount: 69.90,
+                paid: 69.90,
+                payType: '现金',
+                status: '已完成',
+                outboundStatus: '待出库',
+                outboundTime: null
+            },
+            {
+                id: 'SY20250827002',
+                cashierId: 'CS002',
+                orderTime: '2025-08-27 14:18:22',
+                member: '陈七',
+                mobile: '13800000005',
+                qty: 4,
+                amount: 360.00,
+                paid: 360.00,
+                payType: '刷卡',
+                status: '已完成',
+                outboundStatus: '已出库',
+                outboundTime: '2025-08-27 14:19:00'
+            },
+            {
+                id: 'SY20250828001',
+                cashierId: 'CS001',
+                orderTime: '2025-08-28 10:45:33',
+                member: '周八',
+                mobile: '13800000007',
+                qty: 3,
+                amount: 258.00,
+                paid: 258.00,
+                payType: '现金',
+                status: '已完成',
+                outboundStatus: '待出库',
+                outboundTime: null
+            }
+        ];
+
+        // 当前状态
+        let currentCashier = null;
+        let filteredOrders = [];
+        let currentStatus = 'all';
+        let currentPage = 1;
+        let pageSize = 20;
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // 初始化收银台选择器
+        function initCashierSelect() {
+            const select = document.getElementById('cashierSelect');
+            select.innerHTML = '<option value="">请选择收银台</option>';
+            cashiers.forEach(cashier => {
+                const option = document.createElement('option');
+                option.value = cashier.id;
+                option.textContent = `${cashier.name} (${cashier.code}) - ${cashier.staff}`;
+                option.dataset.cashier = JSON.stringify(cashier);
+                select.appendChild(option);
+            });
+        }
+
+        // 绑定收银台
+        function bindCashier() {
+            const select = document.getElementById('cashierSelect');
+            const cashierId = select.value;
+            
+            if (!cashierId) {
+                alert('请选择收银台');
+                return;
+            }
+
+            const option = select.options[select.selectedIndex];
+            currentCashier = JSON.parse(option.dataset.cashier);
+            currentCashier.bindTime = new Date().toLocaleString('zh-CN');
+
+            // 显示收银台信息
+            document.getElementById('cashierNameDisplay').textContent = currentCashier.name;
+            document.getElementById('cashierCodeDisplay').textContent = currentCashier.code;
+            document.getElementById('cashierStaffDisplay').textContent = currentCashier.staff;
+            document.getElementById('cashierStatusDisplay').textContent = currentCashier.status === 'online' ? '在线' : '离线';
+            document.getElementById('cashierStatusDisplay').className = `cashier-status-badge ${currentCashier.status}`;
+            document.getElementById('cashierBindTimeDisplay').textContent = currentCashier.bindTime;
+            document.getElementById('cashierInfo').classList.remove('hidden');
+            document.getElementById('bindInfoAlert').style.display = 'block';
+            document.getElementById('unbindCashierBtn').style.display = 'inline-block';
+
+            // 显示订单相关区域
+            document.getElementById('toolbarCard').style.display = 'flex';
+            document.getElementById('orderTabs').style.display = 'flex';
+            document.getElementById('summaryRow').style.display = 'flex';
+            document.getElementById('tableContainer').style.display = 'block';
+
+            // 加载订单
+            loadOrders();
+        }
+
+        // 解绑收银台
+        function unbindCashier() {
+            if (!confirm('确定要解绑当前收银台吗？')) {
+                return;
+            }
+
+            currentCashier = null;
+            document.getElementById('cashierSelect').value = '';
+            document.getElementById('cashierInfo').classList.add('hidden');
+            document.getElementById('bindInfoAlert').style.display = 'none';
+            document.getElementById('unbindCashierBtn').style.display = 'none';
+            document.getElementById('toolbarCard').style.display = 'none';
+            document.getElementById('orderTabs').style.display = 'none';
+            document.getElementById('summaryRow').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            
+            filteredOrders = [];
+        }
+
+        // 加载订单
+        function loadOrders() {
+            if (!currentCashier) {
+                return;
+            }
+
+            // 筛选当前收银台的订单
+            filteredOrders = cashierOrders.filter(order => order.cashierId === currentCashier.id);
+
+            // 按状态筛选
+            if (currentStatus !== 'all') {
+                if (currentStatus === 'pending') {
+                    filteredOrders = filteredOrders.filter(order => order.outboundStatus === '待出库');
+                } else if (currentStatus === 'outbound') {
+                    filteredOrders = filteredOrders.filter(order => order.outboundStatus === '已出库');
+                } else if (currentStatus === 'completed') {
+                    filteredOrders = filteredOrders.filter(order => order.status === '已完成' && order.outboundStatus === '已出库');
+                }
+            }
+
+            // 应用搜索
+            applySearch();
+
+            // 更新统计
+            updateSummary();
+
+            // 渲染表格
+            renderTable();
+        }
+
+        // 应用搜索
+        function applySearch() {
+            const keyword = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            if (keyword) {
+                filteredOrders = filteredOrders.filter(order => {
+                    return (
+                        order.id.toLowerCase().includes(keyword) ||
+                        order.member.toLowerCase().includes(keyword) ||
+                        order.mobile.toLowerCase().includes(keyword)
+                    );
+                });
+            }
+        }
+
+        // 更新统计
+        function updateSummary() {
+            const totalAmount = filteredOrders.reduce((sum, order) => sum + order.amount, 0);
+            const outboundCount = filteredOrders.filter(order => order.outboundStatus === '已出库').length;
+            const pendingCount = filteredOrders.filter(order => order.outboundStatus === '待出库').length;
+
+            document.getElementById('summaryTotalAmount').textContent = totalAmount.toFixed(2);
+            document.getElementById('summaryOutboundCount').textContent = outboundCount;
+            document.getElementById('summaryPendingCount').textContent = pendingCount;
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('orderTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无订单数据</td></tr>';
+                updateTotals();
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                const statusClass = order.status === '已完成' 
+                    ? 'status-pill status-pill--success'
+                    : 'status-pill status-pill--warning';
+
+                const outboundClass = order.outboundStatus === '已出库'
+                    ? 'status-pill status-pill--success'
+                    : 'status-pill status-pill--warning';
+
+                const tr = document.createElement('tr');
+                tr.dataset.id = order.id;
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${order.id}">
+                    </td>
+                    <td>
+                        <span class="link-text order-link" data-id="${order.id}">${order.id}</span>
+                    </td>
+                    <td>${order.orderTime}</td>
+                    <td>${order.member}</td>
+                    <td>${order.mobile}</td>
+                    <td class="text-right">${order.qty}</td>
+                    <td class="text-right">${order.amount.toFixed(2)}</td>
+                    <td class="text-right">${order.paid.toFixed(2)}</td>
+                    <td>${order.payType}</td>
+                    <td>
+                        <span class="${statusClass}">${order.status}</span>
+                    </td>
+                    <td>
+                        <span class="${outboundClass}">${order.outboundStatus}</span>
+                    </td>
+                    <td>
+                        <button class="btn-link view-btn" data-id="${order.id}">查看</button>
+                        ${order.outboundStatus === '待出库' ? `<button class="btn-link outbound-btn" data-id="${order.id}">出库</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateTotals();
+            updateSelectedInfo();
+            bindTableEvents();
+        }
+
+        // 更新合计
+        function updateTotals() {
+            const totalQty = filteredOrders.reduce((sum, order) => sum + order.qty, 0);
+            const totalAmount = filteredOrders.reduce((sum, order) => sum + order.amount, 0);
+            const totalPaid = filteredOrders.reduce((sum, order) => sum + order.paid, 0);
+
+            document.getElementById('totalQtyCell').textContent = totalQty;
+            document.getElementById('totalAmountCell').textContent = totalAmount.toFixed(2);
+            document.getElementById('totalPaidCell').textContent = totalPaid.toFixed(2);
+        }
+
+        // 绑定表格事件
+        function bindTableEvents() {
+            // 查看订单
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    const order = cashierOrders.find(o => o.id === orderId);
+                    alert(`订单详情（示例）\n订单号：${order.id}\n会员：${order.member}\n金额：¥${order.amount.toFixed(2)}\n出库状态：${order.outboundStatus}`);
+                });
+            });
+
+            // 出库操作
+            document.querySelectorAll('.outbound-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    doOutbound([orderId]);
+                });
+            });
+
+            // 订单号点击
+            document.querySelectorAll('.order-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    const order = cashierOrders.find(o => o.id === orderId);
+                    alert(`订单详情（示例）\n订单号：${order.id}\n会员：${order.member}\n金额：¥${order.amount.toFixed(2)}\n出库状态：${order.outboundStatus}`);
+                });
+            });
+        }
+
+        // 执行出库
+        function doOutbound(orderIds) {
+            if (!orderIds || orderIds.length === 0) {
+                alert('请选择要出库的订单');
+                return;
+            }
+
+            if (!confirm(`确定要对 ${orderIds.length} 个订单执行出库操作吗？出库后将自动更新库存。`)) {
+                return;
+            }
+
+            // 更新订单出库状态
+            orderIds.forEach(orderId => {
+                const order = cashierOrders.find(o => o.id === orderId);
+                if (order && order.outboundStatus === '待出库') {
+                    order.outboundStatus = '已出库';
+                    order.outboundTime = new Date().toLocaleString('zh-CN');
+                }
+            });
+
+            // 重新加载订单
+            loadOrders();
+
+            alert(`成功出库 ${orderIds.length} 个订单！库存已自动更新。`);
+        }
+
+        // 全选/反选
+        function getSelectedIds() {
+            const ids = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                ids.push(cb.dataset.id);
+            });
+            return ids;
+        }
+
+        function updateSelectedInfo() {
+            const ids = getSelectedIds();
+            document.getElementById('selectedInfo').textContent = `已选择 ${ids.length} 条记录`;
+        }
+
+        function syncSelectAll() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const allChecked = checkedCount > 0 && checkedCount === checkboxes.length;
+            document.getElementById('selectAll').checked = allChecked;
+            document.getElementById('bottomSelectAll').checked = allChecked;
+            updateSelectedInfo();
+        }
+
+        // 事件绑定
+        document.getElementById('bindCashierBtn').addEventListener('click', bindCashier);
+        document.getElementById('unbindCashierBtn').addEventListener('click', unbindCashier);
+        document.getElementById('refreshOrdersBtn').addEventListener('click', loadOrders);
+        document.getElementById('quickSearchBtn').addEventListener('click', loadOrders);
+        document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadOrders();
+            }
+        });
+
+        // Tab切换
+        document.querySelectorAll('.order-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.order-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentStatus = this.dataset.status || 'all';
+                loadOrders();
+            });
+        });
+
+        // 批量出库
+        document.getElementById('batchOutboundBtn').addEventListener('click', function() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                alert('请先选择要出库的订单');
+                return;
+            }
+            
+            // 只选择待出库的订单
+            const pendingIds = ids.filter(id => {
+                const order = cashierOrders.find(o => o.id === id);
+                return order && order.outboundStatus === '待出库';
+            });
+
+            if (pendingIds.length === 0) {
+                alert('所选订单中没有待出库的订单');
+                return;
+            }
+
+            doOutbound(pendingIds);
+        });
+
+        // 全选
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            document.getElementById('bottomSelectAll').checked = checked;
+            updateSelectedInfo();
+        });
+
+        document.getElementById('bottomSelectAll').addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            document.getElementById('selectAll').checked = checked;
+            updateSelectedInfo();
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                syncSelectAll();
+            }
+        });
+
+        // 更多搜索
+        document.getElementById('moreSearchBtn').addEventListener('click', function() {
+            alert('更多搜索（示例）：这里可以展开高级筛选条件，如下单时间、订单状态、支付方式等。');
+        });
+
+        // 初始化
+        initCashierSelect();
+    </script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+/* 餐饮历史结存页面样式 - 参考当日结存单 */
+
+.history-settlement-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.history-settlement-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 页面标题 */
+.history-settlement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.history-settlement-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.history-settlement-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* 筛选工具栏 */
+.history-settlement-filter-toolbar {
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.history-settlement-filter-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.history-settlement-filter-item label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.history-settlement-filter-item select,
+.history-settlement-filter-item input {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.history-settlement-filter-item select:focus,
+.history-settlement-filter-item input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.history-settlement-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.history-settlement-btn-icon {
+    font-size: var(--font-size-base);
+}
+
+.history-settlement-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.history-settlement-btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.history-settlement-btn-outline {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-300);
+}
+
+.history-settlement-btn-outline:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.history-settlement-btn-cancel {
+    background-color: #ffffff;
+    color: var(--color-text-secondary);
+    border-color: var(--color-neutral-300);
+}
+
+.history-settlement-btn-cancel:hover {
+    border-color: var(--color-neutral-400);
+    color: var(--color-text-primary);
+}
+
+/* 表格容器 */
+.history-settlement-table-container {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.history-settlement-table-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-settlement-table-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.history-settlement-table-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.history-settlement-table-wrapper {
+    overflow-x: auto;
+}
+
+.history-settlement-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-settlement-table thead {
+    background-color: var(--color-neutral-50);
+}
+
+.history-settlement-table th,
+.history-settlement-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--color-neutral-200);
+    white-space: nowrap;
+}
+
+.history-settlement-table th {
+    text-align: left;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.history-settlement-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: var(--spacing-xl);
+}
+
+.history-settlement-table th.sortable::after {
+    content: '↕';
+    position: absolute;
+    right: var(--spacing-sm);
+    color: var(--color-neutral-400);
+    font-size: var(--font-size-xs);
+}
+
+.history-settlement-table th.sortable.asc::after {
+    content: '↑';
+    color: var(--color-primary);
+}
+
+.history-settlement-table th.sortable.desc::after {
+    content: '↓';
+    color: var(--color-primary);
+}
+
+.history-settlement-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.history-settlement-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* 合计行 */
+.history-settlement-table-footer-row {
+    background-color: var(--color-neutral-50);
+    font-weight: var(--font-weight-medium);
+}
+
+.history-settlement-action-btn {
+    color: var(--color-primary);
+    background-color: transparent;
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+}
+
+.history-settlement-action-btn:hover {
+    text-decoration: underline;
+}
+
+/* 底部工具栏 */
+.history-settlement-bottom-toolbar {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+.history-settlement-bottom-left,
+.history-settlement-bottom-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.history-settlement-pagination-info {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.history-settlement-pagination-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.history-settlement-pagination-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.history-settlement-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.history-settlement-pagination-pages {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.history-settlement-pagination-page-btn {
+    min-width: 24px;
+    padding: 2px 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-300);
+    background-color: #ffffff;
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.history-settlement-pagination-page-btn.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.history-settlement-pagination-page-btn:hover:not(.active) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.history-settlement-page-size-select {
+    padding: 2px 8px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-300);
+    font-size: var(--font-size-xs);
+}
+
+/* 弹窗样式 */
+.history-settlement-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: calc(var(--z-index-modal) + 1);
+}
+
+.history-settlement-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.history-settlement-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: calc(var(--z-index-modal) + 2);
+}
+
+.history-settlement-modal-large {
+    width: 900px;
+}
+
+.history-settlement-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.history-settlement-modal-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.history-settlement-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background-color: transparent;
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.history-settlement-modal-close:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-primary);
+}
+
+.history-settlement-modal-body {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.history-settlement-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+@media (max-width: 1200px) {
+    .history-settlement-filter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .history-settlement-filter-item {
+        width: 100%;
+    }
+}

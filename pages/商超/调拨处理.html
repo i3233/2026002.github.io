@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调拨处理（列表） - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .transfer-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 筛选搜索条 */
+        .filter-toolbar {
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .filter-toolbar .btn-primary {
+            white-space: nowrap;
+        }
+
+        .filter-toolbar .date-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-toolbar .date-picker-wrapper input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-toolbar .date-picker-wrapper input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-toolbar .search-input-wrapper {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-toolbar .search-input-wrapper input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-toolbar .search-input-wrapper input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-toolbar .search-input-wrapper input::placeholder {
+            color: var(--color-text-secondary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            margin-right: var(--spacing-sm);
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-link.danger {
+            color: var(--color-error);
+        }
+
+        .attachment-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+        }
+
+        .attachment-badge:hover {
+            background-color: rgba(44, 131, 235, 0.2);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            flex-shrink: 0;
+        }
+
+        /* 表单样式 */
+        .form-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .form-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-input.error,
+        .form-select.error {
+            border-color: var(--color-error);
+        }
+
+        /* 产品表格样式 */
+        .product-table-wrapper {
+            overflow-x: auto;
+            margin-top: var(--spacing-md);
+        }
+
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+
+        .product-table thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        .product-table th,
+        .product-table td {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+
+        .product-table th {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+
+        .product-table td {
+            background-color: #ffffff;
+        }
+
+        .product-table tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .product-select-btn {
+            width: 100%;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            background-color: #ffffff;
+            cursor: pointer;
+            text-align: left;
+            color: var(--color-text-secondary);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .product-select-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text-primary);
+        }
+
+        .product-input {
+            width: 100%;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            text-align: right;
+        }
+
+        .product-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .product-remark-input {
+            width: 100%;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+        }
+
+        .product-remark-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .delete-btn-icon {
+            color: var(--color-error);
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            padding: var(--spacing-xs);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .delete-btn-icon:hover {
+            color: var(--color-error);
+            transform: scale(1.1);
+        }
+
+        .product-table-footer {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .product-table-footer td {
+            text-align: right;
+        }
+
+        .barcode-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .add-product-btn {
+            margin-top: var(--spacing-md);
+        }
+
+        /* 产品选择弹窗 */
+        .product-select-modal {
+            max-width: 1200px;
+            width: 95%;
+            max-height: 90vh;
+        }
+
+        .product-select-modal .modal-body {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            height: calc(90vh - 120px);
+        }
+
+        /* 左侧分类树 */
+        .category-tree-container {
+            width: 250px;
+            border-right: 1px solid var(--color-neutral-200);
+            overflow-y: auto;
+            flex-shrink: 0;
+            background-color: var(--color-neutral-50);
+        }
+
+        .category-tree {
+            padding: var(--spacing-md);
+        }
+
+        .category-tree-item {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .category-tree-item-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-base) var(--ease-in-out);
+            user-select: none;
+        }
+
+        .category-tree-item-label:hover {
+            background-color: var(--color-neutral-100);
+        }
+
+        .category-tree-item-label.active {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .category-tree-item-expand {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .category-tree-item-children {
+            margin-left: var(--spacing-lg);
+            display: none;
+        }
+
+        .category-tree-item.expanded .category-tree-item-children {
+            display: block;
+        }
+
+        /* 右侧内容区 */
+        .product-select-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 顶部工具栏 */
+        .product-select-toolbar {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .product-select-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex: 1;
+        }
+
+        .product-select-search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+
+        .product-select-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .show-zero-stock-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 产品表格区域 */
+        .product-select-table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .product-select-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+
+        .product-select-table thead {
+            background-color: var(--color-neutral-50);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .product-select-table th,
+        .product-select-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+
+        .product-select-table th {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+
+        .product-select-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .product-select-table tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .product-select-table tbody tr.selected {
+            background-color: rgba(44, 131, 235, 0.05);
+        }
+
+        .product-qty-input {
+            width: 80px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            text-align: right;
+        }
+
+        .product-qty-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* 底部操作栏 */
+        .product-select-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            background-color: var(--color-neutral-50);
+        }
+
+        .product-select-footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .product-select-footer-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .product-select-footer-info {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        .product-select-footer-info strong {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .product-select-footer-desc {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+            line-height: 1.5;
+        }
+
+        .product-select-footer-bottom {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        /* 分页 */
+        .product-select-pagination {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .product-select-pagination-btn {
+            padding: 2px 6px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .product-select-pagination-btn:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .product-select-pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .product-select-pagination-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        @media (max-width: 1200px) {
+            .filter-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-toolbar .search-input-wrapper {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="transfer-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">调拨处理（列表）</h1>
+                <div class="page-subtitle">管理和查询仓库之间的商品调拨记录</div>
+            </div>
+        </div>
+
+        <!-- 筛选搜索条 -->
+        <div class="filter-toolbar">
+            <button class="btn btn-primary" id="addTransferBtn">
+                <span class="btn-icon-text">
+                    <span class="btn-icon-text-symbol">＋</span>
+                    <span>新增调拨</span>
+                </span>
+            </button>
+            <div class="date-picker-wrapper">
+                <input type="date" id="datePicker" title="选择日期">
+            </div>
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" placeholder="关键字搜索：支持按调出仓库、调入仓库、备注等搜索">
+            </div>
+            <button class="btn btn-outline" id="searchBtn">搜索</button>
+        </div>
+
+        <!-- 数据表格区域 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">序号</th>
+                            <th>日期</th>
+                            <th>调出仓库</th>
+                            <th>调入仓库</th>
+                            <th>备注</th>
+                            <th class="text-center">附件</th>
+                            <th class="text-right">数量</th>
+                            <th class="text-right">金额</th>
+                            <th>录入员</th>
+                            <th>录入时间</th>
+                            <th class="text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transferTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧信息 -->
+                <div class="bottom-left">
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增调拨弹窗 -->
+    <div class="modal-overlay" id="addTransferModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">新增调拨</h3>
+                <button class="modal-close" id="closeAddTransferModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 基础信息区域 -->
+                <div class="form-section">
+                    <h4 class="form-section-title">基础信息</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">调出仓库</label>
+                            <select class="form-select" id="fromWarehouseSelect">
+                                <option value="">请选择调出仓库</option>
+                                <!-- 选项由JS动态生成 -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">调入仓库</label>
+                            <select class="form-select" id="toWarehouseSelect">
+                                <option value="">请选择调入仓库</option>
+                                <!-- 选项由JS动态生成 -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">日期</label>
+                            <input type="date" class="form-input" id="transferDateInput" value="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">员工</label>
+                            <select class="form-select" id="staffSelect">
+                                <option value="">选择员工</option>
+                                <!-- 选项由JS动态生成 -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 产品选择表格区域 -->
+                <div class="form-section">
+                    <h4 class="form-section-title">产品信息</h4>
+                    <div class="barcode-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="barcodeToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">使用扫码枪录入</span>
+                    </div>
+                    <div class="product-table-wrapper">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th>产品ID</th>
+                                    <th>产品*</th>
+                                    <th>单位</th>
+                                    <th>采购价</th>
+                                    <th>调出数量</th>
+                                    <th>金额</th>
+                                    <th>备注</th>
+                                    <th style="width: 50px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                <!-- 产品行由JS动态生成 -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="product-table-footer">
+                                    <td colspan="4" style="text-align: right;">小计：</td>
+                                    <td id="totalQty" style="text-align: right;">0</td>
+                                    <td id="totalAmount" style="text-align: right;">¥0.00</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-outline add-product-btn" id="addProductRowBtn">
+                        <span class="btn-icon-text">
+                            <span class="btn-icon-text-symbol">＋</span>
+                            <span>添加产品</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelAddTransferBtn">取消</button>
+                <button class="btn btn-primary" id="confirmAddTransferBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产品选择弹窗 -->
+    <div class="modal-overlay" id="productSelectModal">
+        <div class="modal product-select-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">选择产品</h3>
+                <button class="modal-close" id="closeProductSelectModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; height: 100%;">
+                    <!-- 左侧分类树 -->
+                    <div class="category-tree-container">
+                        <div class="category-tree" id="categoryTree">
+                            <!-- 分类树由JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 右侧内容区 -->
+                    <div class="product-select-content">
+                        <!-- 顶部工具栏 -->
+                        <div class="product-select-toolbar">
+                            <div class="product-select-toolbar-left">
+                                <button class="btn btn-outline" id="addProductBtn">
+                                    <span class="btn-icon-text">
+                                        <span class="btn-icon-text-symbol">＋</span>
+                                        <span>新增产品</span>
+                                    </span>
+                                </button>
+                                <input type="text" 
+                                       class="product-select-search-input" 
+                                       id="productSearchInput" 
+                                       placeholder="ID、名称、条码、备注">
+                                <button class="btn btn-primary" id="productSearchBtn">搜索</button>
+                                <label class="show-zero-stock-toggle">
+                                    <input type="checkbox" id="showZeroStockCheckbox">
+                                    <span>显示零库存</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 产品表格区域 -->
+                        <div class="product-select-table-wrapper">
+                            <table class="product-select-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">
+                                            <input type="checkbox" id="selectAllProducts">
+                                        </th>
+                                        <th class="sortable" data-sort="id">产品ID</th>
+                                        <th class="sortable" data-sort="name">产品名称</th>
+                                        <th>规格型号</th>
+                                        <th>分类</th>
+                                        <th class="text-right">库存</th>
+                                        <th class="text-right">采购价</th>
+                                        <th class="text-right">销售价</th>
+                                        <th class="text-center" style="width: 100px;">数量</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productSelectTableBody">
+                                    <!-- 产品列表由JS动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 底部操作栏 -->
+                        <div class="product-select-footer">
+                            <div class="product-select-footer-top">
+                                <div class="product-select-footer-left">
+                                    <label style="display: flex; align-items: center; gap: var(--spacing-xs); cursor: pointer;">
+                                        <input type="checkbox" id="footerSelectAll">
+                                        <span style="font-size: var(--font-size-sm);">全选</span>
+                                    </label>
+                                    <div class="product-select-pagination" id="productSelectPagination">
+                                        <!-- 分页由JS动态生成 -->
+                                    </div>
+                                </div>
+                                <div class="product-select-footer-info">
+                                    <span>共选中：<strong id="selectedProductCount">0</strong> 种产品</span>
+                                    <span style="margin-left: var(--spacing-lg);">合计金额：<strong id="selectedProductAmount">0.00</strong></span>
+                                </div>
+                            </div>
+                            <div class="product-select-footer-desc">
+                                说明：已在"功能设置"中开启销售出货选择产品时是否获取上次销售的价格，故产品表格中显示的销售价为最近一次销售的价/价格
+                            </div>
+                            <div class="product-select-footer-bottom">
+                                <button class="btn btn-outline" id="cancelProductSelectBtn">关闭</button>
+                                <button class="btn btn-primary" id="confirmProductSelectBtn">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟仓库数据
+        const warehouses = [
+            { id: 'WH001', name: '主仓库' },
+            { id: 'WH002', name: '分仓库A' },
+            { id: 'WH003', name: '分仓库B' },
+            { id: 'WH004', name: '临时仓库' }
+        ];
+
+        // 模拟调拨数据
+        const transferData = [
+            {
+                id: 'TB20250826001',
+                date: '2025-08-26',
+                fromWarehouse: '主仓库',
+                toWarehouse: '分仓库A',
+                remark: '日常补货',
+                attachment: 1,
+                qty: 50,
+                amount: 2500.00,
+                recorder: '张三',
+                recordTime: '2025-08-26 09:15:30'
+            },
+            {
+                id: 'TB20250826002',
+                date: '2025-08-26',
+                fromWarehouse: '主仓库',
+                toWarehouse: '分仓库B',
+                remark: '紧急调拨',
+                attachment: 0,
+                qty: 30,
+                amount: 1500.00,
+                recorder: '李四',
+                recordTime: '2025-08-26 10:20:15'
+            },
+            {
+                id: 'TB20250827001',
+                date: '2025-08-27',
+                fromWarehouse: '分仓库A',
+                toWarehouse: '主仓库',
+                remark: '库存回拨',
+                attachment: 2,
+                qty: 25,
+                amount: 1250.00,
+                recorder: '王五',
+                recordTime: '2025-08-27 08:30:45'
+            },
+            {
+                id: 'TB20250827002',
+                date: '2025-08-27',
+                fromWarehouse: '主仓库',
+                toWarehouse: '临时仓库',
+                remark: '活动备货',
+                attachment: 0,
+                qty: 100,
+                amount: 5000.00,
+                recorder: '赵六',
+                recordTime: '2025-08-27 14:15:20'
+            },
+            {
+                id: 'TB20250828001',
+                date: '2025-08-28',
+                fromWarehouse: '分仓库B',
+                toWarehouse: '分仓库A',
+                remark: '平衡库存',
+                attachment: 1,
+                qty: 40,
+                amount: 2000.00,
+                recorder: '钱七',
+                recordTime: '2025-08-28 11:25:10'
+            },
+            {
+                id: 'TB20250828002',
+                date: '2025-08-28',
+                fromWarehouse: '主仓库',
+                toWarehouse: '分仓库A',
+                remark: '日常补货',
+                attachment: 0,
+                qty: 60,
+                amount: 3000.00,
+                recorder: '张三',
+                recordTime: '2025-08-28 15:40:30'
+            },
+            {
+                id: 'TB20250829001',
+                date: '2025-08-29',
+                fromWarehouse: '临时仓库',
+                toWarehouse: '主仓库',
+                remark: '活动结束回库',
+                attachment: 1,
+                qty: 80,
+                amount: 4000.00,
+                recorder: '李四',
+                recordTime: '2025-08-29 09:10:25'
+            },
+            {
+                id: 'TB20250829002',
+                date: '2025-08-29',
+                fromWarehouse: '主仓库',
+                toWarehouse: '分仓库B',
+                remark: '新店开业备货',
+                attachment: 2,
+                qty: 120,
+                amount: 6000.00,
+                recorder: '王五',
+                recordTime: '2025-08-29 16:20:40'
+            },
+            {
+                id: 'TB20250830001',
+                date: '2025-08-30',
+                fromWarehouse: '分仓库A',
+                toWarehouse: '主仓库',
+                remark: '库存调整',
+                attachment: 0,
+                qty: 35,
+                amount: 1750.00,
+                recorder: '赵六',
+                recordTime: '2025-08-30 10:35:15'
+            },
+            {
+                id: 'TB20250830002',
+                date: '2025-08-30',
+                fromWarehouse: '主仓库',
+                toWarehouse: '临时仓库',
+                remark: '促销活动',
+                attachment: 1,
+                qty: 90,
+                amount: 4500.00,
+                recorder: '钱七',
+                recordTime: '2025-08-30 13:50:20'
+            },
+            {
+                id: 'TB20250831001',
+                date: '2025-08-31',
+                fromWarehouse: '分仓库B',
+                toWarehouse: '分仓库A',
+                remark: '紧急调拨',
+                attachment: 0,
+                qty: 45,
+                amount: 2250.00,
+                recorder: '张三',
+                recordTime: '2025-08-31 08:15:30'
+            },
+            {
+                id: 'TB20250831002',
+                date: '2025-08-31',
+                fromWarehouse: '主仓库',
+                toWarehouse: '分仓库A',
+                remark: '日常补货',
+                attachment: 1,
+                qty: 55,
+                amount: 2750.00,
+                recorder: '李四',
+                recordTime: '2025-08-31 14:25:45'
+            }
+        ];
+
+        // 当前状态
+        let filteredData = [...transferData];
+        let currentPage = 1;
+        let pageSize = 20;
+
+        // 筛选数据
+        function filterData() {
+            filteredData = [...transferData];
+
+            // 日期筛选
+            const selectedDate = document.getElementById('datePicker').value;
+            if (selectedDate) {
+                filteredData = filteredData.filter(item => item.date === selectedDate);
+            }
+
+            // 关键字搜索
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (keyword) {
+                filteredData = filteredData.filter(item => {
+                    return (
+                        item.fromWarehouse.toLowerCase().includes(keyword) ||
+                        item.toWarehouse.toLowerCase().includes(keyword) ||
+                        (item.remark && item.remark.toLowerCase().includes(keyword)) ||
+                        item.recorder.toLowerCase().includes(keyword) ||
+                        item.id.toLowerCase().includes(keyword)
+                    );
+                });
+            }
+
+            // 重置到第一页
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('transferTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无数据</td></tr>';
+                document.getElementById('totalRecords').textContent = '0';
+                updatePagination();
+                return;
+            }
+
+            // 分页
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-center">${startIndex + index + 1}</td>
+                    <td>${item.date}</td>
+                    <td>${item.fromWarehouse}</td>
+                    <td>${item.toWarehouse}</td>
+                    <td>${item.remark || '-'}</td>
+                    <td class="text-center">
+                        ${item.attachment > 0 
+                            ? `<span class="attachment-badge" data-id="${item.id}">${item.attachment}个</span>` 
+                            : '-'}
+                    </td>
+                    <td class="text-right">${item.qty}</td>
+                    <td class="text-right">¥${item.amount.toFixed(2)}</td>
+                    <td>${item.recorder}</td>
+                    <td>${item.recordTime}</td>
+                    <td class="text-center">
+                        <button class="btn-link view-btn" data-id="${item.id}">查看</button>
+                        <button class="btn-link edit-btn" data-id="${item.id}">编辑</button>
+                        <button class="btn-link danger delete-btn" data-id="${item.id}">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // 更新分页信息
+            updatePagination();
+            document.getElementById('totalRecords').textContent = filteredData.length;
+
+            // 绑定事件
+            bindTableEvents();
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-page-btn';
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            paginationPages.appendChild(prevBtn);
+
+            // 页码按钮
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstBtn = document.createElement('button');
+                firstBtn.className = 'pagination-page-btn';
+                firstBtn.textContent = '1';
+                firstBtn.addEventListener('click', () => {
+                    currentPage = 1;
+                    renderTable();
+                });
+                paginationPages.appendChild(firstBtn);
+
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-page-btn';
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTable();
+                });
+                paginationPages.appendChild(pageBtn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+
+                const lastBtn = document.createElement('button');
+                lastBtn.className = 'pagination-page-btn';
+                lastBtn.textContent = totalPages;
+                lastBtn.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    renderTable();
+                });
+                paginationPages.appendChild(lastBtn);
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-page-btn';
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            paginationPages.appendChild(nextBtn);
+        }
+
+        // 绑定表格事件
+        function bindTableEvents() {
+            // 查看按钮
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const transferId = this.dataset.id;
+                    const transfer = transferData.find(t => t.id === transferId);
+                    alert(`调拨详情（示例）\n调拨单号：${transfer.id}\n日期：${transfer.date}\n调出仓库：${transfer.fromWarehouse}\n调入仓库：${transfer.toWarehouse}\n数量：${transfer.qty}\n金额：¥${transfer.amount.toFixed(2)}\n备注：${transfer.remark || '无'}`);
+                });
+            });
+
+            // 编辑按钮
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const transferId = this.dataset.id;
+                    alert(`编辑调拨（示例）\n调拨单号：${transferId}\n此功能稍后实现`);
+                });
+            });
+
+            // 删除按钮
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const transferId = this.dataset.id;
+                    if (confirm(`确定要删除调拨单 ${transferId} 吗？`)) {
+                        alert(`删除调拨单（示例）\n调拨单号：${transferId}\n当前仅为前端示例，不会真实删除数据`);
+                    }
+                });
+            });
+
+            // 附件点击
+            document.querySelectorAll('.attachment-badge').forEach(badge => {
+                badge.addEventListener('click', function() {
+                    const transferId = this.dataset.id;
+                    const transfer = transferData.find(t => t.id === transferId);
+                    alert(`查看附件（示例）\n调拨单号：${transfer.id}\n附件数量：${transfer.attachment}个`);
+                });
+            });
+        }
+
+        // 分类树数据
+        const categoryTree = [
+            {
+                id: 'all',
+                name: '全部产品',
+                children: []
+            },
+            {
+                id: 'restaurant',
+                name: '餐厅产品',
+                children: [
+                    {
+                        id: 'vegetables',
+                        name: '蔬菜瓜果水果',
+                        children: [
+                            { id: 'fruit', name: '水果' },
+                            { id: 'leafy', name: '菜花叶菜类' },
+                            { id: 'beans', name: '豆类' },
+                            { id: 'pepper', name: '茄果辣椒' },
+                            { id: 'root', name: '根菜类' },
+                            { id: 'onion', name: '葱姜蒜类' },
+                            { id: 'melon', name: '瓜类' },
+                            { id: 'corn', name: '玉米食用菇类' },
+                            { id: 'frozen', name: '冻菜' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'meat',
+                name: '肉蛋鱼虾',
+                children: [
+                    { id: 'pork', name: '猪肉类' },
+                    { id: 'beef', name: '牛肉类' },
+                    { id: 'chicken', name: '鸡肉类' },
+                    { id: 'duck', name: '鸭肉类' },
+                    { id: 'fish', name: '鱼类' },
+                    { id: 'seafood', name: '海鲜类' },
+                    { id: 'egg', name: '蛋类' },
+                    { id: 'shrimp', name: '虾类' }
+                ]
+            },
+            {
+                id: 'grain',
+                name: '粮油调味干杂',
+                children: [
+                    { id: 'rice', name: '米类' },
+                    { id: 'oil', name: '油类' },
+                    { id: 'flour', name: '面粉类' },
+                    { id: 'seasoning', name: '调味品' },
+                    { id: 'sauce', name: '酱料类' },
+                    { id: 'dried', name: '干货类' },
+                    { id: 'noodles', name: '面条类' },
+                    { id: 'beans-food', name: '豆制品' }
+                ]
+            },
+            {
+                id: 'kitchen',
+                name: '厨具/电器',
+                children: [
+                    { id: 'pot', name: '锅/炉' },
+                    { id: 'knife', name: '刀具类' },
+                    { id: 'utensil', name: '餐具类' },
+                    { id: 'appliance', name: '小家电' },
+                    { id: 'container', name: '容器类' },
+                    { id: 'accessory', name: '配套设施' },
+                    { id: 'cleaning-tool', name: '清洁工具' }
+                ]
+            },
+            {
+                id: 'drink',
+                name: '酒水饮料',
+                children: [
+                    { id: 'water', name: '饮用水' },
+                    { id: 'soda', name: '碳酸饮料' },
+                    { id: 'juice', name: '果汁类' },
+                    { id: 'tea-drink', name: '茶饮料' },
+                    { id: 'coffee', name: '咖啡类' },
+                    { id: 'milk', name: '乳制品' },
+                    { id: 'alcohol', name: '酒类' },
+                    { id: 'energy', name: '功能饮料' }
+                ]
+            },
+            {
+                id: 'clean',
+                name: '清洁易耗',
+                children: [
+                    { id: 'detergent', name: '洗涤用品' },
+                    { id: 'paper', name: '纸制品' },
+                    { id: 'bag', name: '包装袋' },
+                    { id: 'glove', name: '手套类' },
+                    { id: 'apron', name: '围裙类' },
+                    { id: 'wipe', name: '擦拭用品' },
+                    { id: 'disinfectant', name: '消毒用品' }
+                ]
+            },
+            {
+                id: 'dish',
+                name: '成品菜品',
+                children: [
+                    { id: 'snack', name: '面点小吃' },
+                    { id: 'main-dish', name: '主菜类' },
+                    { id: 'soup', name: '汤品类' },
+                    { id: 'salad', name: '凉菜类' },
+                    { id: 'dessert', name: '甜品类' },
+                    { id: 'appetizer', name: '开胃菜' }
+                ]
+            },
+            { id: 'uncategorized', name: '未分类', children: [] }
+        ];
+
+        // 模拟产品数据（扩展字段）
+        const products = [
+            { id: '543179', name: '隔热垫', spec: '-', unit: '个', category: '配套设施', categoryId: 'accessory', inventory: 100, purchasePrice: 5.00, salePrice: 0.00, barcode: '6901234567890', remark: '' },
+            { id: '543178', name: 'p-6砂锅', spec: '-', unit: '个', category: '锅/炉', categoryId: 'pot', inventory: 100, purchasePrice: 38.00, salePrice: 0.00, barcode: '6901234567891', remark: '' },
+            { id: '503022', name: '腊肉', spec: '-', unit: '斤', category: '猪肉类', categoryId: 'pork', inventory: 1, purchasePrice: 30.00, salePrice: 0.00, barcode: '6901234567892', remark: '' },
+            { id: 'PRD003', name: '雅安茶叶', spec: '500g/盒', unit: '盒', category: '干货类', categoryId: 'dried', inventory: 80, purchasePrice: 45.00, salePrice: 0.00, barcode: '6901234567893', remark: '' },
+            { id: 'PRD004', name: '雅安花椒', spec: '250g/袋', unit: '袋', category: '调味品', categoryId: 'seasoning', inventory: 50, purchasePrice: 28.00, salePrice: 0.00, barcode: '6901234567894', remark: '' },
+            { id: 'PRD005', name: '雅安腊肉', spec: '500g/包', unit: '包', category: '猪肉类', categoryId: 'pork', inventory: 5, purchasePrice: 38.00, salePrice: 0.00, barcode: '6901234567895', remark: '' },
+            { id: 'PRD006', name: '苹果', spec: '500g', unit: '斤', category: '水果', categoryId: 'fruit', inventory: 200, purchasePrice: 8.00, salePrice: 0.00, barcode: '6901234567896', remark: '' },
+            { id: 'PRD007', name: '白菜', spec: '500g', unit: '斤', category: '菜花叶菜类', categoryId: 'leafy', inventory: 150, purchasePrice: 3.00, salePrice: 0.00, barcode: '6901234567897', remark: '' },
+            { id: 'PRD008', name: '土豆', spec: '500g', unit: '斤', category: '根菜类', categoryId: 'root', inventory: 300, purchasePrice: 2.50, salePrice: 0.00, barcode: '6901234567898', remark: '' },
+            { id: 'PRD009', name: '鸡蛋', spec: '500g', unit: '斤', category: '蛋类', categoryId: 'egg', inventory: 0, purchasePrice: 6.00, salePrice: 0.00, barcode: '6901234567899', remark: '' },
+            { id: 'PRD010', name: '可乐', spec: '500ml', unit: '瓶', category: '碳酸饮料', categoryId: 'soda', inventory: 500, purchasePrice: 3.50, salePrice: 0.00, barcode: '6901234567900', remark: '' },
+            { id: 'PRD011', name: '洗洁精', spec: '500ml', unit: '瓶', category: '洗涤用品', categoryId: 'detergent', inventory: 80, purchasePrice: 12.00, salePrice: 0.00, barcode: '6901234567901', remark: '' },
+            { id: 'PRD012', name: '包子', spec: '1个', unit: '个', category: '面点小吃', categoryId: 'snack', inventory: 200, purchasePrice: 2.00, salePrice: 0.00, barcode: '6901234567902', remark: '' },
+            { id: 'PRD013', name: '牛肉', spec: '500g', unit: '斤', category: '牛肉类', categoryId: 'beef', inventory: 50, purchasePrice: 45.00, salePrice: 0.00, barcode: '6901234567903', remark: '' },
+            { id: 'PRD014', name: '草鱼', spec: '500g', unit: '斤', category: '鱼类', categoryId: 'fish', inventory: 30, purchasePrice: 18.00, salePrice: 0.00, barcode: '6901234567904', remark: '' },
+            { id: 'PRD015', name: '大米', spec: '5kg', unit: '袋', category: '米类', categoryId: 'rice', inventory: 100, purchasePrice: 25.00, salePrice: 0.00, barcode: '6901234567905', remark: '' },
+            { id: 'PRD016', name: '菜刀', spec: '20cm', unit: '把', category: '刀具类', categoryId: 'knife', inventory: 20, purchasePrice: 35.00, salePrice: 0.00, barcode: '6901234567906', remark: '' },
+            { id: 'PRD017', name: '矿泉水', spec: '500ml', unit: '瓶', category: '饮用水', categoryId: 'water', inventory: 1000, purchasePrice: 2.00, salePrice: 0.00, barcode: '6901234567907', remark: '' },
+            { id: 'PRD018', name: '抽纸', spec: '200抽', unit: '包', category: '纸制品', categoryId: 'paper', inventory: 200, purchasePrice: 8.00, salePrice: 0.00, barcode: '6901234567908', remark: '' }
+        ];
+
+        // 模拟员工数据
+        const staffs = [
+            { id: 'ST001', name: '张三' },
+            { id: 'ST002', name: '李四' },
+            { id: 'ST003', name: '王五' },
+            { id: 'ST004', name: '赵六' },
+            { id: 'ST005', name: '钱七' }
+        ];
+
+        // 弹窗状态
+        let currentSelectingRowIndex = -1;
+        let productRows = [];
+        let barcodeMode = false;
+
+        // 初始化新增调拨弹窗
+        function initAddTransferModal() {
+            // 初始化日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transferDateInput').value = today;
+
+            // 初始化仓库选择器（只在第一次初始化时添加）
+            const fromWarehouseSelect = document.getElementById('fromWarehouseSelect');
+            const toWarehouseSelect = document.getElementById('toWarehouseSelect');
+            
+            if (fromWarehouseSelect.children.length === 1) {
+                warehouses.forEach(warehouse => {
+                    const option1 = document.createElement('option');
+                    option1.value = warehouse.id;
+                    option1.textContent = warehouse.name;
+                    fromWarehouseSelect.appendChild(option1.cloneNode(true));
+                    toWarehouseSelect.appendChild(option1.cloneNode(true));
+                });
+            }
+
+            // 初始化员工选择器（只在第一次初始化时添加）
+            const staffSelect = document.getElementById('staffSelect');
+            if (staffSelect.children.length === 1) {
+                staffs.forEach(staff => {
+                    const option = document.createElement('option');
+                    option.value = staff.id;
+                    option.textContent = staff.name;
+                    staffSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 添加产品行
+        function addProductRow() {
+            const rowIndex = productRows.length;
+            const row = {
+                id: '',
+                name: '',
+                unit: '',
+                price: 0,
+                qty: 0,
+                amount: 0,
+                remark: ''
+            };
+            productRows.push(row);
+            renderProductTable();
+        }
+
+        // 删除产品行
+        function removeProductRow(index) {
+            productRows.splice(index, 1);
+            renderProductTable();
+            updateTotals();
+        }
+
+        // 渲染产品表格
+        function renderProductTable() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = '';
+
+            productRows.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.id || '-'}</td>
+                    <td>
+                        <button type="button" class="product-select-btn" data-row-index="${index}">
+                            ${row.name || '请选择产品'}
+                        </button>
+                    </td>
+                    <td>${row.unit || '-'}</td>
+                    <td>${row.price > 0 ? '¥' + row.price.toFixed(2) : '-'}</td>
+                    <td>
+                        <input type="number" 
+                               class="product-input" 
+                               data-row-index="${index}"
+                               data-field="qty"
+                               value="${row.qty}"
+                               min="0"
+                               step="0.01"
+                               placeholder="0">
+                    </td>
+                    <td>${row.amount > 0 ? '¥' + row.amount.toFixed(2) : '-'}</td>
+                    <td>
+                        <input type="text" 
+                               class="product-remark-input" 
+                               data-row-index="${index}"
+                               data-field="remark"
+                               value="${row.remark}"
+                               placeholder="备注">
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="delete-btn-icon" data-row-index="${index}" title="删除">🗑️</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 绑定事件
+            bindProductTableEvents();
+            updateTotals();
+        }
+
+        // 绑定产品表格事件
+        function bindProductTableEvents() {
+            // 选择产品按钮
+            document.querySelectorAll('.product-select-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentSelectingRowIndex = parseInt(this.dataset.rowIndex);
+                    openProductSelectModal();
+                });
+            });
+
+            // 数量输入
+            document.querySelectorAll('input[data-field="qty"]').forEach(input => {
+                input.addEventListener('input', function() {
+                    const rowIndex = parseInt(this.dataset.rowIndex);
+                    const qty = parseFloat(this.value) || 0;
+                    productRows[rowIndex].qty = qty;
+                    productRows[rowIndex].amount = productRows[rowIndex].price * qty;
+                    renderProductTable();
+                });
+            });
+
+            // 备注输入
+            document.querySelectorAll('input[data-field="remark"]').forEach(input => {
+                input.addEventListener('input', function() {
+                    const rowIndex = parseInt(this.dataset.rowIndex);
+                    productRows[rowIndex].remark = this.value;
+                });
+            });
+
+            // 删除按钮
+            document.querySelectorAll('.delete-btn-icon').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const rowIndex = parseInt(this.dataset.rowIndex);
+                    removeProductRow(rowIndex);
+                });
+            });
+        }
+
+        // 更新合计
+        function updateTotals() {
+            const totalQty = productRows.reduce((sum, row) => sum + row.qty, 0);
+            const totalAmount = productRows.reduce((sum, row) => sum + row.amount, 0);
+            document.getElementById('totalQty').textContent = totalQty.toFixed(2);
+            document.getElementById('totalAmount').textContent = '¥' + totalAmount.toFixed(2);
+        }
+
+        // 产品选择弹窗状态
+        let selectedProducts = new Map(); // 存储选中的产品 {productId: {product, qty}}
+        let currentCategoryId = 'all';
+        let showZeroStock = false;
+        let productSelectCurrentPage = 1;
+        let productSelectPageSize = 20;
+        let productSelectSortColumn = null;
+        let productSelectSortDirection = 'asc';
+
+        // 渲染分类树
+        function renderCategoryTree() {
+            const treeContainer = document.getElementById('categoryTree');
+            treeContainer.innerHTML = '';
+
+            function renderCategoryNode(category, level = 0) {
+                const item = document.createElement('div');
+                item.className = 'category-tree-item';
+                // 默认不展开，移除expanded类
+
+                const label = document.createElement('div');
+                label.className = 'category-tree-item-label';
+                label.style.paddingLeft = (level * 16) + 'px';
+                
+                const expandIcon = document.createElement('span');
+                expandIcon.className = 'category-tree-item-expand';
+                if (category.children && category.children.length > 0) {
+                    expandIcon.textContent = '▶';
+                    expandIcon.style.cursor = 'pointer';
+                    expandIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        item.classList.toggle('expanded');
+                        expandIcon.textContent = item.classList.contains('expanded') ? '▼' : '▶';
+                    });
+                } else {
+                    expandIcon.textContent = '•';
+                    expandIcon.style.color = 'transparent';
+                }
+
+                const name = document.createElement('span');
+                name.textContent = category.name;
+                name.style.flex = '1';
+
+                if (category.id === currentCategoryId) {
+                    label.classList.add('active');
+                }
+
+                label.appendChild(expandIcon);
+                label.appendChild(name);
+                label.addEventListener('click', () => {
+                    currentCategoryId = category.id;
+                    productSelectCurrentPage = 1;
+                    renderCategoryTree();
+                    renderProductSelectTable();
+                });
+
+                item.appendChild(label);
+
+                if (category.children && category.children.length > 0) {
+                    const children = document.createElement('div');
+                    children.className = 'category-tree-item-children';
+                    category.children.forEach(child => {
+                        children.appendChild(renderCategoryNode(child, level + 1));
+                    });
+                    item.appendChild(children);
+                }
+
+                return item;
+            }
+
+            categoryTree.forEach(category => {
+                treeContainer.appendChild(renderCategoryNode(category));
+            });
+        }
+
+        // 打开产品选择弹窗
+        function openProductSelectModal() {
+            selectedProducts.clear();
+            currentCategoryId = 'all';
+            showZeroStock = false;
+            productSelectCurrentPage = 1;
+            document.getElementById('showZeroStockCheckbox').checked = false;
+            document.getElementById('productSearchInput').value = '';
+            document.getElementById('selectAllProducts').checked = false;
+            document.getElementById('footerSelectAll').checked = false;
+            
+            renderCategoryTree();
+            renderProductSelectTable();
+            document.getElementById('productSelectModal').classList.add('show');
+        }
+
+        // 关闭产品选择弹窗
+        function closeProductSelectModal() {
+            document.getElementById('productSelectModal').classList.remove('show');
+            selectedProducts.clear();
+            currentSelectingRowIndex = -1;
+        }
+
+        // 渲染产品选择表格
+        function renderProductSelectTable() {
+            let filteredProducts = [...products];
+
+            // 分类筛选
+            if (currentCategoryId !== 'all') {
+                // 获取所有匹配的分类ID（包括当前分类和所有子分类）
+                const getCategoryIds = (categoryId) => {
+                    const ids = [categoryId];
+                    const category = findCategoryById(categoryId);
+                    if (category && category.children) {
+                        category.children.forEach(child => {
+                            ids.push(child.id);
+                            // 递归获取子分类的子分类
+                            const childCategory = findCategoryById(child.id);
+                            if (childCategory && childCategory.children) {
+                                childCategory.children.forEach(grandChild => {
+                                    ids.push(grandChild.id);
+                                });
+                            }
+                        });
+                    }
+                    return ids;
+                };
+
+                const categoryIds = getCategoryIds(currentCategoryId);
+                filteredProducts = filteredProducts.filter(p => categoryIds.includes(p.categoryId));
+            }
+
+            // 零库存筛选
+            if (!showZeroStock) {
+                filteredProducts = filteredProducts.filter(p => p.inventory > 0);
+            }
+
+            // 搜索筛选
+            const keyword = document.getElementById('productSearchInput').value.trim().toLowerCase();
+            if (keyword) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(keyword) ||
+                    p.id.toLowerCase().includes(keyword) ||
+                    p.barcode.toLowerCase().includes(keyword) ||
+                    (p.remark && p.remark.toLowerCase().includes(keyword))
+                );
+            }
+
+            // 排序
+            if (productSelectSortColumn) {
+                filteredProducts.sort((a, b) => {
+                    let aVal = a[productSelectSortColumn];
+                    let bVal = b[productSelectSortColumn];
+                    if (productSelectSortColumn === 'id') {
+                        aVal = parseInt(aVal) || 0;
+                        bVal = parseInt(bVal) || 0;
+                    }
+                    if (aVal < bVal) return productSelectSortDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return productSelectSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // 分页
+            const totalPages = Math.ceil(filteredProducts.length / productSelectPageSize);
+            const startIndex = (productSelectCurrentPage - 1) * productSelectPageSize;
+            const endIndex = startIndex + productSelectPageSize;
+            const pageProducts = filteredProducts.slice(startIndex, endIndex);
+
+            // 渲染表格
+            const tbody = document.getElementById('productSelectTableBody');
+            tbody.innerHTML = '';
+
+            if (pageProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">未找到产品</td></tr>';
+                updateProductSelectPagination(0, 1);
+                updateProductSelectFooter();
+                return;
+            }
+
+            pageProducts.forEach(product => {
+                const isSelected = selectedProducts.has(product.id);
+                const selectedData = selectedProducts.get(product.id);
+                const qty = selectedData ? selectedData.qty : 0;
+
+                const tr = document.createElement('tr');
+                if (isSelected) {
+                    tr.classList.add('selected');
+                }
+                tr.innerHTML = `
+                    <td class="text-center">
+                        <input type="checkbox" class="product-checkbox" data-product-id="${product.id}" ${isSelected ? 'checked' : ''}>
+                    </td>
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.spec}</td>
+                    <td>${product.category}</td>
+                    <td class="text-right">${product.inventory}${product.unit}</td>
+                    <td class="text-right">¥${product.purchasePrice.toFixed(2)}</td>
+                    <td class="text-right">¥${product.salePrice.toFixed(2)}</td>
+                    <td class="text-center">
+                        <input type="number" 
+                               class="product-qty-input" 
+                               data-product-id="${product.id}"
+                               value="${qty}"
+                               min="0"
+                               step="0.01"
+                               placeholder="0">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 绑定事件
+            bindProductSelectTableEvents();
+            updateProductSelectPagination(filteredProducts.length, totalPages);
+            updateProductSelectFooter();
+        }
+
+        // 查找分类
+        function findCategoryById(categoryId) {
+            function search(categories) {
+                for (const cat of categories) {
+                    if (cat.id === categoryId) return cat;
+                    if (cat.children) {
+                        const found = search(cat.children);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+            return search(categoryTree);
+        }
+
+        // 绑定产品选择表格事件
+        function bindProductSelectTableEvents() {
+            // 复选框
+            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const productId = this.dataset.productId;
+                    const product = products.find(p => p.id === productId);
+                    if (this.checked) {
+                        selectedProducts.set(productId, { product, qty: 0 });
+                    } else {
+                        selectedProducts.delete(productId);
+                    }
+                    renderProductSelectTable();
+                });
+            });
+
+            // 数量输入
+            document.querySelectorAll('.product-qty-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const productId = this.dataset.productId;
+                    const qty = parseFloat(this.value) || 0;
+                    if (selectedProducts.has(productId)) {
+                        selectedProducts.get(productId).qty = qty;
+                    } else if (qty > 0) {
+                        const product = products.find(p => p.id === productId);
+                        selectedProducts.set(productId, { product, qty });
+                        renderProductSelectTable();
+                    }
+                    updateProductSelectFooter();
+                });
+            });
+
+            // 双击行快速选择
+            document.querySelectorAll('#productSelectTableBody tr').forEach(tr => {
+                tr.addEventListener('dblclick', function() {
+                    const checkbox = this.querySelector('.product-checkbox');
+                    const qtyInput = this.querySelector('.product-qty-input');
+                    if (checkbox && !checkbox.checked) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                    if (qtyInput && !qtyInput.value) {
+                        qtyInput.value = '1';
+                        qtyInput.dispatchEvent(new Event('input'));
+                    }
+                });
+            });
+        }
+
+        // 更新分页
+        function updateProductSelectPagination(totalRecords, totalPages) {
+            const pagination = document.getElementById('productSelectPagination');
+            pagination.innerHTML = '';
+
+            if (totalPages === 0) {
+                pagination.innerHTML = '<span>共 0 记录</span>';
+                return;
+            }
+
+            pagination.innerHTML = `
+                <span>共${totalRecords}记录</span>
+                <button class="product-select-pagination-btn" ${productSelectCurrentPage === 1 ? 'disabled' : ''} data-page="prev">«上一页</button>
+                <button class="product-select-pagination-btn" ${productSelectCurrentPage === 1 ? 'disabled' : ''} data-page="first">首页</button>
+                ${productSelectCurrentPage > 1 ? `<button class="product-select-pagination-btn" data-page="${productSelectCurrentPage - 1}">${productSelectCurrentPage - 1}</button>` : ''}
+                <button class="product-select-pagination-btn active" data-page="${productSelectCurrentPage}">${productSelectCurrentPage}</button>
+                ${productSelectCurrentPage < totalPages ? `<button class="product-select-pagination-btn" data-page="${productSelectCurrentPage + 1}">${productSelectCurrentPage + 1}</button>` : ''}
+                <button class="product-select-pagination-btn" ${productSelectCurrentPage === totalPages ? 'disabled' : ''} data-page="last">末页</button>
+                <button class="product-select-pagination-btn" ${productSelectCurrentPage === totalPages ? 'disabled' : ''} data-page="next">下一页»</button>
+            `;
+
+            pagination.querySelectorAll('button[data-page]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    if (page === 'prev' && productSelectCurrentPage > 1) {
+                        productSelectCurrentPage--;
+                    } else if (page === 'next' && productSelectCurrentPage < totalPages) {
+                        productSelectCurrentPage++;
+                    } else if (page === 'first') {
+                        productSelectCurrentPage = 1;
+                    } else if (page === 'last') {
+                        productSelectCurrentPage = totalPages;
+                    } else if (!isNaN(page)) {
+                        productSelectCurrentPage = parseInt(page);
+                    }
+                    renderProductSelectTable();
+                });
+            });
+        }
+
+        // 更新底部状态栏
+        function updateProductSelectFooter() {
+            const selectedCount = Array.from(selectedProducts.values()).filter(item => item.qty > 0).length;
+            const totalAmount = Array.from(selectedProducts.values()).reduce((sum, item) => {
+                return sum + (item.product.purchasePrice * item.qty);
+            }, 0);
+
+            document.getElementById('selectedProductCount').textContent = selectedCount;
+            document.getElementById('selectedProductAmount').textContent = totalAmount.toFixed(2);
+        }
+
+        // 确认选择产品
+        function confirmProductSelect() {
+            const selectedItems = Array.from(selectedProducts.values()).filter(item => item.qty > 0);
+            
+            if (selectedItems.length === 0) {
+                alert('请至少选择一个产品并填写数量');
+                return;
+            }
+
+            // 如果是在调拨表单中选择产品
+            if (currentSelectingRowIndex >= 0 && currentSelectingRowIndex < productRows.length) {
+                // 只选择第一个产品（单行选择模式）
+                const firstItem = selectedItems[0];
+                selectProduct(firstItem.product, firstItem.qty);
+            } else {
+                // 批量添加模式（如果需要）
+                selectedItems.forEach(item => {
+                    const row = {
+                        id: item.product.id,
+                        name: item.product.name,
+                        unit: item.product.unit,
+                        price: item.product.purchasePrice,
+                        qty: item.qty,
+                        amount: item.product.purchasePrice * item.qty,
+                        remark: ''
+                    };
+                    productRows.push(row);
+                });
+                renderProductTable();
+            }
+
+            closeProductSelectModal();
+        }
+
+        // 选择产品（更新后的版本）
+        function selectProduct(product, qty = 0) {
+            if (currentSelectingRowIndex >= 0 && currentSelectingRowIndex < productRows.length) {
+                productRows[currentSelectingRowIndex].id = product.id;
+                productRows[currentSelectingRowIndex].name = product.name;
+                productRows[currentSelectingRowIndex].unit = product.unit;
+                productRows[currentSelectingRowIndex].price = product.purchasePrice;
+                productRows[currentSelectingRowIndex].qty = qty || productRows[currentSelectingRowIndex].qty || 0;
+                productRows[currentSelectingRowIndex].amount = product.purchasePrice * productRows[currentSelectingRowIndex].qty;
+                renderProductTable();
+                closeProductSelectModal();
+            }
+        }
+
+        // 扫码枪录入
+        function handleBarcodeInput(barcode) {
+            if (!barcodeMode) {
+                return;
+            }
+
+            // 如果没有可用行，添加一行
+            if (productRows.length === 0 || currentSelectingRowIndex < 0) {
+                addProductRow();
+                currentSelectingRowIndex = productRows.length - 1;
+            }
+
+            const product = products.find(p => p.barcode === barcode);
+            if (product) {
+                // 选择产品
+                if (currentSelectingRowIndex >= 0 && currentSelectingRowIndex < productRows.length) {
+                    productRows[currentSelectingRowIndex].id = product.id;
+                    productRows[currentSelectingRowIndex].name = product.name;
+                    productRows[currentSelectingRowIndex].unit = product.unit;
+                    productRows[currentSelectingRowIndex].price = product.price;
+                    renderProductTable();
+                }
+                
+                // 自动添加下一行并设置为当前选择行
+                setTimeout(() => {
+                    addProductRow();
+                    currentSelectingRowIndex = productRows.length - 1;
+                    // 重新聚焦扫码输入框
+                    const barcodeInput = document.getElementById('barcodeInput');
+                    if (barcodeInput) {
+                        barcodeInput.focus();
+                    }
+                }, 100);
+            } else {
+                alert('未找到匹配的产品条码：' + barcode);
+            }
+        }
+
+        // 打开新增调拨弹窗
+        function openAddTransferModal() {
+            // 重置表单
+            productRows = [];
+            barcodeMode = false;
+            document.getElementById('barcodeToggle').checked = false;
+            document.getElementById('fromWarehouseSelect').value = '';
+            document.getElementById('toWarehouseSelect').value = '';
+            document.getElementById('staffSelect').value = '';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transferDateInput').value = today;
+            
+            // 移除错误样式
+            document.getElementById('fromWarehouseSelect').classList.remove('error');
+            document.getElementById('transferDateInput').classList.remove('error');
+            
+            // 添加第一行产品
+            addProductRow();
+            
+            // 显示弹窗
+            document.getElementById('addTransferModal').classList.add('show');
+        }
+
+        // 关闭新增调拨弹窗
+        function closeAddTransferModal() {
+            if (productRows.length > 0) {
+                if (!confirm('确定要关闭吗？未保存的数据将丢失。')) {
+                    return;
+                }
+            }
+            document.getElementById('addTransferModal').classList.remove('show');
+            productRows = [];
+            barcodeMode = false;
+        }
+
+        // 确认新增调拨
+        function confirmAddTransfer() {
+            // 验证必填字段
+            const fromWarehouse = document.getElementById('fromWarehouseSelect').value;
+            const transferDate = document.getElementById('transferDateInput').value;
+
+            if (!fromWarehouse) {
+                alert('请选择调出仓库');
+                document.getElementById('fromWarehouseSelect').classList.add('error');
+                return;
+            }
+
+            if (!transferDate) {
+                alert('请选择日期');
+                document.getElementById('transferDateInput').classList.add('error');
+                return;
+            }
+
+            // 验证产品
+            if (productRows.length === 0) {
+                alert('请至少添加一个产品');
+                return;
+            }
+
+            const emptyProductRows = productRows.filter(row => !row.name || row.qty <= 0);
+            if (emptyProductRows.length > 0) {
+                alert('请完善产品信息，所有产品必须填写名称和数量');
+                return;
+            }
+
+            // 计算总数量和金额
+            const totalQty = productRows.reduce((sum, row) => sum + row.qty, 0);
+            const totalAmount = productRows.reduce((sum, row) => sum + row.amount, 0);
+
+            // 创建调拨记录
+            const newTransfer = {
+                id: 'TB' + new Date().getTime(),
+                date: transferDate,
+                fromWarehouse: warehouses.find(w => w.id === fromWarehouse)?.name || '',
+                toWarehouse: document.getElementById('toWarehouseSelect').value 
+                    ? warehouses.find(w => w.id === document.getElementById('toWarehouseSelect').value)?.name || ''
+                    : '',
+                remark: productRows.map(row => `${row.name} ${row.qty}${row.unit}`).join('；'),
+                attachment: 0,
+                qty: totalQty,
+                amount: totalAmount,
+                recorder: document.getElementById('staffSelect').value 
+                    ? staffs.find(s => s.id === document.getElementById('staffSelect').value)?.name || ''
+                    : '系统',
+                recordTime: new Date().toLocaleString('zh-CN')
+            };
+
+            // 添加到数据列表
+            transferData.unshift(newTransfer);
+            filterData();
+
+            // 关闭弹窗
+            closeAddTransferModal();
+
+            alert(`调拨单创建成功！\n调拨单号：${newTransfer.id}\n总数量：${totalQty}\n总金额：¥${totalAmount.toFixed(2)}`);
+        }
+
+        // 新增调拨
+        function addTransfer() {
+            openAddTransferModal();
+        }
+
+        // 事件绑定
+        document.getElementById('addTransferBtn').addEventListener('click', addTransfer);
+        document.getElementById('searchBtn').addEventListener('click', filterData);
+        document.getElementById('datePicker').addEventListener('change', filterData);
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterData();
+            }
+        });
+
+        // 新增调拨弹窗事件
+        document.getElementById('closeAddTransferModal').addEventListener('click', closeAddTransferModal);
+        document.getElementById('cancelAddTransferBtn').addEventListener('click', closeAddTransferModal);
+        document.getElementById('confirmAddTransferBtn').addEventListener('click', confirmAddTransfer);
+        document.getElementById('addProductRowBtn').addEventListener('click', addProductRow);
+
+        // 扫码枪切换
+        document.getElementById('barcodeToggle').addEventListener('change', function() {
+            barcodeMode = this.checked;
+            if (barcodeMode) {
+                alert('扫码枪模式已启用，请扫描产品条码\n提示：如果没有可用行，将自动添加新行');
+                // 确保有至少一行
+                if (productRows.length === 0) {
+                    addProductRow();
+                }
+                // 设置当前行为最后一行
+                currentSelectingRowIndex = productRows.length - 1;
+                // 添加或获取隐藏的输入框用于接收扫码枪输入
+                let barcodeInput = document.getElementById('barcodeInput');
+                if (!barcodeInput) {
+                    barcodeInput = document.createElement('input');
+                    barcodeInput.id = 'barcodeInput';
+                    barcodeInput.type = 'text';
+                    barcodeInput.style.position = 'absolute';
+                    barcodeInput.style.left = '-9999px';
+                    barcodeInput.style.opacity = '0';
+                    barcodeInput.addEventListener('input', function() {
+                        if (barcodeMode && this.value && this.value.length > 0) {
+                            setTimeout(() => {
+                                handleBarcodeInput(this.value.trim());
+                                this.value = '';
+                            }, 100);
+                        }
+                    });
+                    document.body.appendChild(barcodeInput);
+                }
+                setTimeout(() => {
+                    barcodeInput.focus();
+                }, 100);
+            }
+        });
+
+        // 产品选择弹窗事件
+        document.getElementById('closeProductSelectModal').addEventListener('click', closeProductSelectModal);
+        document.getElementById('cancelProductSelectBtn').addEventListener('click', closeProductSelectModal);
+        document.getElementById('confirmProductSelectBtn').addEventListener('click', confirmProductSelect);
+        document.getElementById('productSearchBtn').addEventListener('click', function() {
+            productSelectCurrentPage = 1;
+            renderProductSelectTable();
+        });
+        document.getElementById('productSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                productSelectCurrentPage = 1;
+                renderProductSelectTable();
+            }
+        });
+        document.getElementById('showZeroStockCheckbox').addEventListener('change', function() {
+            showZeroStock = this.checked;
+            productSelectCurrentPage = 1;
+            renderProductSelectTable();
+        });
+        document.getElementById('addProductBtn').addEventListener('click', function() {
+            alert('新增产品（示例）\n此功能稍后实现');
+        });
+
+        // 全选功能
+        document.getElementById('selectAllProducts').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.product-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+                cb.dispatchEvent(new Event('change'));
+            });
+            document.getElementById('footerSelectAll').checked = this.checked;
+        });
+
+        document.getElementById('footerSelectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.product-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+                cb.dispatchEvent(new Event('change'));
+            });
+            document.getElementById('selectAllProducts').checked = this.checked;
+        });
+
+        // 表格排序
+        document.querySelectorAll('.product-select-table th.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const column = this.dataset.sort;
+                if (productSelectSortColumn === column) {
+                    productSelectSortDirection = productSelectSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    productSelectSortColumn = column;
+                    productSelectSortDirection = 'asc';
+                }
+                renderProductSelectTable();
+            });
+        });
+
+        // 点击弹窗外部关闭
+        document.getElementById('addTransferModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddTransferModal();
+            }
+        });
+
+        document.getElementById('productSelectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProductSelectModal();
+            }
+        });
+
+        // 移除错误样式
+        document.getElementById('fromWarehouseSelect').addEventListener('change', function() {
+            this.classList.remove('error');
+        });
+        document.getElementById('transferDateInput').addEventListener('change', function() {
+            this.classList.remove('error');
+        });
+
+        // 分页大小变化
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            renderTable();
+        });
+
+        // 跳转页面
+        document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const page = parseInt(this.value);
+                const totalPages = Math.ceil(filteredData.length / pageSize);
+                if (page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    renderTable();
+                } else {
+                    alert(`请输入1-${totalPages}之间的页码`);
+                }
+            }
+        });
+
+        // 初始化渲染
+        renderTable();
+        initAddTransferModal();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品设置 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <style>
+        .product-settings-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .settings-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .settings-card-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item-left {
+            flex: 1;
+            margin-right: var(--spacing-lg);
+        }
+
+        .setting-item-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .setting-item-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .setting-item-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-shrink: 0;
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 输入框 */
+        .form-input,
+        .form-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-input--small {
+            width: 120px;
+        }
+
+        .form-input--medium {
+            width: 200px;
+        }
+
+        /* 操作按钮区域 */
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        /* 帮助图标 */
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid var(--color-neutral-300);
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            cursor: help;
+            margin-left: var(--spacing-xs);
+        }
+
+        .help-icon:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* 标签组 */
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-xs);
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .tag-item .remove-btn {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .tag-item .remove-btn:hover {
+            background-color: var(--color-primary);
+            color: #ffffff;
+        }
+
+        /* 提示信息 */
+        .alert-info {
+            padding: var(--spacing-md);
+            background-color: rgba(23, 162, 184, 0.1);
+            border-left: 4px solid var(--color-info);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
+        @media (max-width: 1200px) {
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .setting-item-right {
+                width: 100%;
+                margin-top: var(--spacing-sm);
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="product-settings-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">商品设置</h1>
+                <div class="page-subtitle">配置商品相关的系统设置和默认参数</div>
+            </div>
+        </div>
+
+        <!-- 商品基础设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品基础设置</h3>
+                    <div class="settings-card-desc">设置商品的基础默认值和展示规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        商品默认排序
+                        <span class="help-icon" title="新添加商品的默认排序值，数值越大排序越靠前">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认排序值</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="defaultSort" value="100" min="0">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认库存数量
+                        <span class="help-icon" title="新添加商品的默认库存数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认库存数量</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="defaultStock" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认商品状态
+                        <span class="help-icon" title="新添加商品的默认上架状态">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认上架状态</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--small" id="defaultStatus">
+                        <option value="onSale">上架</option>
+                        <option value="offSale">下架</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用商品参数
+                        <span class="help-icon" title="是否默认启用商品参数功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，新添加的商品默认启用参数功能</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableParams" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用商品规格
+                        <span class="help-icon" title="是否默认启用商品规格功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，新添加的商品默认启用规格功能</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableSpecs">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用商品标签
+                        <span class="help-icon" title="是否默认启用商品标签功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，新添加的商品默认启用标签功能</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableTags" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品展示设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品展示设置</h3>
+                    <div class="settings-card-desc">设置商品在前端的展示规则和样式</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        商品列表每页显示数量
+                        <span class="help-icon" title="商品列表页面每页显示的商品数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置商品列表页面每页显示的商品数量</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--small" id="pageSize">
+                        <option value="20" selected>20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        显示商品库存
+                        <span class="help-icon" title="是否在前端显示商品库存数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，前端商品详情页会显示库存数量</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showStock" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        显示已售数量
+                        <span class="help-icon" title="是否在前端显示商品已售数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，前端商品详情页会显示已售数量</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showSales" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        显示商品评价
+                        <span class="help-icon" title="是否在前端显示商品评价">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，前端商品详情页会显示评价功能</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showReviews" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        商品图片最大数量
+                        <span class="help-icon" title="每个商品最多可上传的图片数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置每个商品最多可上传的图片数量</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="maxImages" value="9" min="1" max="20">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        商品详情编辑器类型
+                        <span class="help-icon" title="选择商品详情使用的编辑器类型">?</span>
+                    </div>
+                    <div class="setting-item-desc">选择商品详情使用的富文本编辑器类型</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="editorType">
+                        <option value="richText" selected>富文本编辑器</option>
+                        <option value="markdown">Markdown编辑器</option>
+                        <option value="html">HTML编辑器</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品库存设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品库存设置</h3>
+                    <div class="settings-card-desc">设置商品库存管理的相关规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用库存管理
+                        <span class="help-icon" title="是否启用商品库存管理功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，系统会自动管理商品库存，库存不足时无法下单</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableInventory" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        低库存预警数量
+                        <span class="help-icon" title="当商品库存低于此数量时，系统会发出预警">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置低库存预警的阈值，库存低于此数量时会发出预警</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="lowStockAlert" value="10" min="0">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        库存不足时允许下单
+                        <span class="help-icon" title="库存不足时是否允许用户下单">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，即使库存不足，用户仍可以下单（需要后续补货）</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="allowOrderWhenOutOfStock">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用负库存
+                        <span class="help-icon" title="是否允许商品库存为负数">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，允许商品库存为负数（适用于预售等场景）</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="allowNegativeStock">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        自动扣减库存时机
+                        <span class="help-icon" title="选择何时自动扣减商品库存">?</span>
+                    </div>
+                    <div class="setting-item-desc">选择订单创建时或订单支付时自动扣减库存</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="deductStockTiming">
+                        <option value="onOrder" selected>下单时扣减</option>
+                        <option value="onPay">支付时扣减</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品价格设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品价格设置</h3>
+                    <div class="settings-card-desc">设置商品价格相关的规则和默认值</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用会员价
+                        <span class="help-icon" title="是否启用商品会员价功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以为商品设置会员专属价格</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableMemberPrice" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用分销价
+                        <span class="help-icon" title="是否启用商品分销价功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以为商品设置分销价格</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableDistributionPrice">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用批发价
+                        <span class="help-icon" title="是否启用商品批发价功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以为商品设置批发价格</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableWholesalePrice" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        价格显示规则
+                        <span class="help-icon" title="选择商品价格的显示方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">选择商品在前端的价格显示方式</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="priceDisplayRule">
+                        <option value="showOriginal" selected>显示原价</option>
+                        <option value="showMember">显示会员价（如有）</option>
+                        <option value="showBoth">同时显示原价和会员价</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用价格保护
+                        <span class="help-icon" title="是否启用商品价格保护功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，商品价格变动时会记录历史价格</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enablePriceProtection">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品购买设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品购买设置</h3>
+                    <div class="settings-card-desc">设置商品购买相关的规则和限制</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用购买限制
+                        <span class="help-icon" title="是否启用商品购买数量限制">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以为商品设置购买数量限制</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enablePurchaseLimit">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认起售数量
+                        <span class="help-icon" title="商品默认的起售数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认起售数量</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="defaultMinPurchase" value="1" min="1">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认限购数量
+                        <span class="help-icon" title="商品默认的单次限购数量">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认单次限购数量（0表示不限购）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="defaultMaxPurchase" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用预售功能
+                        <span class="help-icon" title="是否启用商品预售功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以为商品设置预售时间和发货时间</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enablePreSale">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认发货方式
+                        <span class="help-icon" title="商品默认的发货方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认发货方式</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="defaultDeliveryMethod">
+                        <option value="express" selected>快递发货</option>
+                        <option value="selfPickup">门店自提</option>
+                        <option value="both">支持两种方式</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认是否包邮
+                        <span class="help-icon" title="商品默认的包邮设置">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置新添加商品的默认包邮状态</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="defaultFreeShipping" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品分类设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品分类设置</h3>
+                    <div class="settings-card-desc">设置商品分类相关的规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用多分类
+                        <span class="help-icon" title="是否允许商品属于多个分类">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，一个商品可以同时属于多个分类</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableMultiCategory" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        分类层级深度
+                        <span class="help-icon" title="商品分类支持的最大层级深度">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置商品分类支持的最大层级深度</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--small" id="categoryDepth">
+                        <option value="2" selected>2级</option>
+                        <option value="3">3级</option>
+                        <option value="4">4级</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        必选分类
+                        <span class="help-icon" title="商品是否必须选择一个分类">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，添加商品时必须至少选择一个分类</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="requireCategory" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品条码设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">商品条码设置</h3>
+                    <div class="settings-card-desc">设置商品条码相关的规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用条码管理
+                        <span class="help-icon" title="是否启用商品条码管理功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以为商品设置和管理条码</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableBarcode" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        强制条码录入
+                        <span class="help-icon" title="是否强制要求商品必须录入条码">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，添加商品时必须录入条码才能保存</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="requireBarcode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        条码唯一性校验
+                        <span class="help-icon" title="是否校验条码的唯一性">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，系统会校验条码的唯一性，不允许重复</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="barcodeUnique" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        条码格式规则
+                        <span class="help-icon" title="设置条码的格式规则">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置条码的格式规则（如：EAN-13、Code128等）</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="barcodeFormat">
+                        <option value="any" selected>不限制</option>
+                        <option value="ean13">EAN-13（13位）</option>
+                        <option value="ean8">EAN-8（8位）</option>
+                        <option value="code128">Code128</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="settings-actions">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                // 商品基础设置
+                defaultSort: parseInt(document.getElementById('defaultSort').value),
+                defaultStock: parseInt(document.getElementById('defaultStock').value),
+                defaultStatus: document.getElementById('defaultStatus').value,
+                enableParams: document.getElementById('enableParams').checked,
+                enableSpecs: document.getElementById('enableSpecs').checked,
+                enableTags: document.getElementById('enableTags').checked,
+                
+                // 商品展示设置
+                pageSize: parseInt(document.getElementById('pageSize').value),
+                showStock: document.getElementById('showStock').checked,
+                showSales: document.getElementById('showSales').checked,
+                showReviews: document.getElementById('showReviews').checked,
+                maxImages: parseInt(document.getElementById('maxImages').value),
+                editorType: document.getElementById('editorType').value,
+                
+                // 商品库存设置
+                enableInventory: document.getElementById('enableInventory').checked,
+                lowStockAlert: parseInt(document.getElementById('lowStockAlert').value),
+                allowOrderWhenOutOfStock: document.getElementById('allowOrderWhenOutOfStock').checked,
+                allowNegativeStock: document.getElementById('allowNegativeStock').checked,
+                deductStockTiming: document.getElementById('deductStockTiming').value,
+                
+                // 商品价格设置
+                enableMemberPrice: document.getElementById('enableMemberPrice').checked,
+                enableDistributionPrice: document.getElementById('enableDistributionPrice').checked,
+                enableWholesalePrice: document.getElementById('enableWholesalePrice').checked,
+                priceDisplayRule: document.getElementById('priceDisplayRule').value,
+                enablePriceProtection: document.getElementById('enablePriceProtection').checked,
+                
+                // 商品购买设置
+                enablePurchaseLimit: document.getElementById('enablePurchaseLimit').checked,
+                defaultMinPurchase: parseInt(document.getElementById('defaultMinPurchase').value),
+                defaultMaxPurchase: parseInt(document.getElementById('defaultMaxPurchase').value),
+                enablePreSale: document.getElementById('enablePreSale').checked,
+                defaultDeliveryMethod: document.getElementById('defaultDeliveryMethod').value,
+                defaultFreeShipping: document.getElementById('defaultFreeShipping').checked,
+                
+                // 商品分类设置
+                enableMultiCategory: document.getElementById('enableMultiCategory').checked,
+                categoryDepth: parseInt(document.getElementById('categoryDepth').value),
+                requireCategory: document.getElementById('requireCategory').checked,
+                
+                // 商品条码设置
+                enableBarcode: document.getElementById('enableBarcode').checked,
+                requireBarcode: document.getElementById('requireBarcode').checked,
+                barcodeUnique: document.getElementById('barcodeUnique').checked,
+                barcodeFormat: document.getElementById('barcodeFormat').value
+            };
+
+            // 模拟保存
+            console.log('保存设置：', settings);
+            alert('设置保存成功！');
+        }
+
+        // 重置设置
+        function resetSettings() {
+            if (!confirm('确定要重置所有设置吗？将恢复到默认值。')) {
+                return;
+            }
+
+            // 重置所有设置到默认值
+            document.getElementById('defaultSort').value = '100';
+            document.getElementById('defaultStock').value = '0';
+            document.getElementById('defaultStatus').value = 'onSale';
+            document.getElementById('enableParams').checked = true;
+            document.getElementById('enableSpecs').checked = false;
+            document.getElementById('enableTags').checked = true;
+            
+            document.getElementById('pageSize').value = '20';
+            document.getElementById('showStock').checked = true;
+            document.getElementById('showSales').checked = true;
+            document.getElementById('showReviews').checked = true;
+            document.getElementById('maxImages').value = '9';
+            document.getElementById('editorType').value = 'richText';
+            
+            document.getElementById('enableInventory').checked = true;
+            document.getElementById('lowStockAlert').value = '10';
+            document.getElementById('allowOrderWhenOutOfStock').checked = false;
+            document.getElementById('allowNegativeStock').checked = false;
+            document.getElementById('deductStockTiming').value = 'onOrder';
+            
+            document.getElementById('enableMemberPrice').checked = true;
+            document.getElementById('enableDistributionPrice').checked = false;
+            document.getElementById('enableWholesalePrice').checked = true;
+            document.getElementById('priceDisplayRule').value = 'showOriginal';
+            document.getElementById('enablePriceProtection').checked = false;
+            
+            document.getElementById('enablePurchaseLimit').checked = false;
+            document.getElementById('defaultMinPurchase').value = '1';
+            document.getElementById('defaultMaxPurchase').value = '0';
+            document.getElementById('enablePreSale').checked = false;
+            document.getElementById('defaultDeliveryMethod').value = 'express';
+            document.getElementById('defaultFreeShipping').checked = true;
+            
+            document.getElementById('enableMultiCategory').checked = true;
+            document.getElementById('categoryDepth').value = '2';
+            document.getElementById('requireCategory').checked = true;
+            
+            document.getElementById('enableBarcode').checked = true;
+            document.getElementById('requireBarcode').checked = false;
+            document.getElementById('barcodeUnique').checked = true;
+            document.getElementById('barcodeFormat').value = 'any';
+
+            alert('设置已重置为默认值');
+        }
+
+        // 事件绑定
+        document.getElementById('saveBtn').addEventListener('click', saveSettings);
+        document.getElementById('resetBtn').addEventListener('click', resetSettings);
+    </script>
+</body>
+</html>

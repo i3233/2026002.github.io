@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配送设置 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../../css/Main.css">
+    <style>
+        .delivery-settings-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .settings-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .settings-card-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--color-neutral-100);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item-left {
+            flex: 1;
+            margin-right: var(--spacing-lg);
+        }
+
+        .setting-item-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .setting-item-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .setting-item-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-shrink: 0;
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 输入框 */
+        .form-input,
+        .form-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .form-input--small {
+            width: 120px;
+        }
+
+        .form-input--medium {
+            width: 200px;
+        }
+
+        /* 操作按钮区域 */
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        /* 帮助图标 */
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid var(--color-neutral-300);
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            cursor: help;
+            margin-left: var(--spacing-xs);
+        }
+
+        .help-icon:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        @media (max-width: 1200px) {
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .setting-item-right {
+                width: 100%;
+                margin-top: var(--spacing-sm);
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="delivery-settings-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">配送设置</h1>
+                <div class="page-subtitle">配置配送相关的系统设置和配送规则</div>
+            </div>
+        </div>
+
+        <!-- 配送方式设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">配送方式设置</h3>
+                    <div class="settings-card-desc">启用或禁用各种配送方式</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用快递配送
+                        <span class="help-icon" title="是否启用快递配送方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单可以使用快递配送</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableExpress" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用门店自提
+                        <span class="help-icon" title="是否启用门店自提方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单可以选择门店自提</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableSelfPickup" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用同城配送
+                        <span class="help-icon" title="是否启用同城配送方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，订单可以使用同城配送</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableLocalDelivery" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认配送方式
+                        <span class="help-icon" title="订单的默认配送方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单的默认配送方式</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="defaultDeliveryMethod">
+                        <option value="express" selected>快递配送</option>
+                        <option value="selfPickup">门店自提</option>
+                        <option value="localDelivery">同城配送</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送费用设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">配送费用设置</h3>
+                    <div class="settings-card-desc">设置配送费用的计算规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用包邮功能
+                        <span class="help-icon" title="是否启用包邮功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以设置订单满额包邮</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableFreeShipping" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        包邮金额（元）
+                        <span class="help-icon" title="订单满此金额即可包邮">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单满此金额即可包邮（0表示不包邮）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="freeShippingAmount" value="99" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认运费（元）
+                        <span class="help-icon" title="订单的默认运费">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单的默认运费金额</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="defaultShippingFee" value="10" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        运费计算方式
+                        <span class="help-icon" title="运费的计算方式">?</span>
+                    </div>
+                    <div class="setting-item-desc">选择运费的计算方式</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="shippingFeeCalculation">
+                        <option value="fixed" selected>固定运费</option>
+                        <option value="weight">按重量计算</option>
+                        <option value="quantity">按数量计算</option>
+                        <option value="distance">按距离计算</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        门店自提免费
+                        <span class="help-icon" title="门店自提是否免费">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，门店自提不收取配送费用</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="selfPickupFree" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送时间设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">配送时间设置</h3>
+                    <div class="settings-card-desc">设置配送时间段和时效</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        默认配送时效（小时）
+                        <span class="help-icon" title="订单的默认配送时效">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单的默认配送时效</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="defaultDeliveryTime" value="24" min="1">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用配送时间段选择
+                        <span class="help-icon" title="是否允许用户选择配送时间段">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，用户可以选择订单的配送时间段</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableTimeSlot">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        配送开始时间
+                        <span class="help-icon" title="每日配送开始的时间">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置每日配送开始的时间</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="time" class="form-input form-input--small" id="deliveryStartTime" value="09:00">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        配送结束时间
+                        <span class="help-icon" title="每日配送结束的时间">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置每日配送结束的时间</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="time" class="form-input form-input--small" id="deliveryEndTime" value="18:00">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        周末配送
+                        <span class="help-icon" title="是否支持周末配送">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，周末也可以进行配送</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableWeekendDelivery" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送区域设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">配送区域设置</h3>
+                    <div class="settings-card-desc">设置配送范围和区域限制</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用配送区域限制
+                        <span class="help-icon" title="是否启用配送区域限制">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以设置配送的区域范围</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableDeliveryAreaLimit">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        最大配送距离（公里）
+                        <span class="help-icon" title="订单的最大配送距离">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置订单的最大配送距离（0表示不限制）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="maxDeliveryDistance" value="0" min="0" step="0.1">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        支持配送区域
+                        <span class="help-icon" title="支持配送的区域列表">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置支持配送的区域（留空表示不限制）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="text" class="form-input form-input--medium" id="deliveryAreas" placeholder="如：市区、郊区、周边城市">
+                </div>
+            </div>
+        </div>
+
+        <!-- 配送员设置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h3 class="settings-card-title">配送员设置</h3>
+                    <div class="settings-card-desc">设置配送员管理和分配规则</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        启用配送员管理
+                        <span class="help-icon" title="是否启用配送员管理功能">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，可以管理和分配配送员</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableDeliveryStaff" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        自动分配配送员
+                        <span class="help-icon" title="是否自动分配配送员">?</span>
+                    </div>
+                    <div class="setting-item-desc">开启后，系统会自动分配配送员</div>
+                </div>
+                <div class="setting-item-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoAssignDeliveryStaff" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        配送员分配规则
+                        <span class="help-icon" title="配送员的分配规则">?</span>
+                    </div>
+                    <div class="setting-item-desc">选择配送员的分配规则</div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="deliveryStaffAssignmentRule">
+                        <option value="roundRobin" selected>轮询分配</option>
+                        <option value="nearest">就近分配</option>
+                        <option value="workload">按工作量分配</option>
+                        <option value="manual">手动分配</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
+                        单个配送员最大订单数
+                        <span class="help-icon" title="单个配送员同时处理的最大订单数">?</span>
+                    </div>
+                    <div class="setting-item-desc">设置单个配送员同时处理的最大订单数（0表示不限制）</div>
+                </div>
+                <div class="setting-item-right">
+                    <input type="number" class="form-input form-input--small" id="maxOrdersPerStaff" value="5" min="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="settings-actions">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                // 配送方式设置
+                enableExpress: document.getElementById('enableExpress').checked,
+                enableSelfPickup: document.getElementById('enableSelfPickup').checked,
+                enableLocalDelivery: document.getElementById('enableLocalDelivery').checked,
+                defaultDeliveryMethod: document.getElementById('defaultDeliveryMethod').value,
+                
+                // 配送费用设置
+                enableFreeShipping: document.getElementById('enableFreeShipping').checked,
+                freeShippingAmount: parseFloat(document.getElementById('freeShippingAmount').value),
+                defaultShippingFee: parseFloat(document.getElementById('defaultShippingFee').value),
+                shippingFeeCalculation: document.getElementById('shippingFeeCalculation').value,
+                selfPickupFree: document.getElementById('selfPickupFree').checked,
+                
+                // 配送时间设置
+                defaultDeliveryTime: parseInt(document.getElementById('defaultDeliveryTime').value),
+                enableTimeSlot: document.getElementById('enableTimeSlot').checked,
+                deliveryStartTime: document.getElementById('deliveryStartTime').value,
+                deliveryEndTime: document.getElementById('deliveryEndTime').value,
+                enableWeekendDelivery: document.getElementById('enableWeekendDelivery').checked,
+                
+                // 配送区域设置
+                enableDeliveryAreaLimit: document.getElementById('enableDeliveryAreaLimit').checked,
+                maxDeliveryDistance: parseFloat(document.getElementById('maxDeliveryDistance').value),
+                deliveryAreas: document.getElementById('deliveryAreas').value,
+                
+                // 配送员设置
+                enableDeliveryStaff: document.getElementById('enableDeliveryStaff').checked,
+                autoAssignDeliveryStaff: document.getElementById('autoAssignDeliveryStaff').checked,
+                deliveryStaffAssignmentRule: document.getElementById('deliveryStaffAssignmentRule').value,
+                maxOrdersPerStaff: parseInt(document.getElementById('maxOrdersPerStaff').value)
+            };
+
+            // 模拟保存
+            console.log('保存设置：', settings);
+            alert('设置保存成功！');
+        }
+
+        // 重置设置
+        function resetSettings() {
+            if (!confirm('确定要重置所有设置吗？将恢复到默认值。')) {
+                return;
+            }
+
+            // 重置所有设置到默认值
+            document.getElementById('enableExpress').checked = true;
+            document.getElementById('enableSelfPickup').checked = true;
+            document.getElementById('enableLocalDelivery').checked = true;
+            document.getElementById('defaultDeliveryMethod').value = 'express';
+            
+            document.getElementById('enableFreeShipping').checked = true;
+            document.getElementById('freeShippingAmount').value = '99';
+            document.getElementById('defaultShippingFee').value = '10';
+            document.getElementById('shippingFeeCalculation').value = 'fixed';
+            document.getElementById('selfPickupFree').checked = true;
+            
+            document.getElementById('defaultDeliveryTime').value = '24';
+            document.getElementById('enableTimeSlot').checked = false;
+            document.getElementById('deliveryStartTime').value = '09:00';
+            document.getElementById('deliveryEndTime').value = '18:00';
+            document.getElementById('enableWeekendDelivery').checked = true;
+            
+            document.getElementById('enableDeliveryAreaLimit').checked = false;
+            document.getElementById('maxDeliveryDistance').value = '0';
+            document.getElementById('deliveryAreas').value = '';
+            
+            document.getElementById('enableDeliveryStaff').checked = true;
+            document.getElementById('autoAssignDeliveryStaff').checked = true;
+            document.getElementById('deliveryStaffAssignmentRule').value = 'roundRobin';
+            document.getElementById('maxOrdersPerStaff').value = '5';
+
+            alert('设置已重置为默认值');
+        }
+
+        // 事件绑定
+        document.getElementById('saveBtn').addEventListener('click', saveSettings);
+        document.getElementById('resetBtn').addEventListener('click', resetSettings);
+    </script>
+</body>
+</html>

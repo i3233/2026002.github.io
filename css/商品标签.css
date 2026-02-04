@@ -1,0 +1,413 @@
+/* ============================================
+   商品标签页面样式
+   ============================================ */
+
+.tag-list-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.tag-list-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* ========== 搜索栏 ========== */
+.tag-list-toolbar {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.tag-list-search-section {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.tag-list-search-label {
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.tag-list-search-input {
+    flex: 1;
+    max-width: 400px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.tag-list-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* ========== 操作按钮区 ========== */
+.tag-list-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ========== 表格区域 ========== */
+.tag-list-table-section {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.tag-list-table-wrapper {
+    overflow-x: auto;
+}
+
+.tag-list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tag-list-table thead {
+    background-color: rgba(44, 131, 235, 0.1);
+}
+
+.tag-list-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+    white-space: nowrap;
+}
+
+.tag-list-table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.tag-list-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.tag-list-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tag-list-checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tag-list-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.tag-list-sort-order {
+    color: var(--color-text-primary);
+}
+
+.tag-list-tag-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.tag-list-color-display {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.tag-list-color-box {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-neutral-300);
+    display: inline-block;
+}
+
+.tag-list-color-text {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+}
+
+.tag-list-create-time {
+    color: var(--color-text-secondary);
+}
+
+.tag-list-action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.tag-list-action-btn {
+    padding: 0;
+    font-size: var(--font-size-sm);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.tag-list-action-btn-edit {
+    color: var(--color-primary);
+}
+
+.tag-list-action-btn-edit:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+.tag-list-action-btn-delete {
+    color: var(--color-error);
+}
+
+.tag-list-action-btn-delete:hover {
+    color: #c82333;
+    text-decoration: underline;
+}
+
+/* ========== 按钮样式 ========== */
+.tag-list-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.tag-list-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tag-list-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.tag-list-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.tag-list-btn-outline {
+    background-color: transparent;
+    border-color: var(--color-neutral-300);
+    color: var(--color-text-primary);
+}
+
+.tag-list-btn-outline:hover:not(:disabled) {
+    background-color: var(--color-neutral-50);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.tag-list-btn-icon {
+    font-size: var(--font-size-base);
+}
+
+/* ========== 新建标签弹窗 ========== */
+.tag-list-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-index-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tag-list-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.tag-list-modal-content {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 500px;
+    z-index: calc(var(--z-index-modal) + 1);
+}
+
+.tag-list-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.tag-list-modal-title {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.tag-list-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.tag-list-modal-close:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-primary);
+}
+
+.tag-list-modal-body {
+    padding: var(--spacing-lg);
+}
+
+.tag-list-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+/* ========== 表单样式 ========== */
+.tag-list-form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.tag-list-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.tag-list-form-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.tag-list-form-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background-color: #ffffff;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.tag-list-form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.tag-list-form-input[readonly] {
+    background-color: var(--color-neutral-50);
+    cursor: pointer;
+}
+
+/* ========== 颜色选择器 ========== */
+.tag-list-color-picker {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.tag-list-color-display {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex: 1;
+}
+
+.tag-list-color-box {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-neutral-300);
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tag-list-color-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    min-width: 60px;
+}
+
+.tag-list-color-input {
+    width: 50px;
+    height: 40px;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    padding: 0;
+    background: none;
+}
+
+.tag-list-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.tag-list-color-input::-webkit-color-swatch {
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-sm);
+}
+
+.tag-list-btn-cancel {
+    background-color: transparent;
+    border-color: var(--color-neutral-300);
+    color: var(--color-text-primary);
+}
+
+.tag-list-btn-cancel:hover:not(:disabled) {
+    background-color: var(--color-neutral-50);
+    border-color: var(--color-neutral-400);
+}

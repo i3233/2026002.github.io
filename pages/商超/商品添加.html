@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品添加 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .product-create-page {
+            padding: var(--spacing-lg);
+            padding-bottom: calc(var(--spacing-lg) + 72px); /* 预留底部空间给悬浮按钮栏 */
+            background-color: var(--color-neutral-50);
+        }
+
+        .product-create-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .product-create-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .product-create-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .product-create-tabs {
+            margin-bottom: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg) 0;
+        }
+
+        .product-create-tab-nav {
+            display: flex;
+            gap: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .product-create-tab-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            color: var(--color-text-secondary);
+            position: relative;
+            transition: color var(--transition-base) var(--ease-in-out);
+        }
+
+        .product-create-tab-btn.active {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .product-create-tab-btn.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 2px;
+            background-color: var(--color-primary);
+            border-radius: var(--radius-full);
+        }
+
+        .product-create-tab-panels {
+            padding: var(--spacing-lg);
+        }
+
+        .product-create-tab-panel {
+            display: none;
+        }
+
+        .product-create-tab-panel.active {
+            display: block;
+        }
+
+        .tab-placeholder {
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--color-neutral-300);
+            background-color: var(--color-neutral-50);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* 商品设置卡片布局 */
+        .section-card {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .section-card-header {
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .form-field {
+            flex: 0 0 auto;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .field-label-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .field-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .field-required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .help-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid var(--color-neutral-300);
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-neutral-500);
+            cursor: default;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .input-with-button .form-input,
+        .input-with-button input[type="text"] {
+            flex: 1;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            resize: vertical;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .char-counter {
+            margin-top: var(--spacing-xs);
+            text-align: right;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* 上传区域 */
+        .upload-area {
+            border: 1px dashed var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+        }
+
+        .upload-area-main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .upload-add-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--color-neutral-300);
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .upload-add-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .upload-add-btn-icon {
+            font-size: 24px;
+        }
+
+        .upload-tip {
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* 开关控件（复用商品列表页面风格） */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .field-inline {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .field-link {
+            font-size: var(--font-size-sm);
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .field-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 带单位的输入框 */
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .input-with-unit .form-input {
+            flex: 1;
+        }
+
+        .unit-suffix {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            min-width: 24px;
+        }
+
+        /* 高亮价格/库存输入背景 */
+        .highlight-input {
+            background-color: rgba(76, 110, 245, 0.06);
+        }
+
+        .highlight-input:focus {
+            background-color: #ffffff;
+        }
+
+        /* 禁用状态输入框 */
+        .form-input:disabled {
+            background-color: var(--color-neutral-100);
+            cursor: not-allowed;
+            color: var(--color-text-disabled);
+        }
+
+        /* 复选框样式 */
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        /* 图片选择区域 */
+        .image-select-area {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .image-preview {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-200);
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--color-error);
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .image-delete-btn:hover {
+            background-color: var(--color-error);
+            opacity: 0.9;
+        }
+
+        /* 起售输入框样式 */
+        .qty-input-group {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .qty-input-group .form-input {
+            width: 80px;
+        }
+
+        /* 统一限制本页输入框最大宽度为200px，超出一律收缩 */
+        .product-create-page .form-input {
+            max-width: 200px;
+        }
+
+        /* 单选按钮组 */
+        .radio-group {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-left: var(--spacing-md);
+        }
+
+        .radio-item {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .radio-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .radio-item span {
+            color: var(--color-text-secondary);
+        }
+
+        .radio-item input[type="radio"]:checked + span {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 前置标签输入组 */
+        .input-with-prefix {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .input-prefix {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .input-with-prefix .form-input {
+            flex: 1;
+        }
+
+        /* 图片占位框 */
+        .share-image-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--color-neutral-300);
+            background-color: var(--color-neutral-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            font-size: 32px;
+            margin-top: var(--spacing-sm);
+        }
+
+        /* 富文本编辑器区域 */
+        .rich-text-editor {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            background-color: #ffffff;
+            padding: var(--spacing-md);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-normal);
+            resize: vertical;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .rich-text-editor:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .rich-text-editor::placeholder {
+            color: var(--color-text-disabled);
+        }
+
+        /* 卡片底部操作按钮 */
+        .section-card-footer {
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* 顶层悬浮保存/预览按钮栏 */
+        .page-footer-fixed {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: var(--z-index-fixed);
+            background-color: #ffffff;
+            border-top: 1px solid var(--color-neutral-200);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .page-footer-fixed-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        /* 富文本工具栏 */
+        .rich-text-toolbar {
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            background-color: var(--color-neutral-50);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            border-bottom: none;
+        }
+
+        .toolbar-group {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            margin-right: var(--spacing-md);
+        }
+
+        .toolbar-btn {
+            min-width: 28px;
+            height: 28px;
+            padding: 0 var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            background-color: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .toolbar-btn:hover {
+            background-color: var(--color-neutral-100);
+            border-color: var(--color-neutral-200);
+            color: var(--color-text-primary);
+        }
+
+        .toolbar-btn.active {
+            background-color: rgba(44, 131, 235, 0.08);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="product-create-page">
+        <div class="product-create-header">
+            <h1 class="product-create-title">商品添加</h1>
+            <div class="product-create-actions">
+                <button class="btn btn-outline" onclick="history.back()">返回列表</button>
+                <button class="btn btn-primary">保存草稿</button>
+                <button class="btn btn-primary">保存并上架</button>
+            </div>
+        </div>
+
+        <div class="product-create-tabs">
+            <div class="product-create-tab-nav">
+                <button class="product-create-tab-btn active" data-tab="base">商品设置</button>
+                <button class="product-create-tab-btn" data-tab="fx">分销价设置</button>
+                <button class="product-create-tab-btn" data-tab="vip">会员价设置</button>
+                <button class="product-create-tab-btn" data-tab="share">分红设置</button>
+            </div>
+            <div class="product-create-tab-panels">
+                <div class="product-create-tab-panel active" id="tab-base">
+                    <!-- 1. 选择分类卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">选择分类</div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品分类</span>
+                                    <span class="field-required">*</span>
+                                </div>
+                                <div class="field-inline">
+                                    <button class="btn btn-primary" type="button">选择分类</button>
+                                    <span class="field-link">添加分类</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 商品设置卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">商品设置</div>
+                        </div>
+
+                        <!-- 基本信息 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商城商品编码</span>
+                                    <span class="help-icon" title="请输入商城商品id，支持从外部系统获取">?</span>
+                                </div>
+                                <div class="input-with-button">
+                                    <input type="text" class="form-input" placeholder="请输入商城商品id">
+                                    <button class="btn btn-primary" type="button">获取</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品名称</span>
+                                    <span class="field-required">*</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    id="productName"
+                                    maxlength="100"
+                                    placeholder="请输入商品名称"
+                                >
+                                <div class="char-counter" id="productNameCounter">0 / 100</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">副标题</span>
+                                </div>
+                                <textarea
+                                    id="subtitle"
+                                    class="textarea"
+                                    maxlength="90"
+                                    placeholder="可填写商品卖点、亮点等补充说明"
+                                ></textarea>
+                                <div class="char-counter" id="subtitleCounter">0 / 90</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">关键词</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    id="keywords"
+                                    maxlength="100"
+                                    placeholder="商品关键词能准确搜到商品的，如：华为手机/手机之类"
+                                >
+                                <div class="char-counter" id="keywordsCounter">0 / 100</div>
+                            </div>
+                        </div>
+
+                        <!-- 媒体资源 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品轮播图(多张)</span>
+                                    <span class="field-required">*</span>
+                                    <span class="help-icon" title="第一张为商品缩略图，建议尺寸750×750，可拖拽改变顺序，最多上传9张">?</span>
+                                </div>
+                                <div class="upload-area">
+                                    <div class="upload-area-main">
+                                        <div class="upload-add-btn" type="button">
+                                            <div class="upload-add-btn-icon">＋</div>
+                                            <div>添加图片</div>
+                                        </div>
+                                        <!-- 预览缩略图区域后续可扩展 -->
+                                    </div>
+                                    <div class="upload-tip">
+                                        第一张为缩略图，建议像素750×750，最多支持上传9张，可拖拽调整顺序。
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品视频</span>
+                                </div>
+                                <div class="input-with-button">
+                                    <input
+                                        type="text"
+                                        class="form-input"
+                                        placeholder="请输入视频原地址或选择上传视频"
+                                    >
+                                    <button class="btn btn-primary" type="button">添加视频</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 状态与排序 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">上架状态</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="statusToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="text-secondary">关闭时，商品将不会在前台展示</span>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">排序</span>
+                                    <span class="help-icon" title="数值越大，排序越靠前，默认100">?</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    class="form-input"
+                                    value="100"
+                                    min="0"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- 参数设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">参数</span>
+                                </div>
+                                <div class="field-inline" style="margin-bottom: var(--spacing-sm);">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="paramToggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="text-secondary">开启后，可在详情页展示参数信息</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">参数标题</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    id="paramTitle"
+                                    maxlength="20"
+                                    placeholder="请输入参数标题"
+                                >
+                                <div class="char-counter" id="paramTitleCounter">0 / 20</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">参数内容</span>
+                                </div>
+                                <div class="field-inline" style="margin-bottom: var(--spacing-xs);">
+                                    <button class="btn btn-outline" type="button">选择参数模板</button>
+                                    <button class="btn btn-outline" type="button">添加参数项目</button>
+                                </div>
+                                <div class="text-secondary" style="font-size: var(--font-size-xs);">
+                                    参数名最多添加20个。
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 标签区域 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品标签</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="tagToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 价格库存卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">价格库存</div>
+                        </div>
+
+                        <!-- 价格设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">售价</span>
+                                    <span class="field-required">*</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input highlight-input"
+                                        value="0"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <span class="unit-suffix">元</span>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">原价</span>
+                                    <span class="help-icon" title="原价用于划线展示，提升促销效果">?</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input highlight-input"
+                                        value="0"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <span class="unit-suffix">元</span>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">成本价</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input highlight-input"
+                                        value="0"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <span class="unit-suffix">元</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 库存设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">计量单位</span>
+                                    <span class="field-required">*</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    id="unitName"
+                                    maxlength="4"
+                                    value="件"
+                                >
+                                <div class="char-counter" id="unitNameCounter">1 / 4</div>
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品总库存</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    class="form-input highlight-input"
+                                    value="0"
+                                    min="0"
+                                    step="1"
+                                >
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">库存预警</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    class="form-input highlight-input"
+                                    value="0"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">
+                                    注：商品库存少于预警数量，商品列表库存数量标红显示。
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 规格设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">默认规格名</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    placeholder="请输入默认规格名"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品规格</span>
+                                    <span class="help-icon" title="支持多规格，如颜色、尺码等，规格名最多添加5个">?</span>
+                                </div>
+                                <div class="field-inline" style="margin-bottom: var(--spacing-xs);">
+                                    <button class="btn btn-outline" type="button">选择规格模板</button>
+                                    <button class="btn btn-outline" type="button">添加规格项目</button>
+                                </div>
+                                <div class="text-secondary" style="font-size: var(--font-size-xs);">
+                                    规格名最多添加5个。
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 商品编码 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品货号</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    id="productSn"
+                                    maxlength="60"
+                                    placeholder="请输入商品货号"
+                                >
+                                <div class="char-counter" id="productSnCounter">0 / 60</div>
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">款式编码</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    placeholder="请输入款式编码"
+                                >
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">条形码</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    placeholder="请输入条形码"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- 物流信息 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品重量</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="请输入商品重量"
+                                    >
+                                    <span class="unit-suffix">克</span>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品体积</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input"
+                                        min="0"
+                                        step="0.0001"
+                                        placeholder="请输入商品体积"
+                                    >
+                                    <span class="unit-suffix">立方米</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 购买设置卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">购买设置</div>
+                        </div>
+
+                        <!-- 发货与销售设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">发货方式</span>
+                                    <span class="help-icon" title="选择商品的发货方式">?</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="deliveryMethodToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">运费到付</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="freightCollectToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">
+                                    注：开启之后请商品快递发货方式运费强制到付，无法与其他运费在线计算，并且不计算起送包邮等规则，订单也不会计算运费
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">销售时间</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="saleTimeToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">已出售量</span>
+                                    <span class="help-icon" title="手动设置商品已售数量">?</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    class="form-input"
+                                    value="0"
+                                    min="0"
+                                    style="width: 200px;"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- 权限与购买限制 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">浏览和购买权限</span>
+                                    <span class="field-required">*</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="permissionToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">价格面议权限</span>
+                                    <span class="help-icon" title="开启后允许价格面议">?</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="priceNegotiateToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">起售</span>
+                                </div>
+                                <div class="qty-input-group">
+                                    <span class="text-secondary" style="font-size: var(--font-size-sm);">商品至少</span>
+                                    <input
+                                        type="number"
+                                        class="form-input"
+                                        value="1"
+                                        min="1"
+                                    >
+                                    <span class="unit-suffix">件</span>
+                                    <span class="text-secondary" style="font-size: var(--font-size-sm);">起售</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">倍数加购</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="multipleBuyToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">
+                                    注：开启后手机端商品数量无法自定义输入，点击增加/减少按钮以设置倍数增加/减少
+                                </div>
+                                <div style="margin-top: var(--spacing-xs);">
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 限购设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">限购</span>
+                                </div>
+                                <div class="field-inline" style="margin-bottom: var(--spacing-sm);">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="limitBuyToggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-item" style="margin-bottom: var(--spacing-xs);">
+                                    <input type="checkbox" id="limitLifetime" checked>
+                                    <label for="limitLifetime">终身限购</label>
+                                    <span class="field-link" style="margin-left: var(--spacing-sm);">无限制</span>
+                                </div>
+                                <div class="checkbox-item" style="margin-bottom: var(--spacing-xs);">
+                                    <input type="checkbox" id="limitPeriod" checked>
+                                    <label for="limitPeriod">按周期限购</label>
+                                    <span class="field-link" style="margin-left: var(--spacing-sm);">无限制</span>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="limitOrder" checked>
+                                    <label for="limitOrder">按订单限购</label>
+                                    <span class="field-link" style="margin-left: var(--spacing-sm);">无限制</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 商品服务 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品服务标题</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    value="保障"
+                                >
+                                <div style="margin-top: var(--spacing-xs);">
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品服务标识</span>
+                                </div>
+                                <div class="image-select-area">
+                                    <div class="image-preview">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23dc3545' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-size='40'%3E✓%3C/text%3E%3C/svg%3E" alt="服务标识">
+                                        <div class="image-delete-btn">×</div>
+                                    </div>
+                                    <button class="btn btn-outline" type="button">选择图片</button>
+                                    <button class="btn btn-text" type="button">恢复默认</button>
+                                </div>
+                                <div style="margin-top: var(--spacing-xs);">
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品服务内容</span>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="defaultService" checked>
+                                    <label for="defaultService">默认服务</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 运费与配送 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">运费设置</span>
+                                    <span class="field-required">*</span>
+                                    <span class="help-icon" title="选择商品的运费计算方式">?</span>
+                                </div>
+                                <button class="btn btn-outline" type="button">选择运费</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">是否包邮</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="freeShippingToggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">包邮规则</span>
+                                    <span class="field-required">*</span>
+                                </div>
+                                <button class="btn btn-outline" type="button">选择包邮规则</button>
+                            </div>
+                        </div>
+
+                        <!-- 其他设置 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">自定义表单</span>
+                                    <span class="help-icon" title="选择自定义表单用于收集额外信息">?</span>
+                                </div>
+                                <button class="btn btn-outline" type="button">选择表单</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">区域购买</span>
+                                    <span class="field-required">*</span>
+                                    <span class="help-icon" title="限制商品在特定区域销售">?</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="regionBuyToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. 营销设置卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">营销设置</div>
+                        </div>
+
+                        <!-- 积分与抵扣 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">积分赠送</span>
+                                    <span class="help-icon" title="设置下单后赠送的积分">?</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                        style="width: 120px;"
+                                    >
+                                    <span class="unit-suffix">分</span>
+                                    <div class="radio-group">
+                                        <label class="radio-item">
+                                            <input type="radio" name="pointGiveType" value="fixed" checked>
+                                            <span>固定值</span>
+                                        </label>
+                                        <label class="radio-item">
+                                            <input type="radio" name="pointGiveType" value="percent">
+                                            <span>百分比</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">积分抵扣</span>
+                                    <span class="help-icon" title="设置积分最多可抵扣的金额">?</span>
+                                </div>
+                                <div class="input-with-prefix">
+                                    <span class="input-prefix">最多抵扣</span>
+                                    <div class="input-with-unit" style="flex: 1;">
+                                        <input
+                                            type="number"
+                                            class="form-input"
+                                            value="0"
+                                            min="0"
+                                            step="0.01"
+                                            style="width: 120px;"
+                                        >
+                                        <span class="unit-suffix">元</span>
+                                        <div class="radio-group">
+                                            <label class="radio-item">
+                                                <input type="radio" name="pointDeductType" value="fixed" checked>
+                                                <span>固定值</span>
+                                            </label>
+                                            <label class="radio-item">
+                                                <input type="radio" name="pointDeductType" value="percent">
+                                                <span>百分比</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="checkbox-item" style="margin-top: var(--spacing-xs);">
+                                    <input type="checkbox" id="pointDeductMulti">
+                                    <label for="pointDeductMulti">允许多件累计抵扣</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">余额赠送</span>
+                                </div>
+                                <div class="input-with-unit">
+                                    <input
+                                        type="number"
+                                        class="form-input"
+                                        value="0"
+                                        min="0"
+                                        step="0.01"
+                                        style="width: 120px;"
+                                    >
+                                    <span class="unit-suffix">元</span>
+                                    <div class="radio-group">
+                                        <label class="radio-item">
+                                            <input type="radio" name="balanceGiveType" value="fixed" checked>
+                                            <span>固定值</span>
+                                        </label>
+                                        <label class="radio-item">
+                                            <input type="radio" name="balanceGiveType" value="percent">
+                                            <span>百分比</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">余额赠送限制</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="balanceLimitToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">
+                                    注：仅支持设置时间段内支付的订单赠送余额
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 优惠券与卡券 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">优惠券发放</span>
+                                </div>
+                                <button class="btn btn-outline" type="button">选择优惠券</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">卡券发放</span>
+                                </div>
+                                <button class="btn btn-outline" type="button">新增卡券</button>
+                            </div>
+                        </div>
+
+                        <!-- 推荐与营销 -->
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品相关推荐</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="recommendToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">商品营销图</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="marketingImageToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. 视频号设置卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">视频号设置</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">关联视频号视频</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="wechatVideoToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">
+                                    注：此功能仅支持微信小程序
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">视频号直播间</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="wechatLiveToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. 分享设置卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">分享设置</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">自定义分享标题</span>
+                                    <span class="help-icon" title="设置商品分享时展示的标题">?</span>
+                                </div>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    placeholder="请输入分享标题"
+                                >
+                                <div style="margin-top: var(--spacing-xs);">
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">自定义分享图片</span>
+                                    <span class="help-icon" title="设置商品分享时展示的图片">?</span>
+                                </div>
+                                <button class="btn btn-outline" type="button">选择图片</button>
+                                <div class="share-image-placeholder">
+                                    🖼
+                                </div>
+                                <div style="margin-top: var(--spacing-xs);">
+                                    <span class="field-link">查看图例</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. 商品详情卡片 -->
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">商品详情</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field" style="width: 100%; max-width: none;">
+                                <!-- 简单富文本工具栏，仅图标示意，无实际功能 -->
+                                <div class="rich-text-toolbar">
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn active" title="加粗"><strong>B</strong></button>
+                                        <button type="button" class="toolbar-btn" title="斜体"><em>I</em></button>
+                                        <button type="button" class="toolbar-btn" title="下划线"><span style="text-decoration: underline;">U</span></button>
+                                    </div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" title="标题1">H1</button>
+                                        <button type="button" class="toolbar-btn" title="标题2">H2</button>
+                                        <button type="button" class="toolbar-btn" title="正文">正文</button>
+                                    </div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" title="项目符号列表">•∕</button>
+                                        <button type="button" class="toolbar-btn" title="编号列表">1.</button>
+                                        <button type="button" class="toolbar-btn" title="引用">❝</button>
+                                    </div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" title="插入图片">🖼</button>
+                                        <button type="button" class="toolbar-btn" title="插入链接">🔗</button>
+                                        <button type="button" class="toolbar-btn" title="插入表格">▦</button>
+                                    </div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" title="撤销">⟲</button>
+                                        <button type="button" class="toolbar-btn" title="重做">⟳</button>
+                                        <button type="button" class="toolbar-btn" title="清除格式">Tx</button>
+                                    </div>
+                                </div>
+                                <!-- 富文本编辑区域（仅样式，不接功能） -->
+                                <div
+                                    class="rich-text-editor"
+                                    contenteditable="true"
+                                >在此编辑商品详情内容，可包含文字、段落说明、图文介绍等。</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="product-create-tab-panel" id="tab-fx">
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">分销价设置</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">是否参与分销</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="joinDistributionToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">是否开启单独分销</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="singleDistributionToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-create-tab-panel" id="tab-vip">
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">会员价设置</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">是否享受会员价折扣</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="vipDiscountToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">是否单独设置会员价</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="vipSeparatePriceToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-create-tab-panel" id="tab-share">
+                    <div class="card section-card">
+                        <div class="section-card-header">
+                            <div class="section-card-title">分红设置</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-field">
+                                <div class="field-label-row">
+                                    <span class="field-label">是否享受团队分红</span>
+                                </div>
+                                <div class="field-inline">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="teamBonusToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer-fixed">
+            <div class="page-footer-fixed-inner">
+                <button class="btn btn-outline" type="button">保存</button>
+                <button class="btn btn-primary" type="button">预览</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 顶部切页切换
+        const tabButtons = document.querySelectorAll('.product-create-tab-btn');
+        const tabPanels = document.querySelectorAll('.product-create-tab-panel');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+
+                btn.classList.add('active');
+                const activePanel = document.getElementById('tab-' + tab);
+                if (activePanel) {
+                    activePanel.classList.add('active');
+                }
+            });
+        });
+
+        // 字符统计
+        function bindCharCounter(inputId, counterId, max) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            if (!input || !counter) return;
+
+            const update = () => {
+                const len = input.value.length;
+                counter.textContent = len + ' / ' + max;
+            };
+
+            input.addEventListener('input', update);
+            update();
+        }
+
+        bindCharCounter('productName', 'productNameCounter', 100);
+        bindCharCounter('subtitle', 'subtitleCounter', 90);
+        bindCharCounter('keywords', 'keywordsCounter', 100);
+        bindCharCounter('paramTitle', 'paramTitleCounter', 20);
+        bindCharCounter('unitName', 'unitNameCounter', 4);
+        bindCharCounter('productSn', 'productSnCounter', 60);
+    </script>
+</body>
+</html>
+

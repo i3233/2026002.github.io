@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提货点管理 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .pickup-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题条 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 顶部工具栏整体卡片（与订单相关页面风格统一） */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .toolbar-left,
+        .toolbar-center,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .toolbar-left {
+            flex: 1.6;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .toolbar-right {
+            flex: 1;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .toolbar-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 统计卡片区域：简单展示提货点数量与在线状态 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 220px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        .summary-unit {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .status-pill {
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+        }
+
+        .status-pill--success {
+            color: var(--color-success);
+        }
+
+        .status-pill--primary {
+            color: var(--color-primary);
+        }
+
+        .status-pill--warning {
+            color: #ff8c42;
+        }
+
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left,
+            .toolbar-center,
+            .toolbar-right {
+                justify-content: flex-start;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pickup-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">提货点管理</h1>
+                <div class="page-subtitle">用于管理用户自提点位（提货点），支持新增/编辑/启用/禁用等操作的静态示意页面。</div>
+            </div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="toolbar-card">
+            <!-- 左侧操作按钮 -->
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addPickupBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">＋</span>
+                        <span>新增提货点</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="batchEnableBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">✔</span>
+                        <span>批量启用</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="batchDisableBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">✖</span>
+                        <span>批量禁用</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- 中间搜索 -->
+            <div class="toolbar-center">
+                <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="搜索：提货点名称 / 联系人 / 手机号 / 地址">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧按钮 -->
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊙</span>
+                        <span>统计</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">提货点总数</div>
+                <div class="summary-value summary-value-blue">
+                    <span id="summaryTotalPickup">5</span>
+                    <span class="summary-unit">个</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">启用中提货点</div>
+                <div class="summary-value summary-value-green">
+                    <span id="summaryEnabledPickup">4</span>
+                    <span class="summary-unit">个</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">今日预约提货订单</div>
+                <div class="summary-value summary-value-red">
+                    <span id="summaryTodayOrders">23</span>
+                    <span class="summary-unit">单</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th class="sortable" data-sort="name">提货点名称</th>
+                            <th>所在门店/组织</th>
+                            <th>提货地址</th>
+                            <th>联系人</th>
+                            <th>联系电话</th>
+                            <th>营业时间</th>
+                            <th>当前状态</th>
+                            <th>自提可用</th>
+                            <th>默认提货点</th>
+                            <th>排序</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pickupTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="btn btn-outline" id="batchSetDefaultBtn">批量设为默认</button>
+                    <button class="btn btn-outline" id="batchDeleteBtn">删除</button>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 个提货点</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 5 条记录</span>
+                    <div class="pagination-pages">
+                        <button class="pagination-page-btn active">1</button>
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 静态提货点数据
+        const pickups = [
+            {
+                id: 1,
+                name: '雅安城市自提点 - 雨城店',
+                store: '雨城区旗舰店',
+                address: '四川省雅安市雨城区某路 88 号',
+                contact: '张三',
+                mobile: '13800001001',
+                time: '09:00 - 21:00',
+                status: '启用',
+                enabled: true,
+                pickupAvailable: true,
+                isDefault: true,
+                sort: 200
+            },
+            {
+                id: 2,
+                name: '雅安城市自提点 - 名山店',
+                store: '名山区体验店',
+                address: '四川省雅安市名山区某路 66 号',
+                contact: '李四',
+                mobile: '13800001002',
+                time: '09:00 - 20:00',
+                status: '启用',
+                enabled: true,
+                pickupAvailable: true,
+                isDefault: false,
+                sort: 180
+            },
+            {
+                id: 3,
+                name: '雅安城市自提点 - 荥经店',
+                store: '荥经县门店',
+                address: '四川省雅安市荥经县某街 18 号',
+                contact: '王五',
+                mobile: '13800001003',
+                time: '10:00 - 20:00',
+                status: '启用',
+                enabled: true,
+                pickupAvailable: true,
+                isDefault: false,
+                sort: 160
+            },
+            {
+                id: 4,
+                name: '雅安城市自提点 - 石棉店',
+                store: '石棉县门店',
+                address: '四川省雅安市石棉县某街 28 号',
+                contact: '赵六',
+                mobile: '13800001004',
+                time: '09:30 - 19:30',
+                status: '停用',
+                enabled: false,
+                pickupAvailable: false,
+                isDefault: false,
+                sort: 120
+            },
+            {
+                id: 5,
+                name: '雅安城市自提点 - 蒙顶山店',
+                store: '蒙顶山景区店',
+                address: '四川省雅安市名山区蒙顶山景区内',
+                contact: '钱七',
+                mobile: '13800001005',
+                time: '10:00 - 18:00',
+                status: '启用',
+                enabled: true,
+                pickupAvailable: true,
+                isDefault: false,
+                sort: 140
+            }
+        ];
+
+        let filteredPickups = [...pickups];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        const tbody = document.getElementById('pickupTableBody');
+
+        function renderTable() {
+            tbody.innerHTML = '';
+            filteredPickups.forEach(item => {
+                const statusClass = item.enabled
+                    ? 'status-pill status-pill--success'
+                    : 'status-pill status-pill--warning';
+
+                const pickupAvailableText = item.pickupAvailable ? '可用' : '不可用';
+                const defaultText = item.isDefault ? '是' : '否';
+
+                const tr = document.createElement('tr');
+                tr.dataset.id = item.id;
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${item.id}">
+                    </td>
+                    <td>
+                        <span class="link-text pickup-link" data-id="${item.id}">${item.name}</span>
+                    </td>
+                    <td>${item.store}</td>
+                    <td>${item.address}</td>
+                    <td>${item.contact}</td>
+                    <td>${item.mobile}</td>
+                    <td>${item.time}</td>
+                    <td>
+                        <span class="${statusClass} status-link" data-id="${item.id}">${item.status}</span>
+                    </td>
+                    <td>${pickupAvailableText}</td>
+                    <td>${defaultText}</td>
+                    <td class="text-right">${item.sort}</td>
+                    <td>
+                        <button class="btn-link edit-btn" data-id="${item.id}">编辑</button>
+                        <button class="btn-link delete-btn" data-id="${item.id}">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateSelectedInfo();
+        }
+
+        // 排序（按名称）
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            if (column === 'name') {
+                filteredPickups.sort((a, b) => {
+                    const aVal = a.name.toLowerCase();
+                    const bVal = b.name.toLowerCase();
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+            }
+
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            const th = document.querySelector('th.sortable[data-sort="' + column + '"]');
+            if (th) {
+                th.classList.add(sortDirection);
+            }
+
+            renderTable();
+        }
+
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.sort;
+                sortData(col);
+            });
+        });
+
+        // 搜索
+        function doQuickSearch() {
+            const kw = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            if (!kw) {
+                filteredPickups = [...pickups];
+            } else {
+                filteredPickups = pickups.filter(p => {
+                    return (
+                        p.name.toLowerCase().includes(kw) ||
+                        p.store.toLowerCase().includes(kw) ||
+                        p.contact.toLowerCase().includes(kw) ||
+                        p.mobile.toLowerCase().includes(kw) ||
+                        p.address.toLowerCase().includes(kw)
+                    );
+                });
+            }
+            renderTable();
+        }
+
+        document.getElementById('quickSearchBtn').addEventListener('click', doQuickSearch);
+        document.getElementById('quickSearchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                doQuickSearch();
+            }
+        });
+
+        // 全选 / 反选
+        const selectAll = document.getElementById('selectAll');
+        const bottomSelectAll = document.getElementById('bottomSelectAll');
+
+        function getSelectedIds() {
+            const ids = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                ids.push(parseInt(cb.dataset.id, 10));
+            });
+            return ids;
+        }
+
+        function updateSelectedInfo() {
+            const ids = getSelectedIds();
+            document.getElementById('selectedInfo').textContent = '已选择 ' + ids.length + ' 个提货点';
+        }
+
+        function syncSelectAll() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const allChecked = checkedCount > 0 && checkedCount === checkboxes.length;
+            selectAll.checked = allChecked;
+            bottomSelectAll.checked = allChecked;
+            updateSelectedInfo();
+        }
+
+        selectAll.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => (cb.checked = checked));
+            bottomSelectAll.checked = checked;
+            updateSelectedInfo();
+        });
+
+        bottomSelectAll.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => (cb.checked = checked));
+            selectAll.checked = checked;
+            updateSelectedInfo();
+        });
+
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                syncSelectAll();
+            }
+        });
+
+        // 顶部按钮：新增提货点
+        document.getElementById('addPickupBtn').addEventListener('click', function () {
+            alert('新增提货点（示例）：此处应弹出提货点编辑弹窗或跳转到提货点编辑页面。');
+        });
+
+        document.getElementById('batchEnableBtn').addEventListener('click', function () {
+            const ids = getSelectedIds();
+            if (!ids.length) {
+                alert('请先勾选需要启用的提货点。');
+                return;
+            }
+            alert('批量启用提货点（示例）：共选择 ' + ids.length + ' 个。');
+        });
+
+        document.getElementById('batchDisableBtn').addEventListener('click', function () {
+            const ids = getSelectedIds();
+            if (!ids.length) {
+                alert('请先勾选需要禁用的提货点。');
+                return;
+            }
+            alert('批量禁用提货点（示例）：共选择 ' + ids.length + ' 个。');
+        });
+
+        // 底部批量操作
+        document.getElementById('batchSetDefaultBtn').addEventListener('click', function () {
+            const ids = getSelectedIds();
+            if (!ids.length) {
+                alert('请先勾选需要设置为默认的提货点。');
+                return;
+            }
+            alert('批量设置默认提货点（示例）：共选择 ' + ids.length + ' 个。实际业务中通常只允许一个默认提货点。');
+        });
+
+        document.getElementById('batchDeleteBtn').addEventListener('click', function () {
+            const ids = getSelectedIds();
+            if (!ids.length) {
+                alert('请先勾选需要删除的提货点。');
+                return;
+            }
+            if (!confirm('确定要删除选中的提货点吗？当前仅为前端示例，不会真实删除数据。')) {
+                return;
+            }
+            alert('已模拟删除 ' + ids.length + ' 个提货点（示例）。');
+        });
+
+        // 行内操作按钮
+        document.addEventListener('click', function (e) {
+            const pickupLink = e.target.closest('.pickup-link');
+            const statusLink = e.target.closest('.status-link');
+            const editBtn = e.target.closest('.edit-btn');
+            const deleteBtn = e.target.closest('.delete-btn');
+
+            if (pickupLink) {
+                const id = parseInt(pickupLink.dataset.id, 10);
+                alert('查看提货点详情（示例）\\nID：' + id);
+            }
+
+            if (statusLink) {
+                const id = parseInt(statusLink.dataset.id, 10);
+                alert('切换提货点状态（示例）\\nID：' + id);
+            }
+
+            if (editBtn) {
+                const id = parseInt(editBtn.dataset.id, 10);
+                alert('编辑提货点（示例）\\nID：' + id);
+            }
+
+            if (deleteBtn) {
+                const id = parseInt(deleteBtn.dataset.id, 10);
+                if (!confirm('确定要删除该提货点吗？当前仅为前端示例，不会真实删除数据。')) {
+                    return;
+                }
+                alert('已模拟删除提货点 ID：' + id + '（示例）。');
+            }
+        });
+
+        // 更多搜索按钮示意
+        document.getElementById('moreSearchBtn').addEventListener('click', function () {
+            alert('更多搜索（示例）：此处可展开区域、状态、门店等高级筛选条件。');
+        });
+
+        // 初始化
+        renderTable();
+    </script>
+</body>
+</html>

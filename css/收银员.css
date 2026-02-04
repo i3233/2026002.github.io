@@ -1,0 +1,482 @@
+/* ============================================
+   收银员管理页面样式
+   ============================================ */
+
+.cashier-staff-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.cashier-staff-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* ========== 页面标题和操作栏 ========== */
+.cashier-staff-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+}
+
+.cashier-staff-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.cashier-staff-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* ========== 筛选和搜索区 ========== */
+.cashier-staff-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+}
+
+.cashier-filter-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.cashier-filter-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.cashier-filter-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.cashier-filter-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    background-color: var(--color-neutral-50);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.cashier-filter-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.cashier-filter-btn-active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.cashier-search-wrapper {
+    flex: 1;
+    max-width: 300px;
+}
+
+.cashier-search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.cashier-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* ========== 表格区域 ========== */
+.cashier-staff-table-section {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.cashier-table-wrapper {
+    overflow-x: auto;
+}
+
+.cashier-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cashier-table thead {
+    background-color: var(--color-neutral-50);
+}
+
+.cashier-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+    white-space: nowrap;
+}
+
+.cashier-table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.cashier-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.cashier-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 角色标签 */
+.cashier-role-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+}
+
+.cashier-role-badge-cashier {
+    background-color: rgba(44, 131, 235, 0.1);
+    color: var(--color-primary);
+}
+
+.cashier-role-badge-manager {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--color-warning);
+}
+
+.cashier-role-badge-supervisor {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-success);
+}
+
+/* 权限显示 */
+.cashier-permissions-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.cashier-permission-tag {
+    display: inline-block;
+    padding: 2px var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+}
+
+/* 状态标签 */
+.cashier-status-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+}
+
+.cashier-status-badge-active {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-success);
+}
+
+.cashier-status-badge-inactive {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--color-error);
+}
+
+/* 操作按钮 */
+.cashier-action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+/* ========== 弹窗样式 ========== */
+.cashier-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-modal);
+}
+
+.cashier-modal-content {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.cashier-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.cashier-modal-header h3 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.cashier-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: var(--color-neutral-100);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-secondary);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.cashier-modal-close:hover {
+    background-color: var(--color-neutral-200);
+    color: var(--color-text-primary);
+}
+
+.cashier-modal-body {
+    padding: var(--spacing-lg);
+    flex: 1;
+}
+
+.cashier-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+/* ========== 表单样式 ========== */
+.cashier-form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.cashier-form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.cashier-required {
+    color: var(--color-error);
+}
+
+.cashier-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.cashier-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.cashier-input:disabled {
+    background-color: var(--color-neutral-100);
+    cursor: not-allowed;
+}
+
+.cashier-form-tip {
+    display: block;
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.cashier-permissions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-neutral-50);
+    border-radius: var(--radius-md);
+}
+
+.cashier-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.cashier-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* ========== 开关样式 ========== */
+.cashier-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.cashier-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cashier-switch-slider {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    background-color: var(--color-neutral-300);
+    transition: var(--transition-base);
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+.cashier-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    transition: var(--transition-base);
+    border-radius: 50%;
+}
+
+.cashier-switch input:checked + .cashier-switch-slider {
+    background-color: var(--color-primary);
+}
+
+.cashier-switch input:checked + .cashier-switch-slider:before {
+    transform: translateX(20px);
+}
+
+.cashier-switch-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+/* ========== 按钮样式 ========== */
+.cashier-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.cashier-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cashier-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.cashier-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.cashier-btn-secondary {
+    background-color: var(--color-secondary);
+    color: #ffffff;
+}
+
+.cashier-btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-neutral-600);
+}
+
+.cashier-btn-outline {
+    background-color: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+}
+
+.cashier-btn-outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.cashier-btn-danger {
+    background-color: transparent;
+    border-color: var(--color-error);
+    color: var(--color-error);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+}
+
+.cashier-btn-danger:hover:not(:disabled) {
+    background-color: var(--color-error);
+    color: #ffffff;
+}

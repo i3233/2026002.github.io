@@ -1,0 +1,310 @@
+/* ============================================
+   商品分类页面样式
+   ============================================ */
+
+.category-list-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.category-list-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* ========== 搜索和操作栏 ========== */
+.category-list-toolbar {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.category-list-search-section {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.category-list-search-label {
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.category-list-search-input {
+    flex: 1;
+    max-width: 400px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+    box-sizing: border-box;
+}
+
+.category-list-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.category-list-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* ========== 表格区域 ========== */
+.category-list-table-section {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.category-list-table-wrapper {
+    overflow-x: auto;
+}
+
+.category-list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.category-list-table thead {
+    background-color: rgba(44, 131, 235, 0.1);
+}
+
+.category-list-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+    white-space: nowrap;
+}
+
+.category-list-table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.category-list-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.category-list-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.category-list-checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.category-list-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.category-list-category-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.category-list-product-count {
+    color: var(--color-primary);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.category-list-product-count:hover {
+    text-decoration: underline;
+}
+
+.category-list-sort-order {
+    color: var(--color-text-primary);
+}
+
+.category-list-status-badge {
+    display: inline-block;
+    padding: 2px var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.category-list-status-badge-enabled {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-success);
+}
+
+.category-list-status-badge-disabled {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--color-error);
+}
+
+.category-list-action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.category-list-action-btn {
+    padding: 0;
+    font-size: var(--font-size-sm);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.category-list-action-btn-edit {
+    color: var(--color-primary);
+}
+
+.category-list-action-btn-edit:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+.category-list-action-btn-delete {
+    color: var(--color-error);
+}
+
+.category-list-action-btn-delete:hover {
+    color: #c82333;
+    text-decoration: underline;
+}
+
+/* ========== 分页器 ========== */
+.category-list-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-top: var(--spacing-lg);
+}
+
+.category-list-pagination-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.category-list-pagination-pages {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+.category-list-pagination-page {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background-color: #ffffff;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.category-list-pagination-page:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.category-list-pagination-page.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.category-list-pagination-page.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.category-list-pagination-right {
+    display: flex;
+    align-items: center;
+}
+
+.category-list-page-size {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.category-list-page-size:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* ========== 按钮样式 ========== */
+.category-list-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.category-list-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.category-list-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.category-list-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.category-list-btn-outline {
+    background-color: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.category-list-btn-outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.category-list-btn-icon {
+    font-size: var(--font-size-base);
+}

@@ -1,0 +1,550 @@
+/* 用料分析页面样式 */
+
+.ingredient-analysis-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.ingredient-analysis-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 页面标题 */
+.ingredient-analysis-header {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.ingredient-analysis-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.ingredient-analysis-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* 筛选条件区域 */
+.ingredient-analysis-filters {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.ingredient-analysis-filter-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.ingredient-analysis-filter-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.ingredient-analysis-filter-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.ingredient-analysis-filter-input,
+.ingredient-analysis-filter-select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.ingredient-analysis-filter-input:focus,
+.ingredient-analysis-filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.ingredient-analysis-filter-separator {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.ingredient-analysis-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.ingredient-analysis-btn-icon {
+    font-size: var(--font-size-base);
+}
+
+.ingredient-analysis-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.ingredient-analysis-btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.ingredient-analysis-btn-outline {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-300);
+}
+
+.ingredient-analysis-btn-outline:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.ingredient-analysis-btn-cancel {
+    background-color: #ffffff;
+    color: var(--color-text-secondary);
+    border-color: var(--color-neutral-300);
+}
+
+.ingredient-analysis-btn-cancel:hover {
+    border-color: var(--color-neutral-400);
+    color: var(--color-text-primary);
+}
+
+/* 统计卡片 */
+.ingredient-analysis-summary-row {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.ingredient-analysis-summary-card {
+    flex: 1;
+    min-width: 200px;
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.ingredient-analysis-summary-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.ingredient-analysis-summary-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+}
+
+.ingredient-analysis-summary-value-blue {
+    color: var(--color-primary);
+}
+
+.ingredient-analysis-summary-value-green {
+    color: var(--color-success);
+}
+
+.ingredient-analysis-summary-value-red {
+    color: var(--color-error);
+}
+
+/* 操作按钮区 */
+.ingredient-analysis-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--spacing-lg);
+}
+
+.ingredient-analysis-toolbar-left,
+.ingredient-analysis-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.ingredient-analysis-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.ingredient-analysis-view-toggle:first-of-type {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.ingredient-analysis-view-toggle:last-of-type {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.ingredient-analysis-view-toggle input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.ingredient-analysis-view-toggle input[type="radio"]:checked + span {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.ingredient-analysis-view-toggle:has(input[type="radio"]:checked) {
+    background-color: rgba(44, 131, 235, 0.1);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* 分析结果表格 */
+.ingredient-analysis-table-section {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.ingredient-analysis-table-wrapper {
+    overflow-x: auto;
+}
+
+.ingredient-analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ingredient-analysis-table thead {
+    background-color: var(--color-neutral-50);
+}
+
+.ingredient-analysis-table th,
+.ingredient-analysis-table td {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.ingredient-analysis-table th {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.ingredient-analysis-table tbody tr:hover {
+    background-color: var(--color-neutral-50);
+}
+
+.ingredient-analysis-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.ingredient-analysis-product-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.ingredient-analysis-category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-secondary);
+}
+
+.ingredient-analysis-ingredients-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.ingredient-analysis-ingredient-item {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    padding: var(--spacing-xs);
+    background-color: var(--color-neutral-50);
+    border-radius: var(--radius-sm);
+}
+
+.ingredient-analysis-ingredient-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.ingredient-analysis-action-btn {
+    color: var(--color-primary);
+    background-color: transparent;
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+}
+
+.ingredient-analysis-action-btn:hover {
+    text-decoration: underline;
+}
+
+/* 分页器 */
+.ingredient-analysis-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.ingredient-analysis-pagination-left,
+.ingredient-analysis-pagination-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.ingredient-analysis-pagination-info {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.ingredient-analysis-pagination-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.ingredient-analysis-pagination-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.ingredient-analysis-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ingredient-analysis-pagination-pages {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.ingredient-analysis-pagination-page-btn {
+    min-width: 32px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.ingredient-analysis-pagination-page-btn.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.ingredient-analysis-pagination-page-btn:hover:not(.active) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.ingredient-analysis-pagination-select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+/* 弹窗样式 */
+.ingredient-analysis-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: calc(var(--z-index-modal) + 1);
+}
+
+.ingredient-analysis-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.ingredient-analysis-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: calc(var(--z-index-modal) + 2);
+}
+
+.ingredient-analysis-modal-large {
+    width: 900px;
+}
+
+.ingredient-analysis-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.ingredient-analysis-modal-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.ingredient-analysis-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background-color: transparent;
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.ingredient-analysis-modal-close:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-primary);
+}
+
+.ingredient-analysis-modal-body {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.ingredient-analysis-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-neutral-200);
+}
+
+/* 详情内容 */
+.ingredient-analysis-detail-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.ingredient-analysis-detail-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.ingredient-analysis-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ingredient-analysis-detail-table th,
+.ingredient-analysis-detail-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.ingredient-analysis-detail-table th {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    background-color: var(--color-neutral-50);
+}
+
+@media (max-width: 1200px) {
+    .ingredient-analysis-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ingredient-analysis-filter-group {
+        width: 100%;
+    }
+
+    .ingredient-analysis-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

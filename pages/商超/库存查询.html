@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存查询 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .inventory-query-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-item--full {
+            flex: 1 1 100%;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .filter-item--date-range {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .filter-item--date-range input {
+            flex: 1;
+        }
+
+        .filter-item--date-range span {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        /* 统计摘要区域 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 220px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-orange {
+            color: #ff8c42;
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr {
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-name-link {
+            color: var(--color-primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .product-name-link:hover {
+            text-decoration: underline;
+        }
+
+        .inventory-qty {
+            color: var(--color-error);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+        }
+
+        .inventory-qty:hover {
+            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="inventory-query-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">库存查询</h1>
+                <div class="page-subtitle">查询和管理商品库存信息</div>
+            </div>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>仓库</label>
+                    <select id="warehouseSelect">
+                        <option value="">全部仓库</option>
+                        <!-- 选项由JS动态生成 -->
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>产品分类</label>
+                    <select id="categorySelect">
+                        <option value="">全部分类</option>
+                        <!-- 选项由JS动态生成 -->
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>库存筛选</label>
+                    <select id="inventoryFilterSelect">
+                        <option value="">全部</option>
+                        <option value="hasStock">有库存</option>
+                        <option value="noStock">无库存</option>
+                        <option value="lowStock">低库存</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>库存数量</label>
+                    <input type="number" id="inventoryQtyInput" placeholder="输入数量">
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item filter-item--date-range">
+                    <div style="flex: 1;">
+                        <label>产品录入日期</label>
+                        <input type="date" id="entryDateStart">
+                    </div>
+                    <span>至</span>
+                    <div style="flex: 1;">
+                        <label style="visibility: hidden;">结束日期</label>
+                        <input type="date" id="entryDateEnd">
+                    </div>
+                </div>
+                <div class="filter-item filter-item--date-range">
+                    <div style="flex: 1;">
+                        <label>交易日期</label>
+                        <input type="date" id="tradeDateStart">
+                    </div>
+                    <span>至</span>
+                    <div style="flex: 1;">
+                        <label style="visibility: hidden;">结束日期</label>
+                        <input type="date" id="tradeDateEnd">
+                    </div>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item filter-item--full">
+                    <label>ID、名称、条码、备注</label>
+                    <input type="text" id="searchInput" placeholder="输入关键词搜索">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-outline" id="exportBtn">导出</button>
+                <button class="btn btn-primary" id="searchBtn">搜索</button>
+            </div>
+        </div>
+
+        <!-- 统计摘要区域 -->
+        <div class="summary-row">
+            <div class="summary-card" id="productCountCard">
+                <div class="summary-label">产品数量</div>
+                <div class="summary-value summary-value-blue" id="productCount">425</div>
+            </div>
+            <div class="summary-card" id="inventoryQtyCard">
+                <div class="summary-label">库存数量</div>
+                <div class="summary-value summary-value-orange" id="inventoryQty">23340.730616</div>
+            </div>
+            <div class="summary-card" id="inventoryBalanceCard">
+                <div class="summary-label">库存余额(元)</div>
+                <div class="summary-value summary-value-green" id="inventoryBalance">125013.61</div>
+            </div>
+        </div>
+
+        <!-- 数据表格区域 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="index">序号</th>
+                            <th>产品ID</th>
+                            <th>产品名称</th>
+                            <th>规格型号</th>
+                            <th>分类</th>
+                            <th class="text-right">入库</th>
+                            <th class="text-right">出库</th>
+                            <th class="sortable text-right" data-sort="inventory">库存 ◇</th>
+                            <th class="text-right">平均单位成本</th>
+                            <th class="text-right">库存余额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧信息 -->
+                <div class="bottom-left">
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟仓库数据
+        const warehouses = [
+            { id: 'WH001', name: '主仓库' },
+            { id: 'WH002', name: '分仓库A' },
+            { id: 'WH003', name: '分仓库B' },
+            { id: 'WH004', name: '临时仓库' }
+        ];
+
+        // 模拟产品分类数据
+        const categories = [
+            { id: 'CAT001', name: '厨房用品' },
+            { id: 'CAT002', name: '日用品' },
+            { id: 'CAT003', name: '食品' },
+            { id: 'CAT004', name: '饮料' },
+            { id: 'CAT005', name: '其他' }
+        ];
+
+        // 模拟库存数据
+        const inventoryData = [
+            {
+                id: 'PRD001',
+                name: '隔热垫',
+                spec: '30cm×30cm',
+                category: '厨房用品',
+                warehouse: 'WH001',
+                inQty: 150,
+                outQty: 43,
+                inventory: 107,
+                unit: '个',
+                avgCost: 12.50,
+                balance: 1337.50,
+                barcode: '6901234567890',
+                remark: '优质隔热垫',
+                entryDate: '2025-01-15',
+                lastTradeDate: '2025-01-28'
+            },
+            {
+                id: 'PRD002',
+                name: 'p-6炒锅',
+                spec: '32cm',
+                category: '厨房用品',
+                warehouse: 'WH001',
+                inQty: 80,
+                outQty: 78,
+                inventory: 2,
+                unit: '个',
+                avgCost: 158.00,
+                balance: 316.00,
+                barcode: '6901234567891',
+                remark: '不粘锅',
+                entryDate: '2025-01-10',
+                lastTradeDate: '2025-01-29'
+            },
+            {
+                id: 'PRD003',
+                name: '雅安茶叶',
+                spec: '500g/盒',
+                category: '食品',
+                warehouse: 'WH001',
+                inQty: 200,
+                outQty: 120,
+                inventory: 80,
+                unit: '盒',
+                avgCost: 45.00,
+                balance: 3600.00,
+                barcode: '6901234567892',
+                remark: '蒙顶山茶叶',
+                entryDate: '2025-01-05',
+                lastTradeDate: '2025-01-30'
+            },
+            {
+                id: 'PRD004',
+                name: '雅安花椒',
+                spec: '250g/袋',
+                category: '食品',
+                warehouse: 'WH002',
+                inQty: 300,
+                outQty: 250,
+                inventory: 50,
+                unit: '袋',
+                avgCost: 28.00,
+                balance: 1400.00,
+                barcode: '6901234567893',
+                remark: '四川花椒',
+                entryDate: '2025-01-08',
+                lastTradeDate: '2025-01-29'
+            },
+            {
+                id: 'PRD005',
+                name: '雅安腊肉',
+                spec: '500g/包',
+                category: '食品',
+                warehouse: 'WH001',
+                inQty: 100,
+                outQty: 95,
+                inventory: 5,
+                unit: '包',
+                avgCost: 38.00,
+                balance: 190.00,
+                barcode: '6901234567894',
+                remark: '传统腊肉',
+                entryDate: '2025-01-12',
+                lastTradeDate: '2025-01-30'
+            },
+            {
+                id: 'PRD006',
+                name: '熊猫玩偶',
+                spec: '20cm',
+                category: '其他',
+                warehouse: 'WH001',
+                inQty: 500,
+                outQty: 450,
+                inventory: 50,
+                unit: '个',
+                avgCost: 15.00,
+                balance: 750.00,
+                barcode: '6901234567895',
+                remark: '纪念品',
+                entryDate: '2025-01-20',
+                lastTradeDate: '2025-01-31'
+            },
+            {
+                id: 'PRD007',
+                name: '雅安明信片',
+                spec: '一套10张',
+                category: '其他',
+                warehouse: 'WH001',
+                inQty: 1000,
+                outQty: 980,
+                inventory: 20,
+                unit: '套',
+                avgCost: 12.00,
+                balance: 240.00,
+                barcode: '6901234567896',
+                remark: '旅游纪念',
+                entryDate: '2025-01-18',
+                lastTradeDate: '2025-01-31'
+            },
+            {
+                id: 'PRD008',
+                name: '雅安特产礼盒',
+                spec: '1kg装',
+                category: '食品',
+                warehouse: 'WH001',
+                inQty: 150,
+                outQty: 100,
+                inventory: 50,
+                unit: '盒',
+                avgCost: 88.00,
+                balance: 4400.00,
+                barcode: '6901234567897',
+                remark: '精美礼盒',
+                entryDate: '2025-01-14',
+                lastTradeDate: '2025-01-30'
+            },
+            {
+                id: 'PRD009',
+                name: '雅安蜂蜜',
+                spec: '500g/瓶',
+                category: '食品',
+                warehouse: 'WH002',
+                inQty: 200,
+                outQty: 180,
+                inventory: 20,
+                unit: '瓶',
+                avgCost: 35.00,
+                balance: 700.00,
+                barcode: '6901234567898',
+                remark: '天然蜂蜜',
+                entryDate: '2025-01-16',
+                lastTradeDate: '2025-01-29'
+            },
+            {
+                id: 'PRD010',
+                name: '不锈钢水杯',
+                spec: '500ml',
+                category: '日用品',
+                warehouse: 'WH001',
+                inQty: 300,
+                outQty: 280,
+                inventory: 20,
+                unit: '个',
+                avgCost: 25.00,
+                balance: 500.00,
+                barcode: '6901234567899',
+                remark: '保温杯',
+                entryDate: '2025-01-22',
+                lastTradeDate: '2025-01-31'
+            }
+        ];
+
+        // 当前状态
+        let filteredData = [...inventoryData];
+        let currentPage = 1;
+        let pageSize = 20;
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // 初始化仓库选择器
+        function initWarehouseSelect() {
+            const select = document.getElementById('warehouseSelect');
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                select.appendChild(option);
+            });
+        }
+
+        // 初始化分类选择器
+        function initCategorySelect() {
+            const select = document.getElementById('categorySelect');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        // 筛选数据
+        function filterData() {
+            filteredData = [...inventoryData];
+
+            // 仓库筛选
+            const warehouseId = document.getElementById('warehouseSelect').value;
+            if (warehouseId) {
+                filteredData = filteredData.filter(item => item.warehouse === warehouseId);
+            }
+
+            // 分类筛选
+            const categoryId = document.getElementById('categorySelect').value;
+            if (categoryId) {
+                const categoryName = categories.find(c => c.id === categoryId)?.name;
+                if (categoryName) {
+                    filteredData = filteredData.filter(item => item.category === categoryName);
+                }
+            }
+
+            // 库存筛选
+            const inventoryFilter = document.getElementById('inventoryFilterSelect').value;
+            if (inventoryFilter === 'hasStock') {
+                filteredData = filteredData.filter(item => item.inventory > 0);
+            } else if (inventoryFilter === 'noStock') {
+                filteredData = filteredData.filter(item => item.inventory === 0);
+            } else if (inventoryFilter === 'lowStock') {
+                filteredData = filteredData.filter(item => item.inventory > 0 && item.inventory < 10);
+            }
+
+            // 库存数量筛选
+            const inventoryQty = document.getElementById('inventoryQtyInput').value;
+            if (inventoryQty) {
+                const qty = parseFloat(inventoryQty);
+                filteredData = filteredData.filter(item => item.inventory === qty);
+            }
+
+            // 产品录入日期筛选
+            const entryDateStart = document.getElementById('entryDateStart').value;
+            const entryDateEnd = document.getElementById('entryDateEnd').value;
+            if (entryDateStart) {
+                filteredData = filteredData.filter(item => item.entryDate >= entryDateStart);
+            }
+            if (entryDateEnd) {
+                filteredData = filteredData.filter(item => item.entryDate <= entryDateEnd);
+            }
+
+            // 交易日期筛选
+            const tradeDateStart = document.getElementById('tradeDateStart').value;
+            const tradeDateEnd = document.getElementById('tradeDateEnd').value;
+            if (tradeDateStart) {
+                filteredData = filteredData.filter(item => item.lastTradeDate >= tradeDateStart);
+            }
+            if (tradeDateEnd) {
+                filteredData = filteredData.filter(item => item.lastTradeDate <= tradeDateEnd);
+            }
+
+            // 关键词搜索
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (keyword) {
+                filteredData = filteredData.filter(item => {
+                    return (
+                        item.id.toLowerCase().includes(keyword) ||
+                        item.name.toLowerCase().includes(keyword) ||
+                        item.barcode.toLowerCase().includes(keyword) ||
+                        (item.remark && item.remark.toLowerCase().includes(keyword))
+                    );
+                });
+            }
+
+            // 应用排序
+            if (sortColumn) {
+                sortData(sortColumn, true);
+            }
+
+            // 更新统计
+            updateSummary();
+
+            // 渲染表格
+            renderTable();
+        }
+
+        // 排序数据
+        function sortData(column, keepDirection = false) {
+            if (!keepDirection) {
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = column;
+                    sortDirection = 'asc';
+                }
+            }
+
+            filteredData.sort((a, b) => {
+                let aVal, bVal;
+
+                if (column === 'index') {
+                    // 序号排序使用数组索引
+                    return sortDirection === 'asc' ? 1 : -1;
+                } else if (column === 'inventory') {
+                    aVal = a.inventory;
+                    bVal = b.inventory;
+                }
+
+                if (aVal < bVal) {
+                    return sortDirection === 'asc' ? -1 : 1;
+                } else if (aVal > bVal) {
+                    return sortDirection === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+
+            if (!keepDirection) {
+                // 更新表头排序图标
+                document.querySelectorAll('th.sortable').forEach(th => {
+                    th.classList.remove('asc', 'desc');
+                });
+                const th = document.querySelector(`th.sortable[data-sort="${column}"]`);
+                if (th) {
+                    th.classList.add(sortDirection);
+                }
+            }
+
+            renderTable();
+        }
+
+        // 更新统计
+        function updateSummary() {
+            const productCount = filteredData.length;
+            const inventoryQty = filteredData.reduce((sum, item) => sum + item.inventory, 0);
+            const inventoryBalance = filteredData.reduce((sum, item) => sum + item.balance, 0);
+
+            document.getElementById('productCount').textContent = productCount;
+            document.getElementById('inventoryQty').textContent = inventoryQty.toFixed(6);
+            document.getElementById('inventoryBalance').textContent = inventoryBalance.toFixed(2);
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无数据</td></tr>';
+                document.getElementById('totalRecords').textContent = '0';
+                return;
+            }
+
+            // 分页
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${startIndex + index + 1}</td>
+                    <td>${item.id}</td>
+                    <td>
+                        <a href="#" class="product-name-link" data-id="${item.id}">${item.name}</a>
+                    </td>
+                    <td>${item.spec}</td>
+                    <td>${item.category}</td>
+                    <td class="text-right">${item.inQty}</td>
+                    <td class="text-right">${item.outQty}</td>
+                    <td class="text-right">
+                        <span class="inventory-qty" data-id="${item.id}">${item.inventory}${item.unit}</span>
+                    </td>
+                    <td class="text-right">¥${item.avgCost.toFixed(2)}</td>
+                    <td class="text-right">¥${item.balance.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // 更新分页信息
+            updatePagination();
+            document.getElementById('totalRecords').textContent = filteredData.length;
+
+            // 绑定事件
+            bindTableEvents();
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            const paginationPages = document.getElementById('paginationPages');
+            paginationPages.innerHTML = '';
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-page-btn';
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            paginationPages.appendChild(prevBtn);
+
+            // 页码按钮
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstBtn = document.createElement('button');
+                firstBtn.className = 'pagination-page-btn';
+                firstBtn.textContent = '1';
+                firstBtn.addEventListener('click', () => {
+                    currentPage = 1;
+                    renderTable();
+                });
+                paginationPages.appendChild(firstBtn);
+
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-page-btn';
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTable();
+                });
+                paginationPages.appendChild(pageBtn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationPages.appendChild(ellipsis);
+                }
+
+                const lastBtn = document.createElement('button');
+                lastBtn.className = 'pagination-page-btn';
+                lastBtn.textContent = totalPages;
+                lastBtn.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    renderTable();
+                });
+                paginationPages.appendChild(lastBtn);
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-page-btn';
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            paginationPages.appendChild(nextBtn);
+        }
+
+        // 绑定表格事件
+        function bindTableEvents() {
+            // 产品名称点击
+            document.querySelectorAll('.product-name-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = this.dataset.id;
+                    const product = inventoryData.find(p => p.id === productId);
+                    alert(`产品详情（示例）\n产品ID：${product.id}\n产品名称：${product.name}\n规格型号：${product.spec}\n库存：${product.inventory}${product.unit}\n库存余额：¥${product.balance.toFixed(2)}`);
+                });
+            });
+
+            // 库存数量点击
+            document.querySelectorAll('.inventory-qty').forEach(qty => {
+                qty.addEventListener('click', function() {
+                    const productId = this.dataset.id;
+                    const product = inventoryData.find(p => p.id === productId);
+                    alert(`库存变动记录（示例）\n产品：${product.name}\n当前库存：${product.inventory}${product.unit}\n入库：${product.inQty}\n出库：${product.outQty}`);
+                });
+            });
+        }
+
+        // 导出数据
+        function exportData() {
+            if (filteredData.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+
+            alert(`导出数据（示例）\n共 ${filteredData.length} 条记录\n正在导出Excel文件...`);
+        }
+
+        // 事件绑定
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            currentPage = 1;
+            filterData();
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', exportData);
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                currentPage = 1;
+                filterData();
+            }
+        });
+
+        // 排序事件
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const column = this.dataset.sort;
+                sortData(column);
+            });
+        });
+
+        // 分页大小变化
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            renderTable();
+        });
+
+        // 跳转页面
+        document.getElementById('jumpToPage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const page = parseInt(this.value);
+                const totalPages = Math.ceil(filteredData.length / pageSize);
+                if (page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    renderTable();
+                } else {
+                    alert(`请输入1-${totalPages}之间的页码`);
+                }
+            }
+        });
+
+        // 统计卡片点击
+        document.getElementById('productCountCard').addEventListener('click', function() {
+            alert('产品数量详情（示例）\n点击可查看产品列表详情');
+        });
+
+        document.getElementById('inventoryQtyCard').addEventListener('click', function() {
+            alert('库存数量详情（示例）\n点击可查看库存分析');
+        });
+
+        document.getElementById('inventoryBalanceCard').addEventListener('click', function() {
+            alert('库存余额详情（示例）\n点击可查看库存金额分析');
+        });
+
+        // 初始化
+        initWarehouseSelect();
+        initCategorySelect();
+        filterData();
+    </script>
+</body>
+</html>

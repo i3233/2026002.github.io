@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批发订单 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .wholesale-order-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* 打印机配置区域 */
+        .printer-config-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .printer-config-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .printer-config-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        .printer-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .printer-select-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+
+        .printer-select {
+            min-width: 200px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            background-color: #ffffff;
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .printer-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .printer-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .printer-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .printer-info-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .printer-info-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        /* 顶部工具栏 */
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .toolbar-left,
+        .toolbar-center,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .toolbar-left {
+            flex: 1.6;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .toolbar-right {
+            flex: 1;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .toolbar-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        .btn-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-icon-text-symbol {
+            font-size: 14px;
+        }
+
+        /* 统计卡片 */
+        .summary-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 220px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: baseline;
+            gap: var(--spacing-xs);
+        }
+
+        .summary-value-blue {
+            color: var(--color-primary);
+        }
+
+        .summary-value-green {
+            color: var(--color-success);
+        }
+
+        .summary-value-red {
+            color: var(--color-error);
+        }
+
+        /* 订单状态 Tab */
+        .order-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .order-tab-btn {
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-full);
+            border: none;
+            background-color: transparent;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .order-tab-btn:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .order-tab-btn.active {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 表格容器 */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: var(--spacing-xl);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: var(--spacing-sm);
+            color: var(--color-neutral-400);
+            font-size: var(--font-size-xs);
+        }
+
+        th.sortable.asc::after {
+            content: '↑';
+            color: var(--color-primary);
+        }
+
+        th.sortable.desc::after {
+            content: '↓';
+            color: var(--color-primary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .link-text {
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .status-pill {
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .status-pill--success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-pill--primary {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        .status-pill--warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--color-warning);
+        }
+
+        .status-pill--error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-error);
+        }
+
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            margin-right: var(--spacing-sm);
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-link.danger {
+            color: var(--color-error);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+        }
+
+        /* 合计行 */
+        .table-footer-row {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 底部工具栏 */
+        .bottom-toolbar {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .bottom-left,
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .bottom-left label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        /* 分页控件 */
+        .page-size-select {
+            padding: 2px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+        }
+
+        .pagination-info {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .pagination-pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pagination-page-btn {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .pagination-page-btn.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        .pagination-page-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .pagination-jump-input {
+            width: 40px;
+            padding: 2px 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-xs);
+            text-align: center;
+        }
+
+        /* 订单来源标签 */
+        .order-source-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .order-source-tag.online-paid {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--color-success);
+        }
+
+        .order-source-tag.online-credit {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--color-warning);
+        }
+
+        .order-source-tag.manual {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left,
+            .toolbar-center,
+            .toolbar-right {
+                justify-content: flex-start;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+
+            .bottom-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wholesale-order-page">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">批发订单</h1>
+                <div class="page-subtitle">管理批发订单，支持商家自助下单和部门代下单</div>
+            </div>
+        </div>
+
+        <!-- 打印机配置区域 -->
+        <div class="printer-config-section">
+            <div class="printer-config-header">
+                <h2 class="printer-config-title">打印机配置</h2>
+            </div>
+            
+            <div class="printer-select-wrapper">
+                <label class="printer-select-label">选择打印机：</label>
+                <select class="printer-select" id="printerSelect">
+                    <option value="">请选择打印机</option>
+                    <!-- 选项由JS动态生成 -->
+                </select>
+                <button class="btn btn-primary" id="bindPrinterBtn">绑定</button>
+                <button class="btn btn-outline" id="unbindPrinterBtn" style="display: none;">解绑</button>
+                <button class="btn btn-outline" id="testPrintBtn" style="display: none;">测试打印</button>
+            </div>
+
+            <!-- 打印机信息（绑定后显示） -->
+            <div id="printerInfo" class="printer-info hidden">
+                <div class="printer-info-item">
+                    <span class="printer-info-label">打印机名称</span>
+                    <span class="printer-info-value" id="printerNameDisplay">-</span>
+                </div>
+                <div class="printer-info-item">
+                    <span class="printer-info-label">打印机型号</span>
+                    <span class="printer-info-value" id="printerModelDisplay">-</span>
+                </div>
+                <div class="printer-info-item">
+                    <span class="printer-info-label">连接方式</span>
+                    <span class="printer-info-value" id="printerConnectionDisplay">-</span>
+                </div>
+                <div class="printer-info-item">
+                    <span class="printer-info-label">绑定时间</span>
+                    <span class="printer-info-value" id="printerBindTimeDisplay">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="toolbar-card">
+            <!-- 左侧按钮组 -->
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addOrderBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">＋</span>
+                        <span>新增订单</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="batchAuditBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">✓</span>
+                        <span>批量审核</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline" id="batchPrintBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">🖨</span>
+                        <span>批量打印</span>
+                    </span>
+                </button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">↑</span>
+                        <span>导出</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- 中间搜索区 -->
+            <div class="toolbar-center">
+                <input type="text" 
+                       class="toolbar-search-input" 
+                       id="quickSearchInput" 
+                       placeholder="快捷搜索：支持按订单号、往来单位、商家名称等关键字">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+
+            <!-- 右侧功能 -->
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-outline">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">⊙</span>
+                        <span>统计</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 订单状态 Tab -->
+        <div class="order-tabs">
+            <button class="order-tab-btn active" data-status="all">全部</button>
+            <button class="order-tab-btn" data-status="pendingAudit">待审核</button>
+            <button class="order-tab-btn" data-status="pendingPrint">待打印</button>
+            <button class="order-tab-btn" data-status="picking">拣货中</button>
+            <button class="order-tab-btn" data-status="pendingOutbound">待出库</button>
+            <button class="order-tab-btn" data-status="completed">已完成</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">订单总额 (元)</div>
+                <div class="summary-value summary-value-blue">
+                    <span id="summaryTotalAmount">0.00</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">待审核订单</div>
+                <div class="summary-value summary-value-red">
+                    <span id="summaryPendingAuditCount">0</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">已完成订单</div>
+                <div class="summary-value summary-value-green">
+                    <span id="summaryCompletedCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>⊙ 订单号</th>
+                            <th class="sortable" data-sort="orderTime">下单时间</th>
+                            <th>订单来源</th>
+                            <th>往来单位/商家</th>
+                            <th>联系人</th>
+                            <th>手机号</th>
+                            <th class="text-right">商品数量</th>
+                            <th class="text-right">订单金额</th>
+                            <th class="text-right">实付金额</th>
+                            <th>支付方式</th>
+                            <th>订单状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-footer-row">
+                            <td colspan="7" class="text-right">合计：</td>
+                            <td class="text-right" id="totalQtyCell">0</td>
+                            <td class="text-right" id="totalAmountCell">0.00</td>
+                            <td class="text-right" id="totalPaidCell">0.00</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="bottom-toolbar">
+                <!-- 左侧批量操作 -->
+                <div class="bottom-left">
+                    <label>
+                        <input type="checkbox" id="bottomSelectAll">
+                        <span>全选</span>
+                    </label>
+                    <button class="btn btn-outline" id="batchExportBtn">批量导出</button>
+                    <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
+                </div>
+
+                <!-- 右侧分页 -->
+                <div class="bottom-right">
+                    <select class="page-size-select" id="pageSizeSelect">
+                        <option value="20" selected>20 条/页</option>
+                        <option value="50">50 条/页</option>
+                        <option value="100">100 条/页</option>
+                    </select>
+                    <span class="pagination-info">共 <span id="totalRecords">0</span> 条记录</span>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- 分页按钮由JS生成 -->
+                    </div>
+                    <span class="pagination-info">跳转到</span>
+                    <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
+                    <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增订单模态框 -->
+    <div class="modal-overlay" id="addOrderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">新增批发订单</h3>
+                <button class="modal-close" id="closeAddOrderModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">往来单位 *</label>
+                    <select class="form-select" id="partnerSelect">
+                        <option value="">请选择往来单位</option>
+                        <!-- 选项由JS动态生成 -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">联系人</label>
+                    <input type="text" class="form-input" id="contactNameInput" placeholder="请输入联系人姓名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <input type="text" class="form-input" id="contactMobileInput" placeholder="请输入手机号">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">支付方式 *</label>
+                    <select class="form-select" id="payTypeSelect">
+                        <option value="credit">赊账</option>
+                        <option value="cash">现金</option>
+                        <option value="transfer">转账</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-input" id="remarkInput" rows="3" placeholder="请输入备注信息"></textarea>
+                </div>
+                <div class="alert-info">
+                    <strong>提示：</strong>订单创建后需要财务审核，审核通过后才能打印拣货单。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelAddOrderBtn">取消</button>
+                <button class="btn btn-primary" id="confirmAddOrderBtn">创建订单</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟打印机数据
+        const printers = [
+            { id: 'PR001', name: '1号打印机', model: 'HP LaserJet Pro', connection: 'USB', status: 'online' },
+            { id: 'PR002', name: '2号打印机', model: 'Canon PIXMA', connection: '网络', status: 'online' },
+            { id: 'PR003', name: '3号打印机', model: 'Epson LQ', connection: 'USB', status: 'offline' }
+        ];
+
+        // 模拟往来单位数据
+        const partners = [
+            { id: 'PT001', name: '雅安批发商A', contact: '张老板', mobile: '13800000001' },
+            { id: 'PT002', name: '成都批发商B', contact: '李经理', mobile: '13800000002' },
+            { id: 'PT003', name: '乐山批发商C', contact: '王总', mobile: '13800000003' },
+            { id: 'PT004', name: '绵阳批发商D', contact: '赵经理', mobile: '13800000004' }
+        ];
+
+        // 模拟批发订单数据
+        const wholesaleOrders = [
+            {
+                id: 'PF20250826001',
+                orderTime: '2025-08-26 09:12:30',
+                source: 'online-paid', // 商家自助线上下单-实付款
+                sourceText: '商家自助(实付)',
+                partner: '雅安批发商A',
+                contact: '张老板',
+                mobile: '13800000001',
+                qty: 50,
+                amount: 5000.00,
+                paid: 5000.00,
+                payType: '转账',
+                status: 'pendingPrint', // 待打印
+                auditStatus: 'approved',
+                auditTime: '2025-08-26 09:13:00',
+                printTime: null,
+                pickingStatus: 'pending',
+                outboundStatus: 'pending',
+                completedTime: null
+            },
+            {
+                id: 'PF20250826002',
+                orderTime: '2025-08-26 10:05:11',
+                source: 'online-credit', // 商家自助线上下单-赊账
+                sourceText: '商家自助(赊账)',
+                partner: '成都批发商B',
+                contact: '李经理',
+                mobile: '13800000002',
+                qty: 30,
+                amount: 3000.00,
+                paid: 0.00,
+                payType: '赊账',
+                status: 'pendingAudit', // 待审核
+                auditStatus: 'pending',
+                auditTime: null,
+                printTime: null,
+                pickingStatus: 'pending',
+                outboundStatus: 'pending',
+                completedTime: null
+            },
+            {
+                id: 'PF20250826003',
+                orderTime: '2025-08-26 11:20:45',
+                source: 'manual', // 批发部门代下单
+                sourceText: '部门代下单',
+                partner: '乐山批发商C',
+                contact: '王总',
+                mobile: '13800000003',
+                qty: 40,
+                amount: 4000.00,
+                paid: 0.00,
+                payType: '赊账',
+                status: 'pendingAudit', // 待审核
+                auditStatus: 'pending',
+                auditTime: null,
+                printTime: null,
+                pickingStatus: 'pending',
+                outboundStatus: 'pending',
+                completedTime: null
+            },
+            {
+                id: 'PF20250827001',
+                orderTime: '2025-08-27 09:03:10',
+                source: 'online-paid',
+                sourceText: '商家自助(实付)',
+                partner: '绵阳批发商D',
+                contact: '赵经理',
+                mobile: '13800000004',
+                qty: 25,
+                amount: 2500.00,
+                paid: 2500.00,
+                payType: '转账',
+                status: 'picking', // 拣货中
+                auditStatus: 'approved',
+                auditTime: '2025-08-27 09:04:00',
+                printTime: '2025-08-27 09:05:00',
+                pickingStatus: 'picking',
+                outboundStatus: 'pending',
+                completedTime: null
+            },
+            {
+                id: 'PF20250827002',
+                orderTime: '2025-08-27 14:18:22',
+                source: 'manual',
+                sourceText: '部门代下单',
+                partner: '雅安批发商A',
+                contact: '张老板',
+                mobile: '13800000001',
+                qty: 35,
+                amount: 3500.00,
+                paid: 0.00,
+                payType: '赊账',
+                status: 'pendingOutbound', // 待出库
+                auditStatus: 'approved',
+                auditTime: '2025-08-27 14:20:00',
+                printTime: '2025-08-27 14:21:00',
+                pickingStatus: 'completed',
+                outboundStatus: 'pending',
+                completedTime: null
+            },
+            {
+                id: 'PF20250828001',
+                orderTime: '2025-08-28 10:45:33',
+                source: 'online-credit',
+                sourceText: '商家自助(赊账)',
+                partner: '成都批发商B',
+                contact: '李经理',
+                mobile: '13800000002',
+                qty: 20,
+                amount: 2000.00,
+                paid: 0.00,
+                payType: '赊账',
+                status: 'completed', // 已完成
+                auditStatus: 'approved',
+                auditTime: '2025-08-28 10:46:00',
+                printTime: '2025-08-28 10:47:00',
+                pickingStatus: 'completed',
+                outboundStatus: 'completed',
+                completedTime: '2025-08-28 11:00:00'
+            }
+        ];
+
+        // 当前状态
+        let currentPrinter = null;
+        let filteredOrders = [...wholesaleOrders];
+        let currentStatus = 'all';
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // 初始化打印机选择器
+        function initPrinterSelect() {
+            const select = document.getElementById('printerSelect');
+            select.innerHTML = '<option value="">请选择打印机</option>';
+            printers.forEach(printer => {
+                const option = document.createElement('option');
+                option.value = printer.id;
+                option.textContent = `${printer.name} (${printer.model})`;
+                option.dataset.printer = JSON.stringify(printer);
+                select.appendChild(option);
+            });
+        }
+
+        // 绑定打印机
+        function bindPrinter() {
+            const select = document.getElementById('printerSelect');
+            const printerId = select.value;
+            
+            if (!printerId) {
+                alert('请选择打印机');
+                return;
+            }
+
+            const option = select.options[select.selectedIndex];
+            currentPrinter = JSON.parse(option.dataset.printer);
+            currentPrinter.bindTime = new Date().toLocaleString('zh-CN');
+
+            // 显示打印机信息
+            document.getElementById('printerNameDisplay').textContent = currentPrinter.name;
+            document.getElementById('printerModelDisplay').textContent = currentPrinter.model;
+            document.getElementById('printerConnectionDisplay').textContent = currentPrinter.connection;
+            document.getElementById('printerBindTimeDisplay').textContent = currentPrinter.bindTime;
+            document.getElementById('printerInfo').classList.remove('hidden');
+            document.getElementById('unbindPrinterBtn').style.display = 'inline-block';
+            document.getElementById('testPrintBtn').style.display = 'inline-block';
+        }
+
+        // 解绑打印机
+        function unbindPrinter() {
+            if (!confirm('确定要解绑当前打印机吗？')) {
+                return;
+            }
+
+            currentPrinter = null;
+            document.getElementById('printerSelect').value = '';
+            document.getElementById('printerInfo').classList.add('hidden');
+            document.getElementById('unbindPrinterBtn').style.display = 'none';
+            document.getElementById('testPrintBtn').style.display = 'none';
+        }
+
+        // 测试打印
+        function testPrint() {
+            if (!currentPrinter) {
+                alert('请先绑定打印机');
+                return;
+            }
+
+            alert(`测试打印（示例）\n打印机：${currentPrinter.name}\n正在打印测试页...`);
+        }
+
+        // 初始化往来单位选择器
+        function initPartnerSelect() {
+            const select = document.getElementById('partnerSelect');
+            select.innerHTML = '<option value="">请选择往来单位</option>';
+            partners.forEach(partner => {
+                const option = document.createElement('option');
+                option.value = partner.id;
+                option.textContent = partner.name;
+                option.dataset.partner = JSON.stringify(partner);
+                select.appendChild(option);
+            });
+        }
+
+        // 新增订单
+        function addOrder() {
+            document.getElementById('addOrderModal').classList.add('show');
+        }
+
+        // 确认新增订单
+        function confirmAddOrder() {
+            const partnerId = document.getElementById('partnerSelect').value;
+            const payType = document.getElementById('payTypeSelect').value;
+            const contactName = document.getElementById('contactNameInput').value;
+            const contactMobile = document.getElementById('contactMobileInput').value;
+            const remark = document.getElementById('remarkInput').value;
+
+            if (!partnerId) {
+                alert('请选择往来单位');
+                return;
+            }
+
+            const partnerOption = document.getElementById('partnerSelect').options[document.getElementById('partnerSelect').selectedIndex];
+            const partner = JSON.parse(partnerOption.dataset.partner);
+
+            // 创建新订单
+            const newOrder = {
+                id: 'PF' + new Date().getTime(),
+                orderTime: new Date().toLocaleString('zh-CN'),
+                source: 'manual',
+                sourceText: '部门代下单',
+                partner: partner.name,
+                contact: contactName || partner.contact,
+                mobile: contactMobile || partner.mobile,
+                qty: 0,
+                amount: 0.00,
+                paid: payType === 'credit' ? 0.00 : 0.00,
+                payType: payType === 'credit' ? '赊账' : payType === 'cash' ? '现金' : '转账',
+                status: 'pendingAudit',
+                auditStatus: 'pending',
+                auditTime: null,
+                printTime: null,
+                pickingStatus: 'pending',
+                outboundStatus: 'pending',
+                completedTime: null,
+                remark: remark
+            };
+
+            wholesaleOrders.unshift(newOrder);
+            filterOrders();
+            closeAddOrderModal();
+
+            alert('订单创建成功！订单需要财务审核后才能打印拣货单。');
+        }
+
+        // 关闭新增订单模态框
+        function closeAddOrderModal() {
+            document.getElementById('addOrderModal').classList.remove('show');
+            document.getElementById('partnerSelect').value = '';
+            document.getElementById('contactNameInput').value = '';
+            document.getElementById('contactMobileInput').value = '';
+            document.getElementById('payTypeSelect').value = 'credit';
+            document.getElementById('remarkInput').value = '';
+        }
+
+        // 筛选订单
+        function filterOrders() {
+            filteredOrders = [...wholesaleOrders];
+
+            // 按状态筛选
+            if (currentStatus !== 'all') {
+                filteredOrders = filteredOrders.filter(order => {
+                    if (currentStatus === 'pendingAudit') {
+                        return order.status === 'pendingAudit';
+                    } else if (currentStatus === 'pendingPrint') {
+                        return order.status === 'pendingPrint';
+                    } else if (currentStatus === 'picking') {
+                        return order.status === 'picking';
+                    } else if (currentStatus === 'pendingOutbound') {
+                        return order.status === 'pendingOutbound';
+                    } else if (currentStatus === 'completed') {
+                        return order.status === 'completed';
+                    }
+                });
+            }
+
+            // 应用搜索
+            applySearch();
+
+            // 更新统计
+            updateSummary();
+
+            // 渲染表格
+            renderTable();
+        }
+
+        // 应用搜索
+        function applySearch() {
+            const keyword = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            if (keyword) {
+                filteredOrders = filteredOrders.filter(order => {
+                    return (
+                        order.id.toLowerCase().includes(keyword) ||
+                        order.partner.toLowerCase().includes(keyword) ||
+                        order.contact.toLowerCase().includes(keyword) ||
+                        order.mobile.toLowerCase().includes(keyword)
+                    );
+                });
+            }
+        }
+
+        // 更新统计
+        function updateSummary() {
+            const totalAmount = filteredOrders.reduce((sum, order) => sum + order.amount, 0);
+            const pendingAuditCount = filteredOrders.filter(order => order.status === 'pendingAudit').length;
+            const completedCount = filteredOrders.filter(order => order.status === 'completed').length;
+
+            document.getElementById('summaryTotalAmount').textContent = totalAmount.toFixed(2);
+            document.getElementById('summaryPendingAuditCount').textContent = pendingAuditCount;
+            document.getElementById('summaryCompletedCount').textContent = completedCount;
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('orderTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无订单数据</td></tr>';
+                updateTotals();
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                const statusClass = getStatusClass(order.status);
+                const sourceClass = getSourceClass(order.source);
+
+                const tr = document.createElement('tr');
+                tr.dataset.id = order.id;
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${order.id}">
+                    </td>
+                    <td>
+                        <span class="link-text order-link" data-id="${order.id}">${order.id}</span>
+                    </td>
+                    <td>${order.orderTime}</td>
+                    <td>
+                        <span class="order-source-tag ${sourceClass}">${order.sourceText}</span>
+                    </td>
+                    <td>${order.partner}</td>
+                    <td>${order.contact}</td>
+                    <td>${order.mobile}</td>
+                    <td class="text-right">${order.qty}</td>
+                    <td class="text-right">${order.amount.toFixed(2)}</td>
+                    <td class="text-right">${order.paid.toFixed(2)}</td>
+                    <td>${order.payType}</td>
+                    <td>
+                        <span class="status-pill ${statusClass}">${getStatusText(order.status)}</span>
+                    </td>
+                    <td>
+                        <button class="btn-link view-btn" data-id="${order.id}">查看</button>
+                        ${getActionButtons(order)}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateTotals();
+            updateSelectedInfo();
+            bindTableEvents();
+        }
+
+        // 获取状态样式类
+        function getStatusClass(status) {
+            const statusMap = {
+                'pendingAudit': 'status-pill--warning',
+                'pendingPrint': 'status-pill--primary',
+                'picking': 'status-pill--primary',
+                'pendingOutbound': 'status-pill--warning',
+                'completed': 'status-pill--success'
+            };
+            return statusMap[status] || 'status-pill--primary';
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'pendingAudit': '待审核',
+                'pendingPrint': '待打印',
+                'picking': '拣货中',
+                'pendingOutbound': '待出库',
+                'completed': '已完成'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 获取来源样式类
+        function getSourceClass(source) {
+            const sourceMap = {
+                'online-paid': 'online-paid',
+                'online-credit': 'online-credit',
+                'manual': 'manual'
+            };
+            return sourceMap[source] || 'manual';
+        }
+
+        // 获取操作按钮
+        function getActionButtons(order) {
+            let buttons = '';
+            
+            if (order.status === 'pendingAudit') {
+                buttons += `<button class="btn-link audit-btn" data-id="${order.id}">审核</button>`;
+            }
+            
+            if (order.status === 'pendingPrint' || order.status === 'picking' || order.status === 'pendingOutbound') {
+                if (!order.printTime) {
+                    buttons += `<button class="btn-link print-btn" data-id="${order.id}">打印</button>`;
+                }
+            }
+            
+            if (order.status === 'pendingOutbound') {
+                buttons += `<button class="btn-link outbound-btn" data-id="${order.id}">出库</button>`;
+            }
+            
+            return buttons;
+        }
+
+        // 更新合计
+        function updateTotals() {
+            const totalQty = filteredOrders.reduce((sum, order) => sum + order.qty, 0);
+            const totalAmount = filteredOrders.reduce((sum, order) => sum + order.amount, 0);
+            const totalPaid = filteredOrders.reduce((sum, order) => sum + order.paid, 0);
+
+            document.getElementById('totalQtyCell').textContent = totalQty;
+            document.getElementById('totalAmountCell').textContent = totalAmount.toFixed(2);
+            document.getElementById('totalPaidCell').textContent = totalPaid.toFixed(2);
+        }
+
+        // 绑定表格事件
+        function bindTableEvents() {
+            // 查看订单
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    const order = wholesaleOrders.find(o => o.id === orderId);
+                    alert(`订单详情（示例）\n订单号：${order.id}\n往来单位：${order.partner}\n金额：¥${order.amount.toFixed(2)}\n状态：${getStatusText(order.status)}`);
+                });
+            });
+
+            // 审核订单
+            document.querySelectorAll('.audit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    auditOrder(orderId);
+                });
+            });
+
+            // 打印拣货单
+            document.querySelectorAll('.print-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    printPickingList(orderId);
+                });
+            });
+
+            // 出库
+            document.querySelectorAll('.outbound-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    doOutbound(orderId);
+                });
+            });
+
+            // 订单号点击
+            document.querySelectorAll('.order-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    const order = wholesaleOrders.find(o => o.id === orderId);
+                    alert(`订单详情（示例）\n订单号：${order.id}\n往来单位：${order.partner}\n金额：¥${order.amount.toFixed(2)}\n状态：${getStatusText(order.status)}`);
+                });
+            });
+        }
+
+        // 审核订单
+        function auditOrder(orderId) {
+            if (!confirm('确定要审核通过该订单吗？审核通过后可以打印拣货单。')) {
+                return;
+            }
+
+            const order = wholesaleOrders.find(o => o.id === orderId);
+            if (order) {
+                order.auditStatus = 'approved';
+                order.auditTime = new Date().toLocaleString('zh-CN');
+                
+                // 根据支付方式更新状态
+                if (order.payType === '赊账') {
+                    order.status = 'pendingPrint'; // 赊账需要审核后打印
+                } else {
+                    order.status = 'pendingPrint'; // 实付款也需要打印
+                }
+                
+                filterOrders();
+                alert('订单审核通过！可以打印拣货单了。');
+            }
+        }
+
+        // 打印拣货单
+        function printPickingList(orderId) {
+            if (!currentPrinter) {
+                alert('请先绑定打印机');
+                return;
+            }
+
+            const order = wholesaleOrders.find(o => o.id === orderId);
+            if (order) {
+                if (order.auditStatus !== 'approved') {
+                    alert('订单尚未审核通过，无法打印拣货单');
+                    return;
+                }
+
+                order.printTime = new Date().toLocaleString('zh-CN');
+                order.status = 'picking'; // 打印后进入拣货中状态
+                order.pickingStatus = 'picking';
+                
+                filterOrders();
+                alert(`正在打印拣货单（示例）\n订单号：${order.id}\n打印机：${currentPrinter.name}\n打印时间：${order.printTime}`);
+            }
+        }
+
+        // 出库
+        function doOutbound(orderId) {
+            if (!confirm('确定要对该订单执行出库操作吗？出库后将自动更新库存并完成订单。')) {
+                return;
+            }
+
+            const order = wholesaleOrders.find(o => o.id === orderId);
+            if (order) {
+                if (order.pickingStatus !== 'completed') {
+                    alert('请先完成拣货后再出库');
+                    return;
+                }
+
+                order.outboundStatus = 'completed';
+                order.status = 'completed';
+                order.completedTime = new Date().toLocaleString('zh-CN');
+                
+                filterOrders();
+                alert(`订单出库成功！订单已完成。\n订单号：${order.id}\n完成时间：${order.completedTime}`);
+            }
+        }
+
+        // 批量审核
+        function batchAudit() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                alert('请先选择要审核的订单');
+                return;
+            }
+
+            const pendingAuditIds = ids.filter(id => {
+                const order = wholesaleOrders.find(o => o.id === id);
+                return order && order.status === 'pendingAudit';
+            });
+
+            if (pendingAuditIds.length === 0) {
+                alert('所选订单中没有待审核的订单');
+                return;
+            }
+
+            if (!confirm(`确定要批量审核通过 ${pendingAuditIds.length} 个订单吗？`)) {
+                return;
+            }
+
+            pendingAuditIds.forEach(orderId => {
+                auditOrder(orderId);
+            });
+        }
+
+        // 批量打印
+        function batchPrint() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                alert('请先选择要打印的订单');
+                return;
+            }
+
+            if (!currentPrinter) {
+                alert('请先绑定打印机');
+                return;
+            }
+
+            const printableIds = ids.filter(id => {
+                const order = wholesaleOrders.find(o => o.id === id);
+                return order && (order.status === 'pendingPrint' || order.status === 'picking' || order.status === 'pendingOutbound') && order.auditStatus === 'approved';
+            });
+
+            if (printableIds.length === 0) {
+                alert('所选订单中没有可以打印的订单（需要已审核通过）');
+                return;
+            }
+
+            if (!confirm(`确定要批量打印 ${printableIds.length} 个订单的拣货单吗？`)) {
+                return;
+            }
+
+            printableIds.forEach(orderId => {
+                printPickingList(orderId);
+            });
+        }
+
+        // 全选/反选
+        function getSelectedIds() {
+            const ids = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                ids.push(cb.dataset.id);
+            });
+            return ids;
+        }
+
+        function updateSelectedInfo() {
+            const ids = getSelectedIds();
+            document.getElementById('selectedInfo').textContent = `已选择 ${ids.length} 条记录`;
+        }
+
+        function syncSelectAll() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const allChecked = checkedCount > 0 && checkedCount === checkboxes.length;
+            document.getElementById('selectAll').checked = allChecked;
+            document.getElementById('bottomSelectAll').checked = allChecked;
+            updateSelectedInfo();
+        }
+
+        // 事件绑定
+        document.getElementById('bindPrinterBtn').addEventListener('click', bindPrinter);
+        document.getElementById('unbindPrinterBtn').addEventListener('click', unbindPrinter);
+        document.getElementById('testPrintBtn').addEventListener('click', testPrint);
+        document.getElementById('addOrderBtn').addEventListener('click', addOrder);
+        document.getElementById('confirmAddOrderBtn').addEventListener('click', confirmAddOrder);
+        document.getElementById('cancelAddOrderBtn').addEventListener('click', closeAddOrderModal);
+        document.getElementById('closeAddOrderModal').addEventListener('click', closeAddOrderModal);
+        document.getElementById('batchAuditBtn').addEventListener('click', batchAudit);
+        document.getElementById('batchPrintBtn').addEventListener('click', batchPrint);
+        document.getElementById('quickSearchBtn').addEventListener('click', filterOrders);
+        document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterOrders();
+            }
+        });
+
+        // Tab切换
+        document.querySelectorAll('.order-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.order-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentStatus = this.dataset.status || 'all';
+                filterOrders();
+            });
+        });
+
+        // 全选
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            document.getElementById('bottomSelectAll').checked = checked;
+            updateSelectedInfo();
+        });
+
+        document.getElementById('bottomSelectAll').addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            document.getElementById('selectAll').checked = checked;
+            updateSelectedInfo();
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                syncSelectAll();
+            }
+        });
+
+        // 更多搜索
+        document.getElementById('moreSearchBtn').addEventListener('click', function() {
+            alert('更多搜索（示例）：这里可以展开高级筛选条件，如下单时间、订单状态、支付方式等。');
+        });
+
+        // 往来单位选择变化时自动填充联系人信息
+        document.getElementById('partnerSelect').addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+            if (option.value && option.dataset.partner) {
+                const partner = JSON.parse(option.dataset.partner);
+                document.getElementById('contactNameInput').value = partner.contact;
+                document.getElementById('contactMobileInput').value = partner.mobile;
+            }
+        });
+
+        // 初始化
+        initPrinterSelect();
+        initPartnerSelect();
+        filterOrders();
+    </script>
+</body>
+</html>

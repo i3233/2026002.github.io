@@ -1,0 +1,265 @@
+/* 餐饮支付设置页面样式 - 参考商品设置 */
+
+.catering-payment-settings-page {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.catering-payment-settings-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 页面标题 */
+.catering-payment-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.catering-payment-settings-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.catering-payment-settings-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* 设置卡片 */
+.catering-payment-settings-card {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.catering-payment-settings-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.catering-payment-settings-card-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.catering-payment-settings-card-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* 设置项 */
+.catering-payment-setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.catering-payment-setting-item:last-child {
+    border-bottom: none;
+}
+
+.catering-payment-setting-item-left {
+    flex: 1;
+    margin-right: var(--spacing-lg);
+}
+
+.catering-payment-setting-item-label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.catering-payment-setting-item-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.catering-payment-setting-item-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+/* 开关控件 */
+.catering-payment-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.catering-payment-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.catering-payment-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-neutral-300);
+    transition: var(--transition-base);
+    border-radius: var(--radius-full);
+}
+
+.catering-payment-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    transition: var(--transition-base);
+    border-radius: 50%;
+}
+
+.catering-payment-toggle-switch input:checked + .catering-payment-toggle-slider {
+    background-color: var(--color-primary);
+}
+
+.catering-payment-toggle-switch input:checked + .catering-payment-toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* 输入框 */
+.catering-payment-form-input,
+.catering-payment-form-select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.catering-payment-form-input:focus,
+.catering-payment-form-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-input-focus);
+}
+
+.catering-payment-form-input--small {
+    width: 120px;
+}
+
+.catering-payment-form-input--medium {
+    width: 200px;
+}
+
+/* 帮助图标 */
+.catering-payment-help-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--color-neutral-300);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    cursor: help;
+    margin-left: var(--spacing-xs);
+}
+
+.catering-payment-help-icon:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* 操作按钮区域 */
+.catering-payment-settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+.catering-payment-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.catering-payment-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.catering-payment-btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.catering-payment-btn-outline {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-300);
+}
+
+.catering-payment-btn-outline:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+@media (max-width: 1200px) {
+    .catering-payment-setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .catering-payment-setting-item-right {
+        width: 100%;
+        margin-top: var(--spacing-sm);
+    }
+
+    .catering-payment-settings-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+}
