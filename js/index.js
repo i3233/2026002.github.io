@@ -71,7 +71,11 @@ const menuData = [
     {
         module: "线上商城",
         items: [
-            { title: "小程序配置", path: "pages/线上商城/小程序配置.html" }
+            { title: "基础配置", path: "pages/线上商城/基础配置.html" },
+            { title: "商品添加", path: "pages/线上商城/商品添加.html" },
+            { title: "配送员管理", path: "pages/线上商城/配送员管理.html" },
+            { title: "用户订单查看", path: "pages/线上商城/用户订单查看.html" },
+            { title: "订单管理", path: "pages/线上商城/订单管理.html" }
         ]
     },
     {
@@ -97,6 +101,7 @@ const menuData = [
             },
             { title: "老板一张表", path: "pages/财务管理/老板一张表.html" },
             { title: "仓库管理", path: "pages/财务管理/仓库管理.html" },
+            { title: "仓库基础配置", path: "pages/财务管理/仓库基础配置.html" },
             { title: "资金管理", path: "pages/财务管理/资金管理.html" }
         ]
     },
@@ -164,14 +169,31 @@ const menuData = [
     }
 ];
 
-// 生成菜单HTML
-function generateMenu() {
+// 当前选中的模块
+let currentModuleName = null;
+
+// 生成菜单HTML（支持指定模块）
+function generateMenu(moduleName = null) {
     const menuContainer = document.getElementById('sidebarMenu');
+    if (!menuContainer) return;
+    
     let menuHTML = '';
 
-    menuData.forEach((module, moduleIndex) => {
-        // 主模块标题（默认收起）
-        menuHTML += `<div class="menu-module collapsed" data-module-index="${moduleIndex}">`;
+    // 如果指定了模块名，只显示该模块的菜单
+    const modulesToShow = moduleName 
+        ? menuData.filter(m => m.module === moduleName)
+        : menuData;
+
+    if (modulesToShow.length === 0) {
+        menuHTML = '<div style="padding: var(--spacing-md); color: var(--color-text-secondary); text-align: center;">暂无菜单</div>';
+        menuContainer.innerHTML = menuHTML;
+        return;
+    }
+
+    modulesToShow.forEach((module, moduleIndex) => {
+        // 主模块标题（如果只显示一个模块，默认展开；否则默认收起）
+        const isExpanded = moduleName !== null;
+        menuHTML += `<div class="menu-module ${isExpanded ? '' : 'collapsed'}" data-module-index="${moduleIndex}" data-module-name="${module.module}">`;
         menuHTML += `<div class="module-title" onclick="toggleModule(this)" data-module-index="${moduleIndex}">`;
         menuHTML += `<span class="module-title-text">${module.module}</span>`;
         menuHTML += `<svg class="module-arrow" viewBox="0 0 16 16" fill="currentColor">`;
@@ -216,6 +238,27 @@ function generateMenu() {
     });
 
     menuContainer.innerHTML = menuHTML;
+    currentModuleName = moduleName;
+}
+
+// 切换到指定模块的菜单
+function switchToModule(moduleName) {
+    console.log('切换到模块:', moduleName);
+    generateMenu(moduleName);
+    
+    // 侧边栏标题现在是链接，不需要更新文本
+    // 如果需要显示当前模块，可以在标题后添加提示
+    const sidebarTitle = document.querySelector('.sidebar-title');
+    if (sidebarTitle && moduleName) {
+        // 保持"卡片入口页"不变，或者可以显示当前模块
+        // sidebarTitle.textContent = '卡片入口页';
+    }
+}
+
+// 确保函数在全局作用域中可用
+if (typeof window !== 'undefined') {
+    window.switchToModule = switchToModule;
+    window.generateMenu = generateMenu;
 }
 
 // 切换主模块展开/收起
@@ -344,6 +387,12 @@ const tabsManager = {
         // 更新菜单激活状态
         this.updateMenuActiveState(path);
         
+        // 显示返回按钮
+        const backToCardsBtn = document.getElementById('backToCardsBtn');
+        if (backToCardsBtn) {
+            backToCardsBtn.style.display = 'inline-flex';
+        }
+        
         return tab;
     },
     
@@ -353,7 +402,19 @@ const tabsManager = {
         const placeholder = document.getElementById('contentPlaceholder');
         
         // 隐藏占位符
-        placeholder.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        
+        // 隐藏菜单页面的iframe（如果存在）
+        const menuFrame = document.getElementById('menuFrame');
+        if (menuFrame) {
+            menuFrame.style.display = 'none';
+        }
+        
+        // 隐藏卡片入口（如果存在）
+        const grid = document.getElementById('moduleEntryGrid');
+        const header = document.querySelector('.module-entry-header');
+        if (grid) grid.style.display = 'none';
+        if (header) header.style.display = 'none';
         
         // 创建iframe
         const iframe = document.createElement('iframe');
@@ -368,10 +429,16 @@ const tabsManager = {
     
     // 显示激活的iframe
     showActiveIframe: function() {
-        // 隐藏所有iframe
+        // 隐藏所有内容iframe
         document.querySelectorAll('[id^="frame_"]').forEach(frame => {
             frame.style.display = 'none';
         });
+        
+        // 隐藏菜单页面iframe（如果存在）
+        const menuFrame = document.getElementById('menuFrame');
+        if (menuFrame) {
+            menuFrame.style.display = 'none';
+        }
         
         // 显示当前激活的iframe
         if (this.activeTabId) {
@@ -520,38 +587,57 @@ function loadPage(event, path, title) {
 function goHome(event) {
     event.preventDefault();
     
-    // 关闭所有标签页
-    tabsManager.tabs.forEach(tab => {
-        const iframe = document.getElementById('frame_' + tab.id);
-        if (iframe) {
-            iframe.remove();
-        }
-    });
-    tabsManager.tabs = [];
-    tabsManager.activeTabId = null;
-    
-    // 更新UI
-    tabsManager.renderTabs();
-    document.getElementById('contentTitle').textContent = '欢迎使用';
-    updateBreadcrumb(null);
-    document.getElementById('contentPlaceholder').style.display = 'flex';
-    
-    // 移除所有活动状态
-    document.querySelectorAll('.menu-item-link.active, .submenu-item-link.active').forEach(link => {
-        link.classList.remove('active');
-    });
-    
-    // 收起所有展开的菜单
-    document.querySelectorAll('.menu-item.expanded').forEach(item => {
-        item.classList.remove('expanded');
-    });
+    // 调用返回卡片函数
+    if (typeof goBackToCards === 'function') {
+        goBackToCards(event);
+    } else {
+        // 如果没有goBackToCards函数，执行原来的逻辑
+        // 关闭所有标签页
+        tabsManager.tabs.forEach(tab => {
+            const iframe = document.getElementById('frame_' + tab.id);
+            if (iframe) {
+                iframe.remove();
+            }
+        });
+        tabsManager.tabs = [];
+        tabsManager.activeTabId = null;
+        
+        // 更新UI
+        tabsManager.renderTabs();
+        document.getElementById('contentTitle').textContent = '欢迎使用';
+        updateBreadcrumb(null);
+        document.getElementById('contentPlaceholder').style.display = 'flex';
+        
+        // 移除所有活动状态
+        document.querySelectorAll('.menu-item-link.active, .submenu-item-link.active').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // 收起所有展开的菜单
+        document.querySelectorAll('.menu-item.expanded').forEach(item => {
+            item.classList.remove('expanded');
+        });
+    }
 }
 
 // 页面加载完成后生成菜单和初始化
 document.addEventListener('DOMContentLoaded', function() {
-    generateMenu();
+    // 初始不显示任何模块菜单，只显示卡片入口
+    const menuContainer = document.getElementById('sidebarMenu');
+    if (menuContainer) {
+        menuContainer.innerHTML = '<div style="padding: var(--spacing-md); color: var(--color-text-secondary); text-align: center;">请从右侧选择功能模块</div>';
+    }
     // 初始化面包屑为首页
     updateBreadcrumb(null);
     // 初始化标签页
     tabsManager.renderTabs();
+    
+    // 确保侧边栏标题链接可用
+    const sidebarTitleLink = document.querySelector('.sidebar-title-link');
+    if (sidebarTitleLink && typeof goBackToCards === 'function') {
+        sidebarTitleLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            goBackToCards(e);
+        });
+    }
 });

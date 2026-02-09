@@ -87,7 +87,7 @@ const inventorySummaryData = [
     },
     {
         id: 5,
-        name: '特色套餐A',
+        name: '优惠套餐A',
         type: 'package',
         category: 'package',
         categoryName: '优惠套餐',

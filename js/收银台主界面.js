@@ -1,11 +1,7 @@
 // 收银台主界面交互逻辑
 
-// 菜单页面配置
+// 菜单页面配置（点单已整合到桌位内，不再单独入口）
 const menuPages = {
-    'order': {
-        name: '点单',
-        path: '子页面/点单.html'
-    },
     'table': {
         name: '桌位',
         path: '子页面/桌位.html'
@@ -44,9 +40,31 @@ const menuPages = {
 document.addEventListener('DOMContentLoaded', function() {
     initMenuEvents();
     initPowerButton();
-    // 默认加载点单页面
-    loadPage('order');
+    initTypeSwitch();
+    // 默认加载桌位页面
+    loadPage('table');
 });
+
+// 餐饮/商超收银台切换
+function initTypeSwitch() {
+    var btnCatering = document.getElementById('btnCatering');
+    var btnMall = document.getElementById('btnMall');
+    var viewCatering = document.getElementById('viewCatering');
+    var viewMall = document.getElementById('viewMall');
+    if (!btnCatering || !btnMall || !viewCatering || !viewMall) return;
+    btnCatering.addEventListener('click', function() {
+        btnCatering.classList.add('active');
+        btnMall.classList.remove('active');
+        viewCatering.classList.remove('hidden');
+        viewMall.classList.add('hidden');
+    });
+    btnMall.addEventListener('click', function() {
+        btnMall.classList.add('active');
+        btnCatering.classList.remove('active');
+        viewMall.classList.remove('hidden');
+        viewCatering.classList.add('hidden');
+    });
+}
 
 // 初始化菜单事件
 function initMenuEvents() {
@@ -64,13 +82,13 @@ function initMenuEvents() {
             });
             this.classList.add('active');
             
-            // 加载对应的页面
-            loadPage(menuType);
-        });
+    // 加载对应的页面
+    loadPage(menuType);
+});
     });
 }
 
-// 加载页面
+// 加载页面（供主界面菜单与子页 iframe 通过 postMessage 调用）
 function loadPage(menuType) {
     const contentFrame = document.getElementById('cashierContentFrame');
     if (!contentFrame) return;
@@ -78,9 +96,15 @@ function loadPage(menuType) {
     const pageConfig = menuPages[menuType];
     if (!pageConfig) return;
     
-    // 通过iframe加载页面
     contentFrame.src = pageConfig.path;
 }
+
+// 接收 iframe 内子页消息，避免跨域无法访问 parent（如 file:// 下 origin 为 null）
+window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'loadCashierPage' && e.data.menuType) {
+        loadPage(e.data.menuType);
+    }
+});
 
 // 初始化电源按钮
 function initPowerButton() {

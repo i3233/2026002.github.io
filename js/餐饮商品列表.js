@@ -1,74 +1,95 @@
 // 餐饮商品列表页面交互逻辑
 
-// 商品数据
+function getMallSyncedList() {
+    try {
+        var r = localStorage.getItem('mallSyncedProducts');
+        return r ? JSON.parse(r) : [];
+    } catch (e) { return []; }
+}
+function setMallSyncedList(list) {
+    localStorage.setItem('mallSyncedProducts', JSON.stringify(list));
+}
+
+// 标签名称与展示样式对应（与餐饮-商品标签页 tagListData 一致）
+var tagStyleMap = { '热销': 'danger', '新品': 'success', '推荐': 'primary', '特价': 'danger', '限时': 'danger', '精选': 'primary', '爆款': 'danger', '限购': 'primary', '包邮': 'success', '秒杀': 'danger', '会员专享': 'primary', '满减': 'danger' };
+
+// 商品数据（分类与商品分类页一致：中餐/彩虹斗酒/优惠套餐；标签与商品标签页一致）
+// 商品数据：为左侧每个分类都填充了几条示例商品，方便演示
 let productListData = [
-    {
-        id: 1,
-        name: '锅巴肉片',
-        category: 'chinese',
-        categoryName: '中餐',
-        price: 68.00,
-        sales: 0,
-        salesStatus: 'bad',
-        status: 'on',
-        type: 'normal'
-    },
-    {
-        id: 2,
-        name: '肥肠血旺',
-        category: 'chinese',
-        categoryName: '中餐',
-        price: 45.00,
-        sales: 0,
-        salesStatus: 'bad',
-        status: 'on',
-        type: 'normal'
-    },
-    {
-        id: 3,
-        name: '彩虹斗酒套装41支',
-        category: 'rainbow',
-        categoryName: '彩虹斗酒',
-        price: 178.00,
-        sales: 0,
-        salesStatus: 'bad',
-        status: 'on',
-        type: 'normal'
-    },
-    {
-        id: 4,
-        name: '红尘玫瑰17支',
-        category: 'rainbow',
-        categoryName: '彩虹斗酒',
-        price: 118.00,
-        sales: 0,
-        salesStatus: 'bad',
-        status: 'on',
-        type: 'normal'
-    },
-    {
-        id: 5,
-        name: '猕猴蓝17支',
-        category: 'rainbow',
-        categoryName: '彩虹斗酒',
-        price: 118.00,
-        sales: 0,
-        salesStatus: 'bad',
-        status: 'on',
-        type: 'normal'
-    },
-    {
-        id: 6,
-        name: '草莓蜜酒17支',
-        category: 'rainbow',
-        categoryName: '彩虹斗酒',
-        price: 118.00,
-        sales: 0,
-        salesStatus: 'bad',
-        status: 'on',
-        type: 'normal'
-    },
+    // 家政
+    { id: 1,  name: '包间卫生清洁',      category: 'housekeeping', categoryName: '家政',       tags: ['推荐'],           price: 30.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 2,  name: '餐具深度消毒',      category: 'housekeeping', categoryName: '家政',       tags: ['新品'],           price: 15.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 软饮系列
+    { id: 3,  name: '可乐（听装）',      category: 'soft-drink',   categoryName: '软饮系列',   tags: ['热销'],           price: 8.00,   sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 4,  name: '雪碧（听装）',      category: 'soft-drink',   categoryName: '软饮系列',   tags: ['热销'],           price: 8.00,   sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 5,  name: '鲜榨橙汁',          category: 'soft-drink',   categoryName: '软饮系列',   tags: ['精选'],           price: 18.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 啤酒
+    { id: 6,  name: '青岛纯生（瓶）',    category: 'beer',         categoryName: '啤酒',       tags: ['热销'],           price: 12.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 7,  name: '百威啤酒（听装）',  category: 'beer',         categoryName: '啤酒',       tags: ['推荐'],           price: 10.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 小吃系列
+    { id: 8,  name: '小食拼盘',          category: 'snack',        categoryName: '小吃系列',   tags: ['热销'],           price: 28.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 9,  name: '花生米',            category: 'snack',        categoryName: '小吃系列',   tags: ['推荐'],           price: 15.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 10, name: '拍黄瓜',            category: 'snack',        categoryName: '小吃系列',   tags: ['新品'],           price: 12.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 其他系列
+    { id: 11, name: '纸巾（大包）',      category: 'other',        categoryName: '其他系列',   tags: ['推荐'],           price: 6.00,   sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 12, name: '一次性围兜',        category: 'other',        categoryName: '其他系列',   tags: ['新品'],           price: 3.00,   sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 洋酒香槟
+    { id: 13, name: '威士忌（杯）',      category: 'wine',         categoryName: '洋酒香槟',   tags: ['精选'],           price: 58.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 14, name: '香槟（瓶）',        category: 'wine',         categoryName: '洋酒香槟',   tags: ['热销'],           price: 268.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 特色斗酒
+    { id: 15, name: '特色斗酒一号',      category: 'special',      categoryName: '特色斗酒',   tags: ['热销'],           price: 88.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 16, name: '特色斗酒二号',      category: 'special',      categoryName: '特色斗酒',   tags: ['推荐'],           price: 98.00,  sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 彩虹斗酒
+    { id: 17, name: '彩虹斗酒套装41支', category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['精选', '会员专享'], price: 178.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 18, name: '红尘玫瑰17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['新品', '热销'],     price: 118.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 19, name: '猕猴蓝17支',        category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['推荐'],           price: 118.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 20, name: '草莓蜜酒17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['限时', '包邮'],     price: 118.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 21, name: '星空17支',          category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['新品'],           price: 118.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 22, name: '蓝莓之恋17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['精选', '热销'],     price: 118.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 23, name: '蜜桃17支',          category: 'rainbow',      categoryName: '彩虹斗酒',   tags: ['推荐', '包邮'],     price: 118.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 优惠套餐
+    { id: 24, name: '优惠套餐A',          category: 'package',      categoryName: '优惠套餐',   tags: ['特价', '满减'],     price: 198.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'package' },
+    { id: 25, name: '优惠套餐B',          category: 'package',      categoryName: '优惠套餐',   tags: ['精选', '会员专享'], price: 298.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'package' },
+
+    // 百货
+    { id: 26, name: '零食大礼包',        category: 'department',   categoryName: '百货',       tags: ['热销'],           price: 39.90, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 27, name: '日用品组合装',      category: 'department',   categoryName: '百货',       tags: ['推荐'],           price: 59.90, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+
+    // 中餐
+    { id: 28, name: '锅巴肉片',          category: 'chinese',      categoryName: '中餐',       tags: ['热销', '推荐'],     price: 68.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' },
+    { id: 29, name: '肥肠血旺',          category: 'chinese',      categoryName: '中餐',       tags: ['爆款', '特价'],     price: 45.00, sales: 0, salesStatus: 'bad', status: 'on', type: 'normal' }
 ];
+
+// 根据商品数据动态更新左侧分类计数，避免“有数字但右侧为空”的错觉
+function updateCategoryCounts() {
+    var total = productListData.length;
+    var counts = {};
+    productListData.forEach(function (p) {
+        var cat = p.category || 'uncategorized';
+        counts[cat] = (counts[cat] || 0) + 1;
+    });
+    document.querySelectorAll('.product-list-category-item').forEach(function (item) {
+        var key = item.dataset.category;
+        var countSpan = item.querySelector('.product-list-category-count');
+        if (!countSpan) return;
+        var count = 0;
+        if (key === 'all') count = total;
+        else if (key === 'uncategorized') {
+            count = productListData.filter(function (p) { return !p.category; }).length;
+        } else {
+            count = counts[key] || 0;
+        }
+        countSpan.textContent = '(' + count + ')';
+    });
+}
 
 // 筛选条件
 let currentTab = 'normal';
@@ -94,6 +115,8 @@ const salesStatusMap = {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    try { localStorage.setItem('canyinProductList', JSON.stringify(productListData)); } catch (e) {}
+    updateCategoryCounts();
     initEventListeners();
     initCreateCategoryForm();
     renderProductTable();
@@ -291,7 +314,7 @@ function renderProductTable() {
     if (pagedProducts.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: var(--spacing-xl); color: var(--color-text-secondary);">
+                <td colspan="10" style="text-align: center; padding: var(--spacing-xl); color: var(--color-text-secondary);">
                     暂无商品数据
                 </td>
             </tr>
@@ -299,13 +322,20 @@ function renderProductTable() {
         return;
     }
 
+    var syncedList = getMallSyncedList();
+
     // 渲染表格行
     tableBody.innerHTML = pagedProducts.map(product => {
         const isSelected = selectedProducts.includes(product.id);
         const salesStatus = salesStatusMap[product.salesStatus] || salesStatusMap['bad'];
         const statusClass = product.status === 'on' ? 'product-list-status-badge-on' : 'product-list-status-badge-off';
         const statusText = product.status === 'on' ? '在售' : '停售';
+        const isSynced = syncedList.some(p => p.source === '餐饮' && String(p.productId) === String(product.id));
 
+        var tagsHtml = (product.tags || []).map(function (t) {
+            var style = tagStyleMap[t] || 'primary';
+            return '<span class="product-list-label-pill product-list-label-pill--' + style + '">' + (t || '') + '</span>';
+        }).join('');
         return `
             <tr>
                 <td>
@@ -320,6 +350,9 @@ function renderProductTable() {
                     <span class="product-list-category-badge">${product.categoryName || '未分类'}</span>
                 </td>
                 <td>
+                    <div class="product-list-label-wrap">${tagsHtml}</div>
+                </td>
+                <td>
                     <span class="product-list-price">¥${product.price.toFixed(2)}</span>
                 </td>
                 <td>
@@ -332,6 +365,12 @@ function renderProductTable() {
                     <span class="product-list-status-badge ${statusClass}">${statusText}</span>
                 </td>
                 <td>
+                    <label class="product-list-switch">
+                        <input type="checkbox" class="sync-mall-toggle" data-id="${product.id}" data-name="${(product.name || '').replace(/"/g, '&quot;')}" data-category="${(product.categoryName || '').replace(/"/g, '&quot;')}" data-price="${product.price}" ${isSynced ? 'checked' : ''}>
+                        <span class="product-list-switch-slider"></span>
+                    </label>
+                </td>
+                <td>
                     <div class="product-list-action-buttons">
                         <button class="product-list-btn product-list-btn-text" onclick="editProduct(${product.id})">编辑</button>
                         <button class="product-list-btn product-list-btn-text" onclick="toggleProductStatus(${product.id})">${product.status === 'on' ? '停用' : '启用'}</button>
@@ -342,6 +381,24 @@ function renderProductTable() {
             </tr>
         `;
     }).join('');
+
+    tableBody.querySelectorAll('.sync-mall-toggle').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            var id = cb.dataset.id;
+            var name = cb.dataset.name || '';
+            var categoryName = cb.dataset.category || '';
+            var price = parseFloat(cb.dataset.price) || 0;
+            var list = getMallSyncedList();
+            if (this.checked) {
+                list = list.filter(function (p) { return !(p.source === '餐饮' && String(p.productId) === String(id)); });
+                list.push({ source: '餐饮', productId: id, name: name, categoryName: categoryName, price: price, image: '', syncedAt: new Date().toISOString(), online: false });
+                setMallSyncedList(list);
+            } else {
+                list = list.filter(function (p) { return !(p.source === '餐饮' && String(p.productId) === String(id)); });
+                setMallSyncedList(list);
+            }
+        });
+    });
 }
 
 // 更新分页

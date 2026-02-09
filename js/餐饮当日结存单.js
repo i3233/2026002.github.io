@@ -113,7 +113,7 @@ const dailyStatementData = [
     },
     {
         id: 7,
-        name: '特色套餐A',
+        name: '优惠套餐A',
         type: 'package',
         category: 'package',
         categoryName: '优惠套餐',
@@ -128,7 +128,7 @@ const dailyStatementData = [
     },
     {
         id: 8,
-        name: '特色套餐B',
+        name: '优惠套餐B',
         type: 'package',
         category: 'package',
         categoryName: '优惠套餐',

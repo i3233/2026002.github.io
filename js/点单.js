@@ -1,8 +1,50 @@
 // 点单页面交互逻辑
 
+// 本地存储 key：按桌台存储订单、当前选中的桌台（从桌位页点击进入时设置）
+var STORAGE_KEY_TABLE_ORDERS = 'cashierTableOrders';
+var STORAGE_KEY_CURRENT_TABLE = 'cashierCurrentTableCode';
+
 // 订单数据
 let orderItems = [];
 let selectedMember = null;
+
+// 获取当前桌台 code（从桌位点击进入时由 localStorage 传入）
+function getCurrentTableCode() {
+    try { return localStorage.getItem(STORAGE_KEY_CURRENT_TABLE) || ''; } catch (e) { return ''; }
+}
+// 读取某桌台的订单列表
+function getTableOrders(tableCode) {
+    if (!tableCode) return [];
+    try {
+        var raw = localStorage.getItem(STORAGE_KEY_TABLE_ORDERS) || '{}';
+        var obj = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        return Array.isArray(obj[tableCode]) ? obj[tableCode] : [];
+    } catch (e) { return []; }
+}
+// 保存某桌台的订单列表
+function saveTableOrders(tableCode, items) {
+    if (!tableCode) return;
+    try {
+        var raw = localStorage.getItem(STORAGE_KEY_TABLE_ORDERS) || '{}';
+        var obj = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        obj[tableCode] = items || [];
+        localStorage.setItem(STORAGE_KEY_TABLE_ORDERS, JSON.stringify(obj));
+    } catch (e) {}
+}
+// 更新当前桌台显示条
+function updateTableBar() {
+    var code = getCurrentTableCode();
+    var bar = document.getElementById('orderTableBar');
+    var valueEl = document.getElementById('currentTableCode');
+    if (bar && valueEl) {
+        if (code) {
+            bar.style.display = 'flex';
+            valueEl.textContent = code;
+        } else {
+            bar.style.display = 'none';
+        }
+    }
+}
 
 // 商品数据
 const productData = [
@@ -64,10 +106,14 @@ let currentCategory = 'all';
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    var tableCode = getCurrentTableCode();
+    if (tableCode) {
+        orderItems = getTableOrders(tableCode).slice();
+    }
+    updateTableBar();
     initEventListeners();
     updateOrderDisplay();
     renderProducts();
-    // 默认设置为中图模式
     setViewMode('medium');
 });
 
@@ -550,6 +596,11 @@ function updateOrderDisplay() {
     const totalPrice = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     if (totalPriceEl) {
         totalPriceEl.textContent = `¥${totalPrice.toFixed(2)}`;
+    }
+    // 按桌台持久化订单（从桌位进入时）
+    var tableCode = getCurrentTableCode();
+    if (tableCode) {
+        saveTableOrders(tableCode, orderItems);
     }
 }
 
