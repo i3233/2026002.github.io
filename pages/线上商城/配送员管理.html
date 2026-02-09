@@ -3,13 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>配送员管理 - 2026新项目二</title>
+    <title>配送员管理 - 线上商城</title>
     <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/线上商城基础配置.css">
+    <style>
+        .mall-page { padding: var(--spacing-lg); background: var(--color-neutral-50); }
+        .mall-page-header { margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .mall-page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin: 0; }
+        .mall-page-desc { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
+        .mall-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .mall-toolbar { padding: var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+        .mall-table { width: 100%; border-collapse: collapse; }
+        .mall-table th, .mall-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--color-neutral-100); }
+        .mall-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+        .mall-table .status-on { color: var(--color-success, #52c41a); }
+        .mall-table .status-off { color: var(--color-text-secondary); }
+        .mall-table .btn-link { padding: 0 8px; color: var(--color-primary, #1890ff); cursor: pointer; background: none; border: none; font-size: var(--font-size-sm); }
+        .mall-table .btn-link:hover { text-decoration: underline; }
+        .mall-empty { text-align: center; padding: var(--spacing-xl); color: var(--color-text-secondary); }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>配送员管理</h1>
-        <p>页面内容待填充</p>
+<body class="mall-page">
+    <div class="mall-page-header">
+        <h1 class="mall-page-title">配送员管理</h1>
+        <p class="mall-page-desc">管理线上商城配送员，设置负责区域与接单状态。</p>
     </div>
+    <div class="mall-card">
+        <div class="mall-toolbar">
+            <span class="mall-page-desc">配送员列表</span>
+            <button type="button" class="mall-config-btn mall-config-btn-primary" id="addDriverBtn">+ 添加配送员</button>
+        </div>
+        <table class="mall-table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>手机号</th>
+                    <th>状态</th>
+                    <th>负责区域</th>
+                    <th>接单数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="driverTableBody"></tbody>
+        </table>
+        <div class="mall-empty" id="driverEmpty" style="display:none;">暂无配送员，点击「添加配送员」添加。</div>
+    </div>
+    <script src="../../js/线上商城配送员管理.js"></script>
 </body>
 </html>

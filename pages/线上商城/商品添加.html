@@ -3,13 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品添加 - 2026新项目二</title>
+    <title>商品添加 - 线上商城</title>
     <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/线上商城基础配置.css">
+    <style>
+        .mall-product-page { padding: var(--spacing-lg); background: var(--color-neutral-50); }
+        .mall-product-header { margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .mall-product-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin: 0; }
+        .mall-product-desc { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
+        .mall-product-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .mall-product-toolbar { padding: var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); display: flex; gap: var(--spacing-md); align-items: center; }
+        .mall-product-table { width: 100%; border-collapse: collapse; }
+        .mall-product-table th, .mall-product-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--color-neutral-100); }
+        .mall-product-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+        .mall-product-table .product-cell { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .mall-product-table .product-cell img { width: 40px; height: 40px; object-fit: cover; border-radius: var(--radius-md); }
+        .mall-product-status-on { color: var(--color-success, #52c41a); }
+        .mall-product-status-off { color: var(--color-text-secondary); }
+        .mall-product-btn { padding: 4px 12px; border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid transparent; }
+        .mall-product-btn-online { background: var(--color-primary, #1890ff); color: #fff; }
+        .mall-product-btn-offline { background: var(--color-neutral-200); color: var(--color-text-primary); }
+        .mall-product-empty { text-align: center; padding: var(--spacing-xl); color: var(--color-text-secondary); }
+        .mall-modal-overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .mall-modal-overlay.hidden { display: none; }
+        .mall-modal { background: #fff; border-radius: var(--radius-lg); box-shadow: 0 4px 20px rgba(0,0,0,0.15); width: 90%; max-width: 640px; max-height: 80vh; display: flex; flex-direction: column; }
+        .mall-modal-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200); display: flex; justify-content: space-between; align-items: center; }
+        .mall-modal-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0; }
+        .mall-modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-secondary); padding: 0 4px; line-height: 1; }
+        .mall-modal-tabs { display: flex; border-bottom: 1px solid var(--color-neutral-200); padding: 0 var(--spacing-lg); }
+        .mall-modal-tab { padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; font-size: var(--font-size-base); color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .mall-modal-tab.active { color: var(--color-primary, #1890ff); font-weight: var(--font-weight-medium); border-bottom-color: var(--color-primary); }
+        .mall-modal-body { padding: var(--spacing-md); overflow: auto; flex: 1; min-height: 200px; max-height: 50vh; }
+        .mall-modal-list { list-style: none; margin: 0; padding: 0; }
+        .mall-modal-list li { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-neutral-100); }
+        .mall-modal-list li:last-child { border-bottom: none; }
+        .mall-modal-list .item-name { flex: 1; }
+        .mall-modal-list .item-meta { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .mall-modal-list .item-added { font-size: var(--font-size-sm); color: var(--color-success, #52c41a); margin-left: 8px; }
+        .mall-modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); display: flex; justify-content: flex-end; gap: var(--spacing-md); }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>商品添加</h1>
-        <p>页面内容待填充</p>
+<body class="mall-product-page">
+    <div class="mall-product-header">
+        <h1 class="mall-product-title">商品添加</h1>
+        <p class="mall-product-desc">可从下方点击「添加」选择商超/餐饮商品加入，或先在商超/餐饮商品列表中开启「同步到线上商城」；加入后点击「上线」才会在小程序端展示。</p>
     </div>
+    <div class="mall-product-card">
+        <div class="mall-product-toolbar">
+            <span class="mall-product-desc">来源筛选：</span>
+            <select id="sourceFilter">
+                <option value="">全部</option>
+                <option value="商超">商超</option>
+                <option value="餐饮">餐饮</option>
+            </select>
+            <button type="button" class="mall-config-btn mall-config-btn-outline" id="refreshBtn">刷新</button>
+            <button type="button" class="mall-config-btn mall-config-btn-primary" id="addProductBtn">+ 添加</button>
+        </div>
+        <table class="mall-product-table">
+            <thead>
+                <tr>
+                    <th>来源</th>
+                    <th>商品</th>
+                    <th>分类</th>
+                    <th>价格</th>
+                    <th>同步时间</th>
+                    <th>小程序状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="mallProductTableBody"></tbody>
+        </table>
+        <div class="mall-product-empty" id="mallProductEmpty" style="display:none;">暂无已同步到线上商城的商品，请点击「添加」从商超/餐饮选择商品，或在商超/餐饮商品列表中开启「同步到线上商城」。</div>
+    </div>
+
+    <!-- 添加商品弹窗 -->
+    <div class="mall-modal-overlay hidden" id="addProductModal">
+        <div class="mall-modal">
+            <div class="mall-modal-header">
+                <h3 class="mall-modal-title">选择商品</h3>
+                <button type="button" class="mall-modal-close" id="addModalClose" aria-label="关闭">×</button>
+            </div>
+            <div class="mall-modal-tabs">
+                <span class="mall-modal-tab active" data-tab="商超">商超商品</span>
+                <span class="mall-modal-tab" data-tab="餐饮">餐饮商品</span>
+            </div>
+            <div class="mall-modal-body">
+                <ul class="mall-modal-list" id="addModalList"></ul>
+                <p class="mall-product-desc" id="addModalEmpty" style="display:none;">暂无商品数据，请先前往商超或餐饮商品列表维护商品。</p>
+            </div>
+            <div class="mall-modal-footer">
+                <button type="button" class="mall-config-btn mall-config-btn-outline" id="addModalCancel">取消</button>
+                <button type="button" class="mall-config-btn mall-config-btn-primary" id="addModalConfirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+    <script src="../../js/线上商城商品添加.js"></script>
 </body>
 </html>

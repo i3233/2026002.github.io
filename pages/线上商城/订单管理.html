@@ -3,13 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单管理 - 2026新项目二</title>
+    <title>订单管理 - 线上商城</title>
     <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/线上商城基础配置.css">
+    <style>
+        .mall-page { padding: var(--spacing-lg); background: var(--color-neutral-50); }
+        .mall-page-header { margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .mall-page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin: 0; }
+        .mall-page-desc { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
+        .mall-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .mall-toolbar { padding: var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap; }
+        .mall-table { width: 100%; border-collapse: collapse; }
+        .mall-table th, .mall-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--color-neutral-100); }
+        .mall-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+        .mall-table .btn-sm { padding: 4px 10px; font-size: var(--font-size-sm); border-radius: var(--radius-md); cursor: pointer; border: 1px solid var(--color-neutral-300); background: #fff; margin-right: 6px; }
+        .mall-table .btn-sm.btn-primary { background: var(--color-primary, #1890ff); color: #fff; border-color: var(--color-primary); }
+        .mall-empty { text-align: center; padding: var(--spacing-xl); color: var(--color-text-secondary); }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>订单管理</h1>
-        <p>页面内容待填充</p>
+<body class="mall-page">
+    <div class="mall-page-header">
+        <h1 class="mall-page-title">订单管理</h1>
+        <p class="mall-page-desc">处理订单：接单、分配配送员、发货等。</p>
     </div>
+    <div class="mall-card">
+        <div class="mall-toolbar">
+            <span class="mall-page-desc">状态：</span>
+            <select id="statusFilter">
+                <option value="">全部</option>
+                <option value="paid">待发货</option>
+                <option value="shipped">已发货</option>
+                <option value="completed">已完成</option>
+            </select>
+            <button type="button" class="mall-config-btn mall-config-btn-outline" id="refreshBtn">刷新</button>
+        </div>
+        <table class="mall-table">
+            <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>用户</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>配送员</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="orderTableBody"></tbody>
+        </table>
+        <div class="mall-empty" id="orderEmpty" style="display:none;">暂无订单</div>
+    </div>
+    <script src="../../js/线上商城订单管理.js"></script>
 </body>
 </html>
