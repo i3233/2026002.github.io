@@ -496,6 +496,32 @@
             font-weight: var(--font-weight-medium);
         }
 
+        /* 商品标签列（与商品标签页展示样式对应：primary/ danger/ success） */
+        .product-label-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .product-label-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+        .product-label-pill--primary {
+            background-color: rgba(44, 131, 235, 0.15);
+            color: var(--color-primary);
+        }
+        .product-label-pill--danger {
+            background-color: rgba(220, 53, 69, 0.12);
+            color: var(--color-error);
+        }
+        .product-label-pill--success {
+            background-color: rgba(40, 167, 69, 0.12);
+            color: var(--color-success);
+        }
+
         /* 状态标签 */
         .status-tag {
             display: inline-block;
@@ -755,12 +781,14 @@
                             <th class="sortable" data-sort="id">ID</th>
                             <th>排序</th>
                             <th>分类</th>
+                            <th>标签</th>
                             <th>商品名称</th>
                             <th>售价</th>
                             <th>成本价</th>
                             <th>库存</th>
                             <th>已出售量</th>
                             <th>是否加入快速购买</th>
+                            <th>同步到线上商城</th>
                             <th>添加时间</th>
                             <th>状态</th>
                             <th>操作</th>
@@ -865,121 +893,29 @@
     </div>
 
     <script>
-        // 商品数据
+        // 商品标签名称与样式的对应（与商超-商品标签页一致：primary=蓝/danger=红/success=绿）
+        const tagStyleMap = { '新品': 'primary', '热销': 'danger', '自营': 'success', '限时抢购': 'danger', '产地直供': 'primary', '推荐': 'primary', '爆款': 'danger', '包邮': 'success', '会员专享': 'primary', '限时': 'danger', '雅安特产': 'success', '精选': 'primary' };
+
+        // 商品数据（与商超收银台、商品分类、商品标签对应；tags 为商品标签页中的标签名称）
         const products = [
-            {
-                id: 5940,
-                sort: 100,
-                category: '雅安好景',
-                name: '熊猫基地',
-                image: '../../images/01.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5941,
-                sort: 100,
-                category: '雅安好景',
-                name: '碧峰峡风景区',
-                image: '../../images/02.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5942,
-                sort: 100,
-                category: '雅安好景',
-                name: '雨城廊桥',
-                image: '../../images/03.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5943,
-                sort: 100,
-                category: '雅安好景',
-                name: '荥经严道砂锅',
-                image: '../../images/04.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5944,
-                sort: 100,
-                category: '雅安好景',
-                name: '二郎山风景区',
-                image: '../../images/05.jpg',
-                price: 80.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5945,
-                sort: 100,
-                category: '雅安好景',
-                name: '上里古镇',
-                image: '../../images/06.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5946,
-                sort: 100,
-                category: '雅安好景',
-                name: '蒙顶山风景区',
-                image: '../../images/01.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            },
-            {
-                id: 5947,
-                sort: 100,
-                category: '雅安好景',
-                name: '熊猫基地',
-                image: '../../images/02.jpg',
-                price: 0.00,
-                costPrice: 0.00,
-                stock: 100,
-                sold: '0+0',
-                quickBuy: false,
-                addTime: '2025-08-26',
-                status: 'selling'
-            }
+            { id: 1, sort: 100, category: '雅安好景', tags: ['雅安特产', '热销'], name: '雅安特产绿营养蛋', image: '../../images/01.jpg', price: 20.00, costPrice: 0.00, stock: 6977, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 2, sort: 100, category: '雅安好景', tags: ['产地直供', '包邮'], name: '土司农家散养蛋', image: '../../images/02.jpg', price: 18.00, costPrice: 0.00, stock: 1306, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 3, sort: 100, category: '雅安好景', tags: ['雅安特产', '推荐'], name: '有机山茶油', image: '../../images/03.jpg', price: 36.00, costPrice: 0.00, stock: 2623, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 4, sort: 100, category: '雅安好景', tags: ['热销', '包邮'], name: '腊味礼盒', image: '../../images/04.jpg', price: 15.00, costPrice: 0.00, stock: 856, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 5, sort: 100, category: '雅安好景', tags: ['雅安特产', '精选'], name: '蒙顶山茶', image: '../../images/05.jpg', price: 49.00, costPrice: 0.00, stock: 420, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 6, sort: 100, category: '雅安好景', tags: ['推荐', '爆款'], name: '雅鱼鲜礼盒', image: '../../images/06.jpg', price: 68.00, costPrice: 0.00, stock: 318, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 7, sort: 100, category: '雅安好景', tags: ['热销', '自营'], name: '花椒油', image: '../../images/01.jpg', price: 15.00, costPrice: 0.00, stock: 2100, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 13, sort: 100, category: '雅安好物', tags: ['雅安特产', '新品'], name: '雅安蜂蜜', image: '../../images/01.jpg', price: 38.00, costPrice: 0.00, stock: 520, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 14, sort: 100, category: '雅安好物', tags: ['精选', '会员专享'], name: '雅安黑茶', image: '../../images/02.jpg', price: 88.00, costPrice: 0.00, stock: 260, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 15, sort: 100, category: '雅安好物', tags: ['产地直供', '推荐'], name: '雅安菌菇干货', image: '../../images/03.jpg', price: 45.00, costPrice: 0.00, stock: 380, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 8, sort: 100, category: '文创产品', tags: ['新品', '热销'], name: '熊猫周边玩偶', image: '../../images/02.jpg', price: 28.00, costPrice: 0.00, stock: 560, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 9, sort: 100, category: '文创产品', tags: ['精选', '推荐'], name: '雅安风景明信片', image: '../../images/03.jpg', price: 58.00, costPrice: 0.00, stock: 890, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 10, sort: 100, category: '文创产品', tags: ['自营', '包邮'], name: '茶具套装', image: '../../images/04.jpg', price: 52.00, costPrice: 0.00, stock: 234, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 11, sort: 100, category: '文创产品', tags: ['雅安特产', '限时抢购'], name: '手工茶饼', image: '../../images/05.jpg', price: 58.00, costPrice: 0.00, stock: 445, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
+            { id: 12, sort: 100, category: '文创产品', tags: ['精选', '会员专享', '包邮'], name: '精品礼盒装', image: '../../images/06.jpg', price: 268.00, costPrice: 0.00, stock: 120, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' }
         ];
+
+        try { localStorage.setItem('shangchaoProductList', JSON.stringify(products)); } catch (e) {}
 
         let filteredProducts = [...products];
         let currentTab = 'all';
@@ -987,15 +923,27 @@
         let sortDirection = 'asc';
         let selectedCategories = []; // 选中的分类数组
 
+        function getMallSyncedList() {
+            try {
+                var r = localStorage.getItem('mallSyncedProducts');
+                return r ? JSON.parse(r) : [];
+            } catch (e) { return []; }
+        }
+        function setMallSyncedList(list) {
+            localStorage.setItem('mallSyncedProducts', JSON.stringify(list));
+        }
+
         // 渲染表格
         function renderTable() {
             const tbody = document.getElementById('productTableBody');
             tbody.innerHTML = '';
+            const syncedList = getMallSyncedList();
 
             filteredProducts.forEach(product => {
+                const isSynced = syncedList.some(p => p.source === '商超' && String(p.productId) === String(product.id));
                 const row = document.createElement('tr');
                 row.dataset.id = product.id;
-                
+
                 row.innerHTML = `
                     <td class="checkbox-cell">
                         <input type="checkbox" class="row-checkbox" data-id="${product.id}">
@@ -1010,6 +958,14 @@
                         </span>
                     </td>
                     <td><span class="category-tag">${product.category}</span></td>
+                    <td>
+                        <div class="product-label-wrap">
+                            ${(product.tags || []).map(function (t) {
+                                var style = tagStyleMap[t] || 'primary';
+                                return '<span class="product-label-pill product-label-pill--' + style + '">' + (t || '') + '</span>';
+                            }).join('')}
+                        </div>
+                    </td>
                     <td>
                         <div class="product-info">
                             <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='../../images/01.jpg'">
@@ -1052,6 +1008,12 @@
                             <span class="toggle-slider"></span>
                         </label>
                     </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="sync-mall-toggle" data-id="${product.id}" data-name="${(product.name || '').replace(/"/g, '&quot;')}" data-category="${(product.category || '').replace(/"/g, '&quot;')}" data-price="${product.price}" data-image="${(product.image || '').replace(/"/g, '&quot;')}" ${isSynced ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
                     <td>${product.addTime}</td>
                     <td>
                         <span class="status-tag ${product.status === 'soldout' ? 'sold-out' : product.status === 'offline' ? 'offline' : ''}">
@@ -1081,6 +1043,25 @@
                     </td>
                 `;
                 tbody.appendChild(row);
+            });
+
+            tbody.querySelectorAll('.sync-mall-toggle').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    var id = cb.dataset.id;
+                    var name = cb.dataset.name || '';
+                    var category = cb.dataset.category || '';
+                    var price = parseFloat(cb.dataset.price) || 0;
+                    var image = cb.dataset.image || '';
+                    var list = getMallSyncedList();
+                    if (this.checked) {
+                        list = list.filter(function (p) { return !(p.source === '商超' && String(p.productId) === String(id)); });
+                        list.push({ source: '商超', productId: id, name: name, category: category, categoryName: category, price: price, image: image, syncedAt: new Date().toISOString(), online: false });
+                        setMallSyncedList(list);
+                    } else {
+                        list = list.filter(function (p) { return !(p.source === '商超' && String(p.productId) === String(id)); });
+                        setMallSyncedList(list);
+                    }
+                });
             });
 
             updateSelectedCount();

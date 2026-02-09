@@ -874,70 +874,43 @@
     </div>
 
     <script>
-        // 商品数据（可视为来自商品列表的简化版数据）
+        // 商品数据（来自商超商品列表的同一批商品，名称/ID 统一）
         const products = [
-            {
-                id: 5940,
-                name: '熊猫基地',
-                image: '../../images/01.jpg',
-                price: 120.00,
-            },
-            {
-                id: 5941,
-                name: '碧峰峡风景区',
-                image: '../../images/02.jpg',
-                price: 80.00,
-            },
-            {
-                id: 5942,
-                name: '雨城廊桥',
-                image: '../../images/03.jpg',
-                price: 60.00,
-            },
-            {
-                id: 5943,
-                name: '荥经严道砂锅',
-                image: '../../images/04.jpg',
-                price: 50.00,
-            },
-            {
-                id: 5944,
-                name: '二郎山风景区',
-                image: '../../images/05.jpg',
-                price: 90.00,
-            },
-            {
-                id: 5945,
-                name: '上里古镇',
-                image: '../../images/06.jpg',
-                price: 70.00,
-            }
+            { id: 1, name: '雅安特产绿营养蛋', image: '../../images/01.jpg', price: 20.00 },
+            { id: 5, name: '蒙顶山茶', image: '../../images/05.jpg', price: 49.00 },
+            { id: 7, name: '花椒油', image: '../../images/01.jpg', price: 15.00 },
+            { id: 13, name: '雅安蜂蜜', image: '../../images/01.jpg', price: 38.00 },
+            { id: 15, name: '雅安菌菇干货', image: '../../images/03.jpg', price: 45.00 },
+            { id: 8, name: '熊猫周边玩偶', image: '../../images/02.jpg', price: 28.00 },
+            { id: 12, name: '精品礼盒装', image: '../../images/06.jpg', price: 268.00 }
         ];
 
-        // 套餐数据
+        // 套餐数据（与商超商品列表中的商品名称/ID 对应）
         const packages = [
             {
                 id: 1001,
-                name: '雅安经典双景打卡套餐',
+                name: '雅安好景经典礼盒套餐',
                 image: '../../images/01.jpg',
-                price: 168.00,
-                originPrice: 200.00,
+                // 套餐售价 < 原价合计（20 + 49 = 69）
+                price: 59.00,
+                originPrice: 69.00,
                 items: [
-                    { productId: 5940, name: '熊猫基地', image: '../../images/01.jpg', price: 120.00, quantity: 1 },
-                    { productId: 5944, name: '二郎山风景区', image: '../../images/05.jpg', price: 80.00, quantity: 1 }
+                    { productId: 1, name: '雅安特产绿营养蛋', image: '../../images/01.jpg', price: 20.00, quantity: 1 },
+                    { productId: 5, name: '蒙顶山茶', image: '../../images/05.jpg', price: 49.00, quantity: 1 }
                 ],
                 status: 'selling',
                 addTime: '2025-08-26'
             },
             {
                 id: 1002,
-                name: '雅安人文美食体验套餐',
-                image: '../../images/04.jpg',
-                price: 99.00,
-                originPrice: 130.00,
+                name: '雅安好物蜂蜜菌菇套餐',
+                image: '../../images/03.jpg',
+                // 套餐售价 < 原价合计（38 + 45 = 83）
+                price: 69.00,
+                originPrice: 83.00,
                 items: [
-                    { productId: 5943, name: '荥经严道砂锅', image: '../../images/04.jpg', price: 50.00, quantity: 1 },
-                    { productId: 5945, name: '上里古镇', image: '../../images/06.jpg', price: 70.00, quantity: 1 }
+                    { productId: 13, name: '雅安蜂蜜', image: '../../images/01.jpg', price: 38.00, quantity: 1 },
+                    { productId: 15, name: '雅安菌菇干货', image: '../../images/03.jpg', price: 45.00, quantity: 1 }
                 ],
                 status: 'offline',
                 addTime: '2025-08-20'

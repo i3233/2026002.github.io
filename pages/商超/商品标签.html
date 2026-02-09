@@ -672,53 +672,20 @@
     </div>
 
     <script>
-        // 静态演示用标签数据
+        // 静态演示用标签数据（与商超商品搭配展示）
         const tags = [
-            {
-                id: 1,
-                name: '新品',
-                style: 'primary',
-                scope: 'both',
-                sort: 200,
-                productCount: 18,
-                enabled: true
-            },
-            {
-                id: 2,
-                name: '热销',
-                style: 'danger',
-                scope: 'list',
-                sort: 180,
-                productCount: 32,
-                enabled: true
-            },
-            {
-                id: 3,
-                name: '自营',
-                style: 'success',
-                scope: 'both',
-                sort: 160,
-                productCount: 12,
-                enabled: true
-            },
-            {
-                id: 4,
-                name: '限时抢购',
-                style: 'danger',
-                scope: 'detail',
-                sort: 140,
-                productCount: 5,
-                enabled: false
-            },
-            {
-                id: 5,
-                name: '产地直供',
-                style: 'primary',
-                scope: 'detail',
-                sort: 120,
-                productCount: 7,
-                enabled: false
-            }
+            { id: 1, name: '新品', style: 'primary', scope: 'both', sort: 200, productCount: 18, enabled: true },
+            { id: 2, name: '热销', style: 'danger', scope: 'list', sort: 180, productCount: 32, enabled: true },
+            { id: 3, name: '自营', style: 'success', scope: 'both', sort: 160, productCount: 12, enabled: true },
+            { id: 4, name: '限时抢购', style: 'danger', scope: 'detail', sort: 140, productCount: 5, enabled: true },
+            { id: 5, name: '产地直供', style: 'primary', scope: 'both', sort: 120, productCount: 7, enabled: true },
+            { id: 6, name: '推荐', style: 'primary', scope: 'both', sort: 110, productCount: 15, enabled: true },
+            { id: 7, name: '爆款', style: 'danger', scope: 'list', sort: 100, productCount: 8, enabled: true },
+            { id: 8, name: '包邮', style: 'success', scope: 'both', sort: 90, productCount: 22, enabled: true },
+            { id: 9, name: '会员专享', style: 'primary', scope: 'both', sort: 80, productCount: 6, enabled: true },
+            { id: 10, name: '限时', style: 'danger', scope: 'detail', sort: 70, productCount: 3, enabled: false },
+            { id: 11, name: '雅安特产', style: 'success', scope: 'both', sort: 60, productCount: 10, enabled: true },
+            { id: 12, name: '精选', style: 'primary', scope: 'list', sort: 50, productCount: 14, enabled: true }
         ];
 
         let filteredTags = [...tags];
@@ -1051,10 +1018,13 @@
             }
         });
 
-        // 标签使用说明按钮：简单弹个提示
-        document.getElementById('tagGuideBtn').addEventListener('click', function () {
-            alert('此页面用于统一管理商品标签，包括：新增、编辑、启用/停用和查看使用情况。当前为静态前端示例，后续可接入真实数据接口。');
-        });
+        // 标签使用说明按钮（若存在）
+        var tagGuideBtn = document.getElementById('tagGuideBtn');
+        if (tagGuideBtn) {
+            tagGuideBtn.addEventListener('click', function () {
+                alert('此页面用于统一管理商品标签，包括：新增、编辑、启用/停用和查看使用情况。当前为静态前端示例，后续可接入真实数据接口。');
+            });
+        }
 
         // 初始化
         filterTags();
