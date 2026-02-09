@@ -9,14 +9,19 @@
 </head>
 <body class="cashier-main-body">
     <div class="cashier-main-container">
-        <!-- 左侧收银台主功能区 -->
+        <!-- 顶部：收银台类型切换 -->
+        <header class="cashier-top-bar">
+            <span class="cashier-top-title">收银台</span>
+            <div class="cashier-type-switch">
+                <button type="button" class="cashier-type-btn active" id="btnCatering" data-type="catering">餐饮收银台</button>
+                <button type="button" class="cashier-type-btn" id="btnMall" data-type="mall">商超收银台</button>
+            </div>
+        </header>
+        <!-- 餐饮收银台：侧栏 + 内容 -->
+        <div class="cashier-view cashier-view-catering" id="viewCatering">
         <aside class="cashier-sidebar">
             <nav class="cashier-sidebar-menu">
-                <a href="#" class="cashier-menu-item active" title="点单" data-menu="order">
-                    <span class="cashier-menu-icon">📋</span>
-                    <span class="cashier-menu-text">点单</span>
-                </a>
-                <a href="#" class="cashier-menu-item" title="桌位" data-menu="table">
+                <a href="#" class="cashier-menu-item active" title="桌位" data-menu="table">
                     <span class="cashier-menu-icon">🪑</span>
                     <span class="cashier-menu-text">桌位</span>
                 </a>
@@ -58,8 +63,13 @@
 
         <!-- 主内容区 -->
         <main class="cashier-main-content">
-            <iframe id="cashierContentFrame" class="cashier-content-frame" src="子页面/点单.html" frameborder="0"></iframe>
+            <iframe id="cashierContentFrame" class="cashier-content-frame" src="子页面/桌位.html" frameborder="0"></iframe>
         </main>
+        </div>
+        <!-- 商超收银台：整页 iframe -->
+        <div class="cashier-view cashier-view-mall hidden" id="viewMall">
+            <iframe id="mallCashierFrame" class="cashier-mall-frame" src="商超收银台.html" frameborder="0"></iframe>
+        </div>
     </div>
 
     <script src="../../js/收银台主界面.js"></script>
