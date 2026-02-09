@@ -5,13 +5,247 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026新项目二 - SaaS后台管理系统</title>
     <link rel="stylesheet" href="css/Main.css">
+    <style>
+        /* 返回卡片按钮样式 */
+        .back-to-cards-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--color-primary);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--transition-base) var(--ease-in-out);
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-to-cards-btn:hover {
+            background-color: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .back-to-cards-btn:active {
+            background-color: var(--color-primary-active);
+            transform: translateY(0);
+        }
+
+        /* 侧边栏标题链接样式 */
+        .sidebar-title-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: opacity var(--transition-base) var(--ease-in-out);
+        }
+
+        .sidebar-title-link:hover {
+            opacity: 0.8;
+        }
+
+        .sidebar-title-link .sidebar-title {
+            margin: 0;
+            color: #ffffff;
+        }
+
+        /* 商超模块布局样式（参考商品分类页面） */
+        .module-layout-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: var(--color-neutral-50);
+            padding: var(--spacing-lg);
+            gap: var(--spacing-lg);
+        }
+
+        /* 一级菜单横向显示 */
+        .level1-menu {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            flex-wrap: wrap;
+        }
+
+        .level1-menu-item {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: 1px solid var(--color-neutral-300);
+            background-color: #ffffff;
+            color: var(--color-text-primary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            white-space: nowrap;
+        }
+
+        .level1-menu-item:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .level1-menu-item.active {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-color: var(--color-primary);
+        }
+
+        /* 主内容区 */
+        .module-main-content-area {
+            flex: 1;
+            display: flex;
+            gap: var(--spacing-lg);
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* 左侧二级菜单 */
+        .level2-sidebar {
+            width: 200px;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .level2-sidebar-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+
+        .level2-sidebar-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            margin-bottom: var(--spacing-xs);
+            display: block;
+            text-decoration: none;
+        }
+
+        .level2-sidebar-item:hover {
+            background-color: var(--color-neutral-50);
+            color: var(--color-primary);
+        }
+
+        .level2-sidebar-item.active {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 右侧内容区 */
+        .module-content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            min-width: 0;
+        }
+
+        .module-content-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            min-height: 0;
+        }
+        /* 模块入口卡片样式 */
+        .module-entry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            padding: var(--spacing-xl);
+        }
+
+        .module-entry-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-xl);
+            cursor: pointer;
+            transition: all var(--transition-base) var(--ease-in-out);
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 200px;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            user-select: none;
+        }
+
+        .module-entry-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-card-hover);
+            transform: translateY(-4px);
+        }
+
+        .module-entry-card-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            display: block;
+        }
+
+        .module-entry-card-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .module-entry-card-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin: 0;
+            line-height: var(--line-height-relaxed);
+        }
+
+        .module-entry-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg) var(--spacing-xl);
+        }
+
+        .module-entry-title {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+
+        .module-entry-subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <!-- 左侧菜单 -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1 class="sidebar-title">2026新项目二</h1>
+                <a href="#" class="sidebar-title-link" onclick="goBackToCards(event)" title="返回卡片入口页">
+                    <h1 class="sidebar-title">卡片入口页</h1>
+                </a>
             </div>
             <nav class="sidebar-menu" id="sidebarMenu">
                 <!-- 菜单内容由JS动态生成 -->
@@ -32,18 +266,340 @@
                     </div>
                 </div>
                 <div class="content-title-container">
-                    <h2 class="content-title" id="contentTitle">欢迎使用</h2>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <h2 class="content-title" id="contentTitle">功能模块入口</h2>
+                        <a href="#" id="backToCardsBtn" class="back-to-cards-btn" onclick="goBackToCards(event)">
+                            <span style="margin-right: 4px;">←</span>
+                            返回功能模块入口
+                        </a>
+                    </div>
                 </div>
             </header>
             <div class="content-body" id="contentBody">
-                <!-- iframe 由JS动态创建 -->
-                <div class="content-placeholder" id="contentPlaceholder">
-                    请从左侧菜单选择功能模块
+                <!-- 模块入口卡片 -->
+                <div class="module-entry-header">
+                    <h1 class="module-entry-title">功能模块入口</h1>
+                    <p class="module-entry-subtitle">请选择要进入的功能模块</p>
+                </div>
+                <div class="module-entry-grid" id="moduleEntryGrid">
+                    <!-- 卡片将由JS动态生成 -->
                 </div>
             </div>
         </main>
     </div>
 
     <script src="js/index.js"></script>
+    <script>
+        // 模块图标映射
+        const moduleIcons = {
+            '商超': '🏪',
+            '收银台': '💳',
+            '线上商城': '🛒',
+            '财务管理': '💰',
+            '餐饮': '🍽️'
+        };
+
+        // 渲染模块卡片
+        function renderModuleCards() {
+            const grid = document.getElementById('moduleEntryGrid');
+            if (!grid) {
+                console.error('找不到moduleEntryGrid元素');
+                return;
+            }
+            
+            grid.innerHTML = '';
+
+            // 获取所有模块数据
+            if (typeof menuData === 'undefined' || !menuData || menuData.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-xl); color: var(--color-text-secondary);">暂无模块数据</div>';
+                return;
+            }
+
+            menuData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'module-entry-card';
+                card.dataset.moduleName = module.module;
+                
+                const icon = moduleIcons[module.module] || '📋';
+                const itemCount = module.items ? module.items.length : 0;
+                const desc = itemCount > 0 ? `${itemCount} 个功能分类` : '点击进入';
+                
+                card.innerHTML = `
+                    <span class="module-entry-card-icon">${icon}</span>
+                    <h3 class="module-entry-card-title">${module.module}</h3>
+                    <p class="module-entry-card-desc">${desc}</p>
+                `;
+                
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('点击了卡片:', module.module);
+                    enterModuleMenu(module);
+                });
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // 进入模块菜单页面
+        function enterModuleMenu(module) {
+            console.log('进入模块菜单:', module.module);
+            
+            const contentBody = document.getElementById('contentBody');
+            const grid = document.getElementById('moduleEntryGrid');
+            const header = document.querySelector('.module-entry-header');
+            
+            // 隐藏卡片和标题
+            if (grid) grid.style.display = 'none';
+            if (header) header.style.display = 'none';
+            
+            // 隐藏占位符
+            const placeholder = document.getElementById('contentPlaceholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            
+            // 所有模块都使用新布局（一级菜单横向，左侧二级菜单，右侧内容）
+            renderSupermarketLayout(module);
+            
+            // 更新左侧菜单提示
+            const menuContainer = document.getElementById('sidebarMenu');
+            if (menuContainer) {
+                menuContainer.innerHTML = `<div style="padding: var(--spacing-md); color: var(--color-text-secondary); text-align: center;">${module.module}功能模块</div>`;
+            }
+            
+            // 更新标题
+            const contentTitle = document.getElementById('contentTitle');
+            if (contentTitle) {
+                contentTitle.textContent = module.module;
+            }
+        }
+
+        // 渲染模块的新布局（一级菜单横向，左侧二级菜单，右侧内容）
+        function renderSupermarketLayout(module) {
+            const contentBody = document.getElementById('contentBody');
+            
+            // 检查是否已经存在布局容器
+            let layoutContainer = document.getElementById('moduleLayoutContainer');
+            if (!layoutContainer) {
+                layoutContainer = document.createElement('div');
+                layoutContainer.id = 'moduleLayoutContainer';
+                layoutContainer.className = 'module-layout-container';
+                contentBody.appendChild(layoutContainer);
+            }
+            
+            layoutContainer.innerHTML = '';
+            
+            // 创建一级菜单
+            const level1Menu = document.createElement('div');
+            level1Menu.className = 'level1-menu';
+            level1Menu.id = 'level1Menu';
+            
+            module.items.forEach((item, index) => {
+                const menuItem = document.createElement('button');
+                menuItem.className = 'level1-menu-item' + (index === 0 ? ' active' : '');
+                menuItem.textContent = item.title;
+                menuItem.dataset.itemIndex = index;
+                menuItem.dataset.itemTitle = item.title;
+                
+                menuItem.addEventListener('click', function() {
+                    // 切换一级菜单激活状态
+                    document.querySelectorAll('.level1-menu-item').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // 更新二级菜单和内容
+                    updateLevel2Menu(module, index);
+                });
+                
+                level1Menu.appendChild(menuItem);
+            });
+            
+            layoutContainer.appendChild(level1Menu);
+            
+            // 创建主内容区
+            const mainContentArea = document.createElement('div');
+            mainContentArea.className = 'module-main-content-area';
+            
+            // 创建左侧二级菜单
+            const level2Sidebar = document.createElement('div');
+            level2Sidebar.className = 'level2-sidebar';
+            level2Sidebar.id = 'level2Sidebar';
+            
+            // 创建右侧内容区
+            const contentArea = document.createElement('div');
+            contentArea.className = 'module-content-area';
+            contentArea.id = 'moduleContentArea';
+            
+            mainContentArea.appendChild(level2Sidebar);
+            mainContentArea.appendChild(contentArea);
+            layoutContainer.appendChild(mainContentArea);
+            
+            // 初始化显示第一个一级菜单的二级菜单
+            if (module.items.length > 0) {
+                updateLevel2Menu(module, 0);
+            }
+        }
+
+        // 更新二级菜单和内容
+        function updateLevel2Menu(module, itemIndex) {
+            const item = module.items[itemIndex];
+            const level2Sidebar = document.getElementById('level2Sidebar');
+            const contentArea = document.getElementById('moduleContentArea');
+            
+            if (!item || !level2Sidebar || !contentArea) return;
+            
+            // 更新二级菜单标题
+            level2Sidebar.innerHTML = '';
+            const sidebarTitle = document.createElement('div');
+            sidebarTitle.className = 'level2-sidebar-title';
+            sidebarTitle.textContent = item.title;
+            level2Sidebar.appendChild(sidebarTitle);
+            
+            // 如果有子菜单，显示二级菜单项
+            if (item.children && item.children.length > 0) {
+                item.children.forEach((child, childIndex) => {
+                    const sidebarItem = document.createElement('a');
+                    sidebarItem.href = '#';
+                    sidebarItem.className = 'level2-sidebar-item' + (childIndex === 0 ? ' active' : '');
+                    sidebarItem.textContent = child.title;
+                    sidebarItem.dataset.path = child.path;
+                    sidebarItem.dataset.title = child.title;
+                    
+                    sidebarItem.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // 切换二级菜单激活状态
+                        document.querySelectorAll('.level2-sidebar-item').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // 加载内容
+                        loadModulePage(child.path, child.title);
+                    });
+                    
+                    level2Sidebar.appendChild(sidebarItem);
+                });
+                
+                // 默认加载第一个子菜单的内容
+                if (item.children.length > 0) {
+                    loadModulePage(item.children[0].path, item.children[0].title);
+                }
+            } else if (item.path) {
+                // 如果没有子菜单，直接加载页面
+                const sidebarItem = document.createElement('div');
+                sidebarItem.className = 'level2-sidebar-item active';
+                sidebarItem.textContent = item.title;
+                sidebarItem.style.cursor = 'default';
+                sidebarItem.style.pointerEvents = 'none';
+                level2Sidebar.appendChild(sidebarItem);
+                
+                loadModulePage(item.path, item.title);
+            }
+        }
+
+        // 加载模块页面到右侧内容区
+        function loadModulePage(path, title) {
+            const contentArea = document.getElementById('moduleContentArea');
+            if (!contentArea) return;
+            
+            // 移除旧的iframe
+            const oldIframe = contentArea.querySelector('.module-content-iframe');
+            if (oldIframe) {
+                oldIframe.remove();
+            }
+            
+            // 创建新的iframe
+            const iframe = document.createElement('iframe');
+            iframe.className = 'module-content-iframe';
+            iframe.src = path;
+            iframe.id = 'moduleContentIframe';
+            contentArea.appendChild(iframe);
+        }
+
+
+        // 返回功能模块入口（卡片页面）
+        window.goBackToCards = function(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            
+            console.log('返回功能模块入口');
+            
+            // 隐藏所有iframe
+            document.querySelectorAll('[id^="frame_"]').forEach(frame => {
+                frame.remove();
+            });
+            
+            // 隐藏菜单页面iframe
+            const menuFrame = document.getElementById('menuFrame');
+            if (menuFrame) {
+                menuFrame.remove();
+            }
+            
+            // 移除模块布局容器（如果存在，用于商超模块的新布局）
+            const layoutContainer = document.getElementById('moduleLayoutContainer');
+            if (layoutContainer) {
+                layoutContainer.remove();
+            }
+            
+            // 清空标签页
+            if (typeof tabsManager !== 'undefined') {
+                tabsManager.tabs = [];
+                tabsManager.activeTabId = null;
+                tabsManager.renderTabs();
+            }
+            
+            // 显示卡片和标题
+            const grid = document.getElementById('moduleEntryGrid');
+            const header = document.querySelector('.module-entry-header');
+            if (grid) grid.style.display = 'grid';
+            if (header) header.style.display = 'block';
+            
+            // 隐藏占位符
+            const placeholder = document.getElementById('contentPlaceholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            
+            // 更新标题
+            const contentTitle = document.getElementById('contentTitle');
+            if (contentTitle) {
+                contentTitle.textContent = '功能模块入口';
+            }
+            
+            // 返回按钮始终显示，不需要隐藏
+            
+            // 重置左侧菜单
+            const menuContainer = document.getElementById('sidebarMenu');
+            if (menuContainer) {
+                menuContainer.innerHTML = '<div style="padding: var(--spacing-md); color: var(--color-text-secondary); text-align: center;">商超功能模块</div>';
+            }
+            
+            // 重置侧边栏标题（已经是链接，不需要修改）
+            
+            // 更新面包屑
+            if (typeof updateBreadcrumb === 'function') {
+                updateBreadcrumb(null);
+            }
+        };
+
+        // 页面加载完成后渲染卡片
+        document.addEventListener('DOMContentLoaded', function() {
+            // 等待menuData加载
+            setTimeout(function() {
+                renderModuleCards();
+            }, 100);
+        });
+
+        // window.onload时也执行一次
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                renderModuleCards();
+            }, 100);
+        });
+    </script>
 </body>
 </html>
