@@ -1,0 +1,21 @@
+/* 餐饮收银台 - 子页面通用 */
+.cashier-sub-body { margin: 0; padding: var(--spacing-lg); background: var(--color-neutral-50); min-height: 100vh; }
+.cashier-sub-container { max-width: 1200px; margin: 0 auto; }
+.cashier-sub-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0 0 var(--spacing-lg); }
+.cashier-sub-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+.cashier-sub-tabs { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); flex-wrap: wrap; }
+.cashier-sub-tab { padding: 8px 16px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; color: var(--color-text-secondary); cursor: pointer; font-size: var(--font-size-sm); }
+.cashier-sub-tab.active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.cashier-sub-filter { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); flex-wrap: wrap; align-items: center; }
+.cashier-sub-filter input, .cashier-sub-filter select { padding: 8px 12px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+.cashier-sub-btn { padding: 8px 16px; border-radius: var(--radius-md); border: 1px solid var(--color-neutral-300); background: #fff; cursor: pointer; font-size: var(--font-size-sm); }
+.cashier-sub-btn-primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.cashier-sub-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+.cashier-sub-table th, .cashier-sub-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--color-neutral-200); }
+.cashier-sub-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.cashier-sub-table tr:hover { background: var(--color-neutral-50); }
+.cashier-sub-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); }
+.cashier-sub-badge-success { background: rgba(40,167,69,0.12); color: var(--color-success); }
+.cashier-sub-badge-warning { background: rgba(255,193,7,0.12); color: #b8860b; }
+.cashier-sub-badge-danger { background: rgba(220,53,69,0.12); color: var(--color-error); }
+.cashier-sub-empty { text-align: center; color: var(--color-text-secondary); padding: var(--spacing-3xl); }

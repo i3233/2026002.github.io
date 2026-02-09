@@ -253,6 +253,32 @@
     border-radius: var(--radius-sm);
 }
 
+/* 商品标签列（与餐饮-商品标签页对应） */
+.product-list-label-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.product-list-label-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+.product-list-label-pill--primary {
+    background-color: rgba(44, 131, 235, 0.15);
+    color: var(--color-primary);
+}
+.product-list-label-pill--danger {
+    background-color: rgba(220, 53, 69, 0.12);
+    color: var(--color-error);
+}
+.product-list-label-pill--success {
+    background-color: rgba(40, 167, 69, 0.12);
+    color: var(--color-success);
+}
+
 .product-list-price {
     font-weight: var(--font-weight-medium);
     color: var(--color-primary);
