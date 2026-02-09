@@ -3,47 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统设置 - 收银台</title>
+    <title>设置 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
     <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
+        .settings-group { margin-bottom: var(--spacing-xl); }
+        .settings-group-title { font-size: var(--font-size-base); font-weight: 600; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-neutral-200); }
+        .settings-row { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-neutral-100); }
+        .settings-row label { font-size: var(--font-size-sm); color: var(--color-text-primary); }
+        .settings-row input, .settings-row select { padding: 8px 12px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
     </style>
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">系统设置</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>设置页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">配置打印机、支付方式、员工权限等</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">设置</h1>
+        <div class="cashier-sub-card">
+            <div class="settings-group">
+                <div class="settings-group-title">打印机</div>
+                <div class="settings-row">
+                    <label>小票打印机</label>
+                    <select id="settingReceiptPrinter">
+                        <option value="">未配置</option>
+                        <option value="default">默认打印机</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <label>厨房打印机</label>
+                    <select id="settingKitchenPrinter">
+                        <option value="">未配置</option>
+                        <option value="kitchen1">厨房1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">支付方式</div>
+                <div class="settings-row">
+                    <label>启用微信支付</label>
+                    <input type="checkbox" id="settingWxPay" checked>
+                </div>
+                <div class="settings-row">
+                    <label>启用支付宝</label>
+                    <input type="checkbox" id="settingAliPay" checked>
+                </div>
+                <div class="settings-row">
+                    <label>启用现金</label>
+                    <input type="checkbox" id="settingCash" checked>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">基础配置</div>
+                <div class="settings-row">
+                    <label>门店名称</label>
+                    <input type="text" id="settingStoreName" value="餐饮收银台" style="width:200px;">
+                </div>
+                <div class="settings-row">
+                    <label>自动打印小票</label>
+                    <input type="checkbox" id="settingAutoPrint" checked>
+                </div>
+            </div>
+            <div style="margin-top: var(--spacing-lg);">
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="settingSaveBtn">保存设置</button>
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById('settingSaveBtn').addEventListener('click', function () {
+            alert('设置已保存（演示）');
+        });
+    </script>
 </body>
 </html>

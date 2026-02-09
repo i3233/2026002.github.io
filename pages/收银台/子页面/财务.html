@@ -3,47 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>财务统计 - 收银台</title>
+    <title>财务 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
     <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
+        .finance-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+        .finance-stat-card { padding: var(--spacing-md); border-radius: var(--radius-md); background: var(--color-neutral-50); border: 1px solid var(--color-neutral-200); }
+        .finance-stat-label { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: 4px; }
+        .finance-stat-value { font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary); }
+        .finance-section { margin-bottom: var(--spacing-xl); }
+        .finance-section-title { font-size: var(--font-size-lg); font-weight: 600; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-neutral-200); }
     </style>
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">财务统计</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>财务报表页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">查看营业额、利润、支出等统计</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">财务</h1>
+        <div class="cashier-sub-card">
+            <div class="finance-section-title">营业汇总</div>
+            <div class="finance-stats">
+                <div class="finance-stat-card">
+                    <div class="finance-stat-label">今日营业额</div>
+                    <div class="finance-stat-value">¥8,268.00</div>
+                </div>
+                <div class="finance-stat-card">
+                    <div class="finance-stat-label">今日订单数</div>
+                    <div class="finance-stat-value">42</div>
+                </div>
+                <div class="finance-stat-card">
+                    <div class="finance-stat-label">本月营业额</div>
+                    <div class="finance-stat-value">¥126,580.00</div>
+                </div>
+            </div>
+        </div>
+        <div class="cashier-sub-card finance-section">
+            <div class="finance-section-title">导购员业绩查询</div>
+            <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">导购员可在此查看自己的业绩（销售额、订单数）。</p>
+            <div class="cashier-sub-filter">
+                <select id="guideSelect">
+                    <option value="">请选择导购员（或当前登录为导购员时自动显示本人）</option>
+                    <option value="G001">张三 (G001)</option>
+                    <option value="G002">李四 (G002)</option>
+                    <option value="G003">王五 (G003)</option>
+                </select>
+                <select id="guideDateRange">
+                    <option value="today">今日</option>
+                    <option value="week">本周</option>
+                    <option value="month">本月</option>
+                </select>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="guideQueryBtn">查询业绩</button>
+            </div>
+            <div id="guideResult" class="cashier-sub-card" style="margin-top: var(--spacing-md); margin-bottom: 0; display: none;">
+                <div class="finance-stats">
+                    <div class="finance-stat-card">
+                        <div class="finance-stat-label">销售额</div>
+                        <div class="finance-stat-value" id="guideSales">¥0.00</div>
+                    </div>
+                    <div class="finance-stat-card">
+                        <div class="finance-stat-label">订单数</div>
+                        <div class="finance-stat-value" id="guideOrders">0</div>
+                    </div>
+                    <div class="finance-stat-card">
+                        <div class="finance-stat-label">导购员</div>
+                        <div class="finance-stat-value" id="guideName" style="font-size: var(--font-size-base);">-</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var guideData = { 'G001': { name: '张三', today: { sales: 3200, orders: 12 }, week: { sales: 18500, orders: 68 }, month: { sales: 62000, orders: 245 } }, 'G002': { name: '李四', today: { sales: 2680, orders: 10 }, week: { sales: 15200, orders: 55 }, month: { sales: 48000, orders: 192 } }, 'G003': { name: '王五', today: { sales: 2388, orders: 9 }, week: { sales: 13100, orders: 48 }, month: { sales: 42000, orders: 168 } } };
+            document.getElementById('guideQueryBtn').addEventListener('click', function () {
+                var id = document.getElementById('guideSelect').value;
+                var range = document.getElementById('guideDateRange').value;
+                var result = document.getElementById('guideResult');
+                if (!id) { alert('请选择导购员'); return; }
+                var g = guideData[id];
+                if (!g) { result.style.display = 'none'; return; }
+                var d = range === 'today' ? g.today : range === 'week' ? g.week : g.month;
+                document.getElementById('guideSales').textContent = '¥' + (d.sales || 0).toFixed(2);
+                document.getElementById('guideOrders').textContent = (d.orders || 0);
+                document.getElementById('guideName').textContent = g.name;
+                result.style.display = 'block';
+            });
+        })();
+    </script>
 </body>
 </html>

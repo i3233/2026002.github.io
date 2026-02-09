@@ -3,47 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后厨制作 - 收银台</title>
+    <title>制作 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
-    <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
-    </style>
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">后厨制作</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>后厨显示屏界面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">查看待制作订单</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">制作</h1>
+        <div class="cashier-sub-card">
+            <div class="cashier-sub-tabs">
+                <button type="button" class="cashier-sub-tab active" data-tab="pending">待制作</button>
+                <button type="button" class="cashier-sub-tab" data-tab="doing">制作中</button>
+                <button type="button" class="cashier-sub-tab" data-tab="done">已完成</button>
+            </div>
+            <div class="cashier-sub-card" style="padding:0; margin:0;">
+                <table class="cashier-sub-table">
+                    <thead>
+                        <tr>
+                            <th>桌台</th>
+                            <th>菜品</th>
+                            <th>数量</th>
+                            <th>备注</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kitchenTableBody"></tbody>
+                </table>
+                <div class="cashier-sub-empty" id="kitchenEmpty" style="display:none;">暂无数据</div>
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var currentTab = 'pending';
+            var tasks = [
+                { id: 1, tableCode: 'A02', dishName: '宫保鸡丁', qty: 1, remark: '', status: 'pending' },
+                { id: 2, tableCode: 'A02', dishName: '麻婆豆腐', qty: 1, remark: '不要辣', status: 'pending' },
+                { id: 3, tableCode: 'A05', dishName: '彩虹斗酒1', qty: 2, remark: '', status: 'doing' },
+                { id: 4, tableCode: 'B01', dishName: '小食拼盘', qty: 1, remark: '', status: 'done' }
+            ];
+            function statusText(s) { return { pending: '待制作', doing: '制作中', done: '已完成' }[s] || s; }
+            function render() {
+                var list = tasks.filter(function (t) { return t.status === currentTab; });
+                var tbody = document.getElementById('kitchenTableBody');
+                var empty = document.getElementById('kitchenEmpty');
+                if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+                empty.style.display = 'none';
+                tbody.innerHTML = list.map(function (t) {
+                    var op = t.status === 'pending' ? '<button type="button" class="cashier-sub-btn cashier-sub-btn-primary" data-id="' + t.id + '" data-action="start">开始制作</button>' : t.status === 'doing' ? '<button type="button" class="cashier-sub-btn cashier-sub-btn-primary" data-id="' + t.id + '" data-action="finish">完成</button>' : '-';
+                    return '<tr><td>' + (t.tableCode || '') + '</td><td>' + (t.dishName || '') + '</td><td>' + (t.qty || 0) + '</td><td>' + (t.remark || '-') + '</td><td><span class="cashier-sub-badge ' + (t.status === 'done' ? 'cashier-sub-badge-success' : t.status === 'doing' ? 'cashier-sub-badge-warning' : '') + '">' + statusText(t.status) + '</span></td><td>' + op + '</td></tr>';
+                }).join('');
+                tbody.querySelectorAll('[data-action="start"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var id = parseInt(this.dataset.id, 10);
+                        var t = tasks.find(function (x) { return x.id === id; });
+                        if (t) { t.status = 'doing'; render(); document.querySelector('.cashier-sub-tab[data-tab="doing"]').click(); }
+                    });
+                });
+                tbody.querySelectorAll('[data-action="finish"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var id = parseInt(this.dataset.id, 10);
+                        var t = tasks.find(function (x) { return x.id === id; });
+                        if (t) { t.status = 'done'; render(); document.querySelector('.cashier-sub-tab[data-tab="done"]').click(); }
+                    });
+                });
+            }
+            document.querySelectorAll('.cashier-sub-tab').forEach(function (t) {
+                t.addEventListener('click', function () {
+                    document.querySelectorAll('.cashier-sub-tab').forEach(function (x) { x.classList.remove('active'); });
+                    this.classList.add('active');
+                    currentTab = this.dataset.tab || 'pending';
+                    render();
+                });
+            });
+            render();
+        })();
+    </script>
 </body>
 </html>

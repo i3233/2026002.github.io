@@ -3,47 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>会员管理 - 收银台</title>
+    <title>会员 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
-    <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
-    </style>
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">会员管理</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>会员中心页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">管理会员信息、积分、充值记录</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">会员</h1>
+        <div class="cashier-sub-card">
+            <div class="cashier-sub-filter">
+                <input type="text" id="memberSearch" placeholder="手机号/姓名/卡号" style="width:200px;">
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="memberSearchBtn">查询</button>
+                <button type="button" class="cashier-sub-btn" id="memberRechargeBtn">充值</button>
+            </div>
+            <div class="cashier-sub-card" style="padding:0; margin:0;">
+                <table class="cashier-sub-table">
+                    <thead>
+                        <tr>
+                            <th>会员卡号</th>
+                            <th>姓名</th>
+                            <th>手机号</th>
+                            <th>余额</th>
+                            <th>积分</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberTableBody"></tbody>
+                </table>
+                <div class="cashier-sub-empty" id="memberEmpty" style="display:none;">暂无会员数据</div>
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var members = [
+                { cardNo: 'M10001', name: '张先生', phone: '138****8001', balance: 520.00, points: 1200 },
+                { cardNo: 'M10002', name: '李女士', phone: '139****8002', balance: 88.50, points: 360 },
+                { cardNo: 'M10003', name: '王先生', phone: '137****8003', balance: 0, points: 80 }
+            ];
+            var kw = '';
+            function render() {
+                var list = !kw ? members : members.filter(function (m) {
+                    return (m.phone || '').indexOf(kw) >= 0 || (m.name || '').indexOf(kw) >= 0 || (m.cardNo || '').indexOf(kw) >= 0;
+                });
+                var tbody = document.getElementById('memberTableBody');
+                var empty = document.getElementById('memberEmpty');
+                if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+                empty.style.display = 'none';
+                tbody.innerHTML = list.map(function (m) {
+                    return '<tr><td>' + (m.cardNo || '') + '</td><td>' + (m.name || '') + '</td><td>' + (m.phone || '') + '</td><td>¥' + (m.balance || 0).toFixed(2) + '</td><td>' + (m.points || 0) + '</td><td><button type="button" class="cashier-sub-btn" data-card="' + (m.cardNo || '') + '">充值</button> <button type="button" class="cashier-sub-btn" data-card="' + (m.cardNo || '') + '">明细</button></td></tr>';
+                }).join('');
+            }
+            document.getElementById('memberSearch').addEventListener('input', function () { kw = this.value.trim(); });
+            document.getElementById('memberSearchBtn').addEventListener('click', function () { render(); });
+            document.getElementById('memberRechargeBtn').addEventListener('click', function () { alert('会员充值（选择会员后操作）'); });
+            render();
+        })();
+    </script>
 </body>
 </html>

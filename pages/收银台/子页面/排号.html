@@ -3,47 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>排队叫号 - 收银台</title>
+    <title>排号 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
     <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
+        .queue-current { text-align: center; padding: var(--spacing-xl); background: linear-gradient(135deg,#e6f7ff,#bae7ff); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); }
+        .queue-current-num { font-size: 48px; font-weight: bold; color: var(--color-primary); }
+        .queue-actions { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); flex-wrap: wrap; }
+        .queue-list-item { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); }
+        .queue-list-item .num { font-weight: bold; color: var(--color-primary); }
     </style>
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">排队叫号</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>排号管理页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">可取号、叫号、查看排队情况</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">排号</h1>
+        <div class="cashier-sub-card">
+            <div class="queue-current">
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">当前叫号</div>
+                <div class="queue-current-num" id="currentCallNum">A001</div>
+            </div>
+            <div class="queue-actions">
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="btnTakeNum">取号</button>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="btnCall">叫号</button>
+                <button type="button" class="cashier-sub-btn" id="btnOver">过号重排</button>
+            </div>
+            <div class="cashier-sub-card" style="padding:0; margin:0;">
+                <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); font-weight: 600;">排队列表</div>
+                <div id="queueList"></div>
+                <div class="cashier-sub-empty" id="queueEmpty" style="display:none;">暂无排队</div>
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var queue = [
+                { num: 'A001', people: 2, status: 'calling' },
+                { num: 'A002', people: 4, status: 'waiting' },
+                { num: 'A003', people: 1, status: 'waiting' }
+            ];
+            var nextNum = 4;
+            function render() {
+                var list = queue.filter(function (q) { return q.status !== 'done'; });
+                var container = document.getElementById('queueList');
+                var empty = document.getElementById('queueEmpty');
+                var calling = queue.find(function (q) { return q.status === 'calling'; });
+                document.getElementById('currentCallNum').textContent = calling ? calling.num : '-';
+                if (list.length === 0) { container.innerHTML = ''; empty.style.display = 'block'; return; }
+                empty.style.display = 'none';
+                container.innerHTML = list.map(function (q) {
+                    var statusText = q.status === 'calling' ? '叫号中' : '等待中';
+                    var cls = q.status === 'calling' ? 'cashier-sub-badge-warning' : 'cashier-sub-badge-success';
+                    return '<div class="queue-list-item" data-num="' + q.num + '"><span><span class="num">' + q.num + '</span> · ' + (q.people || 0) + '人</span><span class="cashier-sub-badge ' + cls + '">' + statusText + '</span></div>';
+                }).join('');
+            }
+            document.getElementById('btnTakeNum').addEventListener('click', function () {
+                var num = 'A' + String(nextNum).padStart(3, '0');
+                queue.push({ num: num, people: 1, status: 'waiting' });
+                nextNum++;
+                render();
+                alert('取号成功：' + num);
+            });
+            document.getElementById('btnCall').addEventListener('click', function () {
+                var waiting = queue.filter(function (q) { return q.status === 'waiting'; })[0];
+                if (!waiting) { alert('暂无等待中的号码'); return; }
+                queue.forEach(function (q) { q.status = q.num === waiting.num ? 'calling' : (q.status === 'calling' ? 'waiting' : q.status); });
+                render();
+                alert('请 ' + waiting.num + ' 号到号！');
+            });
+            document.getElementById('btnOver').addEventListener('click', function () {
+                var calling = queue.find(function (q) { return q.status === 'calling'; });
+                if (!calling) { alert('当前无叫号中'); return; }
+                calling.status = 'waiting';
+                queue.sort(function (a, b) { return a.num > b.num ? 1 : -1; });
+                render();
+            });
+            render();
+        })();
+    </script>
 </body>
 </html>

@@ -5,45 +5,693 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>桌位管理 - 收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/点单.css">
     <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
+        .table-mgmt-body { margin: 0; padding: 0; background: var(--color-neutral-50); min-height: 100vh; }
+        .table-mgmt-container { max-width: 1200px; margin: 0 auto; padding: var(--spacing-lg); padding-bottom: 100px; }
+
+        .table-mgmt-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
         }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .table-mgmt-title-wrap { display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap; }
+        .table-mgmt-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .table-mgmt-search-wrap {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #fff;
+            width: 220px;
         }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
+        .table-mgmt-search-wrap input {
+            flex: 1;
+            border: none;
+            padding: 8px 12px;
+            font-size: var(--font-size-sm);
+        }
+        .table-mgmt-search-wrap input::placeholder { color: #999; }
+        .table-mgmt-search-wrap span { padding: 8px 12px; color: #999; font-size: 14px; }
+        .table-mgmt-pending {
+            font-size: var(--font-size-sm);
+            color: #ff4d4f;
+            margin-right: var(--spacing-sm);
+        }
+        .table-mgmt-bell {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--color-neutral-200);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .table-mgmt-filters {
+            display: flex;
+            gap: var(--spacing-sm);
             margin-bottom: var(--spacing-lg);
         }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
+        .table-mgmt-filter-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            background: #fff;
             color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
         }
+        .table-mgmt-filter-btn.active {
+            background: #52c41a;
+            border-color: #52c41a;
+            color: #fff;
+        }
+
+        .table-mgmt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: var(--spacing-md);
+        }
+        .table-mgmt-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-neutral-100);
+            text-align: center;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        .table-mgmt-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .table-mgmt-card-code { font-size: 22px; font-weight: bold; color: var(--color-text-primary); margin-bottom: 8px; }
+        .table-mgmt-card-status { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 6px; }
+        .table-mgmt-card-capacity { font-size: var(--font-size-sm); color: #666; }
+        .table-mgmt-card-timer { font-size: var(--font-size-xs); color: #ff7a45; margin-top: 4px; }
+
+        .table-mgmt-card.status-empty { }
+        .table-mgmt-card.status-wait-order { background: #fff7e6; border-color: #ffd591; }
+        .table-mgmt-card.status-wait-order .table-mgmt-card-status { color: #fa8c16; }
+        .table-mgmt-card.status-wait-pay { border-color: #ffccc7; background: #fff2f0; }
+        .table-mgmt-card.status-wait-pay .table-mgmt-card-status { color: #ff4d4f; }
+        .table-mgmt-card.status-pre-settled { border-color: #b7eb8f; background: #f6ffed; }
+        .table-mgmt-card.status-pre-settled .table-mgmt-card-status { color: #52c41a; }
+        .table-mgmt-card.status-wait-clear { border-color: #91d5ff; background: #e6f7ff; }
+        .table-mgmt-card.status-wait-clear .table-mgmt-card-status { color: #1890ff; }
+        .table-mgmt-card.status-wait-dish { border-color: #d3adf7; background: #f9f0ff; }
+        .table-mgmt-card.status-wait-dish .table-mgmt-card-status { color: #722ed1; }
+        .table-mgmt-card-badge {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .table-mgmt-bottom-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            border-top: 1px solid var(--color-neutral-200);
+            padding: var(--spacing-md) var(--spacing-lg);
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+            z-index: 100;
+        }
+        .table-mgmt-summary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md) var(--spacing-lg);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-md);
+        }
+        .table-mgmt-summary-item { display: flex; align-items: center; gap: 6px; }
+        .table-mgmt-summary-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .table-mgmt-summary-dot.all { background: #333; }
+        .table-mgmt-summary-dot.empty { background: #d9d9d9; }
+        .table-mgmt-summary-dot.wait-order { background: #fa8c16; }
+        .table-mgmt-summary-dot.wait-pay { background: #ff4d4f; }
+        .table-mgmt-summary-dot.pre-settled { background: #52c41a; }
+        .table-mgmt-summary-dot.wait-clear { background: #1890ff; }
+        .table-mgmt-summary-dot.wait-dish { background: #722ed1; }
+        .table-mgmt-summary-dot.has-order { background: #1890ff; }
+
+        .table-mgmt-clear-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: #52c41a;
+            color: #fff;
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .table-mgmt-clear-btn:hover { background: #73d13d; }
+
+        .table-mgmt-fab {
+            position: fixed;
+            right: 24px;
+            bottom: 140px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 12px rgba(24,144,255,0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 101;
+        }
+        .table-mgmt-fab-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 9px;
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 点桌台后出现的点单界面（全屏浮层） */
+        .table-order-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: #fff;
+            display: none;
+            flex-direction: column;
+        }
+        .table-order-overlay.is-open { display: flex; }
+        .table-order-overlay .order-page-container { flex: 1; min-height: 0; }
+        .table-order-back-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+            border-bottom: 1px solid var(--color-neutral-200);
+            flex-shrink: 0;
+        }
+        .table-order-back-bar .order-table-value { font-weight: bold; color: var(--color-primary); }
     </style>
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">桌位管理</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>桌位管理页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">可查看空闲/占用状态，选择桌位开台</p>
+<body class="table-mgmt-body">
+    <div class="table-mgmt-container">
+        <header class="table-mgmt-header">
+            <div class="table-mgmt-title-wrap">
+                <h1 class="table-mgmt-title">桌位管理</h1>
+                <div class="table-mgmt-search-wrap">
+                    <span>Q</span>
+                    <input type="text" id="tableSearch" placeholder="桌台名称">
+                </div>
             </div>
+            <div style="display:flex;align-items:center;">
+                <span class="table-mgmt-pending" id="pendingSummary">待结账: 0桌 | 0人 | ¥0.00</span>
+                <button type="button" class="table-mgmt-bell" title="通知">🔔</button>
+            </div>
+        </header>
+
+        <div class="table-mgmt-filters">
+            <button type="button" class="table-mgmt-filter-btn active" data-area="all">全部</button>
+            <button type="button" class="table-mgmt-filter-btn" data-area="A区">A区</button>
+            <button type="button" class="table-mgmt-filter-btn" data-area="B区">B区</button>
+        </div>
+
+        <div class="table-mgmt-grid" id="tableGrid"></div>
+    </div>
+
+    <div class="table-mgmt-bottom-bar">
+        <div style="text-align:center;">
+            <button type="button" class="table-mgmt-clear-btn" id="btnClearAll">✓ 一键清台</button>
+        </div>
+        <div class="table-mgmt-summary" id="summaryBar"></div>
+    </div>
+
+    <button type="button" class="table-mgmt-fab" id="btnCallService" title="呼叫服务">
+        📢
+        <span class="table-mgmt-fab-badge" id="callServiceBadge">0</span>
+    </button>
+
+    <!-- 点桌台后出现的点单界面（参考点单页要素整合） -->
+    <div class="table-order-overlay" id="tableOrderOverlay">
+        <div class="order-page-container">
+            <aside class="order-left-panel">
+                <div class="table-order-back-bar">
+                    <span><span class="order-table-label">当前桌台</span> <span class="order-table-value" id="tableOrderCode">-</span></span>
+                    <button type="button" class="order-btn order-btn-outline" id="tableOrderBackBtn">← 返回桌位</button>
+                </div>
+                <div class="order-customer-section">
+                    <div class="order-customer-select">
+                        <button type="button" class="order-customer-link"><span class="order-customer-icon">👤</span><span>点击选择客户</span></button>
+                        <button type="button" class="order-btn order-btn-primary order-storage-btn">储值</button>
+                    </div>
+                    <div class="order-member-info">
+                        <div class="order-member-item"><span class="order-member-label">余额</span><span class="order-member-value">0.00</span></div>
+                        <div class="order-member-item"><span class="order-member-label">权益卡</span><span class="order-member-value">0</span></div>
+                        <div class="order-member-item"><span class="order-member-label">优惠券</span><span class="order-member-value">0</span></div>
+                        <div class="order-member-item"><span class="order-member-label">积分</span><span class="order-member-value">0</span></div>
+                    </div>
+                </div>
+                <div class="order-items-section">
+                    <div class="order-items-header"><h3 class="order-items-title">点单列表</h3></div>
+                    <div class="order-items-list" id="tableOrderItemsList">
+                        <div class="order-items-empty" id="tableOrderEmpty">
+                            <div class="order-empty-icon">🛒</div>
+                            <div class="order-empty-text">暂无菜品</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-settlement-section">
+                    <div class="order-discount-bar">
+                        <span class="order-discount-text">无优惠</span>
+                        <button type="button" class="order-btn order-btn-outline order-modify-discount-btn">修改优惠</button>
+                    </div>
+                    <div class="order-total-section">
+                        <div class="order-total-info">
+                            <div class="order-total-label">合计</div>
+                            <div class="order-total-price" id="tableOrderTotalPrice">¥0.00</div>
+                        </div>
+                        <button type="button" class="order-btn order-btn-primary order-btn-large order-checkout-btn" id="tableOrderCheckoutBtn">收银</button>
+                    </div>
+                </div>
+            </aside>
+            <div class="order-middle-panel">
+                <div class="order-number-section">
+                    <div class="order-number-header"><h3 class="order-number-title">号牌</h3></div>
+                    <div class="order-number-actions">
+                        <div class="order-action-item">
+                            <label class="order-switch"><input type="checkbox" id="tableOrderPackSwitch"><span class="order-switch-slider"></span></label>
+                            <span class="order-action-text">整单打包</span>
+                        </div>
+                        <button type="button" class="order-action-btn" id="tableOrderClearBtn">清空</button>
+                        <button type="button" class="order-action-btn">取单</button>
+                        <button type="button" class="order-action-btn">整单打折\减免</button>
+                        <button type="button" class="order-action-btn">整单备注</button>
+                        <button type="button" class="order-action-btn">团购券先核销</button>
+                    </div>
+                    <div class="order-number-footer">
+                        <button type="button" class="order-scroll-btn" id="tableOrderScrollUp">向上滑</button>
+                        <button type="button" class="order-scroll-btn" id="tableOrderScrollDown">向下滑</button>
+                    </div>
+                </div>
+            </div>
+            <main class="order-right-panel">
+                <div class="order-product-toolbar">
+                    <div class="order-search-section">
+                        <input type="text" class="order-search-input" id="tableOrderSearch" placeholder="🔍 商品名称">
+                    </div>
+                    <div class="order-toolbar-buttons">
+                        <button type="button" class="order-tool-btn order-tool-btn-outline" title="临时商品">临时商品</button>
+                        <button type="button" class="order-tool-btn" title="大图">大</button>
+                        <button type="button" class="order-tool-btn" title="中图">中</button>
+                        <button type="button" class="order-tool-btn" title="小图">小</button>
+                    </div>
+                </div>
+                <div class="order-category-tabs">
+                    <div class="order-category-tabs-wrapper">
+                        <button type="button" class="order-category-tab active" data-category="all">全部</button>
+                        <button type="button" class="order-category-tab" data-category="soft-drink">软饮</button>
+                        <button type="button" class="order-category-tab" data-category="beer">啤酒</button>
+                        <button type="button" class="order-category-tab" data-category="snack">小号</button>
+                        <button type="button" class="order-category-tab" data-category="other">其它</button>
+                        <button type="button" class="order-category-tab" data-category="wine">洋酒</button>
+                        <button type="button" class="order-category-tab" data-category="special">特色</button>
+                        <button type="button" class="order-category-tab" data-category="rainbow">彩虹</button>
+                        <button type="button" class="order-category-tab" data-category="package">套餐</button>
+                        <button type="button" class="order-category-tab" data-category="chinese">中餐</button>
+                    </div>
+                </div>
+                <div class="order-product-content">
+                    <div class="order-products-grid order-products-grid-medium" id="tableOrderProductsGrid"></div>
+                </div>
+                <div class="order-payment-bar">
+                    <button type="button" class="order-payment-btn order-payment-btn-outline">扫付</button>
+                    <button type="button" class="order-payment-btn order-payment-btn-outline">现金</button>
+                    <button type="button" class="order-payment-btn order-payment-btn-douyin"><span class="douyin-logo">抖音</span></button>
+                    <button type="button" class="order-payment-btn order-payment-btn-primary">先吃后付</button>
+                </div>
+            </main>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var areaFilter = 'all';
+            var searchKeyword = '';
+            var tables = [
+                { code: 'A01', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A02', area: 'A区', status: 'wait-order', capacity: 10, current: 5, timerMinutes: 1113 },
+                { code: 'A03', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A04', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A05', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A06', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A07', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A08', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'A09', area: 'A区', status: 'empty', capacity: 10, current: 0 },
+                { code: 'B01', area: 'B区', status: 'empty', capacity: 4, current: 0 },
+                { code: 'B02', area: 'B区', status: 'empty', capacity: 4, current: 0 },
+                { code: 'B03', area: 'B区', status: 'empty', capacity: 4, current: 0 },
+                { code: 'B04', area: 'B区', status: 'empty', capacity: 4, current: 0 },
+                { code: 'B05', area: 'B区', status: 'empty', capacity: 4, current: 0 }
+            ];
+            var statusText = { empty: '空桌台', 'wait-order': '待下单', 'wait-pay': '待结账', 'pre-settled': '已预结', 'wait-clear': '待清台', 'wait-dish': '待上菜' };
+
+            function getTableOrdersFromStorage(code) {
+                try {
+                    var raw = localStorage.getItem('cashierTableOrders') || '{}';
+                    var obj = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    return Array.isArray(obj[code]) ? obj[code] : [];
+                } catch (e) { return []; }
+            }
+
+            function getFiltered() {
+                var list = tables;
+                if (areaFilter !== 'all') list = list.filter(function (t) { return t.area === areaFilter; });
+                if (searchKeyword) {
+                    var k = searchKeyword.toLowerCase();
+                    list = list.filter(function (t) { return (t.code || '').toLowerCase().indexOf(k) >= 0; });
+                }
+                return list;
+            }
+
+            function renderGrid() {
+                var list = getFiltered();
+                var html = list.map(function (t) {
+                    var statusClass = 'status-' + (t.status || 'empty');
+                    var statusLabel = statusText[t.status] || '空桌台';
+                    var timerHtml = (t.timerMinutes != null && t.status === 'wait-order') ? '<div class="table-mgmt-card-timer">' + t.timerMinutes + ' 分钟</div>' : '';
+                    var orders = getTableOrdersFromStorage(t.code);
+                    var hasOrdered = orders && orders.length > 0;
+                    var badgeHtml = hasOrdered ? '<div class="table-mgmt-card-badge">已点单</div>' : '';
+                    return '<div class="table-mgmt-card ' + statusClass + '" data-code="' + t.code + '">' +
+                        '<div class="table-mgmt-card-code">' + t.code + '</div>' +
+                        '<div class="table-mgmt-card-status">' + statusLabel + '</div>' +
+                        '<div class="table-mgmt-card-capacity">👤 ' + (t.current || 0) + '/' + (t.capacity || 0) + '</div>' +
+                        timerHtml + badgeHtml + '</div>';
+                }).join('');
+                document.getElementById('tableGrid').innerHTML = html || '<p style="grid-column:1/-1;text-align:center;color:#999;">暂无桌位</p>';
+
+                document.querySelectorAll('.table-mgmt-card').forEach(function (el) {
+                    el.addEventListener('click', function () {
+                        var code = this.dataset.code;
+                        if (!code) return;
+                        openTableOrderPanel(code);
+                    });
+                });
+            }
+
+            function updateSummary() {
+                var all = tables.length;
+                var empty = tables.filter(function (t) { return t.status === 'empty'; }).length;
+                var waitOrder = tables.filter(function (t) { return t.status === 'wait-order'; }).length;
+                var waitPay = tables.filter(function (t) { return t.status === 'wait-pay'; }).length;
+                var preSettled = tables.filter(function (t) { return t.status === 'pre-settled'; }).length;
+                var waitClear = tables.filter(function (t) { return t.status === 'wait-clear'; }).length;
+                var waitDish = tables.filter(function (t) { return t.status === 'wait-dish'; }).length;
+                var hasOrderedCount = tables.filter(function (t) { return getTableOrdersFromStorage(t.code).length > 0; }).length;
+                var payTables = tables.filter(function (t) { return t.status === 'wait-pay'; });
+                var payPeople = payTables.reduce(function (s, t) { return s + (t.current || 0); }, 0);
+                var payAmount = payTables.length * 0;
+                document.getElementById('pendingSummary').textContent = '待结账: ' + waitPay + '桌 | ' + payPeople + '人 | ¥' + payAmount.toFixed(2);
+
+                var bar = document.getElementById('summaryBar');
+                bar.innerHTML = '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot all"></span>全部(' + all + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot empty"></span>空桌位(' + empty + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot wait-order"></span>待下单(' + waitOrder + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot has-order"></span>已点单(' + hasOrderedCount + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot wait-pay"></span>待结账(' + waitPay + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot pre-settled"></span>已预结(' + preSettled + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot wait-clear"></span>待清台(' + waitClear + ')</span>' +
+                    '<span class="table-mgmt-summary-item"><span class="table-mgmt-summary-dot wait-dish"></span>待上菜(' + waitDish + ')</span>';
+            }
+
+            document.querySelectorAll('.table-mgmt-filter-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.table-mgmt-filter-btn').forEach(function (b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    areaFilter = this.dataset.area || 'all';
+                    renderGrid();
+                });
+            });
+            document.getElementById('tableSearch').addEventListener('input', function () {
+                searchKeyword = this.value.trim();
+                renderGrid();
+            });
+            document.getElementById('btnClearAll').addEventListener('click', function () {
+                if (confirm('确定一键清台？将清空所有可清台状态桌位。')) {
+                    tables.forEach(function (t) {
+                        if (t.status === 'wait-clear' || t.status === 'pre-settled') {
+                            t.status = 'empty';
+                            t.current = 0;
+                        }
+                    });
+                    renderGrid();
+                    updateSummary();
+                }
+            });
+            document.getElementById('btnCallService').addEventListener('click', function () {
+                alert('呼叫服务');
+            });
+
+            // ---------- 点桌台后点单界面：商品数据（与点单页一致） ----------
+            var tableOrderProductData = [
+                { id: 1, name: '红牛', price: 15, category: 'soft-drink' },
+                { id: 2, name: '旺仔牛奶', price: 15, category: 'soft-drink' },
+                { id: 3, name: '王老吉（听装）', price: 10, category: 'soft-drink' },
+                { id: 4, name: '可乐（听装）', price: 8, category: 'soft-drink' },
+                { id: 5, name: '红茶', price: 8, category: 'soft-drink' },
+                { id: 6, name: '农夫山泉550ml', price: 8, category: 'soft-drink' },
+                { id: 7, name: '苏打水', price: 10, category: 'soft-drink' },
+                { id: 8, name: '雪碧', price: 8, category: 'soft-drink' },
+                { id: 9, name: '脉动', price: 12, category: 'soft-drink' },
+                { id: 10, name: '百威经典（半打）', price: 108, category: 'beer' },
+                { id: 11, name: '百威经典（一打）', price: 198, category: 'beer' },
+                { id: 12, name: '科罗娜（半打）', price: 158, category: 'beer' },
+                { id: 13, name: '科罗娜（一打）', price: 298, category: 'beer' },
+                { id: 14, name: '百威铝罐（半打）', price: 158, category: 'beer' },
+                { id: 15, name: '百威铝罐（一打）', price: 298, category: 'beer' },
+                { id: 16, name: '福佳白（半打）', price: 138, category: 'beer' },
+                { id: 17, name: '福佳白（一打）', price: 258, category: 'beer' },
+                { id: 18, name: '1664桃红（半打）', price: 198, category: 'beer' },
+                { id: 19, name: '1664桃红（一打）', price: 388, category: 'beer' },
+                { id: 20, name: '动力火车（半打）', price: 78, category: 'beer' },
+                { id: 21, name: '动力火车（一打）', price: 148, category: 'beer' },
+                { id: 22, name: '崂山啤酒（半打）', price: 68, category: 'beer' },
+                { id: 23, name: '崂山啤酒（一打）', price: 128, category: 'beer' },
+                { id: 24, name: '1664白啤（半打）', price: 188, category: 'beer' },
+                { id: 25, name: '1664白啤（一打）', price: 368, category: 'beer' },
+                { id: 26, name: '小食拼盘', price: 28, category: 'snack' },
+                { id: 27, name: '花生米', price: 15, category: 'snack' },
+                { id: 28, name: '瓜子', price: 12, category: 'snack' },
+                { id: 29, name: '其他商品1', price: 20, category: 'other' },
+                { id: 30, name: '其他商品2', price: 25, category: 'other' },
+                { id: 31, name: '威士忌', price: 388, category: 'wine' },
+                { id: 32, name: '白兰地', price: 488, category: 'wine' },
+                { id: 33, name: '特色斗酒1', price: 88, category: 'special' },
+                { id: 34, name: '特色斗酒2', price: 98, category: 'special' },
+                { id: 35, name: '彩虹斗酒1', price: 108, category: 'rainbow' },
+                { id: 36, name: '彩虹斗酒2', price: 118, category: 'rainbow' },
+                { id: 37, name: '优惠套餐A', price: 198, category: 'package' },
+                { id: 38, name: '优惠套餐B', price: 298, category: 'package' },
+                { id: 39, name: '宫保鸡丁', price: 38, category: 'chinese' },
+                { id: 40, name: '麻婆豆腐', price: 28, category: 'chinese' }
+            ];
+
+            var tableOrderCurrentCode = '';
+            var tableOrderItems = [];
+            var tableOrderCategory = 'all';
+            var tableOrderSearch = '';
+
+            function saveTableOrderToStorage() {
+                if (!tableOrderCurrentCode) return;
+                try {
+                    var raw = localStorage.getItem('cashierTableOrders') || '{}';
+                    var obj = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    obj[tableOrderCurrentCode] = tableOrderItems.slice();
+                    localStorage.setItem('cashierTableOrders', JSON.stringify(obj));
+                } catch (e) {}
+            }
+
+            function tableOrderUpdateDisplay() {
+                var listEl = document.getElementById('tableOrderItemsList');
+                var emptyEl = document.getElementById('tableOrderEmpty');
+                var totalEl = document.getElementById('tableOrderTotalPrice');
+                if (!listEl) return;
+                if (tableOrderItems.length === 0) {
+                    if (emptyEl) emptyEl.style.display = 'flex';
+                    listEl.innerHTML = '';
+                    listEl.appendChild(emptyEl);
+                } else {
+                    if (emptyEl) emptyEl.style.display = 'none';
+                    listEl.innerHTML = tableOrderItems.map(function (item, index) {
+                        return '<div class="order-item">' +
+                            '<div class="order-item-name">' + item.name + '</div>' +
+                            '<div class="order-item-price">¥' + (item.price || 0).toFixed(2) + '</div>' +
+                            '<div class="order-item-quantity">' +
+                            '<button type="button" class="order-quantity-btn" data-action="minus" data-index="' + index + '">-</button>' +
+                            '<span class="order-quantity-value">' + (item.quantity || 1) + '</span>' +
+                            '<button type="button" class="order-quantity-btn" data-action="plus" data-index="' + index + '">+</button>' +
+                            '</div>' +
+                            '<button type="button" class="order-item-delete" data-index="' + index + '" title="删除">×</button>' +
+                            '</div>';
+                    }).join('');
+                    listEl.querySelectorAll('.order-quantity-btn[data-action="minus"]').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var i = parseInt(this.dataset.index, 10);
+                            if (tableOrderItems[i]) {
+                                tableOrderItems[i].quantity = (tableOrderItems[i].quantity || 1) - 1;
+                                if (tableOrderItems[i].quantity <= 0) tableOrderItems.splice(i, 1);
+                                tableOrderUpdateDisplay();
+                                saveTableOrderToStorage();
+                            }
+                        });
+                    });
+                    listEl.querySelectorAll('.order-quantity-btn[data-action="plus"]').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var i = parseInt(this.dataset.index, 10);
+                            if (tableOrderItems[i]) {
+                                tableOrderItems[i].quantity = (tableOrderItems[i].quantity || 1) + 1;
+                                tableOrderUpdateDisplay();
+                                saveTableOrderToStorage();
+                            }
+                        });
+                    });
+                    listEl.querySelectorAll('.order-item-delete').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var i = parseInt(this.dataset.index, 10);
+                            tableOrderItems.splice(i, 1);
+                            tableOrderUpdateDisplay();
+                            saveTableOrderToStorage();
+                        });
+                    });
+                }
+                var total = tableOrderItems.reduce(function (s, it) { return s + (it.price || 0) * (it.quantity || 1); }, 0);
+                if (totalEl) totalEl.textContent = '¥' + total.toFixed(2);
+            }
+
+            function tableOrderRenderProducts() {
+                var grid = document.getElementById('tableOrderProductsGrid');
+                if (!grid) return;
+                var list = tableOrderProductData;
+                if (tableOrderCategory !== 'all') list = list.filter(function (p) { return p.category === tableOrderCategory; });
+                if (tableOrderSearch) {
+                    var k = tableOrderSearch.toLowerCase();
+                    list = list.filter(function (p) { return (p.name || '').toLowerCase().indexOf(k) >= 0; });
+                }
+                grid.innerHTML = list.map(function (p) {
+                    return '<div class="order-product-card" data-product-id="' + p.id + '">' +
+                        '<div class="order-product-image"><div class="order-product-image-placeholder">📦</div></div>' +
+                        '<div class="order-product-name">' + (p.name || '') + '</div>' +
+                        '<div class="order-product-price">¥' + (p.price || 0) + '</div>' +
+                        '<button type="button" class="order-product-add-btn" data-product-id="' + p.id + '" title="添加到订单">+</button>' +
+                        '</div>';
+                }).join('');
+                grid.querySelectorAll('.order-product-card').forEach(function (card) {
+                    var id = parseInt(card.dataset.productId, 10);
+                    var product = tableOrderProductData.filter(function (p) { return p.id === id; })[0];
+                    if (!product) return;
+                    card.addEventListener('click', function (e) {
+                        if (e.target.classList.contains('order-product-add-btn')) return;
+                        tableOrderAddItem(product);
+                    });
+                });
+                grid.querySelectorAll('.order-product-add-btn').forEach(function (btn) {
+                    var id = parseInt(btn.dataset.productId, 10);
+                    var product = tableOrderProductData.filter(function (p) { return p.id === id; })[0];
+                    if (product) btn.addEventListener('click', function (e) { e.stopPropagation(); tableOrderAddItem(product); });
+                });
+            }
+
+            function tableOrderAddItem(product) {
+                var exist = tableOrderItems.filter(function (it) { return it.id === product.id; })[0];
+                if (exist) exist.quantity = (exist.quantity || 1) + 1;
+                else tableOrderItems.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+                tableOrderUpdateDisplay();
+                saveTableOrderToStorage();
+            }
+
+            function openTableOrderPanel(code) {
+                tableOrderCurrentCode = code;
+                tableOrderItems = getTableOrdersFromStorage(code).slice();
+                tableOrderCategory = 'all';
+                tableOrderSearch = '';
+                var codeEl = document.getElementById('tableOrderCode');
+                if (codeEl) codeEl.textContent = code;
+                document.getElementById('tableOrderOverlay').classList.add('is-open');
+                document.getElementById('tableOrderSearch').value = '';
+                document.querySelectorAll('#tableOrderOverlay .order-category-tab').forEach(function (t) {
+                    t.classList.toggle('active', t.dataset.category === 'all');
+                });
+                tableOrderUpdateDisplay();
+                tableOrderRenderProducts();
+            }
+
+            document.getElementById('tableOrderBackBtn').addEventListener('click', function () {
+                document.getElementById('tableOrderOverlay').classList.remove('is-open');
+                renderGrid();
+                updateSummary();
+            });
+            document.getElementById('tableOrderClearBtn').addEventListener('click', function () {
+                if (confirm('确定清空当前桌台订单？')) {
+                    tableOrderItems = [];
+                    tableOrderUpdateDisplay();
+                    saveTableOrderToStorage();
+                }
+            });
+            document.getElementById('tableOrderCheckoutBtn').addEventListener('click', function () {
+                var total = tableOrderItems.reduce(function (s, it) { return s + (it.price || 0) * (it.quantity || 1); }, 0);
+                alert('收银（本桌台合计 ¥' + total.toFixed(2) + '）');
+            });
+            document.getElementById('tableOrderSearch').addEventListener('input', function () {
+                tableOrderSearch = this.value.trim();
+                tableOrderRenderProducts();
+            });
+            document.querySelectorAll('#tableOrderOverlay .order-category-tab').forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('#tableOrderOverlay .order-category-tab').forEach(function (t) { t.classList.remove('active'); });
+                    this.classList.add('active');
+                    tableOrderCategory = this.dataset.category || 'all';
+                    tableOrderRenderProducts();
+                });
+            });
+            document.getElementById('tableOrderScrollUp').addEventListener('click', function () {
+                var el = document.getElementById('tableOrderItemsList');
+                if (el) el.scrollTop -= 100;
+            });
+            document.getElementById('tableOrderScrollDown').addEventListener('click', function () {
+                var el = document.getElementById('tableOrderItemsList');
+                if (el) el.scrollTop += 100;
+            });
+
+            renderGrid();
+            updateSummary();
+        })();
+    </script>
 </body>
 </html>

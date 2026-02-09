@@ -3,47 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单管理 - 收银台</title>
+    <title>订单 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
-    <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
-    </style>
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">订单管理</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>订单管理页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">查看历史订单、待处理订单、退单等</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">订单</h1>
+        <div class="cashier-sub-card">
+            <div class="cashier-sub-tabs">
+                <button type="button" class="cashier-sub-tab active" data-tab="today">今日订单</button>
+                <button type="button" class="cashier-sub-tab" data-tab="all">全部订单</button>
+            </div>
+            <div class="cashier-sub-filter">
+                <input type="text" id="orderSearch" placeholder="订单号/桌台" style="width:180px;">
+                <select id="orderStatus">
+                    <option value="">全部状态</option>
+                    <option value="pending">待结账</option>
+                    <option value="paid">已结账</option>
+                    <option value="refund">已退单</option>
+                </select>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="orderSearchBtn">查询</button>
+            </div>
+            <div class="cashier-sub-card" style="padding:0; margin:0;">
+                <table class="cashier-sub-table">
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>桌台</th>
+                            <th>商品数</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody"></tbody>
+                </table>
+                <div class="cashier-sub-empty" id="orderEmpty" style="display:none;">暂无订单</div>
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var currentTab = 'today';
+            var statusFilter = '';
+            var searchKw = '';
+            var orders = [
+                { orderNo: 'OD20260203001', tableCode: 'A02', itemCount: 5, total: 268.00, status: 'paid', time: '2026-02-03 12:30' },
+                { orderNo: 'OD20260203002', tableCode: 'A05', itemCount: 3, total: 89.00, status: 'pending', time: '2026-02-03 13:15' },
+                { orderNo: 'OD20260203003', tableCode: 'B01', itemCount: 8, total: 456.00, status: 'paid', time: '2026-02-03 14:00' }
+            ];
+            function statusText(s) { return { pending: '待结账', paid: '已结账', refund: '已退单' }[s] || s; }
+            function statusClass(s) { return { pending: 'cashier-sub-badge-warning', paid: 'cashier-sub-badge-success', refund: 'cashier-sub-badge-danger' }[s] || ''; }
+            function render() {
+                var list = orders.filter(function (o) {
+                    if (statusFilter && o.status !== statusFilter) return false;
+                    if (searchKw) {
+                        var k = searchKw.toLowerCase();
+                        if ((o.orderNo || '').toLowerCase().indexOf(k) < 0 && (o.tableCode || '').toLowerCase().indexOf(k) < 0) return false;
+                    }
+                    return true;
+                });
+                var tbody = document.getElementById('orderTableBody');
+                var empty = document.getElementById('orderEmpty');
+                if (list.length === 0) {
+                    tbody.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+                empty.style.display = 'none';
+                tbody.innerHTML = list.map(function (o) {
+                    return '<tr><td>' + (o.orderNo || '') + '</td><td>' + (o.tableCode || '') + '</td><td>' + (o.itemCount || 0) + '</td><td>¥' + (o.total || 0).toFixed(2) + '</td><td><span class="cashier-sub-badge ' + statusClass(o.status) + '">' + statusText(o.status) + '</span></td><td>' + (o.time || '') + '</td><td><button type="button" class="cashier-sub-btn" data-no="' + (o.orderNo || '') + '" data-action="print">打印小票</button> <button type="button" class="cashier-sub-btn" data-no="' + (o.orderNo || '') + '" data-action="detail">详情</button></td></tr>';
+                }).join('');
+                tbody.querySelectorAll('[data-action="print"]').forEach(function (btn) { btn.addEventListener('click', function () { alert('打印小票：' + this.dataset.no); }); });
+                tbody.querySelectorAll('[data-action="detail"]').forEach(function (btn) { btn.addEventListener('click', function () { alert('订单详情：' + this.dataset.no); }); });
+            }
+            document.querySelectorAll('.cashier-sub-tab').forEach(function (t) {
+                t.addEventListener('click', function () {
+                    document.querySelectorAll('.cashier-sub-tab').forEach(function (x) { x.classList.remove('active'); });
+                    this.classList.add('active');
+                    currentTab = this.dataset.tab || 'today';
+                    render();
+                });
+            });
+            document.getElementById('orderStatus').addEventListener('change', function () { statusFilter = this.value || ''; render(); });
+            document.getElementById('orderSearch').addEventListener('input', function () { searchKw = this.value.trim(); });
+            document.getElementById('orderSearchBtn').addEventListener('click', function () { render(); });
+            render();
+        })();
+    </script>
 </body>
 </html>

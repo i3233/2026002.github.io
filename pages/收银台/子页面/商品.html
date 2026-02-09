@@ -3,47 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品管理 - 收银台</title>
+    <title>商品 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
-    <style>
-        body {
-            margin: 0;
-            padding: var(--spacing-lg);
-            background-color: var(--color-neutral-50);
-        }
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin-bottom: var(--spacing-lg);
-        }
-        .page-content {
-            background-color: #ffffff;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--color-text-secondary);
-            padding: var(--spacing-3xl);
-            font-size: var(--font-size-lg);
-        }
-    </style>
+    <link rel="stylesheet" href="../../../css/收银台子页面.css">
 </head>
-<body>
-    <div class="page-container">
-        <h1 class="page-title">商品管理</h1>
-        <div class="page-content">
-            <div class="placeholder-text">
-                <p>商品管理页面</p>
-                <p style="font-size: var(--font-size-sm); margin-top: var(--spacing-md);">可增删改查商品、设置价格库存</p>
+<body class="cashier-sub-body">
+    <div class="cashier-sub-container">
+        <h1 class="cashier-sub-title">商品</h1>
+        <div class="cashier-sub-card">
+            <div class="cashier-sub-filter">
+                <input type="text" id="productSearch" placeholder="商品名称" style="width:200px;">
+                <select id="productCategory">
+                    <option value="">全部分类</option>
+                    <option value="housekeeping">家政</option>
+                    <option value="soft-drink">软饮系列</option>
+                    <option value="beer">啤酒</option>
+                    <option value="snack">小吃系列</option>
+                    <option value="other">其他系列</option>
+                    <option value="wine">洋酒香槟</option>
+                    <option value="special">特色斗酒</option>
+                    <option value="rainbow">彩虹斗酒</option>
+                    <option value="package">优惠套餐</option>
+                    <option value="department">百货</option>
+                    <option value="chinese">中餐</option>
+                </select>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="productSearchBtn">查询</button>
+            </div>
+            <div class="cashier-sub-card" style="padding:0; margin:0;">
+                <table class="cashier-sub-table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>分类</th>
+                            <th>售价</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody"></tbody>
+                </table>
+                <div class="cashier-sub-empty" id="productEmpty" style="display:none;">暂无商品</div>
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var categoryNames = {
+                'housekeeping': '家政',
+                'soft-drink': '软饮系列',
+                'beer': '啤酒',
+                'snack': '小吃系列',
+                'other': '其他系列',
+                'wine': '洋酒香槟',
+                'special': '特色斗酒',
+                'rainbow': '彩虹斗酒',
+                'package': '优惠套餐',
+                'department': '百货',
+                'chinese': '中餐'
+            };
+            // 优先从餐饮商品列表写入的 localStorage 读取，保持与餐饮模块统一
+            var products = [];
+            try {
+                var raw = localStorage.getItem('canyinProductList');
+                var list = raw ? JSON.parse(raw) : null;
+                if (Array.isArray(list) && list.length) {
+                    products = list;
+                }
+            } catch (e) { products = []; }
+            if (!products.length) {
+                // 回退到与餐饮商品列表相同的默认数据
+                products = [
+                    { id: 1,  name: '包间卫生清洁',      category: 'housekeeping', categoryName: '家政',       price: 30.00 },
+                    { id: 2,  name: '餐具深度消毒',      category: 'housekeeping', categoryName: '家政',       price: 15.00 },
+                    { id: 3,  name: '可乐（听装）',      category: 'soft-drink',   categoryName: '软饮系列',   price: 8.00 },
+                    { id: 4,  name: '雪碧（听装）',      category: 'soft-drink',   categoryName: '软饮系列',   price: 8.00 },
+                    { id: 5,  name: '鲜榨橙汁',          category: 'soft-drink',   categoryName: '软饮系列',   price: 18.00 },
+                    { id: 6,  name: '青岛纯生（瓶）',    category: 'beer',         categoryName: '啤酒',       price: 12.00 },
+                    { id: 7,  name: '百威啤酒（听装）',  category: 'beer',         categoryName: '啤酒',       price: 10.00 },
+                    { id: 8,  name: '小食拼盘',          category: 'snack',        categoryName: '小吃系列',   price: 28.00 },
+                    { id: 9,  name: '花生米',            category: 'snack',        categoryName: '小吃系列',   price: 15.00 },
+                    { id: 10, name: '拍黄瓜',            category: 'snack',        categoryName: '小吃系列',   price: 12.00 },
+                    { id: 11, name: '纸巾（大包）',      category: 'other',        categoryName: '其他系列',   price: 6.00 },
+                    { id: 12, name: '一次性围兜',        category: 'other',        categoryName: '其他系列',   price: 3.00 },
+                    { id: 13, name: '威士忌（杯）',      category: 'wine',         categoryName: '洋酒香槟',   price: 58.00 },
+                    { id: 14, name: '香槟（瓶）',        category: 'wine',         categoryName: '洋酒香槟',   price: 268.00 },
+                    { id: 15, name: '特色斗酒一号',      category: 'special',      categoryName: '特色斗酒',   price: 88.00 },
+                    { id: 16, name: '特色斗酒二号',      category: 'special',      categoryName: '特色斗酒',   price: 98.00 },
+                    { id: 17, name: '彩虹斗酒套装41支', category: 'rainbow',      categoryName: '彩虹斗酒',   price: 178.00 },
+                    { id: 18, name: '红尘玫瑰17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
+                    { id: 19, name: '猕猴蓝17支',        category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
+                    { id: 20, name: '草莓蜜酒17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
+                    { id: 21, name: '星空17支',          category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
+                    { id: 22, name: '蓝莓之恋17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
+                    { id: 23, name: '蜜桃17支',          category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
+                    { id: 24, name: '优惠套餐A',          category: 'package',      categoryName: '优惠套餐',   price: 198.00 },
+                    { id: 25, name: '优惠套餐B',          category: 'package',      categoryName: '优惠套餐',   price: 298.00 },
+                    { id: 26, name: '零食大礼包',        category: 'department',   categoryName: '百货',       price: 39.90 },
+                    { id: 27, name: '日用品组合装',      category: 'department',   categoryName: '百货',       price: 59.90 },
+                    { id: 28, name: '锅巴肉片',          category: 'chinese',      categoryName: '中餐',       price: 68.00 },
+                    { id: 29, name: '肥肠血旺',          category: 'chinese',      categoryName: '中餐',       price: 45.00 }
+                ];
+            }
+            var catFilter = '';
+            var kw = '';
+            function render() {
+                var list = products.filter(function (p) {
+                    var cat = p.category || p.categoryName;
+                    if (catFilter && cat !== catFilter) return false;
+                    if (kw && !(p.name || '').toLowerCase().includes(kw.toLowerCase())) return false;
+                    return true;
+                });
+                var tbody = document.getElementById('productTableBody');
+                var empty = document.getElementById('productEmpty');
+                if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+                empty.style.display = 'none';
+                tbody.innerHTML = list.map(function (p) {
+                    var cat = p.category || p.categoryName || '';
+                    return '<tr><td>' + (p.name || '') + '</td><td>' + (categoryNames[cat] || p.categoryName || cat) + '</td><td>¥' + (p.price || 0).toFixed(2) + '</td></tr>';
+                }).join('');
+            }
+            document.getElementById('productCategory').addEventListener('change', function () { catFilter = this.value || ''; render(); });
+            document.getElementById('productSearch').addEventListener('input', function () { kw = this.value.trim(); });
+            document.getElementById('productSearchBtn').addEventListener('click', function () { render(); });
+            render();
+        })();
+    </script>
 </body>
 </html>
