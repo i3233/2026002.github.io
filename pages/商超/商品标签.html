@@ -333,10 +333,6 @@
             align-items: center;
         }
 
-        .batch-actions.hidden {
-            display: none;
-        }
-
         .selected-count {
             margin-right: var(--spacing-md);
             color: var(--color-text-secondary);
@@ -574,8 +570,8 @@
             </div>
         </div>
 
-        <!-- 批量操作区域 -->
-        <div class="batch-actions hidden" id="batchActions">
+        <!-- 批量操作区域（常显） -->
+        <div class="batch-actions" id="batchActions">
             <span class="selected-count">已选择 <span id="selectedCount">0</span> 个标签</span>
             <button class="btn btn-outline" id="batchEnableBtn">批量启用</button>
             <button class="btn btn-outline" id="batchDisableBtn">批量停用</button>
@@ -859,12 +855,6 @@
         function updateBatchBar() {
             const count = document.querySelectorAll('.row-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count;
-            const bar = document.getElementById('batchActions');
-            if (count > 0) {
-                bar.classList.remove('hidden');
-            } else {
-                bar.classList.add('hidden');
-            }
         }
 
         // 批量操作（仅前端演示）

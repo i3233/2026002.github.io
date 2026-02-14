@@ -494,6 +494,31 @@
             transition: all var(--transition-base) var(--ease-in-out);
         }
 
+        /* 发货方式多选项 */
+        .delivery-method-options {
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            background-color: var(--color-neutral-50);
+            border: 1px dashed var(--color-neutral-200);
+            display: none;
+            gap: var(--spacing-md);
+        }
+
+        .delivery-method-options.show {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .delivery-method-checkbox {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+
         .rich-text-editor:focus {
             outline: none;
             border-color: var(--color-primary);
@@ -1051,22 +1076,40 @@
                                         <span class="toggle-slider"></span>
                                     </label>
                                 </div>
+                                <div class="delivery-method-options" id="deliveryMethodOptions">
+                                    <label class="delivery-method-checkbox">
+                                        <input type="checkbox" id="deliveryExpress" checked>
+                                        <span>快递配送</span>
+                                    </label>
+                                    <label class="delivery-method-checkbox">
+                                        <input type="checkbox" id="deliveryPickup" checked>
+                                        <span>到店自提</span>
+                                    </label>
+                                    <label class="delivery-method-checkbox">
+                                        <input type="checkbox" id="deliverySameCity" checked>
+                                        <span>同城配送</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-field">
                                 <div class="field-label-row">
-                                    <span class="field-label">运费到付</span>
+                                    <span class="field-label">运费方式</span>
                                 </div>
-                                <div class="field-inline">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="freightCollectToggle">
-                                        <span class="toggle-slider"></span>
+                                <div class="field-inline" style="display: flex; gap: 16px; align-items: center;">
+                                    <label class="delivery-method-checkbox">
+                                        <input type="radio" name="freightMode" id="freightCollectRadio" value="collect" checked>
+                                        <span>运费到付</span>
+                                    </label>
+                                    <label class="delivery-method-checkbox">
+                                        <input type="radio" name="freightMode" id="freeShippingRadio" value="free">
+                                        <span>包邮</span>
                                     </label>
                                 </div>
-                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">
-                                    注：开启之后请商品快递发货方式运费强制到付，无法与其他运费在线计算，并且不计算起送包邮等规则，订单也不会计算运费
+                                <div class="text-secondary" style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);" id="freightModeTip">
+                                    当前为「运费到付」：快递运费由收件人到付，不参与起送金额、包邮等规则计算，订单本身不计算运费。
                                 </div>
                             </div>
                         </div>
@@ -1261,29 +1304,7 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-field">
-                                <div class="field-label-row">
-                                    <span class="field-label">是否包邮</span>
-                                </div>
-                                <div class="field-inline">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="freeShippingToggle" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-field">
-                                <div class="field-label-row">
-                                    <span class="field-label">包邮规则</span>
-                                    <span class="field-required">*</span>
-                                </div>
-                                <button class="btn btn-outline" type="button">选择包邮规则</button>
-                            </div>
-                        </div>
+                        <!-- 原“是否包邮 / 包邮规则”区域按要求去掉 -->
 
                         <!-- 其他设置 -->
                         <div class="form-row">
@@ -1710,46 +1731,81 @@
     </div>
 
     <script>
-        // 顶部切页切换
-        const tabButtons = document.querySelectorAll('.product-create-tab-btn');
-        const tabPanels = document.querySelectorAll('.product-create-tab-panel');
+        document.addEventListener('DOMContentLoaded', function () {
+            // 顶部切页切换
+            const tabButtons = document.querySelectorAll('.product-create-tab-btn');
+            const tabPanels = document.querySelectorAll('.product-create-tab-panel');
 
-        tabButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tab = btn.dataset.tab;
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
 
-                tabButtons.forEach(b => b.classList.remove('active'));
-                tabPanels.forEach(panel => panel.classList.remove('active'));
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    tabPanels.forEach(panel => panel.classList.remove('active'));
 
-                btn.classList.add('active');
-                const activePanel = document.getElementById('tab-' + tab);
-                if (activePanel) {
-                    activePanel.classList.add('active');
-                }
+                    btn.classList.add('active');
+                    const activePanel = document.getElementById('tab-' + tab);
+                    if (activePanel) {
+                        activePanel.classList.add('active');
+                    }
+                });
             });
+
+            // 字符统计
+            function bindCharCounter(inputId, counterId, max) {
+                const input = document.getElementById(inputId);
+                const counter = document.getElementById(counterId);
+                if (!input || !counter) return;
+
+                const update = () => {
+                    const len = input.value.length;
+                    counter.textContent = len + ' / ' + max;
+                };
+
+                input.addEventListener('input', update);
+                update();
+            }
+
+            bindCharCounter('productName', 'productNameCounter', 100);
+            bindCharCounter('subtitle', 'subtitleCounter', 90);
+            bindCharCounter('keywords', 'keywordsCounter', 100);
+            bindCharCounter('paramTitle', 'paramTitleCounter', 20);
+            bindCharCounter('unitName', 'unitNameCounter', 4);
+            bindCharCounter('productSn', 'productSnCounter', 60);
+
+            // 发货方式：开关控制多选项显示/隐藏
+            const deliveryToggle = document.getElementById('deliveryMethodToggle');
+            const deliveryOptions = document.getElementById('deliveryMethodOptions');
+            if (deliveryToggle && deliveryOptions) {
+                const syncDeliveryOptions = () => {
+                    if (deliveryToggle.checked) {
+                        deliveryOptions.classList.add('show');
+                    } else {
+                        deliveryOptions.classList.remove('show');
+                    }
+                };
+                deliveryToggle.addEventListener('change', syncDeliveryOptions);
+                // 初始状态同步一次
+                syncDeliveryOptions();
+            }
+
+            // 运费方式：运费到付 / 包邮 二选一，更新说明文案
+            const freightCollectRadio = document.getElementById('freightCollectRadio');
+            const freeShippingRadio = document.getElementById('freeShippingRadio');
+            const freightModeTip = document.getElementById('freightModeTip');
+            if (freightCollectRadio && freeShippingRadio && freightModeTip) {
+                const syncFreightTip = () => {
+                    if (freightCollectRadio.checked) {
+                        freightModeTip.textContent = '当前为「运费到付」：快递运费由收件人到付，不参与起送金额、包邮等规则计算，订单本身不计算运费。';
+                    } else {
+                        freightModeTip.textContent = '当前为「包邮」：符合设置条件的订单将不再收取运费，具体门槛规则可在运费模板中统一配置。';
+                    }
+                };
+                freightCollectRadio.addEventListener('change', syncFreightTip);
+                freeShippingRadio.addEventListener('change', syncFreightTip);
+                syncFreightTip();
+            }
         });
-
-        // 字符统计
-        function bindCharCounter(inputId, counterId, max) {
-            const input = document.getElementById(inputId);
-            const counter = document.getElementById(counterId);
-            if (!input || !counter) return;
-
-            const update = () => {
-                const len = input.value.length;
-                counter.textContent = len + ' / ' + max;
-            };
-
-            input.addEventListener('input', update);
-            update();
-        }
-
-        bindCharCounter('productName', 'productNameCounter', 100);
-        bindCharCounter('subtitle', 'subtitleCounter', 90);
-        bindCharCounter('keywords', 'keywordsCounter', 100);
-        bindCharCounter('paramTitle', 'paramTitleCounter', 20);
-        bindCharCounter('unitName', 'unitNameCounter', 4);
-        bindCharCounter('productSn', 'productSnCounter', 60);
     </script>
 </body>
 </html>

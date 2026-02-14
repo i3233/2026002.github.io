@@ -58,6 +58,42 @@
             transition: all var(--transition-base) var(--ease-in-out);
             position: relative;
         }
+        /* 商品导出下拉菜单 */
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .export-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            min-width: 140px;
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-neutral-200);
+            padding: 4px 0;
+            z-index: var(--z-index-dropdown);
+            display: none;
+        }
+        .export-dropdown-menu.show {
+            display: block;
+        }
+        .export-dropdown-item {
+            width: 100%;
+            padding: 6px 12px;
+            border: none;
+            background-color: transparent;
+            text-align: left;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            transition: background-color var(--transition-base) var(--ease-in-out);
+        }
+        .export-dropdown-item:hover {
+            background-color: var(--color-neutral-100);
+        }
 
         .tab-nav-item:hover {
             background-color: var(--color-neutral-100);
@@ -724,7 +760,14 @@
             <h1 class="page-title">商品列表</h1>
             <div class="header-actions">
                 <button class="btn btn-primary" id="addProductBtn">添加商品</button>
-                <button class="btn btn-primary">商品导出</button>
+                <button class="btn btn-outline" id="batchImportBtn">批量导入</button>
+                <div class="export-dropdown">
+                    <button class="btn btn-primary" id="exportBtn">商品导出</button>
+                    <div class="export-dropdown-menu" id="exportMenu">
+                        <button class="export-dropdown-item" data-export-type="all">全部导出</button>
+                        <button class="export-dropdown-item" data-export-type="selected">选中导出</button>
+                    </div>
+                </div>
                 <button class="btn btn-primary">更新销量</button>
             </div>
         </div>
@@ -760,8 +803,8 @@
             </div>
         </div>
 
-        <!-- 批量操作区域 -->
-        <div class="batch-actions hidden" id="batchActions">
+        <!-- 批量操作区域（常显） -->
+        <div class="batch-actions" id="batchActions">
             <span class="selected-count">已选择 <span id="selectedCount">0</span> 项</span>
             <button class="btn btn-outline">上架</button>
             <button class="btn btn-outline">下架</button>
@@ -786,8 +829,8 @@
                             <th>售价</th>
                             <th>成本价</th>
                             <th>库存</th>
+                            <th>销售/下架</th>
                             <th>已出售量</th>
-                            <th>是否加入快速购买</th>
                             <th>同步到线上商城</th>
                             <th>添加时间</th>
                             <th>状态</th>
@@ -997,17 +1040,23 @@
                         <span class="editable-field" data-field="stock" data-id="${product.id}">
                             ${product.stock}
                             <svg class="edit-icon" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"/>
+                                <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 00-.354-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"/>
                             </svg>
                         </span>
                     </td>
-                    <td>${product.sold}</td>
                     <td>
                         <label class="toggle-switch">
-                            <input type="checkbox" class="quick-buy-toggle" data-id="${product.id}" ${product.quickBuy ? 'checked' : ''}>
+                            <input
+                                type="checkbox"
+                                class="status-toggle"
+                                data-id="${product.id}"
+                                ${product.status === 'selling' ? 'checked' : ''}
+                                ${product.status === 'soldout' ? 'disabled' : ''}
+                            >
                             <span class="toggle-slider"></span>
                         </label>
                     </td>
+                    <td>${product.sold}</td>
                     <td>
                         <label class="toggle-switch">
                             <input type="checkbox" class="sync-mall-toggle" data-id="${product.id}" data-name="${(product.name || '').replace(/"/g, '&quot;')}" data-category="${(product.category || '').replace(/"/g, '&quot;')}" data-price="${product.price}" data-image="${(product.image || '').replace(/"/g, '&quot;')}" ${isSynced ? 'checked' : ''}>
@@ -1031,6 +1080,12 @@
                                 <svg viewBox="0 0 16 16" fill="currentColor">
                                     <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/>
                                     <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon link-btn" data-id="${product.id}" title="链接">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M4.354 5.5H3a3 3 0 000 6h3a3 3 0 002.83-2H7.83A1.5 1.5 0 016 10.5H3a1.5 1.5 0 010-3h1.354a.75.75 0 000-1.5z"/>
+                                    <path d="M13 4.5h-3a3 3 0 00-2.83 2h1.999A1.5 1.5 0 0110 6h3a1.5 1.5 0 010 3h-1.354a.75.75 0 000 1.5H13a3 3 0 000-6z"/>
                                 </svg>
                             </button>
                             <button class="btn-icon delete delete-btn" data-id="${product.id}" title="删除">
@@ -1064,6 +1119,18 @@
                 });
             });
 
+            // 销售/下架状态开关
+            tbody.querySelectorAll('.status-toggle').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    var id = parseInt(this.dataset.id, 10);
+                    var product = products.find(function (p) { return p.id === id; });
+                    if (!product) return;
+                    // 仅在销售中 / 下架之间切换，售罄不通过此处修改
+                    product.status = this.checked ? 'selling' : 'offline';
+                    filterProducts();
+                });
+            });
+
             updateSelectedCount();
         }
 
@@ -1071,6 +1138,47 @@
         document.getElementById('addProductBtn').addEventListener('click', function () {
             window.location.href = '商品添加.html';
         });
+
+        // “批量导入”按钮：预留逻辑（目前仅弹提示）
+        const batchImportBtn = document.getElementById('batchImportBtn');
+        if (batchImportBtn) {
+            batchImportBtn.addEventListener('click', function () {
+                alert('这里预留批量导入功能，例如上传Excel/CSV文件批量导入商品。');
+            });
+        }
+
+        // 商品导出下拉菜单
+        const exportBtn = document.getElementById('exportBtn');
+        const exportMenu = document.getElementById('exportMenu');
+        if (exportBtn && exportMenu) {
+            exportBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                exportMenu.classList.toggle('show');
+            });
+
+            exportMenu.addEventListener('click', function (e) {
+                const target = e.target.closest('.export-dropdown-item');
+                if (!target) return;
+                const type = target.dataset.exportType;
+                if (type === 'all') {
+                    alert('执行“全部导出”逻辑，这里可以生成并下载包含全部商品的文件。');
+                } else if (type === 'selected') {
+                    const selected = Array.from(document.querySelectorAll('.row-checkbox'))
+                        .filter(cb => cb.checked);
+                    if (selected.length === 0) {
+                        alert('请先勾选需要导出的商品。');
+                        return;
+                    }
+                    alert('执行“选中导出”逻辑，当前选中 ' + selected.length + ' 条记录。');
+                }
+                exportMenu.classList.remove('show');
+            });
+
+            // 点击页面其它区域时关闭导出菜单
+            document.addEventListener('click', function () {
+                exportMenu.classList.remove('show');
+            });
+        }
 
         // Tab切换
         document.querySelectorAll('.tab-nav-item').forEach(tab => {
@@ -1192,16 +1300,10 @@
             }
         });
 
-        // 更新选中数量
+        // 更新选中数量（批量操作条常显，只更新数字）
         function updateSelectedCount() {
             const count = document.querySelectorAll('.row-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count;
-            const batchActions = document.getElementById('batchActions');
-            if (count > 0) {
-                batchActions.classList.remove('hidden');
-            } else {
-                batchActions.classList.add('hidden');
-            }
         }
 
         // 分类弹窗相关

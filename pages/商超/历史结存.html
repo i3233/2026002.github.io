@@ -778,188 +778,100 @@
             { id: 'WH004', name: '临时仓库' }
         ];
 
-        // 模拟历史结存记录数据
-        const historyStatementData = [
-            {
-                date: '2025-01-31',
-                purchaseOrderCount: 8,
-                purchaseQty: 1050,
-                purchaseAmount: 12500.00,
-                returnOrderCount: 2,
-                returnQty: 15,
-                returnAmount: 450.00,
-                netPurchaseAmount: 12050.00,
-                salesOrderCount: 25,
-                salesQty: 935,
-                salesAmount: 18500.00,
-                salesReturnOrderCount: 1,
-                salesReturnQty: 5,
-                salesReturnAmount: 150.00,
-                netSalesAmount: 18350.00,
-                beginningInventoryQty: 2285,
-                beginningInventoryAmount: 68250.00,
-                currentInQty: 1050,
-                currentOutQty: 935,
-                transferInQty: 15,
-                transferOutQty: 17,
-                endingInventoryQty: 2398,
-                endingInventoryAmount: 69830.00,
-                products: [
-                    {
-                        id: 'PRD001',
-                        name: '隔热垫',
-                        spec: '30cm×30cm',
-                        category: '厨房用品',
-                        unit: '个',
-                        beginningQty: 120,
-                        beginningAmount: 1500.00,
-                        inQty: 50,
-                        outQty: 43,
-                        transferInQty: 10,
-                        transferOutQty: 5,
-                        endingQty: 132,
-                        avgCost: 12.50,
-                        inventoryAmount: 1650.00
-                    },
-                    {
-                        id: 'PRD002',
-                        name: 'p-6炒锅',
-                        spec: '32cm',
-                        category: '厨房用品',
-                        unit: '个',
-                        beginningQty: 85,
-                        beginningAmount: 13430.00,
-                        inQty: 20,
-                        outQty: 18,
-                        transferInQty: 0,
-                        transferOutQty: 2,
-                        endingQty: 85,
-                        avgCost: 158.00,
-                        inventoryAmount: 13430.00
-                    },
-                    {
-                        id: 'PRD003',
-                        name: '雅安茶叶',
-                        spec: '500g/盒',
-                        category: '食品',
-                        unit: '盒',
-                        beginningQty: 150,
-                        beginningAmount: 6750.00,
-                        inQty: 100,
-                        outQty: 120,
-                        transferInQty: 5,
-                        transferOutQty: 0,
-                        endingQty: 135,
-                        avgCost: 45.00,
-                        inventoryAmount: 6075.00
-                    }
-                ]
-            },
-            {
-                date: '2025-01-30',
-                purchaseOrderCount: 6,
-                purchaseQty: 800,
-                purchaseAmount: 9800.00,
-                returnOrderCount: 1,
-                returnQty: 10,
-                returnAmount: 300.00,
-                netPurchaseAmount: 9500.00,
-                salesOrderCount: 22,
-                salesQty: 850,
-                salesAmount: 16500.00,
-                salesReturnOrderCount: 0,
-                salesReturnQty: 0,
-                salesReturnAmount: 0.00,
-                netSalesAmount: 16500.00,
-                beginningInventoryQty: 2200,
-                beginningAmount: 65000.00,
-                currentInQty: 800,
-                currentOutQty: 850,
-                transferInQty: 10,
-                transferOutQty: 5,
-                endingInventoryQty: 2155,
-                endingInventoryAmount: 63550.00,
-                products: []
-            },
-            {
-                date: '2025-01-29',
-                purchaseOrderCount: 7,
-                purchaseQty: 920,
-                purchaseAmount: 11200.00,
-                returnOrderCount: 1,
-                returnQty: 8,
-                returnAmount: 250.00,
-                netPurchaseAmount: 10950.00,
-                salesOrderCount: 20,
-                salesQty: 780,
-                salesAmount: 15200.00,
-                salesReturnOrderCount: 1,
-                salesReturnQty: 3,
-                salesReturnAmount: 100.00,
-                netSalesAmount: 15100.00,
-                beginningInventoryQty: 2150,
-                beginningAmount: 63000.00,
-                currentInQty: 920,
-                currentOutQty: 780,
-                transferInQty: 8,
-                transferOutQty: 3,
-                endingInventoryQty: 2295,
-                endingInventoryAmount: 67200.00,
-                products: []
-            },
-            {
-                date: '2025-01-28',
-                purchaseOrderCount: 5,
-                purchaseQty: 650,
-                purchaseAmount: 8200.00,
-                returnOrderCount: 0,
-                returnQty: 0,
-                returnAmount: 0.00,
-                netPurchaseAmount: 8200.00,
-                salesOrderCount: 18,
-                salesQty: 720,
-                salesAmount: 14200.00,
-                salesReturnOrderCount: 0,
-                salesReturnQty: 0,
-                salesReturnAmount: 0.00,
-                netSalesAmount: 14200.00,
-                beginningInventoryQty: 2100,
-                beginningAmount: 61500.00,
-                currentInQty: 650,
-                currentOutQty: 720,
-                transferInQty: 5,
-                transferOutQty: 2,
-                endingInventoryQty: 2033,
-                endingInventoryAmount: 59500.00,
-                products: []
-            },
-            {
-                date: '2025-01-27',
-                purchaseOrderCount: 9,
-                purchaseQty: 1100,
-                purchaseAmount: 13200.00,
-                returnOrderCount: 2,
-                returnQty: 20,
-                returnAmount: 500.00,
-                netPurchaseAmount: 12700.00,
-                salesOrderCount: 24,
-                salesQty: 950,
-                salesAmount: 17800.00,
-                salesReturnOrderCount: 1,
-                salesReturnQty: 4,
-                salesReturnAmount: 120.00,
-                netSalesAmount: 17680.00,
-                beginningInventoryQty: 2050,
-                beginningAmount: 60000.00,
-                currentInQty: 1100,
-                currentOutQty: 950,
-                transferInQty: 12,
-                transferOutQty: 8,
-                endingInventoryQty: 2204,
-                endingInventoryAmount: 64480.00,
-                products: []
+        // 模拟历史结存记录数据（最近10天），按每天一条结存记录展示
+        const historyStatementData = (function () {
+            const result = [];
+            const today = new Date();
+
+            for (let i = 0; i < 10; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+
+                // 简单模拟一些波动数据
+                const base = 2000 + i * 30;
+                const purchaseQty = 600 + i * 20;
+                const salesQty = 550 + i * 18;
+                const beginningInventoryQty = base;
+                const currentInQty = purchaseQty;
+                const currentOutQty = salesQty;
+                const transferInQty = 10 + i;
+                const transferOutQty = 5 + i;
+                const endingInventoryQty = beginningInventoryQty + currentInQty + transferInQty - currentOutQty - transferOutQty;
+
+                const purchaseAmount = purchaseQty * 12; // 示例进货均价 12 元
+                const returnQty = Math.floor(purchaseQty * 0.02);
+                const returnAmount = returnQty * 12;
+                const salesAmount = salesQty * 20; // 示例销售均价 20 元
+                const salesReturnQty = Math.floor(salesQty * 0.01);
+                const salesReturnAmount = salesReturnQty * 20;
+
+                const record = {
+                    date: dateStr,
+                    purchaseOrderCount: 5 + (i % 3),
+                    purchaseQty: purchaseQty,
+                    purchaseAmount: purchaseAmount,
+                    returnOrderCount: returnQty > 0 ? 1 : 0,
+                    returnQty: returnQty,
+                    returnAmount: returnAmount,
+                    netPurchaseAmount: purchaseAmount - returnAmount,
+                    salesOrderCount: 18 + (i % 5),
+                    salesQty: salesQty,
+                    salesAmount: salesAmount,
+                    salesReturnOrderCount: salesReturnQty > 0 ? 1 : 0,
+                    salesReturnQty: salesReturnQty,
+                    salesReturnAmount: salesReturnAmount,
+                    netSalesAmount: salesAmount - salesReturnAmount,
+                    beginningInventoryQty: beginningInventoryQty,
+                    beginningInventoryAmount: beginningInventoryQty * 15,
+                    currentInQty: currentInQty,
+                    currentOutQty: currentOutQty,
+                    transferInQty: transferInQty,
+                    transferOutQty: transferOutQty,
+                    endingInventoryQty: endingInventoryQty,
+                    endingInventoryAmount: endingInventoryQty * 15,
+                    // 仅最近一天提供示例商品明细，其余天留空列表
+                    products: i === 0 ? [
+                        {
+                            id: 'PRD001',
+                            name: '雅安特产绿营养蛋',
+                            spec: '30枚/箱',
+                            category: '雅安好物',
+                            unit: '箱',
+                            beginningQty: 120,
+                            beginningAmount: 3600.00,
+                            inQty: 40,
+                            outQty: 30,
+                            transferInQty: 5,
+                            transferOutQty: 2,
+                            endingQty: 133,
+                            avgCost: 30.00,
+                            inventoryAmount: 3990.00
+                        },
+                        {
+                            id: 'PRD002',
+                            name: '蒙顶山茶',
+                            spec: '500g/盒',
+                            category: '雅安好景',
+                            unit: '盒',
+                            beginningQty: 80,
+                            beginningAmount: 5200.00,
+                            inQty: 30,
+                            outQty: 25,
+                            transferInQty: 3,
+                            transferOutQty: 1,
+                            endingQty: 87,
+                            avgCost: 65.00,
+                            inventoryAmount: 5655.00
+                        }
+                    ] : []
+                };
+
+                result.push(record);
             }
-        ];
+
+            return result;
+        })();
 
         // 当前状态
         let filteredHistoryData = [...historyStatementData];

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>规格模板 - 商超</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .spec-template-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            width: 1000px;
+        }
+        .card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin: 0 0 var(--spacing-md) 0;
+        }
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .spec-table th,
+        .spec-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+        .spec-table th {
+            background: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+        .spec-table input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .spec-table .col-delete {
+            width: 48px;
+            text-align: center;
+        }
+        .spec-add-row {
+            margin-top: var(--spacing-sm);
+        }
+        .spec-add-row .btn-link {
+            color: var(--color-primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            padding: 0;
+        }
+        .spec-add-row .btn-link:hover {
+            text-decoration: underline;
+        }
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--color-error);
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        .btn-delete:hover {
+            opacity: 0.8;
+        }
+        .card-foot {
+            margin-top: var(--spacing-lg);
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="spec-template-page">
+        <div class="card">
+            <h2 class="card-title">规格</h2>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>规格名称</th>
+                        <th>加价</th>
+                        <th>成本</th>
+                        <th class="col-delete">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="specTableBody">
+                    <tr>
+                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
+                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
+                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
+                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
+                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
+                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="spec-add-row">
+                <button type="button" class="btn-link" id="specAddRowBtn">+ 添加</button>
+            </div>
+            <div class="card-foot">
+                <button type="button" class="btn btn-primary" id="specConfirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var tbody = document.getElementById('specTableBody');
+
+            function createSpecRow() {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td><input type="text" class="spec-name" placeholder="规格名称"></td>' +
+                    '<td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
+                    '<td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
+                    '<td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>';
+                tr.querySelector('.btn-delete').addEventListener('click', function () {
+                    if (tbody.querySelectorAll('tr').length <= 1) return;
+                    tr.remove();
+                });
+                return tr;
+            }
+
+            document.getElementById('specAddRowBtn').addEventListener('click', function () {
+                tbody.appendChild(createSpecRow());
+            });
+
+            document.getElementById('specConfirmBtn').addEventListener('click', function () {
+                // 可在此收集数据并提交
+                alert('确定（示例：可在此保存规格数据）');
+            });
+
+            tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var row = this.closest('tr');
+                    if (tbody.querySelectorAll('tr').length <= 1) return;
+                    row.remove();
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

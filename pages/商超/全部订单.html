@@ -258,6 +258,78 @@
             text-decoration: underline;
         }
 
+        /* 订单详情侧滑面板 */
+        .order-detail-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 480px;
+            max-width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform var(--transition-base) var(--ease-in-out);
+            z-index: var(--z-index-modal);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-detail-drawer.show {
+            transform: translateX(0);
+        }
+
+        .order-detail-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .order-detail-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .order-detail-body {
+            padding: var(--spacing-md) var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .order-detail-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .order-detail-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .order-detail-kv {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+            padding: 2px 0;
+        }
+
+        .order-detail-kv-label {
+            color: var(--color-text-secondary);
+        }
+
+        .order-detail-kv-value {
+            color: var(--color-text-primary);
+        }
+
+        .order-detail-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            text-align: right;
+        }
+
         .status-pill {
             font-size: var(--font-size-xs);
             cursor: pointer;
@@ -418,14 +490,8 @@
 
         <!-- 顶部工具栏 -->
         <div class="toolbar-card">
-            <!-- 左侧按钮组：以销售为主 -->
+            <!-- 左侧按钮组：以销售为主（去掉新增订单） -->
             <div class="toolbar-left">
-                <button class="btn btn-primary">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">＋</span>
-                        <span>新增订单</span>
-                    </span>
-                </button>
                 <button class="btn btn-outline">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">↑</span>
@@ -545,6 +611,23 @@
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            <!-- 订单详情侧滑面板 -->
+            <div class="order-detail-drawer" id="orderDetailDrawer">
+                <div class="order-detail-header">
+                    <div>
+                        <div class="order-detail-title">订单详情</div>
+                        <div class="page-subtitle" id="orderDetailSubtitle">订单号：-</div>
+                    </div>
+                    <button class="btn btn-outline" type="button" id="orderDetailCloseBtn">关闭</button>
+                </div>
+                <div class="order-detail-body" id="orderDetailBody">
+                    <!-- 详情内容由 JS 渲染 -->
+                </div>
+                <div class="order-detail-footer">
+                    <button class="btn btn-primary" type="button" id="orderDetailConfirmBtn">我知道了</button>
+                </div>
             </div>
 
             <!-- 底部工具栏 -->
@@ -995,7 +1078,7 @@
             alert('已模拟删除 ' + ids.length + ' 条记录（示例）。');
         });
 
-        // 单号 / 状态 / 售后 / 查看 按钮交互（示意）
+        // 单号 / 状态 / 售后 / 查看 按钮交互（示意 + 详情侧滑）
         document.addEventListener('click', function (e) {
             const orderLink = e.target.closest('.order-link');
             const statusLink = e.target.closest('.status-link');
@@ -1004,7 +1087,7 @@
 
             if (orderLink) {
                 const id = orderLink.dataset.id;
-                alert('查看订单详情（示例）\\n订单号：' + id);
+                openOrderDetail(id);
             }
 
             if (statusLink) {
@@ -1019,9 +1102,98 @@
 
             if (viewBtn) {
                 const id = viewBtn.dataset.id;
-                alert('查看订单详细信息（示例）\\n订单号：' + id);
+                openOrderDetail(id);
             }
         });
+
+        // 打开订单详情侧滑面板
+        function openOrderDetail(id) {
+            const drawer = document.getElementById('orderDetailDrawer');
+            const body = document.getElementById('orderDetailBody');
+            const subtitle = document.getElementById('orderDetailSubtitle');
+            if (!drawer || !body || !subtitle) return;
+
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+
+            subtitle.textContent = '订单号：' + order.id;
+
+            body.innerHTML = `
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">基本信息</div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">下单时间</span>
+                        <span class="order-detail-kv-value">${order.orderTime}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">订单来源</span>
+                        <span class="order-detail-kv-value">${order.channel}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">订单状态</span>
+                        <span class="order-detail-kv-value">${order.status}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">支付方式</span>
+                        <span class="order-detail-kv-value">${order.payType}</span>
+                    </div>
+                </div>
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">收货信息</div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">会员</span>
+                        <span class="order-detail-kv-value">${order.member}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">收货人</span>
+                        <span class="order-detail-kv-value">${order.receiver}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">联系电话</span>
+                        <span class="order-detail-kv-value">${order.mobile}</span>
+                    </div>
+                </div>
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">金额信息</div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">商品数量</span>
+                        <span class="order-detail-kv-value">${order.qty}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">订单金额</span>
+                        <span class="order-detail-kv-value">¥${order.amount.toFixed(2)}</span>
+                    </div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">实收金额</span>
+                        <span class="order-detail-kv-value">¥${order.paid.toFixed(2)}</span>
+                    </div>
+                </div>
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">其他</div>
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">售后状态</span>
+                        <span class="order-detail-kv-value">${order.afterSale}</span>
+                    </div>
+                    <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 8px;">
+                        当前详情为示意数据，后续可在此展示商品明细、物流信息等。
+                    </div>
+                </div>
+            `;
+
+            drawer.classList.add('show');
+        }
+
+        // 关闭订单详情侧滑面板
+        (function () {
+            const drawer = document.getElementById('orderDetailDrawer');
+            const closeBtn = document.getElementById('orderDetailCloseBtn');
+            const confirmBtn = document.getElementById('orderDetailConfirmBtn');
+            function closeDrawer() {
+                if (drawer) drawer.classList.remove('show');
+            }
+            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+            if (confirmBtn) confirmBtn.addEventListener('click', closeDrawer);
+        })();
 
         // 更多搜索按钮示意
         document.getElementById('moreSearchBtn').addEventListener('click', function () {

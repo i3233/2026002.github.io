@@ -864,11 +864,38 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">订单来源</label>
+                    <select class="form-select" id="orderSourceSelect">
+                        <option value="manual" selected>部门代下单</option>
+                        <option value="online-paid">商家自助(实付)</option>
+                        <option value="online-credit">商家自助(赊账)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">商品总数量（件）</label>
+                    <input type="number" class="form-input" id="totalQtyInput" min="0" step="1" placeholder="请输入本次批发的总件数，例如：50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">订单金额（元）</label>
+                    <input type="number" class="form-input" id="totalAmountInput" min="0" step="0.01" placeholder="请输入整单金额，例如：5000.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">本次收款金额（元）</label>
+                    <input type="number" class="form-input" id="paidAmountInput" min="0" step="0.01" placeholder="可为空，默认视为未收款">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">是否直接审核通过</label>
+                    <label style="font-size: var(--font-size-sm); color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" id="autoAuditCheckbox">
+                        <span>选中后保存即视为财务已审核，订单直接进入待打印/拣货流程（示例流程）。</span>
+                    </label>
+                </div>
+                <div class="form-group">
                     <label class="form-label">备注</label>
                     <textarea class="form-input" id="remarkInput" rows="3" placeholder="请输入备注信息"></textarea>
                 </div>
                 <div class="alert-info">
-                    <strong>提示：</strong>订单创建后需要财务审核，审核通过后才能打印拣货单。
+                    <strong>提示：</strong>默认创建的订单会进入“待审核”或“待打印”状态，仅为示例流程，后续可与批发审核中心、拣货/出库页面做联动。
                 </div>
             </div>
             <div class="modal-footer">
@@ -1109,6 +1136,11 @@
             const payType = document.getElementById('payTypeSelect').value;
             const contactName = document.getElementById('contactNameInput').value;
             const contactMobile = document.getElementById('contactMobileInput').value;
+            const orderSource = document.getElementById('orderSourceSelect').value || 'manual';
+            const totalQty = parseInt(document.getElementById('totalQtyInput').value, 10) || 0;
+            const totalAmount = parseFloat(document.getElementById('totalAmountInput').value) || 0;
+            const paidAmount = parseFloat(document.getElementById('paidAmountInput').value) || 0;
+            const autoAudit = document.getElementById('autoAuditCheckbox').checked;
             const remark = document.getElementById('remarkInput').value;
 
             if (!partnerId) {
@@ -1119,22 +1151,39 @@
             const partnerOption = document.getElementById('partnerSelect').options[document.getElementById('partnerSelect').selectedIndex];
             const partner = JSON.parse(partnerOption.dataset.partner);
 
+            // 订单来源文案
+            let sourceText = '部门代下单';
+            if (orderSource === 'online-paid') sourceText = '商家自助(实付)';
+            if (orderSource === 'online-credit') sourceText = '商家自助(赊账)';
+
+            // 初始状态和审核状态
+            let status = 'pendingAudit';
+            let auditStatus = 'pending';
+            let auditTime = null;
+
+            if (autoAudit) {
+                auditStatus = 'approved';
+                auditTime = new Date().toLocaleString('zh-CN');
+                // 已审核后，如果金额>0，则默认为待打印；金额为0则视为待拣货/出库示例
+                status = totalAmount > 0 ? 'pendingPrint' : 'pendingOutbound';
+            }
+
             // 创建新订单
             const newOrder = {
                 id: 'PF' + new Date().getTime(),
                 orderTime: new Date().toLocaleString('zh-CN'),
-                source: 'manual',
-                sourceText: '部门代下单',
+                source: orderSource,
+                sourceText: sourceText,
                 partner: partner.name,
                 contact: contactName || partner.contact,
                 mobile: contactMobile || partner.mobile,
-                qty: 0,
-                amount: 0.00,
-                paid: payType === 'credit' ? 0.00 : 0.00,
+                qty: totalQty,
+                amount: totalAmount,
+                paid: paidAmount,
                 payType: payType === 'credit' ? '赊账' : payType === 'cash' ? '现金' : '转账',
-                status: 'pendingAudit',
-                auditStatus: 'pending',
-                auditTime: null,
+                status: status,
+                auditStatus: auditStatus,
+                auditTime: auditTime,
                 printTime: null,
                 pickingStatus: 'pending',
                 outboundStatus: 'pending',
@@ -1156,6 +1205,11 @@
             document.getElementById('contactNameInput').value = '';
             document.getElementById('contactMobileInput').value = '';
             document.getElementById('payTypeSelect').value = 'credit';
+            document.getElementById('orderSourceSelect').value = 'manual';
+            document.getElementById('totalQtyInput').value = '';
+            document.getElementById('totalAmountInput').value = '';
+            document.getElementById('paidAmountInput').value = '';
+            document.getElementById('autoAuditCheckbox').checked = false;
             document.getElementById('remarkInput').value = '';
         }
 

@@ -360,6 +360,49 @@
                 align-items: flex-start;
             }
         }
+
+        /* 新增退货单弹窗 */
+        .return-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .return-modal-overlay.show { display: flex; }
+        .return-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .return-modal .modal-head { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200); display: flex; justify-content: space-between; align-items: center; }
+        .return-modal .modal-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .return-modal .modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+        .return-modal .modal-foot { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
+        .return-modal .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); flex-wrap: wrap; }
+        .return-modal .form-group { flex: 1; min-width: 160px; }
+        .return-modal .form-group label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-primary); }
+        .return-modal .form-group input, .return-modal .form-group select, .return-modal .form-group textarea { width: 100%; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); }
+        .return-modal .form-group textarea { min-height: 60px; resize: vertical; }
+        .return-modal .modal-section-title { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); margin: var(--spacing-md) 0 var(--spacing-sm); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-neutral-200); }
+        .return-modal .detail-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .return-modal .detail-table th, .return-modal .detail-table td { padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid var(--color-neutral-200); text-align: left; }
+        .return-modal .detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+        .return-modal .detail-table input { width: 100%; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: 4px; }
+        .return-modal .detail-table .col-num, .return-modal .detail-table .col-price { width: 90px; text-align: right; }
+        .return-modal .detail-table .col-amount { width: 90px; text-align: right; }
+        .return-modal .detail-table .col-action { width: 60px; text-align: center; }
+        .return-modal .detail-total { margin-top: var(--spacing-sm); text-align: right; font-weight: var(--font-weight-medium); }
+        .return-modal .btn-text { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: var(--font-size-sm); padding: 0 4px; }
+        .return-modal .btn-text.danger { color: var(--color-error); }
     </style>
 </head>
 <body>
@@ -376,7 +419,7 @@
         <div class="toolbar-card">
             <!-- 左侧按钮组 -->
             <div class="toolbar-left">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" id="addReturnBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">＋</span>
                         <span>新增</span>
@@ -523,6 +566,107 @@
                     <span class="pagination-info">跳转到</span>
                     <input type="number" class="pagination-jump-input" min="1" value="1">
                     <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增退货单弹窗 -->
+        <div class="return-modal-overlay" id="returnModalOverlay">
+            <div class="return-modal">
+                <div class="modal-head">
+                    <h3>新增退货单</h3>
+                    <button type="button" class="btn btn-text" id="returnModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-section-title">表头信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>单号</label>
+                            <input type="text" id="rtOrderId" placeholder="可留空自动生成">
+                        </div>
+                        <div class="form-group">
+                            <label>日期</label>
+                            <input type="date" id="rtDate">
+                        </div>
+                        <div class="form-group">
+                            <label>往来单位</label>
+                            <select id="rtPartner">
+                                <option value="">请选择</option>
+                                <option value="天蓝商行">天蓝商行</option>
+                                <option value="雅安本地供应商A">雅安本地供应商A</option>
+                                <option value="成都批发商B">成都批发商B</option>
+                                <option value="雅安本地供应商C">雅安本地供应商C</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>项目</label>
+                            <input type="text" id="rtProject" placeholder="选填">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>经手人/员工</label>
+                            <select id="rtStaff">
+                                <option value="">请选择</option>
+                                <option value="张三">张三</option>
+                                <option value="李四">李四</option>
+                                <option value="王五">王五</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 2 1 100%;">
+                            <label>退货原因</label>
+                            <input type="text" id="rtReason" placeholder="如：质量不符、过期、错发等">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1 1 100%;">
+                            <label>备注</label>
+                            <textarea id="rtRemark" placeholder="选填"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-section-title">商品明细</div>
+                    <div class="table-container">
+                        <table class="detail-table">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th class="col-num">退货数量</th>
+                                    <th class="col-price">单价(元)</th>
+                                    <th class="col-amount">金额(元)</th>
+                                    <th class="col-action">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rtDetailBody"></tbody>
+                        </table>
+                        <button type="button" class="btn btn-outline" id="rtAddRowBtn" style="margin-top: 8px;">+ 添加一行</button>
+                        <div class="detail-total">
+                            数量合计：<span id="rtTotalQty">0.00</span> &nbsp; 退货金额合计：<span id="rtTotalAmount">¥0.00</span>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: 12px;">
+                        <div class="form-group">
+                            <label>应付余额(元)</label>
+                            <input type="number" id="rtPayable" placeholder="一般为负" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>订单状态</label>
+                            <select id="rtStatus">
+                                <option value="待审核">待审核</option>
+                                <option value="已成交">已成交</option>
+                                <option value="已关闭">已关闭</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>附件</label>
+                            <input type="text" id="rtAttachment" placeholder="选填">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-text" id="returnModalCancel">取消</button>
+                    <button type="button" class="btn btn-primary" id="returnModalSave">保存</button>
                 </div>
             </div>
         </div>
@@ -792,6 +936,148 @@
         document.getElementById('moreSearchBtn').addEventListener('click', function () {
             alert('更多搜索（示例）：这里可以展开高级筛选条件，如退货日期范围、往来单位、项目、状态等。');
         });
+
+        // ========== 新增退货单弹窗 ==========
+        const returnModalEl = document.getElementById('returnModalOverlay');
+        const rtDetailBody = document.getElementById('rtDetailBody');
+        const rtProductList = ['蒙顶山茶', '雅安花椒油', '雅安蜂蜜', '熊猫周边玩偶', '雅安腊肉', '雅安特产礼盒'];
+
+        function openReturnModal() {
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById('rtOrderId').value = '';
+            document.getElementById('rtDate').value = today;
+            document.getElementById('rtPartner').value = '';
+            document.getElementById('rtProject').value = '';
+            document.getElementById('rtStaff').value = '';
+            document.getElementById('rtReason').value = '';
+            document.getElementById('rtRemark').value = '';
+            document.getElementById('rtPayable').value = '';
+            document.getElementById('rtStatus').value = '待审核';
+            document.getElementById('rtAttachment').value = '';
+            rtDetailBody.innerHTML = '';
+            addRtDetailRow();
+            addRtDetailRow();
+            updateRtTotals();
+            returnModalEl.classList.add('show');
+        }
+
+        function closeReturnModal() {
+            returnModalEl.classList.remove('show');
+        }
+
+        function addRtDetailRow() {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="rt-name" placeholder="商品名称" list="rtProductList"></td>
+                <td><input type="text" class="rt-spec" placeholder="规格"></td>
+                <td>
+                    <select class="rt-unit">
+                        <option value="个">个</option>
+                        <option value="盒">盒</option>
+                        <option value="袋">袋</option>
+                        <option value="瓶">瓶</option>
+                        <option value="包">包</option>
+                        <option value="套">套</option>
+                    </select>
+                </td>
+                <td><input type="number" class="rt-qty col-num" min="0" step="0.01" value="0"></td>
+                <td><input type="number" class="rt-price col-price" min="0" step="0.01" value="0"></td>
+                <td class="col-amount rt-amount">0.00</td>
+                <td class="col-action"><button type="button" class="btn-text danger rt-remove-row">删除</button></td>
+            `;
+            rtDetailBody.appendChild(tr);
+            tr.querySelector('.rt-qty').addEventListener('input', updateRtRowAmount);
+            tr.querySelector('.rt-price').addEventListener('input', updateRtRowAmount);
+            tr.querySelector('.rt-remove-row').addEventListener('click', function () {
+                if (rtDetailBody.querySelectorAll('tr').length <= 1) return;
+                tr.remove();
+                updateRtTotals();
+            });
+            updateRtTotals();
+        }
+
+        function updateRtRowAmount(e) {
+            var row = e.target.closest('tr');
+            var qty = parseFloat(row.querySelector('.rt-qty').value) || 0;
+            var price = parseFloat(row.querySelector('.rt-price').value) || 0;
+            row.querySelector('.rt-amount').textContent = (qty * price).toFixed(2);
+            updateRtTotals();
+        }
+
+        function updateRtTotals() {
+            var totalQty = 0, totalAmount = 0;
+            rtDetailBody.querySelectorAll('tr').forEach(function (tr) {
+                var qty = parseFloat(tr.querySelector('.rt-qty').value) || 0;
+                var price = parseFloat(tr.querySelector('.rt-price').value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+            document.getElementById('rtTotalQty').textContent = totalQty.toFixed(2);
+            document.getElementById('rtTotalAmount').textContent = '¥' + totalAmount.toFixed(2);
+            var payInput = document.getElementById('rtPayable');
+            if (payInput && !payInput.value) payInput.placeholder = '-' + totalAmount.toFixed(2);
+        }
+
+        document.getElementById('addReturnBtn').addEventListener('click', openReturnModal);
+        document.getElementById('returnModalClose').addEventListener('click', closeReturnModal);
+        document.getElementById('returnModalCancel').addEventListener('click', closeReturnModal);
+        returnModalEl.addEventListener('click', function (e) {
+            if (e.target === returnModalEl) closeReturnModal();
+        });
+        document.getElementById('rtAddRowBtn').addEventListener('click', addRtDetailRow);
+        document.getElementById('rtDetailBody').addEventListener('input', function (e) {
+            if (e.target.classList.contains('rt-qty') || e.target.classList.contains('rt-price')) updateRtRowAmount(e);
+        });
+
+        document.getElementById('returnModalSave').addEventListener('click', function () {
+            var orderId = document.getElementById('rtOrderId').value.trim();
+            var date = document.getElementById('rtDate').value;
+            var partner = document.getElementById('rtPartner').value;
+            if (!date) { alert('请选择日期'); return; }
+            if (!partner) { alert('请选择往来单位'); return; }
+            var totalQty = 0, totalAmount = 0;
+            rtDetailBody.querySelectorAll('tr').forEach(function (tr) {
+                var name = tr.querySelector('.rt-name').value.trim();
+                var qty = parseFloat(tr.querySelector('.rt-qty').value) || 0;
+                var price = parseFloat(tr.querySelector('.rt-price').value) || 0;
+                if (name && (qty > 0 || price > 0)) {
+                    totalQty += qty;
+                    totalAmount += qty * price;
+                }
+            });
+            if (totalQty <= 0 && totalAmount <= 0) {
+                alert('请至少添加一行有效商品明细。');
+                return;
+            }
+            var payable = parseFloat(document.getElementById('rtPayable').value);
+            if (isNaN(payable)) payable = -totalAmount;
+            var newId = orderId || ('TH' + date.replace(/-/g, '') + String(returns.length + 1).padStart(3, '0'));
+            var now = new Date();
+            var recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            returns.unshift({
+                id: newId,
+                date: date,
+                partner: partner,
+                project: document.getElementById('rtProject').value.trim() || '-',
+                staff: document.getElementById('rtStaff').value || '',
+                remark: document.getElementById('rtRemark').value.trim() || document.getElementById('rtReason').value.trim() || '',
+                qty: totalQty,
+                amount: totalAmount,
+                payable: payable,
+                status: document.getElementById('rtStatus').value,
+                attachment: document.getElementById('rtAttachment').value.trim() || '',
+                recorder: '系统管理员',
+                recordTime: recordTime
+            });
+            filteredReturns = [...returns];
+            renderTable();
+            closeReturnModal();
+        });
+
+        var rtDatalist = document.createElement('datalist');
+        rtDatalist.id = 'rtProductList';
+        rtProductList.forEach(function (p) { var o = document.createElement('option'); o.value = p; rtDatalist.appendChild(o); });
+        document.body.appendChild(rtDatalist);
 
         // 初始化
         renderTable();

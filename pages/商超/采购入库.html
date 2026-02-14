@@ -366,6 +366,55 @@
         .hidden {
             display: none;
         }
+
+        /* 新增入库单弹窗 */
+        .storage-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .storage-modal-overlay.show { display: flex; }
+        .storage-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 560px;
+            overflow: hidden;
+        }
+        .storage-modal .modal-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .storage-modal .modal-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .storage-modal .modal-body {
+            padding: var(--spacing-lg);
+        }
+        .storage-modal .modal-foot {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .storage-modal .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); flex-wrap: wrap; }
+        .storage-modal .form-group { flex: 1; min-width: 200px; }
+        .storage-modal .form-group label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-primary); }
+        .storage-modal .form-group input, .storage-modal .form-group select, .storage-modal .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+        .storage-modal .form-group textarea { min-height: 60px; resize: vertical; }
     </style>
 </head>
 <body>
@@ -393,6 +442,7 @@
                     </datalist>
                     <button class="btn btn-outline" id="selectOrderBtn">选择</button>
                     <button class="btn btn-text" id="clearOrderBtn">清空</button>
+                    <button class="btn btn-primary" id="addStorageBtn">新增入库单</button>
                 </div>
             </div>
             
@@ -515,6 +565,54 @@
         <div class="action-section" id="actionSection" style="display: none;">
             <button class="btn btn-outline" id="resetBtn">重置</button>
             <button class="btn btn-primary" id="submitAuditBtn">提交财务审核</button>
+        </div>
+
+        <!-- 新增入库单弹窗 -->
+        <div class="storage-modal-overlay" id="storageModalOverlay">
+            <div class="storage-modal">
+                <div class="modal-head">
+                    <h3>新增入库单</h3>
+                    <button type="button" class="btn btn-text" id="storageModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1 1 100%;">
+                            <label>采购订单</label>
+                            <select id="storageOrderSelect"></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>入库日期</label>
+                            <input type="date" id="storageDate">
+                        </div>
+                        <div class="form-group">
+                            <label>入库仓库</label>
+                            <select id="storageWarehouse">
+                                <option value="总仓">总仓</option>
+                                <option value="分仓A">分仓A</option>
+                                <option value="分仓B">分仓B</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>经手人</label>
+                            <input type="text" id="storageStaff" placeholder="选填">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1 1 100%;">
+                            <label>备注</label>
+                            <textarea id="storageRemark" placeholder="选填"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-text" id="storageModalCancel">取消</button>
+                    <button type="button" class="btn btn-primary" id="storageModalConfirm">确定</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -972,6 +1070,50 @@
         });
 
         document.getElementById('clearOrderBtn').addEventListener('click', resetForm);
+
+        // 新增入库单弹窗
+        const storageModalEl = document.getElementById('storageModalOverlay');
+        const storageOrderSelect = document.getElementById('storageOrderSelect');
+        const storageDateInput = document.getElementById('storageDate');
+        const storageWarehouseSelect = document.getElementById('storageWarehouse');
+        const storageStaffInput = document.getElementById('storageStaff');
+        const storageRemarkInput = document.getElementById('storageRemark');
+
+        function openStorageModal() {
+            const today = new Date().toISOString().slice(0, 10);
+            storageOrderSelect.innerHTML = '<option value="">请选择采购订单</option>';
+            purchaseOrders.forEach(function (o) {
+                const opt = document.createElement('option');
+                opt.value = o.id;
+                opt.textContent = o.id + ' - ' + o.partner + ' (¥' + o.amount.toFixed(2) + ')';
+                storageOrderSelect.appendChild(opt);
+            });
+            storageDateInput.value = today;
+            storageWarehouseSelect.value = '总仓';
+            storageStaffInput.value = '';
+            storageRemarkInput.value = '';
+            storageModalEl.classList.add('show');
+        }
+
+        function closeStorageModal() {
+            storageModalEl.classList.remove('show');
+        }
+
+        document.getElementById('addStorageBtn').addEventListener('click', openStorageModal);
+        document.getElementById('storageModalClose').addEventListener('click', closeStorageModal);
+        document.getElementById('storageModalCancel').addEventListener('click', closeStorageModal);
+        storageModalEl.addEventListener('click', function (e) {
+            if (e.target === storageModalEl) closeStorageModal();
+        });
+        document.getElementById('storageModalConfirm').addEventListener('click', function () {
+            const orderId = storageOrderSelect.value;
+            if (!orderId) {
+                alert('请选择采购订单');
+                return;
+            }
+            selectOrder(orderId);
+            closeStorageModal();
+        });
 
         document.getElementById('barcodeScanInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {

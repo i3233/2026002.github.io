@@ -337,6 +337,77 @@
             text-align: center;
         }
 
+        /* 新增采购订单弹窗 */
+        .purchase-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .purchase-modal-overlay.show { display: flex; }
+        .purchase-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .purchase-modal .modal-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .purchase-modal .modal-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .purchase-modal .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .purchase-modal .modal-foot {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 160px; }
+        .form-group label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-primary); }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+        .form-group textarea { min-height: 60px; resize: vertical; }
+        .form-group .required::after { content: ' *'; color: var(--color-error); }
+        .modal-section-title { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); margin: var(--spacing-md) 0 var(--spacing-sm); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-neutral-200); }
+        .purchase-modal .detail-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .purchase-modal .detail-table th, .purchase-modal .detail-table td { padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid var(--color-neutral-200); text-align: left; }
+        .purchase-modal .detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+        .purchase-modal .detail-table input { width: 100%; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: 4px; }
+        .purchase-modal .detail-table .col-num { width: 60px; text-align: right; }
+        .purchase-modal .detail-table .col-price { width: 90px; text-align: right; }
+        .purchase-modal .detail-table .col-amount { width: 90px; text-align: right; }
+        .purchase-modal .detail-table .col-action { width: 60px; text-align: center; }
+        .purchase-modal .detail-total { margin-top: var(--spacing-sm); text-align: right; font-weight: var(--font-weight-medium); }
+        .btn-text { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: var(--font-size-sm); padding: 0 4px; }
+        .btn-text:hover { text-decoration: underline; }
+        .btn-text.danger { color: var(--color-error); }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -376,7 +447,7 @@
         <div class="toolbar-card">
             <!-- 左侧按钮组 -->
             <div class="toolbar-left">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" id="addPurchaseOrderBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">＋</span>
                         <span>新增</span>
@@ -542,6 +613,105 @@
                     <span class="pagination-info">跳转到</span>
                     <input type="number" class="pagination-jump-input" min="1" value="1">
                     <span class="pagination-info">页</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增采购订单弹窗 -->
+        <div class="purchase-modal-overlay" id="purchaseOrderModalOverlay">
+            <div class="purchase-modal">
+                <div class="modal-head">
+                    <h3>新增采购订单</h3>
+                    <button type="button" class="btn btn-outline" id="purchaseOrderModalClose">× 关闭</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">单号</label>
+                            <input type="text" id="poOrderId" placeholder="可留空自动生成">
+                        </div>
+                        <div class="form-group">
+                            <label class="required">订单日期</label>
+                            <input type="date" id="poDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="required">往来单位</label>
+                            <select id="poPartner">
+                                <option value="">请选择</option>
+                                <option value="雅安本地供应商A">雅安本地供应商A</option>
+                                <option value="成都批发商B">成都批发商B</option>
+                                <option value="雅安本地供应商C">雅安本地供应商C</option>
+                                <option value="茶叶供应商D">茶叶供应商D</option>
+                                <option value="天蓝商行">天蓝商行</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>项目</label>
+                            <input type="text" id="poProject" placeholder="如：雅安好物进货">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>经手人/员工</label>
+                            <select id="poStaff">
+                                <option value="">请选择</option>
+                                <option value="张三">张三</option>
+                                <option value="李四">李四</option>
+                                <option value="赵六">赵六</option>
+                                <option value="钱七">钱七</option>
+                                <option value="王五">王五</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 2;">
+                            <label>备注</label>
+                            <textarea id="poRemark" placeholder="选填"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-section-title">商品明细</div>
+                    <div class="table-container">
+                        <table class="detail-table">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th class="col-num">数量</th>
+                                    <th class="col-price">单价(元)</th>
+                                    <th class="col-amount">金额(元)</th>
+                                    <th class="col-action">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="poDetailBody"></tbody>
+                        </table>
+                        <button type="button" class="btn btn-outline" id="poAddRowBtn" style="margin-top: 8px;">+ 添加一行</button>
+                        <div class="detail-total">
+                            数量合计：<span id="poTotalQty">0</span> &nbsp;&nbsp;
+                            进货金额合计：<span id="poTotalAmount">¥0.00</span>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: var(--spacing-md);">
+                        <div class="form-group">
+                            <label>应付金额(元)</label>
+                            <input type="number" id="poPayable" min="0" step="0.01" placeholder="可与进货金额一致或部分付款">
+                        </div>
+                        <div class="form-group">
+                            <label>订单状态</label>
+                            <select id="poStatus">
+                                <option value="待审核">待审核</option>
+                                <option value="已成交">已成交</option>
+                                <option value="部分入库">部分入库</option>
+                                <option value="已关闭">已关闭</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>附件</label>
+                            <input type="text" id="poAttachment" placeholder="如：上传后填写数量或说明">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline" id="purchaseOrderModalCancel">取消</button>
+                    <button type="button" class="btn btn-primary" id="purchaseOrderModalSave">保存订单</button>
                 </div>
             </div>
         </div>
@@ -809,6 +979,155 @@
         document.getElementById('moreSearchBtn').addEventListener('click', function () {
             alert('更多搜索（示例）：这里可以展开高级筛选条件，如日期范围、往来单位、项目、状态等。');
         });
+
+        // ========== 新增采购订单弹窗 ==========
+        const purchaseOrderModal = document.getElementById('purchaseOrderModalOverlay');
+        const poDetailBody = document.getElementById('poDetailBody');
+        const defaultProducts = [
+            '蒙顶山茶', '雅安花椒油', '雅安蜂蜜', '雅安菌菇干货', '熊猫周边玩偶', '精品礼盒装', '雅安特产绿营养蛋', '腊味礼盒', '雅鱼鲜礼盒'
+        ];
+
+        function openPurchaseOrderModal() {
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById('poOrderId').value = '';
+            document.getElementById('poDate').value = today;
+            document.getElementById('poPartner').value = '';
+            document.getElementById('poProject').value = '';
+            document.getElementById('poStaff').value = '';
+            document.getElementById('poRemark').value = '';
+            document.getElementById('poPayable').value = '';
+            document.getElementById('poStatus').value = '待审核';
+            document.getElementById('poAttachment').value = '';
+            poDetailBody.innerHTML = '';
+            addPoDetailRow();
+            addPoDetailRow();
+            updatePoTotals();
+            purchaseOrderModal.classList.add('show');
+        }
+
+        function closePurchaseOrderModal() {
+            purchaseOrderModal.classList.remove('show');
+        }
+
+        function addPoDetailRow() {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="po-name" placeholder="商品名称" list="poProductList"></td>
+                <td><input type="text" class="po-spec" placeholder="规格"></td>
+                <td>
+                    <select class="po-unit">
+                        <option value="个">个</option>
+                        <option value="盒">盒</option>
+                        <option value="袋">袋</option>
+                        <option value="瓶">瓶</option>
+                        <option value="包">包</option>
+                        <option value="套">套</option>
+                        <option value="斤">斤</option>
+                        <option value="kg">kg</option>
+                    </select>
+                </td>
+                <td><input type="number" class="po-qty col-num" min="0" step="0.01" value="0"></td>
+                <td><input type="number" class="po-price col-price" min="0" step="0.01" value="0"></td>
+                <td class="col-amount po-amount">0.00</td>
+                <td class="col-action"><button type="button" class="btn-text danger po-remove-row">删除</button></td>
+            `;
+            poDetailBody.appendChild(tr);
+            tr.querySelector('.po-qty').addEventListener('input', updatePoRowAmount);
+            tr.querySelector('.po-price').addEventListener('input', updatePoRowAmount);
+            tr.querySelector('.po-remove-row').addEventListener('click', function () {
+                if (poDetailBody.querySelectorAll('tr').length <= 1) return;
+                tr.remove();
+                updatePoTotals();
+            });
+            updatePoTotals();
+        }
+
+        function updatePoRowAmount(e) {
+            const row = e.target.closest('tr');
+            const qty = parseFloat(row.querySelector('.po-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.po-price').value) || 0;
+            row.querySelector('.po-amount').textContent = (qty * price).toFixed(2);
+            updatePoTotals();
+        }
+
+        function updatePoTotals() {
+            let totalQty = 0, totalAmount = 0;
+            poDetailBody.querySelectorAll('tr').forEach(tr => {
+                const qty = parseFloat(tr.querySelector('.po-qty').value) || 0;
+                const price = parseFloat(tr.querySelector('.po-price').value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+            document.getElementById('poTotalQty').textContent = totalQty.toFixed(2);
+            document.getElementById('poTotalAmount').textContent = '¥' + totalAmount.toFixed(2);
+            const payInput = document.getElementById('poPayable');
+            if (payInput && !payInput.value) payInput.placeholder = totalAmount.toFixed(2);
+        }
+
+        document.getElementById('addPurchaseOrderBtn').addEventListener('click', openPurchaseOrderModal);
+        document.getElementById('purchaseOrderModalClose').addEventListener('click', closePurchaseOrderModal);
+        document.getElementById('purchaseOrderModalCancel').addEventListener('click', closePurchaseOrderModal);
+        purchaseOrderModal.addEventListener('click', function (e) {
+            if (e.target === purchaseOrderModal) closePurchaseOrderModal();
+        });
+        document.getElementById('poAddRowBtn').addEventListener('click', addPoDetailRow);
+
+        document.getElementById('poDetailBody').addEventListener('input', function (e) {
+            if (e.target.classList.contains('po-qty') || e.target.classList.contains('po-price')) {
+                updatePoRowAmount(e);
+            }
+        });
+
+        document.getElementById('purchaseOrderModalSave').addEventListener('click', function () {
+            const orderId = document.getElementById('poOrderId').value.trim();
+            const date = document.getElementById('poDate').value;
+            const partner = document.getElementById('poPartner').value;
+            if (!date) { alert('请选择订单日期'); return; }
+            if (!partner) { alert('请选择往来单位'); return; }
+            let totalQty = 0, totalAmount = 0;
+            const rows = [];
+            poDetailBody.querySelectorAll('tr').forEach(tr => {
+                const name = tr.querySelector('.po-name').value.trim();
+                const qty = parseFloat(tr.querySelector('.po-qty').value) || 0;
+                const price = parseFloat(tr.querySelector('.po-price').value) || 0;
+                if (name && (qty > 0 || price > 0)) {
+                    totalQty += qty;
+                    totalAmount += qty * price;
+                    rows.push({ name, qty, price });
+                }
+            });
+            if (totalQty <= 0 && totalAmount <= 0) {
+                alert('请至少添加一行有效商品明细（数量或金额大于0）。');
+                return;
+            }
+            const payable = parseFloat(document.getElementById('poPayable').value) || totalAmount;
+            const newId = orderId || ('JH' + date.replace(/-/g, '') + String(purchases.length + 1).padStart(3, '0'));
+            const now = new Date();
+            const recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            purchases.unshift({
+                id: newId,
+                date: date,
+                partner: partner,
+                project: document.getElementById('poProject').value.trim() || '-',
+                staff: document.getElementById('poStaff').value || '',
+                remark: document.getElementById('poRemark').value.trim() || '',
+                qty: totalQty,
+                amount: totalAmount,
+                payable: payable,
+                status: document.getElementById('poStatus').value,
+                attachment: document.getElementById('poAttachment').value.trim() || '0',
+                recorder: '系统管理员',
+                recordTime: recordTime
+            });
+            filteredPurchases = [...purchases];
+            renderTable();
+            closePurchaseOrderModal();
+        });
+
+        var poDatalist = document.createElement('datalist');
+        poDatalist.id = 'poProductList';
+        defaultProducts.forEach(function (p) { var o = document.createElement('option'); o.value = p; poDatalist.appendChild(o); });
+        document.body.appendChild(poDatalist);
 
         // 初始化渲染
         renderTable();
