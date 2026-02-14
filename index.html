@@ -165,6 +165,36 @@
             border: none;
             min-height: 0;
         }
+        /* 覆盖首页左侧“应用”标题背景为白色，无蓝底 */
+        .sidebar-header {
+            background-color: #ffffff;
+            color: var(--color-text-primary);
+        }
+        /* 应用大厅 / 模块模式布局开关 */
+        .content-title-container {
+            display: none;
+        }
+        .app-module-mode .content-title-container {
+            display: block;
+        }
+        .app-module-mode .sidebar {
+            display: none;
+        }
+        .app-module-mode .main-content {
+            width: 100%;
+        }
+        /* 模块模式下微调标题与返回按钮位置 */
+        .app-module-mode .content-header {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .app-module-mode .breadcrumb-container {
+            padding-left: 50px;
+        }
+        .app-module-mode .content-title-container {
+            padding-left: 50px;
+            padding-right: 100px; /* 让“返回应用”相对页面右侧再往左移 50px */
+        }
         /* 模块入口卡片样式 */
         .module-entry-grid {
             display: grid;
@@ -243,9 +273,7 @@
         <!-- 左侧菜单 -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <a href="#" class="sidebar-title-link" onclick="goBackToCards(event)" title="返回卡片入口页">
-                    <h1 class="sidebar-title">卡片入口页</h1>
-                </a>
+                <h1 class="sidebar-title">应用</h1>
             </div>
             <nav class="sidebar-menu" id="sidebarMenu">
                 <!-- 菜单内容由JS动态生成 -->
@@ -267,20 +295,17 @@
                 </div>
                 <div class="content-title-container">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <h2 class="content-title" id="contentTitle">功能模块入口</h2>
-                        <a href="#" id="backToCardsBtn" class="back-to-cards-btn" onclick="goBackToCards(event)">
+                        <h2 class="content-title" id="contentTitle"></h2>
+                        <a href="#" id="backToCardsBtn" class="back-to-cards-btn" onclick="goBackToCards(event)" style="display: none;">
                             <span style="margin-right: 4px;">←</span>
-                            返回功能模块入口
+                            返回应用
                         </a>
                     </div>
                 </div>
             </header>
             <div class="content-body" id="contentBody">
-                <!-- 模块入口卡片 -->
-                <div class="module-entry-header">
-                    <h1 class="module-entry-title">功能模块入口</h1>
-                    <p class="module-entry-subtitle">请选择要进入的功能模块</p>
-                </div>
+                <!-- 模块入口卡片标题区域已去掉文字，保留容器以便后续需要时扩展 -->
+                <div class="module-entry-header"></div>
                 <div class="module-entry-grid" id="moduleEntryGrid">
                     <!-- 卡片将由JS动态生成 -->
                 </div>
@@ -333,8 +358,9 @@
                 card.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('点击了卡片:', module.module);
-                    enterModuleMenu(module);
+                    console.log('点击了卡片(新窗口):', module.module);
+                    const url = 'index.html?module=' + encodeURIComponent(module.module);
+                    window.open(url, '_blank');
                 });
                 
                 grid.appendChild(card);
@@ -525,80 +551,30 @@
             if (event) {
                 event.preventDefault();
             }
-            
-            console.log('返回功能模块入口');
-            
-            // 隐藏所有iframe
-            document.querySelectorAll('[id^="frame_"]').forEach(frame => {
-                frame.remove();
-            });
-            
-            // 隐藏菜单页面iframe
-            const menuFrame = document.getElementById('menuFrame');
-            if (menuFrame) {
-                menuFrame.remove();
-            }
-            
-            // 移除模块布局容器（如果存在，用于商超模块的新布局）
-            const layoutContainer = document.getElementById('moduleLayoutContainer');
-            if (layoutContainer) {
-                layoutContainer.remove();
-            }
-            
-            // 清空标签页
-            if (typeof tabsManager !== 'undefined') {
-                tabsManager.tabs = [];
-                tabsManager.activeTabId = null;
-                tabsManager.renderTabs();
-            }
-            
-            // 显示卡片和标题
-            const grid = document.getElementById('moduleEntryGrid');
-            const header = document.querySelector('.module-entry-header');
-            if (grid) grid.style.display = 'grid';
-            if (header) header.style.display = 'block';
-            
-            // 隐藏占位符
-            const placeholder = document.getElementById('contentPlaceholder');
-            if (placeholder) {
-                placeholder.style.display = 'none';
-            }
-            
-            // 更新标题
-            const contentTitle = document.getElementById('contentTitle');
-            if (contentTitle) {
-                contentTitle.textContent = '功能模块入口';
-            }
-            
-            // 返回按钮始终显示，不需要隐藏
-            
-            // 重置左侧菜单
-            const menuContainer = document.getElementById('sidebarMenu');
-            if (menuContainer) {
-                menuContainer.innerHTML = '<div style="padding: var(--spacing-md); color: var(--color-text-secondary); text-align: center;">商超功能模块</div>';
-            }
-            
-            // 重置侧边栏标题（已经是链接，不需要修改）
-            
-            // 更新面包屑
-            if (typeof updateBreadcrumb === 'function') {
-                updateBreadcrumb(null);
-            }
+            // 返回到应用入口页（五个入口）
+            window.location.href = 'index.html';
         };
-
-        // 页面加载完成后渲染卡片
+        
+        // 页面加载完成后渲染卡片（仅在无module参数时）
         document.addEventListener('DOMContentLoaded', function() {
-            // 等待menuData加载
-            setTimeout(function() {
-                renderModuleCards();
-            }, 100);
+            const params = new URLSearchParams(window.location.search || '');
+            const moduleName = params.get('module');
+            if (!moduleName) {
+                setTimeout(function() {
+                    renderModuleCards();
+                }, 100);
+            }
         });
-
-        // window.onload时也执行一次
+        
+        // window.onload时也执行一次（仅在无module参数时）
         window.addEventListener('load', function() {
-            setTimeout(function() {
-                renderModuleCards();
-            }, 100);
+            const params = new URLSearchParams(window.location.search || '');
+            const moduleName = params.get('module');
+            if (!moduleName) {
+                setTimeout(function() {
+                    renderModuleCards();
+                }, 100);
+            }
         });
     </script>
 </body>
