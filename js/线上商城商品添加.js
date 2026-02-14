@@ -118,6 +118,63 @@
         }).join('');
     }
 
+    // 预置一批示例商品到线上商城列表（若数量不足，则自动补足到至少5条）
+    function ensurePresetSyncedList() {
+        var existing = getSyncedList();
+        if (!existing) existing = [];
+
+        // 小于5条时，按顺序从默认商超/餐饮列表中补齐
+        var need = 5 - existing.length;
+        if (need <= 0) return;
+
+        function hasItem(source, id) {
+            return existing.some(function (p) { return p.source === source && String(p.productId) === String(id); });
+        }
+
+        var now = Date.now();
+        var addedCount = 0;
+
+        // 先补充商超商品
+        defaultShangchaoProducts.forEach(function (p, idx) {
+            if (addedCount >= need) return;
+            if (hasItem('商超', p.id)) return;
+            existing.push({
+                source: '商超',
+                productId: String(p.id),
+                name: p.name,
+                categoryName: p.category,
+                category: p.category,
+                price: p.price,
+                image: p.image || '',
+                syncedAt: new Date(now - (idx + 1) * 3600 * 1000).toISOString(),
+                online: false
+            });
+            addedCount++;
+        });
+
+        // 再补充餐饮商品
+        defaultCanyinProducts.forEach(function (p, idx) {
+            if (addedCount >= need) return;
+            if (hasItem('餐饮', p.id)) return;
+            existing.push({
+                source: '餐饮',
+                productId: String(p.id),
+                name: p.name,
+                categoryName: p.categoryName || p.category,
+                category: p.categoryName || p.category,
+                price: p.price,
+                image: '',
+                syncedAt: new Date(now - (idx + 10) * 3600 * 1000).toISOString(),
+                online: false
+            });
+            addedCount++;
+        });
+
+        if (addedCount > 0) {
+            setSyncedList(existing);
+        }
+    }
+
     function confirmAddModal() {
         var list = getSyncedList();
         var added = 0;
@@ -149,9 +206,38 @@
     }
 
     function render() {
+        // 确保至少有一批示例数据，避免列表始终为空
+        ensurePresetSyncedList();
+
         var list = getSyncedList();
-        var filter = (document.getElementById('sourceFilter') || {}).value || '';
-        var filtered = filter ? list.filter(function (p) { return p.source === filter; }) : list;
+        var sourceVal = (document.getElementById('sourceFilter') || {}).value || '';
+        var categoryVal = (document.getElementById('categoryFilter') || {}).value || '';
+        var statusVal = (document.getElementById('statusFilter') || {}).value || '';
+        var keywordVal = (document.getElementById('keywordFilter') || {}).value || '';
+
+        var filtered = list;
+        if (sourceVal) {
+            filtered = filtered.filter(function (p) { return p.source === sourceVal; });
+        }
+        if (categoryVal) {
+            filtered = filtered.filter(function (p) {
+                var cat = p.categoryName || p.category || '';
+                return cat === categoryVal;
+            });
+        }
+        if (statusVal) {
+            filtered = filtered.filter(function (p) {
+                return statusVal === 'online' ? !!p.online : !p.online;
+            });
+        }
+        if (keywordVal) {
+            var kw = keywordVal.trim().toLowerCase();
+            if (kw) {
+                filtered = filtered.filter(function (p) {
+                    return (p.name || '').toLowerCase().indexOf(kw) !== -1;
+                });
+            }
+        }
 
         var tbody = document.getElementById('mallProductTableBody');
         var emptyEl = document.getElementById('mallProductEmpty');
@@ -214,8 +300,58 @@
             }
         } catch (e) {}
 
+        // 若线上商城列表暂无商品，则预置几条示例商品，便于展示
+        try {
+            var existing = getSyncedList();
+            if (!existing || existing.length === 0) {
+                var preset = [];
+                // 取部分商超商品
+                defaultShangchaoProducts.slice(0, 3).forEach(function (p, idx) {
+                    preset.push({
+                        source: '商超',
+                        productId: String(p.id),
+                        name: p.name,
+                        categoryName: p.category,
+                        category: p.category,
+                        price: p.price,
+                        image: p.image || '',
+                        syncedAt: new Date(Date.now() - (idx + 1) * 3600 * 1000).toISOString(),
+                        online: idx === 0 // 第一条默认已上线
+                    });
+                });
+                // 取部分餐饮商品
+                defaultCanyinProducts.slice(0, 2).forEach(function (p, idx) {
+                    preset.push({
+                        source: '餐饮',
+                        productId: String(p.id),
+                        name: p.name,
+                        categoryName: p.categoryName || p.category,
+                        category: p.categoryName || p.category,
+                        price: p.price,
+                        image: '',
+                        syncedAt: new Date(Date.now() - (idx + 4) * 3600 * 1000).toISOString(),
+                        online: false
+                    });
+                });
+                if (preset.length > 0) {
+                    setSyncedList(preset);
+                }
+            }
+        } catch (e) {}
+
         var sourceFilter = document.getElementById('sourceFilter');
         if (sourceFilter) sourceFilter.addEventListener('change', render);
+        var categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) categoryFilter.addEventListener('change', render);
+        var statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) statusFilter.addEventListener('change', render);
+        var keywordFilter = document.getElementById('keywordFilter');
+        if (keywordFilter) {
+            keywordFilter.addEventListener('input', function () {
+                clearTimeout(keywordFilter._t);
+                keywordFilter._t = setTimeout(render, 200);
+            });
+        }
         var refreshBtn = document.getElementById('refreshBtn');
         if (refreshBtn) refreshBtn.addEventListener('click', render);
         var addProductBtn = document.getElementById('addProductBtn');

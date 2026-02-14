@@ -9,7 +9,9 @@ const menuData = [
                     { title: "商品列表", path: "pages/商超/商品列表.html" },
                     { title: "套餐列表", path: "pages/商超/套餐列表.html" },
                     { title: "商品分类", path: "pages/商超/商品分类.html" },
-                    { title: "商品标签", path: "pages/商超/商品标签.html" }
+                    { title: "商品标签", path: "pages/商超/商品标签.html" },
+                    { title: "规格模板", path: "pages/商超/规格模板.html" },
+                    { title: "参数模板", path: "pages/商超/参数模板.html" }
                 ]
             },
             {
@@ -25,7 +27,6 @@ const menuData = [
                 children: [
                     { title: "全部订单", path: "pages/商超/全部订单.html" },
                     { title: "线上订单", path: "pages/商超/线上订单.html" },
-                    { title: "提货点管理", path: "pages/商超/提货点管理.html" },
                     { title: "收银台订单", path: "pages/商超/收银台订单.html" },
                     { title: "批发订单", path: "pages/商超/批发订单.html" }
                 ]
@@ -74,6 +75,7 @@ const menuData = [
             { title: "基础配置", path: "pages/线上商城/基础配置.html" },
             { title: "商品添加", path: "pages/线上商城/商品添加.html" },
             { title: "配送员管理", path: "pages/线上商城/配送员管理.html" },
+            { title: "提货点管理", path: "pages/商超/提货点管理.html" },
             { title: "用户订单查看", path: "pages/线上商城/用户订单查看.html" },
             { title: "订单管理", path: "pages/线上商城/订单管理.html" }
         ]
@@ -114,7 +116,9 @@ const menuData = [
                     { title: "商品列表", path: "pages/餐饮/商品列表.html" },
                     { title: "套餐列表", path: "pages/餐饮/套餐列表.html" },
                     { title: "商品分类", path: "pages/餐饮/商品分类.html" },
-                    { title: "商品标签", path: "pages/餐饮/商品标签.html" }
+                    { title: "商品标签", path: "pages/餐饮/商品标签.html" },
+                    { title: "规格模板", path: "pages/餐饮/规格模板.html" },
+                    { title: "参数模板", path: "pages/餐饮/参数模板.html" }
                 ]
             },
             {
@@ -622,22 +626,60 @@ function goHome(event) {
 
 // 页面加载完成后生成菜单和初始化
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始不显示任何模块菜单，只显示卡片入口
+    const params = new URLSearchParams(window.location.search || '');
+    const moduleName = params.get('module');
+
     const menuContainer = document.getElementById('sidebarMenu');
-    if (menuContainer) {
-        menuContainer.innerHTML = '<div style="padding: var(--spacing-md); color: var(--color-text-secondary); text-align: center;">请从右侧选择功能模块</div>';
+    const sidebarTitle = document.querySelector('.sidebar-title');
+    const backBtn = document.getElementById('backToCardsBtn');
+    const header = document.querySelector('.module-entry-header');
+    const grid = document.getElementById('moduleEntryGrid');
+    const contentTitle = document.getElementById('contentTitle');
+
+    // 左侧标题统一为“应用”
+    if (sidebarTitle) {
+        sidebarTitle.textContent = '应用';
     }
+
     // 初始化面包屑为首页
     updateBreadcrumb(null);
     // 初始化标签页
     tabsManager.renderTabs();
-    
-    // 确保侧边栏标题链接可用
-    const sidebarTitleLink = document.querySelector('.sidebar-title-link');
-    if (sidebarTitleLink && typeof goBackToCards === 'function') {
-        sidebarTitleLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            goBackToCards(e);
-        });
+
+    if (moduleName) {
+        // 模块模式（新窗口）
+        document.body.classList.add('app-module-mode');
+
+        // 左侧不显示任何菜单内容
+        if (menuContainer) {
+            menuContainer.innerHTML = '';
+        }
+
+        // 隐藏卡片入口标题和网格
+        if (header) header.style.display = 'none';
+        if (grid) grid.style.display = 'none';
+
+        // 显示顶部返回按钮
+        if (backBtn) {
+            backBtn.style.display = 'inline-flex';
+        }
+
+        // 渲染对应模块布局
+        const targetModule = menuData.find(m => m.module === moduleName);
+        if (targetModule) {
+            if (contentTitle) {
+                contentTitle.textContent = moduleName;
+            }
+            renderSupermarketLayout(targetModule);
+        }
+    } else {
+        // 应用大厅模式：左侧提示清空，只靠右侧卡片入口
+        if (menuContainer) {
+            menuContainer.innerHTML = '';
+        }
+        // 顶部返回按钮在大厅模式不显示
+        if (backBtn) {
+            backBtn.style.display = 'none';
+        }
     }
 });
