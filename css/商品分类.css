@@ -122,6 +122,23 @@
     color: var(--color-text-primary);
 }
 
+/* 子分类名称缩进显示 */
+.category-list-category-name--child {
+    position: relative;
+    padding-left: 24px;
+    color: var(--color-text-secondary);
+}
+
+.category-list-category-name--child::before {
+    content: '└';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-neutral-400);
+    font-size: var(--font-size-xs);
+}
+
 .category-list-product-count {
     color: var(--color-primary);
     cursor: pointer;
@@ -130,6 +147,15 @@
 
 .category-list-product-count:hover {
     text-decoration: underline;
+}
+
+/* 新建 / 编辑分类弹窗中显示上级分类信息 */
+.category-parent-display {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    padding: 6px 10px;
+    background-color: var(--color-neutral-50);
+    border-radius: var(--radius-md);
 }
 
 .category-list-sort-order {
