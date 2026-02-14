@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>订单管理 - 线上商城</title>
-    <link rel="stylesheet" href="../../css/Main.css">
-<link rel="stylesheet" href="../../css/线上商城基础配置.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单列表</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -14,11 +12,6 @@
     background: #f5f7fa;
     color: #333;
     -webkit-font-smoothing: antialiased;
-  }
-  /* 与线上商城其他页统一的外层布局 */
-  .mall-order-page {
-    padding: var(--spacing-lg);
-    background: var(--color-neutral-50);
   }
   a { color: #2d8cf0; text-decoration: none; cursor: pointer; }
   a:hover { text-decoration: underline; }
@@ -268,11 +261,11 @@
   .bottom-bar a { font-size: 13px; }
 </style>
 </head>
-<body class="mall-order-page">
+<body>
 
 <!-- Top Header -->
 <div class="top-header">
-        <h1>订单管理</h1>
+  <h1>订单列表</h1>
   <div class="actions">
     <button class="btn-primary">清空回收站</button>
     <button class="btn-primary">订单排序</button>
@@ -348,50 +341,50 @@
     <div class="products-col">
       <!-- Product 1 -->
       <div class="product-item">
-        <img src="../../images/01.jpg" alt="雅安特产绿营养蛋">
+        <img src="/images/product1.jpg" alt="雅安特产雨城多哥手工挂面宽面">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">雅安特产绿营养蛋</span>
+            <span class="pname">雅安特产雨城多哥手工挂面宽面500克1袋装2袋包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥120.00</div>
+        <div class="product-subtotal">小计：¥90.00</div>
         <div class="product-qty">商品总量:x6</div>
       </div>
       <!-- Product 2 -->
       <div class="product-item">
-        <img src="../../images/02.jpg" alt="有机山茶油">
+        <img src="/images/product2.jpg" alt="雅安特产茶籽油">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">有机山茶油</span>
+            <span class="pname">雅安特产雨城合江正宗老川茶籽油非油茶籽250克每瓶2瓶包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥216.00</div>
-        <div class="product-qty">商品总量:x6</div>
+        <div class="product-subtotal">小计：¥748.00</div>
+        <div class="product-qty">商品总量:x11</div>
       </div>
       <!-- Product 3 -->
       <div class="product-item">
-        <img src="../../images/03.jpg" alt="蒙顶山茶">
+        <img src="/images/product3.jpg" alt="川味香肠">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">蒙顶山茶</span>
+            <span class="pname">川味香肠地道四川味农家美味真空1斤装2斤包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥294.00</div>
-        <div class="product-qty">商品总量:x6</div>
+        <div class="product-subtotal">小计：¥572.00</div>
+        <div class="product-qty">商品总量:x11</div>
       </div>
       <!-- Product 4 -->
       <div class="product-item">
-        <img src="../../images/04.jpg" alt="腊味礼盒">
+        <img src="/images/product4.jpg" alt="雨城特产腌菜">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">腊味礼盒</span>
+            <span class="pname">雨城特产农家自制腌菜盐菜200克装2袋包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
@@ -403,7 +396,7 @@
     <!-- Payment -->
     <div class="payment-col">
       <div class="amount">
-        ¥720.00
+        ¥1500.00
         <span class="info-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </span>
@@ -416,9 +409,6 @@
     <div class="actions-col">
       <button class="icon-btn" title="打印">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      </button>
-      <button class="icon-btn" title="送达照片">
-        照
       </button>
       <button class="icon-btn danger" title="删除">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -446,24 +436,24 @@
     <div class="products-col">
       <!-- Product 1 -->
       <div class="product-item">
-        <img src="../../images/05.jpg" alt="雅鱼鲜礼盒">
+        <img src="/images/product5.jpg" alt="汉源花椒油">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">雅鱼鲜礼盒</span>
+            <span class="pname">汉源花椒油正宗贡椒花椒油250克一瓶2瓶包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥68.00</div>
+        <div class="product-subtotal">小计：¥28.00</div>
         <div class="product-qty">商品总量:x1</div>
       </div>
       <!-- Product 2 -->
       <div class="product-item">
-        <img src="../../images/01.jpg" alt="花椒油">
+        <img src="/images/product1.jpg" alt="雅安特产挂面">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">花椒油</span>
+            <span class="pname">雅安特产雨城多哥手工挂面宽面500克1袋装2袋包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
@@ -472,41 +462,41 @@
       </div>
       <!-- Product 3 -->
       <div class="product-item">
-        <img src="../../images/06.jpg" alt="精品礼盒装">
+        <img src="/images/product2.jpg" alt="茶籽油">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">精品礼盒装</span>
+            <span class="pname">雅安特产雨城合江正宗老川茶籽油非油茶籽250克每瓶2瓶包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥268.00</div>
+        <div class="product-subtotal">小计：¥68.00</div>
         <div class="product-qty">商品总量:x1</div>
       </div>
       <!-- Product 4 -->
       <div class="product-item">
-        <img src="../../images/02.jpg" alt="土司农家散养蛋">
+        <img src="/images/product6.jpg" alt="土鸡蛋">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">土司农家散养蛋</span>
+            <span class="pname">土鸡蛋农家散养跑山鸡蛋正宗草蛋50克左右10枚整盒装订单满50包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥18.00</div>
-        <div class="product-qty">商品总量:x1</div>
+        <div class="product-subtotal">小计：¥36.00</div>
+        <div class="product-qty">商品总量:x2</div>
       </div>
       <!-- Product 5 -->
       <div class="product-item">
-        <img src="../../images/03.jpg" alt="雅安黑茶">
+        <img src="/images/product7.jpg" alt="笋干">
         <div class="product-info">
           <div class="name-row">
             <span class="tag-mall">商城</span>
-            <span class="pname">雅安黑茶</span>
+            <span class="pname">雨城特产农家自制笋干150克装2袋包邮</span>
           </div>
           <div class="spec">规格：<a href="javascript:;">规格:默认</a></div>
         </div>
-        <div class="product-subtotal">小计：¥88.00</div>
+        <div class="product-subtotal">小计：¥36.00</div>
         <div class="product-qty">商品总量:x1</div>
       </div>
     </div>
@@ -514,7 +504,7 @@
     <!-- Payment -->
     <div class="payment-col">
       <div class="amount">
-        ¥457.00
+        ¥183.00
         <span class="info-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </span>
@@ -527,9 +517,6 @@
     <div class="actions-col">
       <button class="icon-btn" title="打印">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      </button>
-      <button class="icon-btn" title="送达照片">
-        照
       </button>
       <button class="icon-btn danger" title="删除">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
