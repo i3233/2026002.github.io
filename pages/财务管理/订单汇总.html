@@ -475,6 +475,136 @@
             text-align: center;
         }
 
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .detail-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .detail-value {
+            font-size: var(--font-size-base);
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 操作菜单下拉 */
+        .action-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            min-width: 120px;
+            display: none;
+        }
+
+        .action-menu.show {
+            display: block;
+        }
+
+        .action-menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: background-color var(--transition-base);
+        }
+
+        .action-menu-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .action-menu-item.danger {
+            color: var(--color-error);
+        }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -715,6 +845,47 @@
                     <span class="pagination-info">页</span>
                 </div>
             </div>
+        </div>
+
+        <!-- 订单汇总统计弹窗 -->
+        <div class="modal-overlay" id="summaryModal">
+            <div class="modal" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">订单汇总统计</h3>
+                    <button type="button" class="modal-close" id="summaryModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="summaryContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="summaryModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单详情弹窗 -->
+        <div class="modal-overlay" id="orderDetailModal">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">订单详情</h3>
+                    <button type="button" class="modal-close" id="orderDetailModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="orderDetailModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作菜单 -->
+        <div class="action-menu" id="actionMenu">
+            <div class="action-menu-item" data-action="view">查看详情</div>
+            <div class="action-menu-item" data-action="edit">编辑</div>
+            <div class="action-menu-item" data-action="print">打印</div>
+            <div class="action-menu-item" data-action="send">发货</div>
+            <div class="action-menu-item danger" data-action="delete">删除</div>
         </div>
     </div>
 
@@ -1024,7 +1195,7 @@
                     <td>${item.payType}</td>
                     <td><span class="status-pill ${statusClass}">${item.status}</span></td>
                     <td>
-                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}')" title="更多操作">查看</button>
+                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}', event)" title="更多操作" style="position: relative;">查看</button>
                     </td>
                 `;
 
@@ -1224,29 +1395,260 @@
                 }
             });
 
-            // 按钮事件
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['订单号', '订单类型', '下单时间', '客户', '收货人', '手机', '渠道', '数量', '订单金额', '实收金额', '支付方式', '订单状态'];
+                const rows = data.map(item => [
+                    item.id,
+                    item.typeText || '',
+                    item.orderTime || '',
+                    item.customer || '',
+                    item.receiver || '',
+                    item.mobile || '',
+                    item.channel || '',
+                    item.qty || 0,
+                    item.amount.toFixed(2),
+                    item.paid.toFixed(2),
+                    item.payType || '',
+                    item.status || ''
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '订单汇总_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 导出详情功能 ==========
             document.getElementById('exportDetailBtn').addEventListener('click', () => {
-                alert('导出详情功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                // 导出包含更多字段的详情（可包含商品明细等）
+                const headers = ['订单号', '订单类型', '下单时间', '客户', '收货人', '手机', '渠道', '数量', '订单金额', '实收金额', '未收金额', '支付方式', '订单状态', '备注'];
+                const rows = data.map(item => [
+                    item.id,
+                    item.typeText || '',
+                    item.orderTime || '',
+                    item.customer || '',
+                    item.receiver || '',
+                    item.mobile || '',
+                    item.channel || '',
+                    item.qty || 0,
+                    item.amount.toFixed(2),
+                    item.paid.toFixed(2),
+                    (item.amount - item.paid).toFixed(2),
+                    item.payType || '',
+                    item.status || '',
+                    item.remark || ''
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '订单汇总详情_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 打印列表 ==========
             document.getElementById('printListBtn').addEventListener('click', () => {
-                alert('打印列表功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可打印');
+                    return;
+                }
+                
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>订单汇总列表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>订单汇总列表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>订单号</th>
+                                        <th>订单类型</th>
+                                        <th>下单时间</th>
+                                        <th>客户</th>
+                                        <th>数量</th>
+                                        <th>订单金额</th>
+                                        <th>实收金额</th>
+                                        <th>支付方式</th>
+                                        <th>订单状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.map((item, index) => `
+                                        <tr>
+                                            <td>${item.id}</td>
+                                            <td>${item.typeText || '-'}</td>
+                                            <td>${item.orderTime || '-'}</td>
+                                            <td>${item.customer || '-'}</td>
+                                            <td>${item.qty || 0}</td>
+                                            <td>${item.amount.toFixed(2)}</td>
+                                            <td>${item.paid.toFixed(2)}</td>
+                                            <td>${item.payType || '-'}</td>
+                                            <td>${item.status || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 订单汇总统计 ==========
+            const summaryModal = document.getElementById('summaryModal');
+            
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const data = getFilteredData();
                 const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
                 const totalPaid = data.reduce((sum, item) => sum + item.paid, 0);
                 const totalUnpaid = totalAmount - totalPaid;
+                const totalQty = data.reduce((sum, item) => sum + (item.qty || 0), 0);
                 const onlineCount = data.filter(item => item.type === 'online').length;
                 const storeCount = data.filter(item => item.type === 'store').length;
                 const wholesaleCount = data.filter(item => item.type === 'wholesale').length;
                 
-                alert(`订单汇总统计：\n订单总额：${totalAmount.toFixed(2)} 元\n已收金额：${totalPaid.toFixed(2)} 元\n未收金额：${totalUnpaid.toFixed(2)} 元\n订单数量：${data.length} 单\n线上订单：${onlineCount} 单\n门店订单：${storeCount} 单\n批发订单：${wholesaleCount} 单`);
+                const now = new Date();
+                const currentMonth = now.getMonth() + 1;
+                const currentYear = now.getFullYear();
+                const monthlyOrderAmount = data.filter(item => {
+                    if (!item.orderTime) return false;
+                    const date = new Date(item.orderTime);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                }).reduce((sum, item) => sum + item.amount, 0);
+                
+                // 按订单类型统计金额
+                const typeStats = {
+                    '线上订单': { count: onlineCount, amount: data.filter(item => item.type === 'online').reduce((sum, item) => sum + item.amount, 0) },
+                    '门店订单': { count: storeCount, amount: data.filter(item => item.type === 'store').reduce((sum, item) => sum + item.amount, 0) },
+                    '批发订单': { count: wholesaleCount, amount: data.filter(item => item.type === 'wholesale').reduce((sum, item) => sum + item.amount, 0) }
+                };
+                
+                // 按状态统计
+                const statusStats = {};
+                data.forEach(item => {
+                    const status = item.status || '未知';
+                    if (!statusStats[status]) {
+                        statusStats[status] = { count: 0, amount: 0 };
+                    }
+                    statusStats[status].count += 1;
+                    statusStats[status].amount += item.amount;
+                });
+                
+                document.getElementById('summaryContent').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">订单总额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${totalAmount.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">已收金额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-success);">¥${totalPaid.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">未收金额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${totalUnpaid.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">订单数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${data.length} 单</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">商品数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${totalQty}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">本月订单</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: #ff8c42;">¥${monthlyOrderAmount.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-md);">按订单类型统计</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: var(--spacing-lg);">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">订单类型</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">订单数</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">订单金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(typeStats).map(([type, stats]) => `
+                                <tr>
+                                    <td style="padding: var(--spacing-sm);">${type}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">${stats.count}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; font-weight: bold;">¥${stats.amount.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <h4 style="margin-bottom: var(--spacing-md);">按状态统计</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">订单状态</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">订单数</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(statusStats).map(([status, stats]) => `
+                                <tr>
+                                    <td style="padding: var(--spacing-sm);">${status}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">${stats.count}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; font-weight: bold;">¥${stats.amount.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                summaryModal.classList.add('show');
+            });
+
+            document.getElementById('summaryModalClose').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            document.getElementById('summaryModalCloseBtn').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            summaryModal.addEventListener('click', (e) => {
+                if (e.target === summaryModal) summaryModal.classList.remove('show');
             });
         }
 
@@ -1263,23 +1665,217 @@
             document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
         }
 
-        // 查看订单详情
+        // ========== 查看订单详情 ==========
+        const orderDetailModal = document.getElementById('orderDetailModal');
+        
         function viewOrderDetail(id) {
             const item = orderData.find(d => d.id === id);
-            if (item) {
-                alert(`订单详情：\n订单号：${item.id}\n订单类型：${item.typeText}\n下单时间：${item.orderTime}\n客户：${item.customer}\n订单金额：${item.amount.toFixed(2)} 元\n实收金额：${item.paid.toFixed(2)} 元\n订单状态：${item.status}`);
-            }
+            if (!item) return;
+            
+            document.getElementById('orderDetailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">订单号</div>
+                        <div class="detail-value">${item.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">订单类型</div>
+                        <div class="detail-value">${item.typeText || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">下单时间</div>
+                        <div class="detail-value">${item.orderTime || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">客户</div>
+                        <div class="detail-value">${item.customer || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">收货人</div>
+                        <div class="detail-value">${item.receiver || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">手机号</div>
+                        <div class="detail-value">${item.mobile || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">渠道</div>
+                        <div class="detail-value">${item.channel || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">商品数量</div>
+                        <div class="detail-value">${item.qty || 0}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">订单金额</div>
+                        <div class="detail-value" style="color: var(--color-primary); font-size: var(--font-size-lg);">¥${item.amount.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">实收金额</div>
+                        <div class="detail-value" style="color: var(--color-success);">¥${item.paid.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">未收金额</div>
+                        <div class="detail-value" style="color: var(--color-error);">¥${(item.amount - item.paid).toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">支付方式</div>
+                        <div class="detail-value">${item.payType || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">订单状态</div>
+                        <div class="detail-value"><span style="padding: 2px 8px; border-radius: var(--radius-sm); background: rgba(40, 167, 69, 0.1); color: var(--color-success);">${item.status || '-'}</span></div>
+                    </div>
+                    ${item.remark ? `
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">备注</div>
+                        <div class="detail-value">${item.remark}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            orderDetailModal.classList.add('show');
         }
 
-        // 显示操作菜单
-        function showActionMenu(id) {
-            const actions = ['查看详情', '编辑', '删除', '打印', '发货'];
-            const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
-            if (action) {
-                const index = parseInt(action) - 1;
-                if (index >= 0 && index < actions.length) {
-                    alert(`执行操作：${actions[index]} (ID: ${id})`);
-                }
+        document.getElementById('orderDetailModalClose').addEventListener('click', () => {
+            orderDetailModal.classList.remove('show');
+        });
+        document.getElementById('orderDetailModalCloseBtn').addEventListener('click', () => {
+            orderDetailModal.classList.remove('show');
+        });
+        orderDetailModal.addEventListener('click', (e) => {
+            if (e.target === orderDetailModal) orderDetailModal.classList.remove('show');
+        });
+
+        // ========== 操作菜单 ==========
+        let currentActionMenuId = null;
+        function showActionMenu(id, event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('actionMenu');
+            const btn = event ? event.target : document.querySelector(`[onclick*="${id}"]`);
+            
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            
+            if (currentActionMenuId && currentActionMenuId !== id) {
+                menu.classList.remove('show');
+            }
+            
+            currentActionMenuId = id;
+            menu.style.left = rect.left + 'px';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.classList.toggle('show');
+            
+            menu.querySelectorAll('.action-menu-item').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    const action = item.dataset.action;
+                    handleAction(id, action);
+                    menu.classList.remove('show');
+                };
+            });
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenu);
+                }, { once: true });
+            }, 100);
+        }
+
+        function handleAction(id, action) {
+            const item = orderData.find(d => d.id === id);
+            if (!item) return;
+            
+            switch (action) {
+                case 'view':
+                    viewOrderDetail(id);
+                    break;
+                case 'edit':
+                    alert('编辑功能：可在此打开编辑弹窗修改订单信息');
+                    break;
+                case 'print':
+                    const printWindow = window.open('', '_blank');
+                    const printContent = `
+                        <html>
+                            <head>
+                                <title>订单凭证</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; padding: 20px; }
+                                    .voucher { border: 2px solid #000; padding: 20px; }
+                                    .voucher-header { text-align: center; margin-bottom: 20px; }
+                                    .voucher-body { margin: 20px 0; }
+                                    .voucher-row { display: flex; margin-bottom: 10px; }
+                                    .voucher-label { width: 120px; font-weight: bold; }
+                                    .voucher-value { flex: 1; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="voucher">
+                                    <div class="voucher-header">
+                                        <h2>订单凭证</h2>
+                                        <p>订单号：${item.id}</p>
+                                    </div>
+                                    <div class="voucher-body">
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">订单类型：</div>
+                                            <div class="voucher-value">${item.typeText || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">下单时间：</div>
+                                            <div class="voucher-value">${item.orderTime || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">客户：</div>
+                                            <div class="voucher-value">${item.customer || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">订单金额：</div>
+                                            <div class="voucher-value">¥${item.amount.toFixed(2)}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">实收金额：</div>
+                                            <div class="voucher-value">¥${item.paid.toFixed(2)}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">订单状态：</div>
+                                            <div class="voucher-value">${item.status || '-'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </body>
+                        </html>
+                    `;
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    printWindow.print();
+                    break;
+                case 'send':
+                    if (item.statusKey === 'pendingSend') {
+                        if (confirm('确定发货此订单吗？')) {
+                            item.status = '已发货';
+                            item.statusKey = 'sended';
+                            renderTable();
+                            updateSummary();
+                            alert('发货成功');
+                        }
+                    } else {
+                        alert('当前订单状态不允许发货');
+                    }
+                    break;
+                case 'delete':
+                    if (confirm('确定删除此订单吗？')) {
+                        const index = orderData.findIndex(d => d.id === id);
+                        if (index > -1) {
+                            orderData.splice(index, 1);
+                            selectedIds.delete(id);
+                            renderTable();
+                            updatePagination();
+                            updateSummary();
+                            alert('删除成功');
+                        }
+                    }
+                    break;
             }
         }
 

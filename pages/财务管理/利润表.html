@@ -331,6 +331,82 @@
             margin-bottom: var(--spacing-xs);
         }
 
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -736,20 +812,153 @@
                 updateSummary();
             });
 
-            // 导出按钮
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出利润表功能');
+                const calculated = calculateProfitData();
+                const headers = ['项目', '金额'];
+                const rows = [
+                    ['营业收入', calculated.totalRevenue.toFixed(2)],
+                    ['营业成本', calculated.totalCost.toFixed(2)],
+                    ['毛利润', calculated.grossProfit.toFixed(2)],
+                    ['毛利率', calculated.grossProfitRate.toFixed(2) + '%'],
+                    ['营业费用', calculated.totalExpenses.toFixed(2)],
+                    ['营业利润', calculated.operatingProfit.toFixed(2)],
+                    ['净利润', calculated.netProfit.toFixed(2)]
+                ];
+                
+                const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '利润表_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
-            // 打印按钮
+            // ========== 打印功能 ==========
             document.getElementById('printBtn').addEventListener('click', () => {
-                window.print();
+                const calculated = calculateProfitData();
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>利润表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                                th { background-color: #f2f2f2; }
+                                .text-right { text-align: right; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>利润表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>项目</th>
+                                        <th class="text-right">金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>营业收入</td>
+                                        <td class="text-right">¥${calculated.totalRevenue.toFixed(2)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>营业成本</td>
+                                        <td class="text-right">¥${calculated.totalCost.toFixed(2)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>毛利润</strong></td>
+                                        <td class="text-right"><strong>¥${calculated.grossProfit.toFixed(2)}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>毛利率</td>
+                                        <td class="text-right">${calculated.grossProfitRate.toFixed(2)}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>营业费用</td>
+                                        <td class="text-right">¥${calculated.totalExpenses.toFixed(2)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>营业利润</strong></td>
+                                        <td class="text-right"><strong>¥${calculated.operatingProfit.toFixed(2)}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>净利润</strong></td>
+                                        <td class="text-right"><strong>¥${calculated.netProfit.toFixed(2)}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
-            // 利润汇总按钮
+            // ========== 利润汇总统计 ==========
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const calculated = calculateProfitData();
-                alert(`利润汇总统计：\n营业收入：${calculated.totalRevenue.toFixed(2)} 元\n营业成本：${calculated.totalCost.toFixed(2)} 元\n毛利润：${calculated.grossProfit.toFixed(2)} 元\n毛利率：${calculated.grossProfitRate.toFixed(2)}%\n营业费用：${calculated.totalExpenses.toFixed(2)} 元\n营业利润：${calculated.operatingProfit.toFixed(2)} 元\n净利润：${calculated.netProfit.toFixed(2)} 元`);
+                const summaryContent = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">营业收入</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${calculated.totalRevenue.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">营业成本</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${calculated.totalCost.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">毛利润</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-success);">¥${calculated.grossProfit.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">毛利率</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${calculated.grossProfitRate.toFixed(2)}%</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">营业费用</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${calculated.totalExpenses.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">营业利润</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${calculated.operatingProfit.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md); grid-column: 1 / -1;">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">净利润</div>
+                            <div style="font-size: var(--font-size-2xl); font-weight: bold; color: var(--color-success);">¥${calculated.netProfit.toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+                
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.id = 'summaryModal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 800px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">利润汇总统计</h3>
+                            <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            ${summaryContent}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove()">关闭</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.classList.add('show');
             });
         }
 

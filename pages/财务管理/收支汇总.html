@@ -519,6 +519,150 @@
             color: var(--color-text-secondary);
         }
 
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* 操作菜单下拉 */
+        .action-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            min-width: 120px;
+            display: none;
+        }
+
+        .action-menu.show {
+            display: block;
+        }
+
+        .action-menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: background-color var(--transition-base);
+        }
+
+        .action-menu-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .action-menu-item.danger {
+            color: var(--color-error);
+        }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -808,6 +952,155 @@
                 </div>
             </div>
         </div>
+
+        <!-- 新增收入/支出弹窗 -->
+        <div class="modal-overlay" id="addRecordModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="addRecordModalTitle">新增收入</h3>
+                    <button type="button" class="modal-close" id="addRecordModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRecordForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>账单日期 <span style="color: var(--color-error);">*</span></label>
+                                <input type="date" id="recordBillDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>类别 <span style="color: var(--color-error);">*</span></label>
+                                <select id="recordCategory" required></select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>金额(元) <span style="color: var(--color-error);">*</span></label>
+                                <input type="number" id="recordAmount" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>支付账户 <span style="color: var(--color-error);">*</span></label>
+                                <select id="recordAccount" required>
+                                    <option value="">请选择</option>
+                                    <option value="现金账户">现金账户</option>
+                                    <option value="银行账户">银行账户</option>
+                                    <option value="支付宝账户">支付宝账户</option>
+                                    <option value="微信账户">微信账户</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>往来单位</label>
+                                <input type="text" id="recordPartner" placeholder="选填">
+                            </div>
+                            <div class="form-group">
+                                <label>项目</label>
+                                <select id="recordProject">
+                                    <option value="">全部项目</option>
+                                    <option value="项目A">项目A</option>
+                                    <option value="项目B">项目B</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>部门</label>
+                                <select id="recordDepartment">
+                                    <option value="">全部部门</option>
+                                    <option value="销售部">销售部</option>
+                                    <option value="财务部">财务部</option>
+                                    <option value="行政部">行政部</option>
+                                    <option value="采购部">采购部</option>
+                                    <option value="服务部">服务部</option>
+                                    <option value="人事部">人事部</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>经手人</label>
+                                <select id="recordHandler">
+                                    <option value="">请选择</option>
+                                    <option value="张三">张三</option>
+                                    <option value="李四">李四</option>
+                                    <option value="王五">王五</option>
+                                    <option value="赵六">赵六</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>备注</label>
+                            <textarea id="recordRemark" placeholder="选填"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="recordHasAttachment">
+                                有附件
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="addRecordCancel">取消</button>
+                    <button type="button" class="btn btn-primary" id="addRecordSave">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收支汇总统计弹窗 -->
+        <div class="modal-overlay" id="summaryModal">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">收支汇总统计</h3>
+                    <button type="button" class="modal-close" id="summaryModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="summaryContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="summaryModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 自定义属性管理弹窗 -->
+        <div class="modal-overlay" id="customAttrModal">
+            <div class="modal" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">收支自定义属性</h3>
+                    <button type="button" class="modal-close" id="customAttrModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <button type="button" class="btn btn-primary" id="addCustomAttrBtn">+ 新增属性</button>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">属性名称</th>
+                                <th style="padding: var(--spacing-sm); text-align: left;">字段类型</th>
+                                <th style="padding: var(--spacing-sm); text-align: left;">是否必填</th>
+                                <th style="padding: var(--spacing-sm); text-align: left;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customAttrTableBody">
+                            <tr>
+                                <td colspan="4" style="padding: var(--spacing-lg); text-align: center; color: var(--color-text-secondary);">暂无自定义属性，点击「新增属性」添加</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="customAttrModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作菜单 -->
+        <div class="action-menu" id="actionMenu">
+            <div class="action-menu-item" data-action="view">查看详情</div>
+            <div class="action-menu-item" data-action="edit">编辑</div>
+            <div class="action-menu-item" data-action="audit">审核</div>
+            <div class="action-menu-item danger" data-action="delete">删除</div>
+        </div>
     </div>
 
     <script>
@@ -1084,8 +1377,8 @@
                         ${item.hasAttachment ? '<span class="attachment-icon" title="有附件">📎</span>' : '-'}
                     </td>
                     <td><span class="status-tag">${item.auditStatus}</span></td>
-                    <td>
-                        <button class="action-menu-btn" onclick="showActionMenu(${item.id})" title="更多操作">≡</button>
+                    <td style="position: relative;">
+                        <button class="action-menu-btn" onclick="showActionMenu(${item.id}, event)" title="更多操作">≡</button>
                     </td>
                 `;
 
@@ -1276,44 +1569,496 @@
                 }
             });
 
-            // 按钮事件
-            document.getElementById('addIncomeBtn').addEventListener('click', () => {
-                alert('新增收入功能');
+            // ========== 新增收入/支出弹窗 ==========
+            let currentRecordType = 'income';
+            const addRecordModal = document.getElementById('addRecordModal');
+            const recordCategorySelect = document.getElementById('recordCategory');
+            
+            const incomeCategories = [
+                { value: 'sales', text: '销售收入' },
+                { value: 'service', text: '服务收入' },
+                { value: 'other', text: '其他收入' }
+            ];
+            const expenseCategories = [
+                { value: 'purchase', text: '采购支出' },
+                { value: 'salary', text: '工资支出' },
+                { value: 'rent', text: '租金支出' },
+                { value: 'utilities', text: '水电费' },
+                { value: 'other_expense', text: '其他支出' }
+            ];
+
+            function openAddRecordModal(type) {
+                currentRecordType = type;
+                const title = type === 'income' ? '新增收入' : '新增支出';
+                document.getElementById('addRecordModalTitle').textContent = title;
+                
+                // 更新类别选项
+                recordCategorySelect.innerHTML = '<option value="">请选择</option>';
+                const categories = type === 'income' ? incomeCategories : expenseCategories;
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.value;
+                    option.textContent = cat.text;
+                    recordCategorySelect.appendChild(option);
+                });
+                
+                // 重置表单
+                document.getElementById('addRecordForm').reset();
+                const today = new Date().toISOString().slice(0, 10);
+                document.getElementById('recordBillDate').value = today;
+                
+                addRecordModal.classList.add('show');
+            }
+
+            function closeAddRecordModal() {
+                addRecordModal.classList.remove('show');
+            }
+
+            document.getElementById('addIncomeBtn').addEventListener('click', () => openAddRecordModal('income'));
+            document.getElementById('addExpenseBtn').addEventListener('click', () => openAddRecordModal('expense'));
+            document.getElementById('addRecordModalClose').addEventListener('click', closeAddRecordModal);
+            document.getElementById('addRecordCancel').addEventListener('click', closeAddRecordModal);
+            addRecordModal.addEventListener('click', (e) => {
+                if (e.target === addRecordModal) closeAddRecordModal();
             });
 
-            document.getElementById('addExpenseBtn').addEventListener('click', () => {
-                alert('新增支出功能');
+            document.getElementById('addRecordSave').addEventListener('click', () => {
+                const form = document.getElementById('addRecordForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const now = new Date();
+                const newRecord = {
+                    id: incomeExpenseData.length + 1,
+                    type: currentRecordType,
+                    billDate: document.getElementById('recordBillDate').value,
+                    category: recordCategorySelect.options[recordCategorySelect.selectedIndex].text,
+                    amount: parseFloat(document.getElementById('recordAmount').value),
+                    account: document.getElementById('recordAccount').value,
+                    partner: document.getElementById('recordPartner').value || '',
+                    project: document.getElementById('recordProject').value || '',
+                    department: document.getElementById('recordDepartment').value || '',
+                    handler: document.getElementById('recordHandler').value || '',
+                    entryTime: now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0'),
+                    hasAttachment: document.getElementById('recordHasAttachment').checked,
+                    auditStatus: '待审核',
+                    voucherNo: 'V' + now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + String(Math.floor(Math.random() * 10000)).padStart(4, '0'),
+                    recorder: '当前用户',
+                    remark: document.getElementById('recordRemark').value || '',
+                    accountInfo: ''
+                };
+                
+                incomeExpenseData.unshift(newRecord);
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateSummary();
+                closeAddRecordModal();
             });
 
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出功能');
+                const filteredData = getFilteredData();
+                if (filteredData.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                // 生成CSV内容
+                const headers = ['序号', '账单日期', '类型', '类别', '金额', '支付账户', '往来单位', '项目', '部门', '经手人', '录入时间', '审核状态', '备注'];
+                const rows = filteredData.map((item, index) => {
+                    const typeText = item.type === 'income' ? '收入' : '支出';
+                    return [
+                        index + 1,
+                        item.billDate,
+                        typeText,
+                        item.category,
+                        item.amount.toFixed(2),
+                        item.account,
+                        item.partner || '',
+                        item.project || '',
+                        item.department || '',
+                        item.handler || '',
+                        item.entryTime,
+                        item.auditStatus,
+                        item.remark || ''
+                    ].join(',');
+                });
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '收支汇总_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 导入功能 ==========
             document.getElementById('importBtn').addEventListener('click', () => {
-                alert('导入功能');
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.csv,.xlsx,.xls';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const text = event.target.result;
+                        // 简单解析CSV（实际项目中应使用专业库）
+                        const lines = text.split('\n').filter(line => line.trim());
+                        if (lines.length <= 1) {
+                            alert('文件格式错误或没有数据');
+                            return;
+                        }
+                        
+                        // 跳过表头，解析数据行
+                        const imported = lines.slice(1).map((line, index) => {
+                            const cols = line.split(',');
+                            if (cols.length < 4) return null;
+                            
+                            return {
+                                id: incomeExpenseData.length + index + 1,
+                                type: cols[2] === '收入' ? 'income' : 'expense',
+                                billDate: cols[1] || new Date().toISOString().slice(0, 10),
+                                category: cols[3] || '其他',
+                                amount: parseFloat(cols[4]) || 0,
+                                account: cols[5] || '现金账户',
+                                partner: cols[6] || '',
+                                project: cols[7] || '',
+                                department: cols[8] || '',
+                                handler: cols[9] || '',
+                                entryTime: cols[10] || new Date().toLocaleString('zh-CN'),
+                                hasAttachment: false,
+                                auditStatus: '待审核',
+                                voucherNo: 'IMP' + Date.now() + index,
+                                recorder: '导入',
+                                remark: cols[12] || '',
+                                accountInfo: ''
+                            };
+                        }).filter(item => item !== null);
+                        
+                        if (imported.length > 0) {
+                            incomeExpenseData.unshift(...imported);
+                            currentPage = 1;
+                            renderTable();
+                            updatePagination();
+                            updateSummary();
+                            alert(`成功导入 ${imported.length} 条记录`);
+                        } else {
+                            alert('没有有效数据可导入');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
             });
 
+            // ========== 打印列表 ==========
             document.getElementById('printListBtn').addEventListener('click', () => {
-                alert('打印列表功能');
+                const filteredData = getFilteredData();
+                if (filteredData.length === 0) {
+                    alert('没有数据可打印');
+                    return;
+                }
+                
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>收支汇总列表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>收支汇总列表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>账单日期</th>
+                                        <th>类型</th>
+                                        <th>类别</th>
+                                        <th>金额</th>
+                                        <th>支付账户</th>
+                                        <th>往来单位</th>
+                                        <th>经手人</th>
+                                        <th>审核状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filteredData.map((item, index) => `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${item.billDate}</td>
+                                            <td>${item.type === 'income' ? '收入' : '支出'}</td>
+                                            <td>${item.category}</td>
+                                            <td>${item.amount.toFixed(2)}</td>
+                                            <td>${item.account}</td>
+                                            <td>${item.partner || '-'}</td>
+                                            <td>${item.handler || '-'}</td>
+                                            <td>${item.auditStatus}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 打印凭证 ==========
             document.getElementById('printVoucherBtn').addEventListener('click', () => {
                 if (selectedIds.size === 0) {
                     alert('请先选择要打印的凭证');
                     return;
                 }
-                alert(`打印 ${selectedIds.size} 条凭证`);
+                
+                const selectedRecords = incomeExpenseData.filter(item => selectedIds.has(item.id));
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>收支凭证</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                .voucher { border: 2px solid #000; padding: 20px; margin-bottom: 30px; page-break-after: always; }
+                                .voucher-header { text-align: center; margin-bottom: 20px; }
+                                .voucher-body { margin: 20px 0; }
+                                .voucher-row { display: flex; margin-bottom: 10px; }
+                                .voucher-label { width: 120px; font-weight: bold; }
+                                .voucher-value { flex: 1; }
+                            </style>
+                        </head>
+                        <body>
+                            ${selectedRecords.map(item => `
+                                <div class="voucher">
+                                    <div class="voucher-header">
+                                        <h2>${item.type === 'income' ? '收入' : '支出'}凭证</h2>
+                                        <p>凭证号：${item.voucherNo}</p>
+                                    </div>
+                                    <div class="voucher-body">
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">账单日期：</div>
+                                            <div class="voucher-value">${item.billDate}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">类别：</div>
+                                            <div class="voucher-value">${item.category}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">金额：</div>
+                                            <div class="voucher-value">¥${item.amount.toFixed(2)}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">支付账户：</div>
+                                            <div class="voucher-value">${item.account}</div>
+                                        </div>
+                                        ${item.partner ? `
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">往来单位：</div>
+                                            <div class="voucher-value">${item.partner}</div>
+                                        </div>
+                                        ` : ''}
+                                        ${item.handler ? `
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">经手人：</div>
+                                            <div class="voucher-value">${item.handler}</div>
+                                        </div>
+                                        ` : ''}
+                                        ${item.remark ? `
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">备注：</div>
+                                            <div class="voucher-value">${item.remark}</div>
+                                        </div>
+                                        ` : ''}
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">审核状态：</div>
+                                            <div class="voucher-value">${item.auditStatus}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
+
+            // ========== 自定义属性管理 ==========
+            let customAttributes = [];
+            const customAttrModal = document.getElementById('customAttrModal');
+            
+            function renderCustomAttrTable() {
+                const tbody = document.getElementById('customAttrTableBody');
+                if (customAttributes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding: var(--spacing-lg); text-align: center; color: var(--color-text-secondary);">暂无自定义属性，点击「新增属性」添加</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = customAttributes.map((attr, index) => `
+                    <tr>
+                        <td style="padding: var(--spacing-sm);">${attr.name}</td>
+                        <td style="padding: var(--spacing-sm);">${attr.type === 'text' ? '文本' : attr.type === 'number' ? '数字' : '日期'}</td>
+                        <td style="padding: var(--spacing-sm);">${attr.required ? '是' : '否'}</td>
+                        <td style="padding: var(--spacing-sm);">
+                            <button class="btn btn-outline" onclick="editCustomAttr(${index})" style="font-size: var(--font-size-xs); padding: 2px 8px;">编辑</button>
+                            <button class="btn btn-outline" onclick="deleteCustomAttr(${index})" style="font-size: var(--font-size-xs); padding: 2px 8px; color: var(--color-error);">删除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            window.editCustomAttr = function(index) {
+                const attr = customAttributes[index];
+                const name = prompt('属性名称：', attr.name);
+                if (!name) return;
+                customAttributes[index].name = name;
+                renderCustomAttrTable();
+            };
+
+            window.deleteCustomAttr = function(index) {
+                if (confirm('确定删除此属性吗？')) {
+                    customAttributes.splice(index, 1);
+                    renderCustomAttrTable();
+                }
+            };
 
             document.getElementById('customAttrBtn').addEventListener('click', () => {
-                alert('收支自定义属性功能');
+                renderCustomAttrTable();
+                customAttrModal.classList.add('show');
             });
 
+            document.getElementById('customAttrModalClose').addEventListener('click', () => {
+                customAttrModal.classList.remove('show');
+            });
+            document.getElementById('customAttrModalCloseBtn').addEventListener('click', () => {
+                customAttrModal.classList.remove('show');
+            });
+            customAttrModal.addEventListener('click', (e) => {
+                if (e.target === customAttrModal) customAttrModal.classList.remove('show');
+            });
+
+            document.getElementById('addCustomAttrBtn').addEventListener('click', () => {
+                const name = prompt('请输入属性名称：');
+                if (!name) return;
+                const type = prompt('请输入字段类型（text/number/date）：', 'text');
+                if (!['text', 'number', 'date'].includes(type)) {
+                    alert('字段类型错误，请输入 text、number 或 date');
+                    return;
+                }
+                const required = confirm('是否必填？');
+                
+                customAttributes.push({ name, type, required });
+                renderCustomAttrTable();
+            });
+
+            // ========== 收支汇总统计 ==========
+            const summaryModal = document.getElementById('summaryModal');
+            
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const filteredData = getFilteredData();
                 const incomeTotal = filteredData.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0);
                 const expenseTotal = filteredData.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0);
-                alert(`收支汇总统计：\n总收入：${incomeTotal.toFixed(2)} 元\n总支出：${expenseTotal.toFixed(2)} 元\n净余额：${(incomeTotal - expenseTotal).toFixed(2)} 元`);
+                const balance = incomeTotal - expenseTotal;
+                
+                const now = new Date();
+                const currentMonth = now.getMonth() + 1;
+                const currentYear = now.getFullYear();
+                const monthlyIncome = filteredData.filter(item => {
+                    if (item.type !== 'income') return false;
+                    const date = new Date(item.billDate);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                }).reduce((sum, item) => sum + item.amount, 0);
+                const monthlyExpense = filteredData.filter(item => {
+                    if (item.type !== 'expense') return false;
+                    const date = new Date(item.billDate);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                }).reduce((sum, item) => sum + item.amount, 0);
+                
+                // 按类别统计
+                const categoryStats = {};
+                filteredData.forEach(item => {
+                    if (!categoryStats[item.category]) {
+                        categoryStats[item.category] = { income: 0, expense: 0 };
+                    }
+                    if (item.type === 'income') {
+                        categoryStats[item.category].income += item.amount;
+                    } else {
+                        categoryStats[item.category].expense += item.amount;
+                    }
+                });
+                
+                document.getElementById('summaryContent').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">总收入</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${incomeTotal.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">总支出</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${expenseTotal.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">净余额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: ${balance >= 0 ? 'var(--color-primary)' : 'var(--color-error)'};">¥${balance.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">本月收支</div>
+                            <div style="font-size: var(--font-size-base);">收入：¥${monthlyIncome.toFixed(2)}</div>
+                            <div style="font-size: var(--font-size-base);">支出：¥${monthlyExpense.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-md);">按类别统计</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">类别</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">收入</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">支出</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">小计</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(categoryStats).map(([category, stats]) => `
+                                <tr>
+                                    <td style="padding: var(--spacing-sm);">${category}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; color: var(--color-primary);">${stats.income > 0 ? '¥' + stats.income.toFixed(2) : '-'}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; color: var(--color-error);">${stats.expense > 0 ? '¥' + stats.expense.toFixed(2) : '-'}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; font-weight: bold;">¥${(stats.income - stats.expense).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                summaryModal.classList.add('show');
+            });
+
+            document.getElementById('summaryModalClose').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            document.getElementById('summaryModalCloseBtn').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            summaryModal.addEventListener('click', (e) => {
+                if (e.target === summaryModal) summaryModal.classList.remove('show');
             });
         }
 
@@ -1333,20 +2078,189 @@
         // 查看金额详情
         function viewAmountDetail(id) {
             const item = incomeExpenseData.find(d => d.id === id);
-            if (item) {
-                alert(`金额详情：${item.amount.toFixed(2)} 元\n凭证号：${item.voucherNo}\n${item.remark}`);
-            }
+            if (!item) return;
+            
+            const detailContent = `
+                <div style="padding: var(--spacing-md);">
+                    <h3 style="margin-bottom: var(--spacing-md);">金额详情</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">金额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: ${item.type === 'income' ? 'var(--color-primary)' : 'var(--color-error)'};">¥${item.amount.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">凭证号</div>
+                            <div style="font-size: var(--font-size-base);">${item.voucherNo}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">账单日期</div>
+                            <div style="font-size: var(--font-size-base);">${item.billDate}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">类别</div>
+                            <div style="font-size: var(--font-size-base);">${item.category}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">支付账户</div>
+                            <div style="font-size: var(--font-size-base);">${item.account}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">审核状态</div>
+                            <div style="font-size: var(--font-size-base);">${item.auditStatus}</div>
+                        </div>
+                        ${item.remark ? `
+                        <div style="grid-column: 1 / -1;">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">备注</div>
+                            <div style="font-size: var(--font-size-base);">${item.remark}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay show';
+            modal.innerHTML = `
+                <div class="modal" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">金额详情</h3>
+                        <button type="button" class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    </div>
+                    <div class="modal-body">${detailContent}</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">关闭</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
         }
 
         // 显示操作菜单
-        function showActionMenu(id) {
-            const actions = ['编辑', '删除', '审核', '查看详情'];
-            const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
-            if (action) {
-                const index = parseInt(action) - 1;
-                if (index >= 0 && index < actions.length) {
-                    alert(`执行操作：${actions[index]} (ID: ${id})`);
-                }
+        let currentActionMenuId = null;
+        function showActionMenu(id, event) {
+            event.stopPropagation();
+            const menu = document.getElementById('actionMenu');
+            const btn = event.target;
+            const rect = btn.getBoundingClientRect();
+            
+            // 关闭之前的菜单
+            if (currentActionMenuId && currentActionMenuId !== id) {
+                menu.classList.remove('show');
+            }
+            
+            currentActionMenuId = id;
+            menu.style.left = rect.left + 'px';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.classList.toggle('show');
+            
+            // 绑定菜单项点击事件
+            menu.querySelectorAll('.action-menu-item').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    const action = item.dataset.action;
+                    handleAction(id, action);
+                    menu.classList.remove('show');
+                };
+            });
+            
+            // 点击其他地方关闭菜单
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenu);
+                }, { once: true });
+            }, 100);
+        }
+
+        // 处理操作
+        function handleAction(id, action) {
+            const item = incomeExpenseData.find(d => d.id === id);
+            if (!item) return;
+            
+            switch (action) {
+                case 'view':
+                    viewAmountDetail(id);
+                    break;
+                case 'edit':
+                    // 编辑功能（复用新增弹窗）
+                    currentRecordType = item.type;
+                    document.getElementById('addRecordModalTitle').textContent = item.type === 'income' ? '编辑收入' : '编辑支出';
+                    
+                    // 填充表单
+                    document.getElementById('recordBillDate').value = item.billDate;
+                    document.getElementById('recordCategory').value = item.category;
+                    document.getElementById('recordAmount').value = item.amount;
+                    document.getElementById('recordAccount').value = item.account;
+                    document.getElementById('recordPartner').value = item.partner || '';
+                    document.getElementById('recordProject').value = item.project || '';
+                    document.getElementById('recordDepartment').value = item.department || '';
+                    document.getElementById('recordHandler').value = item.handler || '';
+                    document.getElementById('recordRemark').value = item.remark || '';
+                    document.getElementById('recordHasAttachment').checked = item.hasAttachment;
+                    
+                    // 更新保存按钮逻辑
+                    const saveBtn = document.getElementById('addRecordSave');
+                    const originalHandler = saveBtn.onclick;
+                    saveBtn.onclick = () => {
+                        if (!document.getElementById('addRecordForm').checkValidity()) {
+                            document.getElementById('addRecordForm').reportValidity();
+                            return;
+                        }
+                        
+                        // 更新记录
+                        Object.assign(item, {
+                            billDate: document.getElementById('recordBillDate').value,
+                            category: document.getElementById('recordCategory').options[document.getElementById('recordCategory').selectedIndex].text,
+                            amount: parseFloat(document.getElementById('recordAmount').value),
+                            account: document.getElementById('recordAccount').value,
+                            partner: document.getElementById('recordPartner').value || '',
+                            project: document.getElementById('recordProject').value || '',
+                            department: document.getElementById('recordDepartment').value || '',
+                            handler: document.getElementById('recordHandler').value || '',
+                            remark: document.getElementById('recordRemark').value || '',
+                            hasAttachment: document.getElementById('recordHasAttachment').checked
+                        });
+                        
+                        renderTable();
+                        updateSummary();
+                        closeAddRecordModal();
+                        saveBtn.onclick = originalHandler;
+                    };
+                    
+                    addRecordModal.classList.add('show');
+                    break;
+                case 'audit':
+                    const auditAction = prompt('审核操作：\n1. 通过\n2. 拒绝\n\n请输入序号：');
+                    if (auditAction === '1') {
+                        item.auditStatus = '已审核';
+                        renderTable();
+                        alert('审核通过');
+                    } else if (auditAction === '2') {
+                        const reason = prompt('请输入拒绝原因：');
+                        if (reason) {
+                            item.auditStatus = '已拒绝';
+                            item.remark = (item.remark || '') + ' [拒绝原因：' + reason + ']';
+                            renderTable();
+                            alert('已拒绝');
+                        }
+                    }
+                    break;
+                case 'delete':
+                    if (confirm('确定删除此记录吗？')) {
+                        const index = incomeExpenseData.findIndex(d => d.id === id);
+                        if (index > -1) {
+                            incomeExpenseData.splice(index, 1);
+                            selectedIds.delete(id);
+                            renderTable();
+                            updatePagination();
+                            updateSummary();
+                            alert('删除成功');
+                        }
+                    }
+                    break;
             }
         }
 

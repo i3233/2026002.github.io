@@ -1681,15 +1681,97 @@
                 }
             });
 
-            // 按钮事件
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['单位名称', '联系人', '手机号', '类型', '应收金额', '应付金额', '余额', '手机绑定'];
+                const rows = data.map(item => [
+                    item.name || '',
+                    item.contact || '',
+                    item.mobile || '',
+                    item.type === 'supplier' ? '供应商' : '客户',
+                    item.receivable.toFixed(2),
+                    item.payable.toFixed(2),
+                    item.balance.toFixed(2),
+                    item.mobileBound ? '已绑定' : '未绑定'
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '往来汇总_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 打印列表 ==========
             document.getElementById('printListBtn').addEventListener('click', () => {
-                alert('打印列表功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可打印');
+                    return;
+                }
+                
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>往来汇总列表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>往来汇总列表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>单位名称</th>
+                                        <th>联系人</th>
+                                        <th>手机号</th>
+                                        <th>类型</th>
+                                        <th>应收金额</th>
+                                        <th>应付金额</th>
+                                        <th>余额</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.map((item, index) => `
+                                        <tr>
+                                            <td>${item.name || '-'}</td>
+                                            <td>${item.contact || '-'}</td>
+                                            <td>${item.mobile || '-'}</td>
+                                            <td>${item.type === 'supplier' ? '供应商' : '客户'}</td>
+                                            <td>${item.receivable.toFixed(2)}</td>
+                                            <td>${item.payable.toFixed(2)}</td>
+                                            <td>${item.balance.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 往来汇总统计 ==========
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const data = getFilteredData();
                 const totalReceivable = data.reduce((sum, item) => sum + item.receivable, 0);
@@ -1698,7 +1780,50 @@
                 const supplierCount = data.filter(item => item.type === 'supplier').length;
                 const customerCount = data.filter(item => item.type === 'customer').length;
                 
-                alert(`往来汇总统计：\n应收总额：${totalReceivable.toFixed(2)} 元\n应付总额：${totalPayable.toFixed(2)} 元\n净余额：${netBalance.toFixed(2)} 元\n供应商数：${supplierCount} 家\n客户数：${customerCount} 家`);
+                const summaryContent = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">应收总额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-success);">¥${totalReceivable.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">应付总额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${totalPayable.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">净余额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${netBalance.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">供应商数</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${supplierCount} 家</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">客户数</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${customerCount} 家</div>
+                        </div>
+                    </div>
+                `;
+                
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.id = 'summaryModal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 700px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">往来汇总统计</h3>
+                            <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            ${summaryContent}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove()">关闭</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.classList.add('show');
             });
 
             // 点击模态框外部关闭
@@ -1734,12 +1859,67 @@
             document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
         }
 
-        // 查看往来单位详情
+        // ========== 查看往来单位详情 ==========
         function viewPartnerDetail(id) {
             const item = partnerData.find(d => d.id === id);
-            if (item) {
-                alert(`往来单位详情：\n单位名称：${item.name}\n联系人：${item.contact}\n手机号：${item.mobile}\n类型：${item.type === 'supplier' ? '供应商' : '客户'}\n应收：${item.receivable.toFixed(2)} 元\n应付：${item.payable.toFixed(2)} 元\n余额：${item.balance.toFixed(2)} 元\n手机绑定：${item.mobileBound ? '已绑定（可用于收银台提货折扣）' : '未绑定'}`);
-            }
+            if (!item) return;
+            
+            const detailContent = `
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">单位名称</div>
+                        <div style="font-size: var(--font-size-base); font-weight: bold;">${item.name || '-'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">联系人</div>
+                        <div style="font-size: var(--font-size-base);">${item.contact || '-'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">手机号</div>
+                        <div style="font-size: var(--font-size-base);">${item.mobile || '-'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">类型</div>
+                        <div style="font-size: var(--font-size-base);">${item.type === 'supplier' ? '供应商' : '客户'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">应收金额</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold; color: var(--color-success);">¥${item.receivable.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">应付金额</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold; color: var(--color-error);">¥${item.payable.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">余额</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold; color: var(--color-primary);">¥${item.balance.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">手机绑定</div>
+                        <div style="font-size: var(--font-size-base);">${item.mobileBound ? '已绑定（可用于收银台提货折扣）' : '未绑定'}</div>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'partnerDetailModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">往来单位详情</h3>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        ${detailContent}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">关闭</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.classList.add('show');
         }
 
         // 初始化

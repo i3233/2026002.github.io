@@ -507,6 +507,136 @@
             text-align: center;
         }
 
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .detail-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .detail-value {
+            font-size: var(--font-size-base);
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 操作菜单下拉 */
+        .action-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            min-width: 120px;
+            display: none;
+        }
+
+        .action-menu.show {
+            display: block;
+        }
+
+        .action-menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: background-color var(--transition-base);
+        }
+
+        .action-menu-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .action-menu-item.danger {
+            color: var(--color-error);
+        }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -782,6 +912,47 @@
                     <span class="pagination-info">页</span>
                 </div>
             </div>
+        </div>
+
+        <!-- 库存汇总统计弹窗 -->
+        <div class="modal-overlay" id="summaryModal">
+            <div class="modal" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">库存汇总统计</h3>
+                    <button type="button" class="modal-close" id="summaryModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="summaryContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="summaryModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产品详情弹窗 -->
+        <div class="modal-overlay" id="productDetailModal">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">产品详情</h3>
+                    <button type="button" class="modal-close" id="productDetailModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="productDetailContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="productDetailModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作菜单 -->
+        <div class="action-menu" id="actionMenu">
+            <div class="action-menu-item" data-action="view">查看详情</div>
+            <div class="action-menu-item" data-action="edit">编辑</div>
+            <div class="action-menu-item" data-action="print">打印</div>
+            <div class="action-menu-item" data-action="adjust">库存调整</div>
+            <div class="action-menu-item danger" data-action="delete">删除</div>
         </div>
     </div>
 
@@ -1168,7 +1339,7 @@
                         <span class="age-badge ${ageBadgeClass}">${age}天</span>
                     </td>
                     <td>
-                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}')" title="更多操作">查看</button>
+                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}', event)" title="更多操作" style="position: relative;">查看</button>
                     </td>
                 `;
 
@@ -1368,19 +1539,143 @@
                 }
             });
 
-            // 按钮事件
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['产品ID', '产品名称', '规格型号', '分类', '仓库', '入库数量', '出库数量', '库存数量', '平均单位成本', '库存余额', '入库日期', '库龄(天)'];
+                const rows = data.map(item => [
+                    item.id,
+                    item.name || '',
+                    item.spec || '',
+                    item.category || '',
+                    item.warehouse || '',
+                    item.inQty.toFixed(2),
+                    item.outQty.toFixed(2),
+                    item.inventory.toFixed(2),
+                    item.avgCost.toFixed(2),
+                    item.balance.toFixed(2),
+                    item.entryDate || '',
+                    calculateAge(item.entryDate)
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '库存汇总_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 导出详情功能 ==========
             document.getElementById('exportDetailBtn').addEventListener('click', () => {
-                alert('导出详情功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['产品ID', '产品名称', '规格型号', '分类', '仓库', '单位', '入库数量', '出库数量', '库存数量', '平均单位成本', '库存余额', '入库日期', '最后交易日期', '库龄(天)'];
+                const rows = data.map(item => [
+                    item.id,
+                    item.name || '',
+                    item.spec || '',
+                    item.category || '',
+                    item.warehouse || '',
+                    item.unit || '',
+                    item.inQty.toFixed(2),
+                    item.outQty.toFixed(2),
+                    item.inventory.toFixed(2),
+                    item.avgCost.toFixed(2),
+                    item.balance.toFixed(2),
+                    item.entryDate || '',
+                    item.lastTradeDate || '',
+                    calculateAge(item.entryDate)
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '库存汇总详情_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 打印列表 ==========
             document.getElementById('printListBtn').addEventListener('click', () => {
-                alert('打印列表功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可打印');
+                    return;
+                }
+                
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>库存汇总列表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>库存汇总列表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>产品ID</th>
+                                        <th>产品名称</th>
+                                        <th>规格型号</th>
+                                        <th>分类</th>
+                                        <th>库存数量</th>
+                                        <th>库存余额</th>
+                                        <th>入库日期</th>
+                                        <th>库龄(天)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.map((item, index) => `
+                                        <tr>
+                                            <td>${item.id}</td>
+                                            <td>${item.name || '-'}</td>
+                                            <td>${item.spec || '-'}</td>
+                                            <td>${item.category || '-'}</td>
+                                            <td>${item.inventory.toFixed(2)}${item.unit || ''}</td>
+                                            <td>${item.balance.toFixed(2)}</td>
+                                            <td>${item.entryDate || '-'}</td>
+                                            <td>${calculateAge(item.entryDate)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 库存汇总统计 ==========
+            const summaryModal = document.getElementById('summaryModal');
+            
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const data = getFilteredData();
                 const productCount = new Set(data.map(item => item.id)).size;
@@ -1389,7 +1684,74 @@
                 const totalInQty = data.reduce((sum, item) => sum + item.inQty, 0);
                 const totalOutQty = data.reduce((sum, item) => sum + item.outQty, 0);
                 
-                alert(`库存汇总统计：\n产品数量：${productCount} 种\n库存数量：${totalInventoryQty.toFixed(2)}\n库存余额：${totalBalance.toFixed(2)} 元\n入库总量：${totalInQty.toFixed(2)}\n出库总量：${totalOutQty.toFixed(2)}`);
+                // 按分类统计
+                const categoryStats = {};
+                data.forEach(item => {
+                    const category = item.category || '未分类';
+                    if (!categoryStats[category]) {
+                        categoryStats[category] = { count: 0, qty: 0, balance: 0 };
+                    }
+                    categoryStats[category].count += 1;
+                    categoryStats[category].qty += item.inventory;
+                    categoryStats[category].balance += item.balance;
+                });
+                
+                document.getElementById('summaryContent').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">产品数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">${productCount} 种</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">库存数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${totalInventoryQty.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">库存余额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${totalBalance.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">入库总量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-success);">${totalInQty.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">出库总量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">${totalOutQty.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-md);">按分类统计</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">分类</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">产品数</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">库存数量</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">库存余额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(categoryStats).map(([category, stats]) => `
+                                <tr>
+                                    <td style="padding: var(--spacing-sm);">${category}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">${stats.count}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">${stats.qty.toFixed(2)}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; font-weight: bold;">¥${stats.balance.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                summaryModal.classList.add('show');
+            });
+
+            document.getElementById('summaryModalClose').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            document.getElementById('summaryModalCloseBtn').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            summaryModal.addEventListener('click', (e) => {
+                if (e.target === summaryModal) summaryModal.classList.remove('show');
             });
         }
 
@@ -1406,32 +1768,203 @@
             document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
         }
 
-        // 查看产品详情
+        // ========== 查看产品详情 ==========
+        const productDetailModal = document.getElementById('productDetailModal');
+        
         function viewProductDetail(id) {
             const item = inventoryData.find(d => d.id === id);
-            if (item) {
-                const age = calculateAge(item.entryDate);
-                alert(`产品详情：\n产品ID：${item.id}\n产品名称：${item.name}\n规格型号：${item.spec}\n分类：${item.category}\n库存数量：${item.inventory}${item.unit}\n库存余额：${item.balance.toFixed(2)} 元\n入库日期：${item.entryDate}\n库龄：${age}天`);
-            }
+            if (!item) return;
+            
+            const age = calculateAge(item.entryDate);
+            
+            document.getElementById('productDetailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">产品ID</div>
+                        <div class="detail-value">${item.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">产品名称</div>
+                        <div class="detail-value">${item.name || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">规格型号</div>
+                        <div class="detail-value">${item.spec || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">分类</div>
+                        <div class="detail-value">${item.category || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">仓库</div>
+                        <div class="detail-value">${item.warehouse || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">单位</div>
+                        <div class="detail-value">${item.unit || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">入库数量</div>
+                        <div class="detail-value">${item.inQty.toFixed(2)}${item.unit || ''}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">出库数量</div>
+                        <div class="detail-value">${item.outQty.toFixed(2)}${item.unit || ''}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">库存数量</div>
+                        <div class="detail-value" style="color: var(--color-primary); font-size: var(--font-size-lg);">${item.inventory.toFixed(2)}${item.unit || ''}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">平均单位成本</div>
+                        <div class="detail-value">¥${item.avgCost.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">库存余额</div>
+                        <div class="detail-value" style="color: var(--color-primary); font-size: var(--font-size-lg);">¥${item.balance.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">入库日期</div>
+                        <div class="detail-value">${item.entryDate || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">最后交易日期</div>
+                        <div class="detail-value">${item.lastTradeDate || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">库龄</div>
+                        <div class="detail-value"><span style="padding: 2px 8px; border-radius: var(--radius-sm); background: rgba(40, 167, 69, 0.1); color: var(--color-success);">${age} 天</span></div>
+                    </div>
+                </div>
+            `;
+            productDetailModal.classList.add('show');
         }
 
-        // 查看库存详情
-        function viewInventoryDetail(id) {
+        document.getElementById('productDetailModalClose').addEventListener('click', () => {
+            productDetailModal.classList.remove('show');
+        });
+        document.getElementById('productDetailModalCloseBtn').addEventListener('click', () => {
+            productDetailModal.classList.remove('show');
+        });
+        productDetailModal.addEventListener('click', (e) => {
+            if (e.target === productDetailModal) productDetailModal.classList.remove('show');
+        });
+
+        // ========== 操作菜单 ==========
+        let currentActionMenuId = null;
+        function showActionMenu(id, event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('actionMenu');
+            const btn = event ? event.target : document.querySelector(`[onclick*="${id}"]`);
+            
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            
+            if (currentActionMenuId && currentActionMenuId !== id) {
+                menu.classList.remove('show');
+            }
+            
+            currentActionMenuId = id;
+            menu.style.left = rect.left + 'px';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.classList.toggle('show');
+            
+            menu.querySelectorAll('.action-menu-item').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    const action = item.dataset.action;
+                    handleAction(id, action);
+                    menu.classList.remove('show');
+                };
+            });
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenu);
+                }, { once: true });
+            }, 100);
+        }
+
+        function handleAction(id, action) {
             const item = inventoryData.find(d => d.id === id);
-            if (item) {
-                alert(`库存详情：\n产品：${item.name}\n入库数量：${item.inQty}${item.unit}\n出库数量：${item.outQty}${item.unit}\n当前库存：${item.inventory}${item.unit}\n最后交易日期：${item.lastTradeDate}`);
-            }
-        }
-
-        // 显示操作菜单
-        function showActionMenu(id) {
-            const actions = ['查看详情', '编辑', '删除', '打印', '库存调整'];
-            const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
-            if (action) {
-                const index = parseInt(action) - 1;
-                if (index >= 0 && index < actions.length) {
-                    alert(`执行操作：${actions[index]} (ID: ${id})`);
-                }
+            if (!item) return;
+            
+            switch (action) {
+                case 'view':
+                    viewProductDetail(id);
+                    break;
+                case 'edit':
+                    alert('编辑功能：可在此打开编辑弹窗修改产品信息');
+                    break;
+                case 'print':
+                    const printWindow = window.open('', '_blank');
+                    const printContent = `
+                        <html>
+                            <head>
+                                <title>产品凭证</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; padding: 20px; }
+                                    .voucher { border: 2px solid #000; padding: 20px; }
+                                    .voucher-header { text-align: center; margin-bottom: 20px; }
+                                    .voucher-body { margin: 20px 0; }
+                                    .voucher-row { display: flex; margin-bottom: 10px; }
+                                    .voucher-label { width: 120px; font-weight: bold; }
+                                    .voucher-value { flex: 1; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="voucher">
+                                    <div class="voucher-header">
+                                        <h2>产品库存凭证</h2>
+                                        <p>产品ID：${item.id}</p>
+                                    </div>
+                                    <div class="voucher-body">
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">产品名称：</div>
+                                            <div class="voucher-value">${item.name || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">库存数量：</div>
+                                            <div class="voucher-value">${item.inventory.toFixed(2)}${item.unit || ''}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">库存余额：</div>
+                                            <div class="voucher-value">¥${item.balance.toFixed(2)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </body>
+                        </html>
+                    `;
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    printWindow.print();
+                    break;
+                case 'adjust':
+                    const adjustQty = prompt('请输入调整数量（正数为增加，负数为减少）：');
+                    if (adjustQty !== null && !isNaN(adjustQty)) {
+                        const qty = parseFloat(adjustQty);
+                        item.inventory += qty;
+                        item.balance = item.inventory * item.avgCost;
+                        renderTable();
+                        updateSummary();
+                        alert('库存调整成功');
+                    }
+                    break;
+                case 'delete':
+                    if (confirm('确定删除此产品记录吗？')) {
+                        const index = inventoryData.findIndex(d => d.id === id);
+                        if (index > -1) {
+                            inventoryData.splice(index, 1);
+                            selectedIds.delete(id);
+                            renderTable();
+                            updatePagination();
+                            updateSummary();
+                            alert('删除成功');
+                        }
+                    }
+                    break;
             }
         }
 

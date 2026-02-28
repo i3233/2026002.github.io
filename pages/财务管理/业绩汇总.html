@@ -508,6 +508,82 @@
             text-align: center;
         }
 
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -1155,7 +1231,7 @@
                     <td class="text-right">${item.customers}</td>
                     <td class="text-right">${item.avgAmount.toFixed(2)}</td>
                     <td>
-                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}')" title="更多操作">查看</button>
+                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}', event)" title="更多操作">查看</button>
                     </td>
                 `;
 
@@ -1321,45 +1397,289 @@
                 }
             });
 
-            // 按钮事件
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出功能');
+                const empData = getFilteredEmployeeData();
+                if (empData.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['姓名', '所属部门', '销售总额', '订单数量', '客户数量', '平均客单价', '排名'];
+                const rows = empData.map(item => [
+                    item.name || '',
+                    item.department || '',
+                    item.sales.toFixed(2),
+                    item.orders,
+                    item.customers,
+                    item.avgAmount.toFixed(2),
+                    item.rank
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '业绩汇总_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 导出详情功能 ==========
             document.getElementById('exportDetailBtn').addEventListener('click', () => {
-                alert('导出详情功能');
+                const empData = getFilteredEmployeeData();
+                if (empData.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['姓名', '所属部门', '销售总额', '订单数量', '客户数量', '平均客单价', '排名', '备注'];
+                const rows = empData.map(item => [
+                    item.name || '',
+                    item.department || '',
+                    item.sales.toFixed(2),
+                    item.orders,
+                    item.customers,
+                    item.avgAmount.toFixed(2),
+                    item.rank,
+                    item.remark || ''
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '业绩汇总详情_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 打印列表 ==========
             document.getElementById('printListBtn').addEventListener('click', () => {
-                alert('打印列表功能');
+                const empData = getFilteredEmployeeData();
+                if (empData.length === 0) {
+                    alert('没有数据可打印');
+                    return;
+                }
+                
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>业绩汇总列表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>业绩汇总列表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>姓名</th>
+                                        <th>所属部门</th>
+                                        <th>销售总额</th>
+                                        <th>订单数量</th>
+                                        <th>客户数量</th>
+                                        <th>平均客单价</th>
+                                        <th>排名</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${empData.map((item, index) => `
+                                        <tr>
+                                            <td>${item.name || '-'}</td>
+                                            <td>${item.department || '-'}</td>
+                                            <td>${item.sales.toFixed(2)}</td>
+                                            <td>${item.orders}</td>
+                                            <td>${item.customers}</td>
+                                            <td>${item.avgAmount.toFixed(2)}</td>
+                                            <td>${item.rank}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 业绩汇总统计 ==========
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const empData = getFilteredEmployeeData();
                 const deptData = getFilteredDepartmentData();
                 const totalSales = empData.reduce((sum, item) => sum + item.sales, 0);
                 const totalOrders = empData.reduce((sum, item) => sum + item.orders, 0);
                 
-                alert(`业绩汇总统计：\n销售总额：${totalSales.toFixed(2)} 元\n订单数量：${totalOrders} 单\n部门数量：${deptData.length} 个\n员工数量：${empData.length} 人`);
+                const summaryContent = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">销售总额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${totalSales.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">订单数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${totalOrders} 单</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">部门数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${deptData.length} 个</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">员工数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${empData.length} 人</div>
+                        </div>
+                    </div>
+                `;
+                
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.id = 'summaryModal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 700px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">业绩汇总统计</h3>
+                            <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            ${summaryContent}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove()">关闭</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.classList.add('show');
             });
         }
 
-        // 查看员工详情
+        // ========== 查看员工详情 ==========
         function viewEmployeeDetail(id) {
             const item = employeeData.find(d => d.id === id);
-            if (item) {
-                alert(`员工业绩详情：\n姓名：${item.name}\n所属部门：${item.department}\n销售总额：${item.sales.toFixed(2)} 元\n订单数量：${item.orders} 单\n客户数量：${item.customers} 人\n平均客单价：${item.avgAmount.toFixed(2)} 元\n排名：第${item.rank}名`);
-            }
+            if (!item) return;
+            
+            const detailContent = `
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">姓名</div>
+                        <div style="font-size: var(--font-size-base); font-weight: bold;">${item.name || '-'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">所属部门</div>
+                        <div style="font-size: var(--font-size-base);">${item.department || '-'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">销售总额</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold; color: var(--color-primary);">¥${item.sales.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">订单数量</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold;">${item.orders} 单</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">客户数量</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold;">${item.customers} 人</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">平均客单价</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold;">¥${item.avgAmount.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">排名</div>
+                        <div style="font-size: var(--font-size-lg); font-weight: bold; color: var(--color-primary);">第${item.rank}名</div>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'employeeDetailModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">员工业绩详情</h3>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        ${detailContent}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">关闭</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.classList.add('show');
         }
 
-        // 显示操作菜单
-        function showActionMenu(id) {
+        // ========== 操作菜单 ==========
+        function showActionMenu(id, event) {
             const actions = ['查看详情', '查看订单', '查看客户', '打印报表'];
             const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
             if (action) {
                 const index = parseInt(action) - 1;
                 if (index >= 0 && index < actions.length) {
-                    alert(`执行操作：${actions[index]} (ID: ${id})`);
+                    const item = employeeData.find(d => d.id === id);
+                    if (item) {
+                        switch (index) {
+                            case 0:
+                                viewEmployeeDetail(id);
+                                break;
+                            case 1:
+                                alert(`查看 ${item.name} 的订单列表`);
+                                break;
+                            case 2:
+                                alert(`查看 ${item.name} 的客户列表（共${item.customers}人）`);
+                                break;
+                            case 3:
+                                const printWindow = window.open('', '_blank');
+                                const printContent = `
+                                    <html>
+                                        <head>
+                                            <title>员工业绩报表</title>
+                                            <style>
+                                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                                h1 { text-align: center; }
+                                                .report-content { margin-top: 20px; }
+                                                .report-row { margin-bottom: 10px; }
+                                                .report-label { font-weight: bold; display: inline-block; width: 150px; }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            <h1>员工业绩报表</h1>
+                                            <div class="report-content">
+                                                <div class="report-row"><span class="report-label">姓名：</span>${item.name}</div>
+                                                <div class="report-row"><span class="report-label">所属部门：</span>${item.department}</div>
+                                                <div class="report-row"><span class="report-label">销售总额：</span>¥${item.sales.toFixed(2)}</div>
+                                                <div class="report-row"><span class="report-label">订单数量：</span>${item.orders} 单</div>
+                                                <div class="report-row"><span class="report-label">客户数量：</span>${item.customers} 人</div>
+                                                <div class="report-row"><span class="report-label">平均客单价：</span>¥${item.avgAmount.toFixed(2)}</div>
+                                                <div class="report-row"><span class="report-label">排名：</span>第${item.rank}名</div>
+                                            </div>
+                                        </body>
+                                    </html>
+                                `;
+                                printWindow.document.write(printContent);
+                                printWindow.document.close();
+                                printWindow.print();
+                                break;
+                        }
+                    }
                 }
             }
         }

@@ -449,6 +449,136 @@
             text-align: center;
         }
 
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .detail-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .detail-value {
+            font-size: var(--font-size-base);
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 操作菜单下拉 */
+        .action-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            min-width: 120px;
+            display: none;
+        }
+
+        .action-menu.show {
+            display: block;
+        }
+
+        .action-menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: background-color var(--transition-base);
+        }
+
+        .action-menu-item:hover {
+            background-color: var(--color-neutral-50);
+        }
+
+        .action-menu-item.danger {
+            color: var(--color-error);
+        }
+
         @media (max-width: 1200px) {
             .toolbar-card {
                 flex-direction: column;
@@ -699,6 +829,47 @@
                     <span class="pagination-info">页</span>
                 </div>
             </div>
+        </div>
+
+        <!-- 采购汇总统计弹窗 -->
+        <div class="modal-overlay" id="summaryModal">
+            <div class="modal" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">采购汇总统计</h3>
+                    <button type="button" class="modal-close" id="summaryModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="summaryContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="summaryModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单详情弹窗 -->
+        <div class="modal-overlay" id="orderDetailModal">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">采购订单详情</h3>
+                    <button type="button" class="modal-close" id="orderDetailModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="orderDetailModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作菜单 -->
+        <div class="action-menu" id="actionMenu">
+            <div class="action-menu-item" data-action="view">查看详情</div>
+            <div class="action-menu-item" data-action="edit">编辑</div>
+            <div class="action-menu-item" data-action="audit">审核</div>
+            <div class="action-menu-item" data-action="print">打印</div>
+            <div class="action-menu-item danger" data-action="delete">删除</div>
         </div>
     </div>
 
@@ -957,8 +1128,8 @@
                     </td>
                     <td>${item.recorder}</td>
                     <td>${item.entryTime}</td>
-                    <td>
-                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}')" title="更多操作">查看</button>
+                    <td style="position: relative;">
+                        <button class="action-menu-btn" onclick="showActionMenu('${item.id}', event)" title="更多操作">查看</button>
                     </td>
                 `;
 
@@ -1151,33 +1322,345 @@
                 }
             });
 
-            // 按钮事件
+            // ========== 导出功能 ==========
             document.getElementById('exportBtn').addEventListener('click', () => {
-                alert('导出功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                const headers = ['单号', '日期', '往来单位', '项目', '员工', '数量', '金额', '应付余额', '已付金额', '订单状态', '录入时间'];
+                const rows = data.map(item => [
+                    item.id,
+                    item.date,
+                    item.partner || '',
+                    item.project || '',
+                    item.staff || '',
+                    item.qty.toFixed(2),
+                    item.amount.toFixed(2),
+                    item.payable.toFixed(2),
+                    item.paid.toFixed(2),
+                    item.status,
+                    item.entryTime || ''
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '采购汇总_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 导出详情功能 ==========
             document.getElementById('exportDetailBtn').addEventListener('click', () => {
-                alert('导出详情功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+                
+                // 导出包含更多字段的详情
+                const headers = ['单号', '日期', '往来单位', '项目', '员工', '备注', '数量', '金额', '应付余额', '已付金额', '未付金额', '订单状态', '附件', '录入员', '录入时间'];
+                const rows = data.map(item => [
+                    item.id,
+                    item.date,
+                    item.partner || '',
+                    item.project || '',
+                    item.staff || '',
+                    item.remark || '',
+                    item.qty.toFixed(2),
+                    item.amount.toFixed(2),
+                    item.payable.toFixed(2),
+                    item.paid.toFixed(2),
+                    (item.payable - item.paid).toFixed(2),
+                    item.status,
+                    item.attachment || '0',
+                    item.recorder || '',
+                    item.entryTime || ''
+                ].join(','));
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', '采购汇总详情_' + new Date().toISOString().slice(0, 10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
+            // ========== 打印列表 ==========
             document.getElementById('printListBtn').addEventListener('click', () => {
-                alert('打印列表功能');
+                const data = getFilteredData();
+                if (data.length === 0) {
+                    alert('没有数据可打印');
+                    return;
+                }
+                
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>采购汇总列表</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { text-align: center; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>采购汇总列表</h1>
+                            <p>打印时间：${new Date().toLocaleString('zh-CN')}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>单号</th>
+                                        <th>日期</th>
+                                        <th>往来单位</th>
+                                        <th>项目</th>
+                                        <th>数量</th>
+                                        <th>金额</th>
+                                        <th>应付余额</th>
+                                        <th>已付金额</th>
+                                        <th>订单状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.map((item, index) => `
+                                        <tr>
+                                            <td>${item.id}</td>
+                                            <td>${item.date}</td>
+                                            <td>${item.partner || '-'}</td>
+                                            <td>${item.project || '-'}</td>
+                                            <td>${item.qty.toFixed(2)}</td>
+                                            <td>${item.amount.toFixed(2)}</td>
+                                            <td>${item.payable.toFixed(2)}</td>
+                                            <td>${item.paid.toFixed(2)}</td>
+                                            <td>${item.status}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 打印凭证 ==========
             document.getElementById('printVoucherBtn').addEventListener('click', () => {
                 if (selectedIds.size === 0) {
                     alert('请先选择要打印的凭证');
                     return;
                 }
-                alert(`打印 ${selectedIds.size} 条凭证`);
+                
+                const selectedRecords = purchaseData.filter(item => selectedIds.has(item.id));
+                const printWindow = window.open('', '_blank');
+                const printContent = `
+                    <html>
+                        <head>
+                            <title>采购凭证</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                .voucher { border: 2px solid #000; padding: 20px; margin-bottom: 30px; page-break-after: always; }
+                                .voucher-header { text-align: center; margin-bottom: 20px; }
+                                .voucher-body { margin: 20px 0; }
+                                .voucher-row { display: flex; margin-bottom: 10px; }
+                                .voucher-label { width: 120px; font-weight: bold; }
+                                .voucher-value { flex: 1; }
+                            </style>
+                        </head>
+                        <body>
+                            ${selectedRecords.map(item => `
+                                <div class="voucher">
+                                    <div class="voucher-header">
+                                        <h2>采购凭证</h2>
+                                        <p>凭证号：${item.id}</p>
+                                    </div>
+                                    <div class="voucher-body">
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">采购日期：</div>
+                                            <div class="voucher-value">${item.date}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">供应商：</div>
+                                            <div class="voucher-value">${item.partner || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">项目：</div>
+                                            <div class="voucher-value">${item.project || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">经手人：</div>
+                                            <div class="voucher-value">${item.staff || '-'}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">采购数量：</div>
+                                            <div class="voucher-value">${item.qty.toFixed(2)}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">采购金额：</div>
+                                            <div class="voucher-value">¥${item.amount.toFixed(2)}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">应付余额：</div>
+                                            <div class="voucher-value">¥${item.payable.toFixed(2)}</div>
+                                        </div>
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">已付金额：</div>
+                                            <div class="voucher-value">¥${item.paid.toFixed(2)}</div>
+                                        </div>
+                                        ${item.remark ? `
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">备注：</div>
+                                            <div class="voucher-value">${item.remark}</div>
+                                        </div>
+                                        ` : ''}
+                                        <div class="voucher-row">
+                                            <div class="voucher-label">订单状态：</div>
+                                            <div class="voucher-value">${item.status}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </body>
+                    </html>
+                `;
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
             });
 
+            // ========== 采购汇总统计 ==========
+            const summaryModal = document.getElementById('summaryModal');
+            
             document.getElementById('summaryBtn').addEventListener('click', () => {
                 const data = getFilteredData();
                 const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
                 const totalPayable = data.reduce((sum, item) => sum + item.payable, 0);
                 const totalPaid = data.reduce((sum, item) => sum + item.paid, 0);
-                alert(`采购汇总统计：\n采购总额：${totalAmount.toFixed(2)} 元\n应付总额：${totalPayable.toFixed(2)} 元\n已付金额：${totalPaid.toFixed(2)} 元\n未付金额：${(totalPayable - totalPaid).toFixed(2)} 元`);
+                const totalUnpaid = totalPayable - totalPaid;
+                const totalQuantity = data.reduce((sum, item) => sum + item.qty, 0);
+                
+                const now = new Date();
+                const currentMonth = now.getMonth() + 1;
+                const currentYear = now.getFullYear();
+                const monthlyPurchase = data.filter(item => {
+                    const date = new Date(item.date);
+                    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                }).reduce((sum, item) => sum + item.amount, 0);
+                
+                // 按供应商统计
+                const partnerStats = {};
+                data.forEach(item => {
+                    const partner = item.partner || '未知供应商';
+                    if (!partnerStats[partner]) {
+                        partnerStats[partner] = { amount: 0, count: 0 };
+                    }
+                    partnerStats[partner].amount += item.amount;
+                    partnerStats[partner].count += 1;
+                });
+                
+                // 按状态统计
+                const statusStats = {};
+                data.forEach(item => {
+                    const status = item.status || '未知';
+                    if (!statusStats[status]) {
+                        statusStats[status] = { count: 0, amount: 0 };
+                    }
+                    statusStats[status].count += 1;
+                    statusStats[status].amount += item.amount;
+                });
+                
+                document.getElementById('summaryContent').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">采购总额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${totalAmount.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">应付总额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${totalPayable.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">已付金额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-success);">¥${totalPaid.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">未付金额</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${totalUnpaid.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">采购数量</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold;">${totalQuantity.toFixed(2)}</div>
+                        </div>
+                        <div style="padding: var(--spacing-md); background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">本月采购</div>
+                            <div style="font-size: var(--font-size-xl); font-weight: bold; color: #ff8c42;">¥${monthlyPurchase.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-md);">按供应商统计</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: var(--spacing-lg);">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">供应商</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">订单数</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">采购金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(partnerStats).map(([partner, stats]) => `
+                                <tr>
+                                    <td style="padding: var(--spacing-sm);">${partner}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">${stats.count}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; font-weight: bold;">¥${stats.amount.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <h4 style="margin-bottom: var(--spacing-md);">按状态统计</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--color-neutral-50);">
+                                <th style="padding: var(--spacing-sm); text-align: left;">订单状态</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">订单数</th>
+                                <th style="padding: var(--spacing-sm); text-align: right;">金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(statusStats).map(([status, stats]) => `
+                                <tr>
+                                    <td style="padding: var(--spacing-sm);">${status}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">${stats.count}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: right; font-weight: bold;">¥${stats.amount.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                summaryModal.classList.add('show');
+            });
+
+            document.getElementById('summaryModalClose').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            document.getElementById('summaryModalCloseBtn').addEventListener('click', () => {
+                summaryModal.classList.remove('show');
+            });
+            summaryModal.addEventListener('click', (e) => {
+                if (e.target === summaryModal) summaryModal.classList.remove('show');
             });
         }
 
@@ -1194,23 +1677,179 @@
             document.getElementById('selectedInfo').textContent = `已选择 ${selectedIds.size} 条记录`;
         }
 
-        // 查看订单详情
+        // ========== 查看订单详情 ==========
+        const orderDetailModal = document.getElementById('orderDetailModal');
+        
         function viewOrderDetail(id) {
             const item = purchaseData.find(d => d.id === id);
-            if (item) {
-                alert(`订单详情：\n单号：${item.id}\n日期：${item.date}\n供应商：${item.partner}\n项目：${item.project}\n金额：${item.amount.toFixed(2)} 元\n应付余额：${item.payable.toFixed(2)} 元`);
-            }
+            if (!item) return;
+            
+            document.getElementById('orderDetailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">单号</div>
+                        <div class="detail-value">${item.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">采购日期</div>
+                        <div class="detail-value">${item.date}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">往来单位</div>
+                        <div class="detail-value">${item.partner || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">项目</div>
+                        <div class="detail-value">${item.project || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">经手人/员工</div>
+                        <div class="detail-value">${item.staff || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">采购数量</div>
+                        <div class="detail-value">${item.qty.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">采购金额</div>
+                        <div class="detail-value" style="color: var(--color-primary); font-size: var(--font-size-lg);">¥${item.amount.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">应付余额</div>
+                        <div class="detail-value" style="color: var(--color-primary);">¥${item.payable.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">已付金额</div>
+                        <div class="detail-value" style="color: var(--color-success);">¥${item.paid.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">未付金额</div>
+                        <div class="detail-value" style="color: var(--color-error);">¥${(item.payable - item.paid).toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">订单状态</div>
+                        <div class="detail-value"><span style="padding: 2px 8px; border-radius: var(--radius-sm); background: rgba(40, 167, 69, 0.1); color: var(--color-success);">${item.status}</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">附件</div>
+                        <div class="detail-value">${item.attachment || '0'}</div>
+                    </div>
+                    ${item.remark ? `
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">备注</div>
+                        <div class="detail-value">${item.remark}</div>
+                    </div>
+                    ` : ''}
+                    ${item.entryTime ? `
+                    <div class="detail-item">
+                        <div class="detail-label">录入时间</div>
+                        <div class="detail-value">${item.entryTime}</div>
+                    </div>
+                    ` : ''}
+                    ${item.recorder ? `
+                    <div class="detail-item">
+                        <div class="detail-label">录入员</div>
+                        <div class="detail-value">${item.recorder}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            orderDetailModal.classList.add('show');
         }
 
-        // 显示操作菜单
-        function showActionMenu(id) {
-            const actions = ['查看详情', '编辑', '删除', '审核', '打印'];
-            const action = prompt(`选择操作：\n${actions.map((a, i) => `${i + 1}. ${a}`).join('\n')}\n\n请输入序号：`);
-            if (action) {
-                const index = parseInt(action) - 1;
-                if (index >= 0 && index < actions.length) {
-                    alert(`执行操作：${actions[index]} (ID: ${id})`);
-                }
+        document.getElementById('orderDetailModalClose').addEventListener('click', () => {
+            orderDetailModal.classList.remove('show');
+        });
+        document.getElementById('orderDetailModalCloseBtn').addEventListener('click', () => {
+            orderDetailModal.classList.remove('show');
+        });
+        orderDetailModal.addEventListener('click', (e) => {
+            if (e.target === orderDetailModal) orderDetailModal.classList.remove('show');
+        });
+
+        // ========== 操作菜单 ==========
+        let currentActionMenuId = null;
+        function showActionMenu(id, event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('actionMenu');
+            const btn = event ? event.target : document.querySelector(`[onclick*="${id}"]`);
+            
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            
+            if (currentActionMenuId && currentActionMenuId !== id) {
+                menu.classList.remove('show');
+            }
+            
+            currentActionMenuId = id;
+            menu.style.left = rect.left + 'px';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.classList.toggle('show');
+            
+            menu.querySelectorAll('.action-menu-item').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    const action = item.dataset.action;
+                    handleAction(id, action);
+                    menu.classList.remove('show');
+                };
+            });
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeMenu);
+                }, { once: true });
+            }, 100);
+        }
+
+        function handleAction(id, action) {
+            const item = purchaseData.find(d => d.id === id);
+            if (!item) return;
+            
+            switch (action) {
+                case 'view':
+                    viewOrderDetail(id);
+                    break;
+                case 'edit':
+                    alert('编辑功能：可在此打开编辑弹窗修改采购订单信息');
+                    break;
+                case 'audit':
+                    const auditAction = prompt('审核操作：\n1. 通过\n2. 拒绝\n\n请输入序号：');
+                    if (auditAction === '1') {
+                        item.status = '已审核';
+                        renderTable();
+                        updateSummary();
+                        alert('审核通过');
+                    } else if (auditAction === '2') {
+                        const reason = prompt('请输入拒绝原因：');
+                        if (reason) {
+                            item.status = '已拒绝';
+                            item.remark = (item.remark || '') + ' [拒绝原因：' + reason + ']';
+                            renderTable();
+                            updateSummary();
+                            alert('已拒绝');
+                        }
+                    }
+                    break;
+                case 'print':
+                    selectedIds.clear();
+                    selectedIds.add(id);
+                    document.getElementById('printVoucherBtn').click();
+                    break;
+                case 'delete':
+                    if (confirm('确定删除此采购订单吗？')) {
+                        const index = purchaseData.findIndex(d => d.id === id);
+                        if (index > -1) {
+                            purchaseData.splice(index, 1);
+                            selectedIds.delete(id);
+                            renderTable();
+                            updatePagination();
+                            updateSummary();
+                            alert('删除成功');
+                        }
+                    }
+                    break;
             }
         }
 
