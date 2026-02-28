@@ -1151,6 +1151,23 @@
         // 初始化
         initOrderList();
         updateAuditStatus();
+
+        // 支持从采购订单页跳转带参自动选单：采购入库.html?orderId=JHxxxx
+        (function autoSelectFromQuery() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const orderId = params.get('orderId');
+                if (orderId) {
+                    // 预填输入框，提升可见性
+                    const input = document.getElementById('orderSearchInput');
+                    if (input) input.value = orderId;
+                    // 自动选单并展开后续区域
+                    selectOrder(orderId);
+                }
+            } catch (e) {
+                // ignore
+            }
+        })();
     </script>
 </body>
 </html>

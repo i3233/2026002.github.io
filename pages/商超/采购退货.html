@@ -403,6 +403,98 @@
         .return-modal .detail-total { margin-top: var(--spacing-sm); text-align: right; font-weight: var(--font-weight-medium); }
         .return-modal .btn-text { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: var(--font-size-sm); padding: 0 4px; }
         .return-modal .btn-text.danger { color: var(--color-error); }
+
+        /* 通用弹窗（汇总/详情/更多搜索/属性） */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title { margin: 0; font-size: var(--font-size-lg); }
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--color-text-secondary);
+        }
+        .modal-close:hover { color: var(--color-text-primary); }
+        .modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+        .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+
+        /* 操作菜单下拉 */
+        .action-menu {
+            position: fixed;
+            background: #fff;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 1200;
+            min-width: 140px;
+            display: none;
+            overflow: hidden;
+        }
+        .action-menu.show { display: block; }
+        .action-menu-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+        }
+        .action-menu-item:hover { background: var(--color-neutral-50); }
+        .action-menu-item.danger { color: var(--color-error); }
+
+        /* 详情区块 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+        }
+        .detail-item { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+        .detail-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .detail-value { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        @media (max-width: 900px) {
+            .detail-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .detail-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -425,31 +517,31 @@
                         <span>新增</span>
                     </span>
                 </button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" id="exportBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">↑</span>
                         <span>导出</span>
                     </span>
                 </button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" id="exportDetailBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">↑</span>
                         <span>导出详情</span>
                     </span>
                 </button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" id="returnVoucherBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">⊕</span>
                         <span>退货单</span>
                     </span>
                 </button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" id="customAttrBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">≡</span>
                         <span>属性</span>
                     </span>
                 </button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" id="summaryBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">●</span>
                         <span>汇总</span>
@@ -466,14 +558,14 @@
             <!-- 右侧功能 -->
             <div class="toolbar-right">
                 <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" id="statsBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">⊙</span>
                         <span>统计</span>
                     </span>
                 </button>
-                <button class="btn btn-outline" title="切换为列表视图">列表</button>
-                <button class="btn btn-outline" title="切换为详情视图">详情</button>
+                <button class="btn btn-outline" id="listViewBtn" title="切换为列表视图">列表</button>
+                <button class="btn btn-outline" id="detailViewBtn" title="切换为详情视图">详情</button>
             </div>
         </div>
 
@@ -670,6 +762,125 @@
                 </div>
             </div>
         </div>
+
+        <!-- 通用弹窗：汇总/统计 -->
+        <div class="modal-overlay" id="summaryModal">
+            <div class="modal" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="summaryModalTitle">退货汇总</h3>
+                    <button type="button" class="modal-close" id="summaryModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="summaryContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="summaryModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通用弹窗：退货单详情 -->
+        <div class="modal-overlay" id="orderDetailModal">
+            <div class="modal" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">退货单详情</h3>
+                    <button type="button" class="modal-close" id="orderDetailModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="orderDetailModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通用弹窗：更多搜索 -->
+        <div class="modal-overlay" id="moreSearchModal">
+            <div class="modal" style="max-width: 760px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">更多搜索</h3>
+                    <button type="button" class="modal-close" id="moreSearchModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>日期开始</label>
+                            <input type="date" id="msDateStart">
+                        </div>
+                        <div class="form-group">
+                            <label>日期结束</label>
+                            <input type="date" id="msDateEnd">
+                        </div>
+                        <div class="form-group">
+                            <label>往来单位</label>
+                            <input type="text" id="msPartner" placeholder="支持模糊匹配">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>项目</label>
+                            <input type="text" id="msProject" placeholder="支持模糊匹配">
+                        </div>
+                        <div class="form-group">
+                            <label>订单状态</label>
+                            <select id="msStatus">
+                                <option value="">全部</option>
+                                <option value="待审核">待审核</option>
+                                <option value="已成交">已成交</option>
+                                <option value="已关闭">已关闭</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="moreSearchResetBtn">重置</button>
+                    <button type="button" class="btn btn-primary" id="moreSearchApplyBtn">应用筛选</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通用弹窗：属性管理 -->
+        <div class="modal-overlay" id="customAttrModal">
+            <div class="modal" style="max-width: 760px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">退货属性管理</h3>
+                    <button type="button" class="modal-close" id="customAttrModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display:flex; justify-content: space-between; align-items:center; gap: 12px; margin-bottom: 12px;">
+                        <div class="text-secondary" style="font-size: var(--font-size-sm);">用于模拟“自定义字段/属性”管理体验（前端示例）。</div>
+                        <button type="button" class="btn btn-primary" id="addCustomAttrBtn">+ 新增属性</button>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>属性名</th>
+                                        <th>类型</th>
+                                        <th>必填</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customAttrTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="customAttrModalCloseBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作菜单 -->
+        <div class="action-menu" id="actionMenu">
+            <div class="action-menu-item" data-action="view">查看详情</div>
+            <div class="action-menu-item" data-action="audit">审核</div>
+            <div class="action-menu-item" data-action="print">打印退货单</div>
+            <div class="action-menu-item danger" data-action="delete">删除</div>
+        </div>
     </div>
 
     <script>
@@ -740,6 +951,18 @@
         let filteredReturns = [...returns];
         let sortColumn = null;
         let sortDirection = 'asc';
+        let viewMode = 'list'; // list | detail（当前仅用于切换按钮状态）
+
+        // 明细数据（用于详情/导出详情/打印退货单）
+        const returnDetailsMap = {
+            'TH20250826001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00 }],
+            'TH20250826002': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00 }],
+            'TH20250827001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 3, price: 6.00 }],
+            'TH20250828001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 5, price: 6.80 }]
+        };
+        function getDetailsById(id) {
+            return returnDetailsMap[id] || [];
+        }
 
         const tbody = document.getElementById('returnTableBody');
 
@@ -770,7 +993,7 @@
                     <td>${item.recorder}</td>
                     <td>${item.recordTime}</td>
                     <td>
-                        <button class="btn-link view-btn" data-id="${item.id}">查看</button>
+                        <button class="btn-link view-btn" data-id="${item.id}">操作</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -888,53 +1111,403 @@
             }
         });
 
-        // 底部批量操作（示意）
+        // ========= 工具：CSV =========
+        function escapeCsvCell(v) {
+            const s = String(v ?? '');
+            if (/[\",\\n]/.test(s)) return `"${s.replace(/\"/g, '\"\"')}"`;
+            return s;
+        }
+        function downloadCsv(filename, csvText) {
+            const blob = new Blob(['\\ufeff' + csvText], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // ========= 底部批量操作 =========
         document.getElementById('batchFinanceBtn').addEventListener('click', function () {
             const ids = getSelectedIds();
-            if (!ids.length) {
-                alert('请先勾选需要处理的退货订单。');
-                return;
-            }
-            alert('财务处理（示例）：共选择 ' + ids.length + ' 条，单号：\\n' + ids.join('\\n'));
+            if (!ids.length) { alert('请先勾选需要处理的退货订单。'); return; }
+            const totalRefund = returns.filter(r => ids.includes(r.id)).reduce((s, x) => s + (Number(x.amount) || 0), 0);
+            alert(`财务处理（示例）：\\n本次退货金额合计：¥${totalRefund.toFixed(2)}\\n（可在此扩展为退款/冲抵应付等流程）`);
         });
 
         document.getElementById('batchDeleteBtn').addEventListener('click', function () {
             const ids = getSelectedIds();
-            if (!ids.length) {
-                alert('请先勾选需要删除的退货订单。');
-                return;
-            }
-            if (!confirm('确定要删除选中的订单吗？当前仅为前端示例，不会真实删除数据。')) {
-                return;
-            }
-            alert('已模拟删除 ' + ids.length + ' 条记录（示例）。');
+            if (!ids.length) { alert('请先勾选需要删除的退货订单。'); return; }
+            if (!confirm('确定要删除选中的退货单吗？')) return;
+            ids.forEach(id => {
+                const idx = returns.findIndex(r => r.id === id);
+                if (idx > -1) returns.splice(idx, 1);
+                delete returnDetailsMap[id];
+            });
+            filteredReturns = [...returns];
+            renderTable();
+            alert('已删除 ' + ids.length + ' 条记录。');
         });
 
-        // 单号 / 状态 / 查看 按钮交互（示意）
+        // ========= 弹窗：退货详情 =========
+        const orderDetailModal = document.getElementById('orderDetailModal');
+        function openOrderDetail(id) {
+            const item = returns.find(r => r.id === id);
+            if (!item) return;
+            const details = getDetailsById(id);
+            const detailRowsHtml = details.length
+                ? details.map((d, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${d.name}</td>
+                        <td>${d.spec || '-'}</td>
+                        <td>${d.unit || '-'}</td>
+                        <td class="text-right">${Number(d.qty || 0).toFixed(2)}</td>
+                        <td class="text-right">${Number(d.price || 0).toFixed(2)}</td>
+                        <td class="text-right">${(Number(d.qty || 0) * Number(d.price || 0)).toFixed(2)}</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="7" class="text-secondary">暂无明细（示例数据未录入）</td></tr>`;
+
+            document.getElementById('orderDetailContent').innerHTML = `
+                <div class="detail-grid" style="margin-bottom: 16px;">
+                    <div class="detail-item"><div class="detail-label">单号</div><div class="detail-value">${item.id}</div></div>
+                    <div class="detail-item"><div class="detail-label">日期</div><div class="detail-value">${item.date}</div></div>
+                    <div class="detail-item"><div class="detail-label">往来单位</div><div class="detail-value">${item.partner}</div></div>
+                    <div class="detail-item"><div class="detail-label">项目</div><div class="detail-value">${item.project || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">订单状态</div><div class="detail-value">${item.status}</div></div>
+                    <div class="detail-item"><div class="detail-label">数量</div><div class="detail-value">${item.qty.toFixed(2)}</div></div>
+                    <div class="detail-item"><div class="detail-label">退货金额</div><div class="detail-value">¥${item.amount.toFixed(2)}</div></div>
+                    <div class="detail-item"><div class="detail-label">应付余额</div><div class="detail-value">¥${item.payable.toFixed(2)}</div></div>
+                </div>
+                <div class="modal-section-title">商品明细</div>
+                <div class="table-container"><div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>序号</th><th>商品名称</th><th>规格</th><th>单位</th>
+                                <th class="text-right">数量</th><th class="text-right">单价</th><th class="text-right">金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>${detailRowsHtml}</tbody>
+                    </table>
+                </div></div>
+            `;
+            orderDetailModal.classList.add('show');
+        }
+        function closeOrderDetail() { orderDetailModal.classList.remove('show'); }
+        document.getElementById('orderDetailModalClose').addEventListener('click', closeOrderDetail);
+        document.getElementById('orderDetailModalCloseBtn').addEventListener('click', closeOrderDetail);
+        orderDetailModal.addEventListener('click', (e) => { if (e.target === orderDetailModal) closeOrderDetail(); });
+
+        // ========= 弹窗：汇总/统计 =========
+        const summaryModal = document.getElementById('summaryModal');
+        function openSummary(type) {
+            const data = filteredReturns;
+            const totalAmount = data.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+            const totalPayable = data.reduce((s, x) => s + (Number(x.payable) || 0), 0);
+            const totalQty = data.reduce((s, x) => s + (Number(x.qty) || 0), 0);
+            const byPartner = {};
+            const byStatus = {};
+            data.forEach(x => {
+                const p = x.partner || '未知';
+                const st = x.status || '未知';
+                byPartner[p] = byPartner[p] || { count: 0, amount: 0 };
+                byStatus[st] = byStatus[st] || { count: 0, amount: 0 };
+                byPartner[p].count += 1;
+                byPartner[p].amount += (Number(x.amount) || 0);
+                byStatus[st].count += 1;
+                byStatus[st].amount += (Number(x.amount) || 0);
+            });
+            document.getElementById('summaryModalTitle').textContent = type === 'stats' ? '退货统计' : '退货汇总';
+            document.getElementById('summaryContent').innerHTML = `
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+                    <div style="padding: 12px; background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                        <div class="text-secondary" style="font-size: var(--font-size-sm);">退货总额</div>
+                        <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-primary);">¥${totalAmount.toFixed(2)}</div>
+                    </div>
+                    <div style="padding: 12px; background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                        <div class="text-secondary" style="font-size: var(--font-size-sm);">应付余额合计</div>
+                        <div style="font-size: var(--font-size-xl); font-weight: bold; color: var(--color-error);">¥${totalPayable.toFixed(2)}</div>
+                    </div>
+                    <div style="padding: 12px; background: var(--color-neutral-50); border-radius: var(--radius-md);">
+                        <div class="text-secondary" style="font-size: var(--font-size-sm);">退货数量</div>
+                        <div style="font-size: var(--font-size-xl); font-weight: bold;">${totalQty.toFixed(2)}</div>
+                    </div>
+                </div>
+                <div class="modal-section-title">按往来单位</div>
+                <div class="table-container"><div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>往来单位</th><th class="text-right">单数</th><th class="text-right">金额</th></tr></thead>
+                        <tbody>${Object.entries(byPartner).map(([k,v]) => `<tr><td>${k}</td><td class="text-right">${v.count}</td><td class="text-right">¥${v.amount.toFixed(2)}</td></tr>`).join('')}</tbody>
+                    </table>
+                </div></div>
+                <div class="modal-section-title" style="margin-top:16px;">按状态</div>
+                <div class="table-container"><div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>状态</th><th class="text-right">单数</th><th class="text-right">金额</th></tr></thead>
+                        <tbody>${Object.entries(byStatus).map(([k,v]) => `<tr><td>${k}</td><td class="text-right">${v.count}</td><td class="text-right">¥${v.amount.toFixed(2)}</td></tr>`).join('')}</tbody>
+                    </table>
+                </div></div>
+            `;
+            summaryModal.classList.add('show');
+        }
+        function closeSummary() { summaryModal.classList.remove('show'); }
+        document.getElementById('summaryModalClose').addEventListener('click', closeSummary);
+        document.getElementById('summaryModalCloseBtn').addEventListener('click', closeSummary);
+        summaryModal.addEventListener('click', (e) => { if (e.target === summaryModal) closeSummary(); });
+
+        // ========= 操作菜单 =========
+        const actionMenu = document.getElementById('actionMenu');
+        let currentActionId = null;
+        function openActionMenu(id, anchorEl) {
+            currentActionId = id;
+            const rect = anchorEl.getBoundingClientRect();
+            actionMenu.style.left = rect.left + 'px';
+            actionMenu.style.top = (rect.bottom + 6) + 'px';
+            actionMenu.classList.add('show');
+        }
+        function hideActionMenu() { actionMenu.classList.remove('show'); }
+        function auditOrder(id) {
+            const item = returns.find(r => r.id === id);
+            if (!item) return;
+            const choice = prompt(`审核退货单：${id}\\n1. 通过\\n2. 退回（待审核）\\n3. 关闭\\n\\n请输入序号：`, '1');
+            if (choice === null) return;
+            if (choice === '1') item.status = '已成交';
+            if (choice === '2') item.status = '待审核';
+            if (choice === '3') item.status = '已关闭';
+            renderTable();
+        }
+        function printVouchers(ids) {
+            const list = returns.filter(r => ids.includes(r.id));
+            if (!list.length) { alert('没有可打印的数据'); return; }
+            const win = window.open('', '_blank');
+            const html = `
+                <html><head><title>退货单</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    .voucher { border: 2px solid #000; padding: 16px; margin-bottom: 24px; page-break-after: always; }
+                    .voucher h2 { margin: 0 0 8px; text-align: center; }
+                    .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; margin-bottom: 12px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                    th, td { border: 1px solid #ddd; padding: 6px; }
+                    th { background: #f2f2f2; }
+                    .right { text-align: right; }
+                </style></head><body>
+                ${list.map(p => {
+                    const details = getDetailsById(p.id);
+                    const bodyRows = details.length ? details.map((d,i)=>`
+                        <tr>
+                            <td>${i+1}</td><td>${d.name}</td><td>${d.spec||'-'}</td><td>${d.unit||'-'}</td>
+                            <td class="right">${Number(d.qty||0).toFixed(2)}</td>
+                            <td class="right">${Number(d.price||0).toFixed(2)}</td>
+                            <td class="right">${(Number(d.qty||0)*Number(d.price||0)).toFixed(2)}</td>
+                        </tr>
+                    `).join('') : `<tr><td colspan="7">暂无明细</td></tr>`;
+                    return `
+                        <div class="voucher">
+                            <h2>退货单</h2>
+                            <div class="meta">
+                                <div>单号：${p.id}</div>
+                                <div>日期：${p.date}</div>
+                                <div>往来单位：${p.partner}</div>
+                                <div>项目：${p.project||'-'}</div>
+                                <div>状态：${p.status}</div>
+                                <div>录入时间：${p.recordTime||'-'}</div>
+                            </div>
+                            <table>
+                                <thead><tr><th>序号</th><th>商品</th><th>规格</th><th>单位</th><th class="right">数量</th><th class="right">单价</th><th class="right">金额</th></tr></thead>
+                                <tbody>${bodyRows}</tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="right"><strong>合计</strong></td>
+                                        <td class="right"><strong>${p.qty.toFixed(2)}</strong></td>
+                                        <td></td>
+                                        <td class="right"><strong>${p.amount.toFixed(2)}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            ${p.remark ? `<div style="margin-top:10px; font-size:12px;"><strong>备注：</strong>${p.remark}</div>` : ''}
+                        </div>
+                    `;
+                }).join('')}
+                </body></html>
+            `;
+            win.document.write(html);
+            win.document.close();
+            win.print();
+        }
+        actionMenu.addEventListener('click', function (e) {
+            const item = e.target.closest('.action-menu-item');
+            if (!item) return;
+            const id = currentActionId;
+            const action = item.dataset.action;
+            hideActionMenu();
+            if (!id) return;
+            if (action === 'view') openOrderDetail(id);
+            if (action === 'audit') auditOrder(id);
+            if (action === 'print') printVouchers([id]);
+            if (action === 'delete') {
+                const idx = returns.findIndex(r => r.id === id);
+                if (idx > -1 && confirm('确定删除该退货单吗？')) {
+                    returns.splice(idx, 1);
+                    delete returnDetailsMap[id];
+                    filteredReturns = [...returns];
+                    renderTable();
+                }
+            }
+        });
+
+        // ========= 更多搜索 =========
+        const moreSearchModal = document.getElementById('moreSearchModal');
+        function openMoreSearch() { moreSearchModal.classList.add('show'); }
+        function closeMoreSearch() { moreSearchModal.classList.remove('show'); }
+        document.getElementById('moreSearchBtn').addEventListener('click', openMoreSearch);
+        document.getElementById('moreSearchModalClose').addEventListener('click', closeMoreSearch);
+        moreSearchModal.addEventListener('click', (e) => { if (e.target === moreSearchModal) closeMoreSearch(); });
+        document.getElementById('moreSearchResetBtn').addEventListener('click', () => {
+            ['msDateStart','msDateEnd','msPartner','msProject'].forEach(id => (document.getElementById(id).value = ''));
+            document.getElementById('msStatus').value = '';
+        });
+        document.getElementById('moreSearchApplyBtn').addEventListener('click', () => {
+            const ds = document.getElementById('msDateStart').value;
+            const de = document.getElementById('msDateEnd').value;
+            const partner = document.getElementById('msPartner').value.trim().toLowerCase();
+            const project = document.getElementById('msProject').value.trim().toLowerCase();
+            const status = document.getElementById('msStatus').value;
+            filteredReturns = returns.filter(r => {
+                if (ds && r.date < ds) return false;
+                if (de && r.date > de) return false;
+                if (partner && !(r.partner || '').toLowerCase().includes(partner)) return false;
+                if (project && !(r.project || '').toLowerCase().includes(project)) return false;
+                if (status && r.status !== status) return false;
+                return true;
+            });
+            renderTable();
+            closeMoreSearch();
+        });
+
+        // ========= 属性管理 =========
+        const customAttrModal = document.getElementById('customAttrModal');
+        const customAttrs = [
+            { name: '退货方式', type: '下拉', required: false },
+            { name: '责任人', type: '文本', required: false }
+        ];
+        function renderCustomAttrTable() {
+            const body = document.getElementById('customAttrTableBody');
+            body.innerHTML = '';
+            customAttrs.forEach((a, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${a.name}</td>
+                    <td>${a.type}</td>
+                    <td>${a.required ? '是' : '否'}</td>
+                    <td>
+                        <button class="btn-link" data-act="editAttr" data-idx="${i}">编辑</button>
+                        <button class="btn-link" data-act="delAttr" data-idx="${i}" style="color: var(--color-error); margin-left: 8px;">删除</button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+        function openCustomAttr() { renderCustomAttrTable(); customAttrModal.classList.add('show'); }
+        function closeCustomAttr() { customAttrModal.classList.remove('show'); }
+        document.getElementById('customAttrBtn').addEventListener('click', openCustomAttr);
+        document.getElementById('customAttrModalClose').addEventListener('click', closeCustomAttr);
+        document.getElementById('customAttrModalCloseBtn').addEventListener('click', closeCustomAttr);
+        customAttrModal.addEventListener('click', (e) => { if (e.target === customAttrModal) closeCustomAttr(); });
+        document.getElementById('addCustomAttrBtn').addEventListener('click', () => {
+            const name = prompt('属性名：');
+            if (!name) return;
+            const type = prompt('类型（文本/数字/下拉）：', '文本') || '文本';
+            const required = confirm('是否必填？');
+            customAttrs.push({ name: name.trim(), type: type.trim(), required });
+            renderCustomAttrTable();
+        });
+        document.getElementById('customAttrTableBody').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-act]');
+            if (!btn) return;
+            const idx = Number(btn.dataset.idx);
+            if (!Number.isFinite(idx) || !customAttrs[idx]) return;
+            if (btn.dataset.act === 'delAttr') {
+                if (confirm('确定删除该属性吗？')) {
+                    customAttrs.splice(idx, 1);
+                    renderCustomAttrTable();
+                }
+            }
+            if (btn.dataset.act === 'editAttr') {
+                const a = customAttrs[idx];
+                const name = prompt('属性名：', a.name);
+                if (!name) return;
+                const type = prompt('类型：', a.type) || a.type;
+                const required = confirm('是否必填？');
+                customAttrs[idx] = { name: name.trim(), type: type.trim(), required };
+                renderCustomAttrTable();
+            }
+        });
+
+        // ========= 导出/导出详情 =========
+        document.getElementById('exportBtn').addEventListener('click', function () {
+            const data = filteredReturns;
+            if (!data.length) { alert('没有数据可导出'); return; }
+            const headers = ['单号','日期','往来单位','项目','员工','备注','数量','退货金额','应付余额','订单状态','附件','录入员','录入时间'];
+            const rows = data.map(x => [
+                x.id, x.date, x.partner, x.project, x.staff || '', x.remark || '',
+                x.qty.toFixed(2), x.amount.toFixed(2), x.payable.toFixed(2),
+                x.status, x.attachment || '', x.recorder, x.recordTime
+            ].map(escapeCsvCell).join(','));
+            downloadCsv(`采购退货_${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\\n'));
+        });
+        document.getElementById('exportDetailBtn').addEventListener('click', function () {
+            const data = filteredReturns;
+            if (!data.length) { alert('没有数据可导出'); return; }
+            const headers = ['单号','日期','往来单位','项目','订单状态','商品名称','规格','单位','数量','单价','金额'];
+            const rows = [];
+            data.forEach(x => {
+                const ds = getDetailsById(x.id);
+                if (!ds.length) {
+                    rows.push([x.id,x.date,x.partner,x.project,x.status,'','','','0','0','0'].map(escapeCsvCell).join(','));
+                } else {
+                    ds.forEach(d => {
+                        rows.push([
+                            x.id,x.date,x.partner,x.project,x.status,
+                            d.name, d.spec || '', d.unit || '',
+                            Number(d.qty||0).toFixed(2),
+                            Number(d.price||0).toFixed(2),
+                            (Number(d.qty||0)*Number(d.price||0)).toFixed(2)
+                        ].map(escapeCsvCell).join(','));
+                    });
+                }
+            });
+            downloadCsv(`采购退货_详情_${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\\n'));
+        });
+
+        // ========= 工具栏按钮：汇总/统计/退货单/视图 =========
+        document.getElementById('summaryBtn').addEventListener('click', () => openSummary('summary'));
+        document.getElementById('statsBtn').addEventListener('click', () => openSummary('stats'));
+        document.getElementById('returnVoucherBtn').addEventListener('click', () => {
+            const ids = getSelectedIds();
+            if (!ids.length) { alert('请先勾选需要打印的退货单'); return; }
+            printVouchers(ids);
+        });
+        document.getElementById('listViewBtn').addEventListener('click', () => { viewMode = 'list'; renderTable(); });
+        document.getElementById('detailViewBtn').addEventListener('click', () => { viewMode = 'detail'; renderTable(); });
+
+        // ========= 单号 / 状态 / 操作 =========
         document.addEventListener('click', function (e) {
             const orderLink = e.target.closest('.order-link');
             const statusLink = e.target.closest('.status-link');
             const viewBtn = e.target.closest('.view-btn');
-
-            if (orderLink) {
-                const id = orderLink.dataset.id;
-                alert('查看退货单详情（示例）\\n单号：' + id);
-            }
-
-            if (statusLink) {
-                const id = statusLink.dataset.id;
-                alert('订单状态操作（示例）\\n单号：' + id + '\\n当前状态：已成交');
-            }
-
+            if (orderLink) openOrderDetail(orderLink.dataset.id);
+            if (statusLink) auditOrder(statusLink.dataset.id);
             if (viewBtn) {
-                const id = viewBtn.dataset.id;
-                alert('查看退货记录详细信息（示例）\\n单号：' + id);
+                e.stopPropagation();
+                openActionMenu(viewBtn.dataset.id, viewBtn);
+            } else {
+                hideActionMenu();
             }
-        });
-
-        // 更多搜索按钮示意
-        document.getElementById('moreSearchBtn').addEventListener('click', function () {
-            alert('更多搜索（示例）：这里可以展开高级筛选条件，如退货日期范围、往来单位、项目、状态等。');
         });
 
         // ========== 新增退货单弹窗 ==========
@@ -1036,13 +1609,17 @@
             if (!date) { alert('请选择日期'); return; }
             if (!partner) { alert('请选择往来单位'); return; }
             var totalQty = 0, totalAmount = 0;
+            var rows = [];
             rtDetailBody.querySelectorAll('tr').forEach(function (tr) {
                 var name = tr.querySelector('.rt-name').value.trim();
+                var spec = tr.querySelector('.rt-spec').value.trim();
+                var unit = tr.querySelector('.rt-unit').value;
                 var qty = parseFloat(tr.querySelector('.rt-qty').value) || 0;
                 var price = parseFloat(tr.querySelector('.rt-price').value) || 0;
                 if (name && (qty > 0 || price > 0)) {
                     totalQty += qty;
                     totalAmount += qty * price;
+                    rows.push({ name: name, spec: spec, unit: unit, qty: qty, price: price });
                 }
             });
             if (totalQty <= 0 && totalAmount <= 0) {
@@ -1069,6 +1646,7 @@
                 recorder: '系统管理员',
                 recordTime: recordTime
             });
+            returnDetailsMap[newId] = rows;
             filteredReturns = [...returns];
             renderTable();
             closeReturnModal();
