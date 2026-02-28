@@ -45,6 +45,7 @@ const menuData = [
                     { title: "历史结存", path: "pages/商超/历史结存.html" }
                 ]
             },
+            { title: "商超收银台", path: "pages/收银台/商超收银台.html" },
             {
                 title: "设置",
                 children: [
@@ -54,30 +55,6 @@ const menuData = [
                     { title: "配送", path: "pages/商超/设置/配送.html" }
                 ]
             }
-        ]
-    },
-    {
-        module: "收银台",
-        items: [
-            { title: "收银台主界面", path: "pages/收银台/收银台主界面.html" },
-            { title: "基础配置", path: "pages/收银台/基础配置.html" },
-            { title: "商品添加", path: "pages/收银台/商品添加.html" },
-            { title: "收银员", path: "pages/收银台/收银员.html" },
-            { title: "交班管理", path: "pages/收银台/交班管理.html" },
-            { title: "导购/拣货/服务员", path: "pages/收银台/导购管理.html" },
-            { title: "导购业绩", path: "pages/收银台/导购业绩.html" },
-            { title: "收银报表", path: "pages/收银台/收银报表.html" }
-        ]
-    },
-    {
-        module: "线上商城",
-        items: [
-            { title: "基础配置", path: "pages/线上商城/基础配置.html" },
-            { title: "商品添加", path: "pages/线上商城/商品添加.html" },
-            { title: "配送员管理", path: "pages/线上商城/配送员管理.html" },
-            { title: "提货点管理", path: "pages/商超/提货点管理.html" },
-            { title: "用户订单查看", path: "pages/线上商城/用户订单查看.html" },
-            { title: "订单管理", path: "pages/线上商城/订单管理.html" }
         ]
     },
     {
@@ -160,6 +137,7 @@ const menuData = [
                     { title: "历史结存", path: "pages/餐饮/历史结存.html" }
                 ]
             },
+            { title: "餐饮收银台", path: "pages/收银台/收银台主界面.html?type=catering" },
             {
                 title: "设置",
                 children: [
@@ -167,6 +145,18 @@ const menuData = [
                     { title: "订单", path: "pages/餐饮/设置/订单.html" },
                     { title: "支付", path: "pages/餐饮/设置/支付.html" },
                     { title: "配送", path: "pages/餐饮/设置/配送.html" }
+                ]
+            }
+        ]
+    },
+    {
+        module: "物流配送",
+        items: [
+            {
+                title: "配送管理",
+                children: [
+                    { title: "配送员管理", path: "pages/线上商城/配送员管理.html" },
+                    { title: "提货点管理", path: "pages/商超/提货点管理.html" }
                 ]
             }
         ]

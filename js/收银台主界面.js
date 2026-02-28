@@ -36,8 +36,23 @@ const menuPages = {
     }
 };
 
+// 检查 URL 参数，若 type=catering 则隐藏切换栏、仅显示餐饮收银台
+function applyUrlTypeParam() {
+    var params = new URLSearchParams(window.location.search || '');
+    var type = params.get('type');
+    if (type === 'catering') {
+        var bar = document.getElementById('cashierTopBar');
+        if (bar) bar.style.display = 'none';
+        var viewMall = document.getElementById('viewMall');
+        if (viewMall) viewMall.classList.add('hidden');
+        var viewCatering = document.getElementById('viewCatering');
+        if (viewCatering) viewCatering.classList.remove('hidden');
+    }
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    applyUrlTypeParam();
     initMenuEvents();
     initPowerButton();
     initTypeSwitch();

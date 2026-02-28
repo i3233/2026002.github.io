@@ -9,17 +9,7 @@
         storeNotice: '',
         appId: '',
         appSecret: '',
-        mallEnabled: true,
-        unpaidCancelMinutes: 30,
-        autoCompleteDays: 7,
-        allowUserCancel: true,
-        enableDelivery: true,
-        minOrderAmount: 0,
-        deliveryFee: 5,
-        freeDeliveryAmount: 99,
-        deliveryRadius: 5,
-        enableWechatPay: true,
-        enableBalancePay: false
+        mallEnabled: true
     };
 
     function loadConfig() {
@@ -45,16 +35,6 @@
         document.getElementById('appId').value = config.appId || '';
         document.getElementById('appSecret').value = config.appSecret || '';
         document.getElementById('mallEnabled').checked = !!config.mallEnabled;
-        document.getElementById('unpaidCancelMinutes').value = config.unpaidCancelMinutes ?? 30;
-        document.getElementById('autoCompleteDays').value = config.autoCompleteDays ?? 7;
-        document.getElementById('allowUserCancel').checked = !!config.allowUserCancel;
-        document.getElementById('enableDelivery').checked = !!config.enableDelivery;
-        document.getElementById('minOrderAmount').value = config.minOrderAmount ?? 0;
-        document.getElementById('deliveryFee').value = config.deliveryFee ?? 5;
-        document.getElementById('freeDeliveryAmount').value = config.freeDeliveryAmount ?? 99;
-        document.getElementById('deliveryRadius').value = config.deliveryRadius ?? 5;
-        document.getElementById('enableWechatPay').checked = !!config.enableWechatPay;
-        document.getElementById('enableBalancePay').checked = !!config.enableBalancePay;
         if (config.storeLogo) {
             var preview = document.getElementById('storeLogoPreview');
             preview.innerHTML = '<img src="' + config.storeLogo + '" alt="Logo">';
@@ -66,7 +46,7 @@
 
     function formToConfig() {
         var preview = document.getElementById('storeLogoPreview');
-        var img = preview.querySelector('img');
+        var img = preview ? preview.querySelector('img') : null;
         return {
             storeName: document.getElementById('storeName').value.trim(),
             storeLogo: img ? img.src : (loadConfig().storeLogo || ''),
@@ -75,17 +55,7 @@
             storeNotice: document.getElementById('storeNotice').value.trim(),
             appId: document.getElementById('appId').value.trim(),
             appSecret: document.getElementById('appSecret').value.trim(),
-            mallEnabled: document.getElementById('mallEnabled').checked,
-            unpaidCancelMinutes: parseInt(document.getElementById('unpaidCancelMinutes').value, 10) || 30,
-            autoCompleteDays: parseInt(document.getElementById('autoCompleteDays').value, 10) || 7,
-            allowUserCancel: document.getElementById('allowUserCancel').checked,
-            enableDelivery: document.getElementById('enableDelivery').checked,
-            minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0,
-            deliveryFee: parseFloat(document.getElementById('deliveryFee').value) || 5,
-            freeDeliveryAmount: parseFloat(document.getElementById('freeDeliveryAmount').value) || 99,
-            deliveryRadius: parseInt(document.getElementById('deliveryRadius').value, 10) || 5,
-            enableWechatPay: document.getElementById('enableWechatPay').checked,
-            enableBalancePay: document.getElementById('enableBalancePay').checked
+            mallEnabled: document.getElementById('mallEnabled').checked
         };
     }
 
