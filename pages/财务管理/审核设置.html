@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审核设置 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .audit-settings-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .settings-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+        .settings-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+        .settings-card-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--color-neutral-200);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+            cursor: help;
+            margin-left: var(--spacing-xs);
+        }
+        .help-icon:hover {
+            background-color: var(--color-primary);
+            color: #ffffff;
+        }
+        .warning-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ff9800;
+            margin-left: var(--spacing-xs);
+        }
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .audit-table th,
+        .audit-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            text-align: left;
+            white-space: nowrap;
+        }
+        .audit-table th {
+            background-color: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+        .audit-table td:last-child,
+        .audit-table th:last-child {
+            text-align: right;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-300);
+            transition: var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        .form-input,
+        .form-select {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            min-width: 80px;
+        }
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            margin-top: var(--spacing-lg);
+        }
+        .dependency-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .dependency-hint::before {
+            content: '→ ';
+            color: var(--color-primary);
+        }
+        @media (max-width: 900px) {
+            .audit-table td,
+            .audit-table th {
+                padding: 6px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-settings-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">审核设置</h1>
+                <div class="page-subtitle">配置各类单据是否需要审核，以及重要的审核规则</div>
+            </div>
+        </div>
+
+        <!-- 单据审核开关 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">单据审核开关</h2>
+                    <div class="settings-card-desc">设置哪些类型的单据需要进入审核中心，哪些可以直接跳过审核</div>
+                </div>
+            </div>
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>单据类型</th>
+                        <th>所属模块</th>
+                        <th>需要审核</th>
+                        <th>免审核条件</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody id="docAuditTableBody">
+                    <!-- JS 渲染 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 金额与风控规则 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">金额与风控规则</h2>
+                    <div class="settings-card-desc">可针对大额单据强制审核，或根据往来单位风险等级自动走审核</div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="settings-card-desc">
+                        单据金额达到以下阈值时，无论上面是否勾选“需要审核”，都<strong>必须</strong>进入审核流程。
+                    </div>
+                </div>
+            </div>
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>规则</th>
+                        <th>启用</th>
+                        <th>阈值(元)</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>采购类单据大额强制审核</td>
+                        <td>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="rulePurchaseAmountEnable" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <input type="number" class="form-input" id="rulePurchaseAmount" min="0" step="100" value="10000">
+                        </td>
+                        <td>当采购入库、采购退货的单据金额 ≥ 阈值时，自动进入审核中心。</td>
+                    </tr>
+                    <tr>
+                        <td>批发订单大额强制审核</td>
+                        <td>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="ruleWholesaleAmountEnable" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <input type="number" class="form-input" id="ruleWholesaleAmount" min="0" step="100" value="5000">
+                        </td>
+                        <td>批发订单金额 ≥ 阈值时，必须由财务审核后才能出库。</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="dependency-hint">
+                以上规则只在对应单据类型的审核功能未关闭时生效；若单据本身已关闭审核，则仅在“大额强制审核”条件触发时才进入审核中心。
+            </div>
+        </div>
+
+        <!-- 审核流程与通知 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div>
+                    <h2 class="settings-card-title">审核流程与通知</h2>
+                    <div class="settings-card-desc">配置审核人、审核方式以及通知通道（仅前端示例，不接后端）</div>
+                </div>
+            </div>
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>设置项</th>
+                        <th>当前值</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>默认审核人角色</td>
+                        <td>
+                            <select class="form-select" id="defaultAuditorRole">
+                                <option value="finance" selected>财务审核员</option>
+                                <option value="manager">店长/主管</option>
+                                <option value="admin">系统管理员</option>
+                            </select>
+                        </td>
+                        <td>用于未单独指定审核人的单据，将发送到该角色对应的人员待办列表。</td>
+                    </tr>
+                    <tr>
+                        <td>审核提醒方式</td>
+                        <td>
+                            <select class="form-select" id="notifyType">
+                                <option value="none">不提醒</option>
+                                <option value="inbox" selected>系统消息</option>
+                                <option value="sms">短信</option>
+                                <option value="wechat">企业微信</option>
+                            </select>
+                        </td>
+                        <td>真实项目中可接入短信/企微等通道，这里仅做前端示例配置。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="settings-actions">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        // 单据审核配置（默认值）
+        const docAuditConfigs = [
+            {
+                id: 'purchaseIn',
+                name: '采购入库',
+                module: '采购/库存',
+                needAudit: true,
+                skipType: 'none', // none / amount / self
+                skipAmount: 0,
+                desc: '商品进货入库单，通常需要财务审核。'
+            },
+            {
+                id: 'purchaseReturn',
+                name: '采购退货',
+                module: '采购/库存',
+                needAudit: true,
+                skipType: 'none',
+                skipAmount: 0,
+                desc: '退回供应商的单据，建议保留审核。'
+            },
+            {
+                id: 'wholesaleOrder',
+                name: '批发订单',
+                module: '批发',
+                needAudit: true,
+                skipType: 'amount',
+                skipAmount: 1000,
+                desc: '批发订单，金额较小的订单可免审核。'
+            },
+            {
+                id: 'transfer',
+                name: '门店调拨',
+                module: '库存',
+                needAudit: false,
+                skipType: 'none',
+                skipAmount: 0,
+                desc: '门店之间库调，一般可免审核，由库存管理负责。'
+            },
+            {
+                id: 'onlineRefund',
+                name: '线上订单退款',
+                module: '线上订单',
+                needAudit: true,
+                skipType: 'amount',
+                skipAmount: 200,
+                desc: '小额退款可自动放行，大额退款需人工审核。'
+            }
+        ];
+
+        const settings = {
+            docs: [],
+            rulePurchaseAmountEnable: true,
+            rulePurchaseAmount: 10000,
+            ruleWholesaleAmountEnable: true,
+            ruleWholesaleAmount: 5000,
+            defaultAuditorRole: 'finance',
+            notifyType: 'inbox'
+        };
+
+        const STORAGE_KEY = 'auditCenterSettings';
+
+        function loadSettings() {
+            // 初始化 docs
+            settings.docs = JSON.parse(JSON.stringify(docAuditConfigs));
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed.docs)) {
+                        settings.docs = settings.docs.map(def => {
+                            const override = parsed.docs.find(d => d.id === def.id);
+                            return override ? Object.assign({}, def, override) : def;
+                        });
+                    }
+                    if (typeof parsed.rulePurchaseAmountEnable === 'boolean') {
+                        settings.rulePurchaseAmountEnable = parsed.rulePurchaseAmountEnable;
+                    }
+                    if (typeof parsed.rulePurchaseAmount === 'number') {
+                        settings.rulePurchaseAmount = parsed.rulePurchaseAmount;
+                    }
+                    if (typeof parsed.ruleWholesaleAmountEnable === 'boolean') {
+                        settings.ruleWholesaleAmountEnable = parsed.ruleWholesaleAmountEnable;
+                    }
+                    if (typeof parsed.ruleWholesaleAmount === 'number') {
+                        settings.ruleWholesaleAmount = parsed.ruleWholesaleAmount;
+                    }
+                    if (parsed.defaultAuditorRole) {
+                        settings.defaultAuditorRole = parsed.defaultAuditorRole;
+                    }
+                    if (parsed.notifyType) {
+                        settings.notifyType = parsed.notifyType;
+                    }
+                }
+            } catch (e) {
+                console.warn('加载审核设置失败', e);
+            }
+        }
+
+        function renderDocAuditTable() {
+            const tbody = document.getElementById('docAuditTableBody');
+            tbody.innerHTML = '';
+            settings.docs.forEach(doc => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = doc.id;
+                tr.innerHTML = `
+                    <td>${doc.name}</td>
+                    <td>${doc.module}</td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="doc-need-audit" ${doc.needAudit ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <select class="form-select doc-skip-type">
+                            <option value="none" ${doc.skipType === 'none' ? 'selected' : ''}>始终需要审核</option>
+                            <option value="amount" ${doc.skipType === 'amount' ? 'selected' : ''}>金额小于阈值时免审核</option>
+                            <option value="self" ${doc.skipType === 'self' ? 'selected' : ''}>自助单据免审核</option>
+                        </select>
+                        <input type="number" class="form-input doc-skip-amount" min="0" step="100" 
+                               value="${doc.skipAmount}" style="margin-left: 4px; ${doc.skipType === 'amount' ? '' : 'display:none;'}">
+                    </td>
+                    <td>${doc.desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 绑定单据表事件
+            tbody.querySelectorAll('.doc-need-audit').forEach((input, index) => {
+                input.addEventListener('change', () => {
+                    const doc = settings.docs[index];
+                    doc.needAudit = input.checked;
+                });
+            });
+            tbody.querySelectorAll('.doc-skip-type').forEach((select, index) => {
+                select.addEventListener('change', () => {
+                    const doc = settings.docs[index];
+                    doc.skipType = select.value;
+                    const amountInput = select.parentElement.querySelector('.doc-skip-amount');
+                    if (doc.skipType === 'amount') {
+                        amountInput.style.display = '';
+                    } else {
+                        amountInput.style.display = 'none';
+                    }
+                });
+            });
+            tbody.querySelectorAll('.doc-skip-amount').forEach((input, index) => {
+                input.addEventListener('input', () => {
+                    const doc = settings.docs[index];
+                    const val = parseFloat(input.value) || 0;
+                    doc.skipAmount = val;
+                });
+            });
+        }
+
+        function applySettingsToControls() {
+            document.getElementById('rulePurchaseAmountEnable').checked = settings.rulePurchaseAmountEnable;
+            document.getElementById('rulePurchaseAmount').value = settings.rulePurchaseAmount;
+            document.getElementById('ruleWholesaleAmountEnable').checked = settings.ruleWholesaleAmountEnable;
+            document.getElementById('ruleWholesaleAmount').value = settings.ruleWholesaleAmount;
+            document.getElementById('defaultAuditorRole').value = settings.defaultAuditorRole;
+            document.getElementById('notifyType').value = settings.notifyType;
+        }
+
+        function bindGlobalEvents() {
+            document.getElementById('rulePurchaseAmountEnable').addEventListener('change', e => {
+                settings.rulePurchaseAmountEnable = e.target.checked;
+            });
+            document.getElementById('rulePurchaseAmount').addEventListener('input', e => {
+                settings.rulePurchaseAmount = parseFloat(e.target.value) || 0;
+            });
+            document.getElementById('ruleWholesaleAmountEnable').addEventListener('change', e => {
+                settings.ruleWholesaleAmountEnable = e.target.checked;
+            });
+            document.getElementById('ruleWholesaleAmount').addEventListener('input', e => {
+                settings.ruleWholesaleAmount = parseFloat(e.target.value) || 0;
+            });
+            document.getElementById('defaultAuditorRole').addEventListener('change', e => {
+                settings.defaultAuditorRole = e.target.value;
+            });
+            document.getElementById('notifyType').addEventListener('change', e => {
+                settings.notifyType = e.target.value;
+            });
+
+            document.getElementById('saveBtn').addEventListener('click', () => {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+                    alert('审核设置已保存！（示例：实际项目中请保存到后端）');
+                } catch (e) {
+                    alert('保存失败：localStorage 不可用或空间不足');
+                }
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (!confirm('确定要重置审核设置为默认值吗？')) return;
+                localStorage.removeItem(STORAGE_KEY);
+                loadSettings();
+                renderDocAuditTable();
+                applySettingsToControls();
+                alert('已重置为默认审核设置。');
+            });
+        }
+
+        function init() {
+            loadSettings();
+            renderDocAuditTable();
+            applySettingsToControls();
+            bindGlobalEvents();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
