@@ -36,11 +36,17 @@ const menuPages = {
     }
 };
 
-// 检查 URL 参数，若 type=catering 则隐藏切换栏、仅显示餐饮收银台
+// 获取当前收银台类型（catering=餐饮 / mall=商超）
+function getCashierType() {
+    var params = new URLSearchParams(window.location.search || '');
+    return params.get('type') || 'catering';
+}
+
+// 检查 URL 参数，若 type=catering 或 type=mall 则隐藏切换栏、使用统一布局
 function applyUrlTypeParam() {
     var params = new URLSearchParams(window.location.search || '');
     var type = params.get('type');
-    if (type === 'catering') {
+    if (type === 'catering' || type === 'mall') {
         var bar = document.getElementById('cashierTopBar');
         if (bar) bar.style.display = 'none';
         var viewMall = document.getElementById('viewMall');
@@ -56,8 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initMenuEvents();
     initPowerButton();
     initTypeSwitch();
-    // 默认加载桌位页面
-    loadPage('table');
+    var type = getCashierType();
+    var defaultMenu = type === 'mall' ? 'product' : 'table';
+    // 商超模式默认加载商品页，餐饮模式默认加载桌位页
+    document.querySelectorAll('.cashier-menu-item[data-menu]').forEach(function(item) {
+        item.classList.toggle('active', item.dataset.menu === defaultMenu);
+    });
+    loadPage(defaultMenu);
 });
 
 // 餐饮/商超收银台切换
@@ -111,7 +122,12 @@ function loadPage(menuType) {
     const pageConfig = menuPages[menuType];
     if (!pageConfig) return;
     
-    contentFrame.src = pageConfig.path;
+    var type = getCashierType();
+    var path = pageConfig.path;
+    if (type === 'mall') {
+        path = path.indexOf('?') >= 0 ? path + '&type=mall' : path + '?type=mall';
+    }
+    contentFrame.src = path;
 }
 
 // 接收 iframe 内子页消息，避免跨域无法访问 parent（如 file:// 下 origin 为 null）

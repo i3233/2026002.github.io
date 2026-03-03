@@ -35,7 +35,7 @@ const menuData = [
                 title: "库存",
                 children: [
                     { title: "库存查询", path: "pages/商超/库存查询.html" },
-                    { title: "调拨处理（列表）", path: "pages/商超/调拨处理.html" }
+                    { title: "调拨处理", path: "pages/商超/调拨处理.html" }
                 ]
             },
             {
@@ -45,7 +45,7 @@ const menuData = [
                     { title: "历史结存", path: "pages/商超/历史结存.html" }
                 ]
             },
-            { title: "商超收银台", path: "pages/收银台/商超收银台.html" },
+            { title: "商超收银台", path: "pages/商超/收银台基础设置.html" },
             {
                 title: "设置",
                 children: [
@@ -72,6 +72,7 @@ const menuData = [
             {
                 title: "审核中心",
                 children: [
+                    { title: "审核设置", path: "pages/财务管理/审核设置.html" },
                     { title: "采购入库审核", path: "pages/财务管理/采购入库审核.html" },
                     { title: "采购退货审核", path: "pages/财务管理/采购退货审核.html" },
                     { title: "批发订单审核", path: "pages/财务管理/批发订单审核.html" },
@@ -79,9 +80,8 @@ const menuData = [
                 ]
             },
             { title: "老板一张表", path: "pages/财务管理/老板一张表.html" },
-            { title: "仓库管理", path: "pages/财务管理/仓库管理.html" },
             { title: "仓库基础配置", path: "pages/财务管理/仓库基础配置.html" },
-            { title: "资金管理", path: "pages/财务管理/资金管理.html" }
+            { title: "资金帐户", path: "pages/财务管理/资金管理.html" }
         ]
     },
     {
@@ -137,7 +137,7 @@ const menuData = [
                     { title: "历史结存", path: "pages/餐饮/历史结存.html" }
                 ]
             },
-            { title: "餐饮收银台", path: "pages/收银台/收银台主界面.html?type=catering" },
+            { title: "餐饮收银台", path: "pages/餐饮/收银台基础设置.html" },
             {
                 title: "设置",
                 children: [
