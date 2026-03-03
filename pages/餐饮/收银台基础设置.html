@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础设置 - 餐饮收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银台基础设置.css">
+</head>
+<body class="pos-settings-page">
+    <div class="pos-settings-container">
+        <!-- 页面标题 -->
+        <div class="pos-settings-header">
+            <div>
+                <h1 class="pos-settings-title">基础设置</h1>
+                <div class="pos-settings-subtitle">配置餐饮收银台基础功能与入口</div>
+            </div>
+        </div>
+
+        <!-- 基础设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">基础设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item pos-settings-item-row">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">入口</div>
+                        <div class="pos-settings-entry-row">
+                            <input type="text" class="pos-settings-input pos-settings-input-readonly" id="entryUrl" readonly value="https://xcxsc.scssrh.com/web/index.php?r=plugin/teller/web/passport/login&mall_id=NTA=">
+                            <button type="button" class="pos-settings-btn pos-settings-btn-outline" id="copyLinkBtn">复制链接</button>
+                            <button type="button" class="pos-settings-btn pos-settings-btn-primary" id="enterPosBtn">进入收银台</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">是否开启交班</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableShiftHandover" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">是否开启会员充值</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableMemberRecharge" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">加钱开关</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="addMoneySwitch" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 购买设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">购买设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">是否开启团队分红</div>
+                        <div class="pos-settings-note">注:必须在"插件中心=&gt;团队分红"中开启,才能使用</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableTeamDividend" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">是否开启分销</div>
+                        <div class="pos-settings-note">注:必须在"分销中心=&gt;基础设置"中开启,才能使用</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableDistribution" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 支付设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">支付设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">支付方式</div>
+                    </div>
+                    <div class="pos-settings-item-right pos-settings-payment-methods">
+                        <label class="pos-settings-checkbox-label">
+                            <input type="checkbox" id="payWechat" checked>
+                            <span>微信支付</span>
+                        </label>
+                        <label class="pos-settings-checkbox-label">
+                            <input type="checkbox" id="payAlipay" checked>
+                            <span>支付宝支付</span>
+                        </label>
+                        <label class="pos-settings-checkbox-label">
+                            <input type="checkbox" id="payCash" checked>
+                            <span>现金支付</span>
+                        </label>
+                        <label class="pos-settings-checkbox-label">
+                            <input type="checkbox" id="payPos" checked>
+                            <span>POS机支付</span>
+                        </label>
+                        <label class="pos-settings-checkbox-label">
+                            <input type="checkbox" id="payCombined">
+                            <span>组合支付(线上+余额)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">微信支付</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <select class="pos-settings-select" id="wechatPaySelect">
+                            <option value="wechat" selected>微信支付</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">支付宝支付</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <select class="pos-settings-select" id="alipayPaySelect">
+                            <option value="alipay" selected>支付宝</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab页签设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">Tab页签设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">开关</div>
+                        <div class="pos-settings-desc">设置收银台右边tab页签,最多添加10个常用分类</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="tabSwitch" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">分类</div>
+                    </div>
+                    <div class="pos-settings-item-right pos-settings-category-area">
+                        <div class="pos-settings-tags" id="categoryTags">
+                            <span class="pos-settings-tag">雅安好物 <span class="pos-settings-tag-remove" data-name="雅安好物">&times;</span></span>
+                            <span class="pos-settings-tag">雅安好景 <span class="pos-settings-tag-remove" data-name="雅安好景">&times;</span></span>
+                            <span class="pos-settings-tag">文创产品 <span class="pos-settings-tag-remove" data-name="文创产品">&times;</span></span>
+                        </div>
+                        <button type="button" class="pos-settings-btn pos-settings-btn-outline" id="selectCategoryBtn">选择分类</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 优惠叠加设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">优惠叠加设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">优惠券</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableCoupon" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">超级会员卡折扣</div>
+                        <div class="pos-settings-note">注:必须在"插件中心=&gt;超级会员卡"中开启,才能使用</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableSuperMemberDiscount">
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">会员价</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableMemberPrice" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">积分抵扣</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enablePointsDeduction" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">满减优惠</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableFullDiscount">
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 抹零设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">抹零设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">抹零设置开关</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="roundingSwitch" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item pos-settings-radio-group">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">抹零方式</div>
+                        <div class="pos-settings-radio-list">
+                            <label class="pos-settings-radio-label">
+                                <input type="radio" name="roundingType" value="roundCents" checked>
+                                <span class="pos-settings-radio-text">抹分</span>
+                                <span class="pos-settings-desc">向下抹分,如9.99元,则收9.9元</span>
+                            </label>
+                            <label class="pos-settings-radio-label">
+                                <input type="radio" name="roundingType" value="roundTenths">
+                                <span class="pos-settings-radio-text">抹角</span>
+                                <span class="pos-settings-desc">向下抹角,如9.99元,则收9元</span>
+                            </label>
+                            <label class="pos-settings-radio-label">
+                                <input type="radio" name="roundingType" value="roundCentsUp">
+                                <span class="pos-settings-radio-text">四舍分</span>
+                                <span class="pos-settings-desc">如9.94元,则收9.9元</span>
+                            </label>
+                            <label class="pos-settings-radio-label">
+                                <input type="radio" name="roundingType" value="roundTenthsUp">
+                                <span class="pos-settings-radio-text">五入到角</span>
+                                <span class="pos-settings-desc">如9.99元,则收10.00元</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提成设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">提成设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-commission-block">
+                    <div class="pos-settings-item">
+                        <div class="pos-settings-item-left">
+                            <div class="pos-settings-label">收银员提成</div>
+                            <div class="pos-settings-note">注:请到"收银台=&gt;收银员"设置收银员</div>
+                        </div>
+                        <div class="pos-settings-item-right">
+                            <label class="pos-settings-toggle">
+                                <input type="checkbox" id="enableCashierCommission" checked>
+                                <span class="pos-settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pos-settings-item pos-settings-commission-detail">
+                        <div class="pos-settings-item-left">
+                            <div class="pos-settings-radio-list pos-settings-radio-inline">
+                                <label class="pos-settings-radio-label">
+                                    <input type="radio" name="cashierCommissionType" value="order">按订单
+                                </label>
+                                <label class="pos-settings-radio-label">
+                                    <input type="radio" name="cashierCommissionType" value="amount" checked>按金额
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pos-settings-item-right pos-settings-commission-input-wrap">
+                            <input type="number" class="pos-settings-input pos-settings-input-small" id="cashierCommissionRate" value="1" min="0" step="0.01">
+                            <span class="pos-settings-unit">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="pos-settings-commission-block">
+                    <div class="pos-settings-item">
+                        <div class="pos-settings-item-left">
+                            <div class="pos-settings-label">导购员提成</div>
+                            <div class="pos-settings-note">注:请到"收银台=&gt;导购员"设置导购员</div>
+                        </div>
+                        <div class="pos-settings-item-right">
+                            <label class="pos-settings-toggle">
+                                <input type="checkbox" id="enableSalespersonCommission" checked>
+                                <span class="pos-settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pos-settings-item pos-settings-commission-detail">
+                        <div class="pos-settings-item-left">
+                            <div class="pos-settings-radio-list pos-settings-radio-inline">
+                                <label class="pos-settings-radio-label">
+                                    <input type="radio" name="salespersonCommissionType" value="order">按订单
+                                </label>
+                                <label class="pos-settings-radio-label">
+                                    <input type="radio" name="salespersonCommissionType" value="amount" checked>按金额
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pos-settings-item-right pos-settings-commission-input-wrap">
+                            <input type="number" class="pos-settings-input pos-settings-input-small" id="salespersonCommissionRate" value="1" min="0" step="0.01">
+                            <span class="pos-settings-unit">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 改价设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">改价设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">改价开关</div>
+                        <div class="pos-settings-desc">注：改价限制商品按单个商品限制，订单按订单商品合计后的订单金额限</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="priceAdjustSwitch" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">改价类型</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <div class="pos-settings-radio-list pos-settings-radio-inline">
+                            <label class="pos-settings-radio-label">
+                                <input type="radio" name="priceAdjustType" value="fixed">固定金额
+                            </label>
+                            <label class="pos-settings-radio-label">
+                                <input type="radio" name="priceAdjustType" value="percent" checked>百分比
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">最多可加</div>
+                    </div>
+                    <div class="pos-settings-item-right pos-settings-commission-input-wrap">
+                        <input type="number" class="pos-settings-input pos-settings-input-small" id="maxPriceIncrease" value="10" min="0" step="0.01">
+                        <span class="pos-settings-unit">%</span>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">最多可减</div>
+                    </div>
+                    <div class="pos-settings-item-right pos-settings-commission-input-wrap">
+                        <input type="number" class="pos-settings-input pos-settings-input-small" id="maxPriceDecrease" value="1" min="0" step="0.01">
+                        <span class="pos-settings-unit">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 版权设置 -->
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">版权设置</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item pos-settings-upload-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">收银台登录页logo</div>
+                        <div class="pos-settings-upload-actions">
+                            <button type="button" class="pos-settings-btn pos-settings-btn-outline" id="selectLogoBtn">选择图标</button>
+                            <button type="button" class="pos-settings-btn pos-settings-btn-primary" id="resetLogoBtn">恢复默认</button>
+                        </div>
+                        <div class="pos-settings-preview-wrap">
+                            <div class="pos-settings-logo-preview" id="logoPreview">
+                                <div class="pos-settings-logo-placeholder" id="logoPlaceholder">
+                                    <span class="pos-settings-logo-text">收银台</span>
+                                    <span class="pos-settings-logo-sub">SHOUYINTAI</span>
+                                </div>
+                                <span class="pos-settings-preview-remove" id="removeLogoBtn" title="移除">&times;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pos-settings-item pos-settings-upload-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">收银台登录页背景图</div>
+                        <div class="pos-settings-upload-actions">
+                            <button type="button" class="pos-settings-btn pos-settings-btn-outline" id="selectBgBtn">选择图片</button>
+                            <button type="button" class="pos-settings-btn pos-settings-btn-primary" id="resetBgBtn">恢复默认</button>
+                        </div>
+                        <div class="pos-settings-preview-wrap">
+                            <div class="pos-settings-bg-preview" id="bgPreview">
+                                <div class="pos-settings-bg-placeholder" id="bgPlaceholder"></div>
+                                <span class="pos-settings-preview-remove" id="removeBgBtn" title="移除">&times;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">底部版权信息</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <input type="text" class="pos-settings-input pos-settings-input-medium" id="copyrightText" value="磐石云鼎" placeholder="请输入版权信息">
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">底部版权链接</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <input type="text" class="pos-settings-input pos-settings-input-medium" id="copyrightLink" placeholder="例如 https://www.baidu.com">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="pos-settings-actions">
+            <button class="pos-settings-btn pos-settings-btn-outline" id="resetBtn">重置</button>
+            <button class="pos-settings-btn pos-settings-btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <input type="file" id="logoFileInput" accept="image/*" style="display:none">
+    <input type="file" id="bgFileInput" accept="image/*" style="display:none">
+    <script src="../../js/收银台基础设置.js"></script>
+</body>
+</html>
