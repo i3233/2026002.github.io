@@ -1,0 +1,488 @@
+/* 收银台基础设置页面样式 */
+
+.pos-settings-page {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--color-neutral-50);
+}
+
+.pos-settings-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 页面标题 */
+.pos-settings-header {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.pos-settings-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.pos-settings-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* 设置卡片 */
+.pos-settings-card {
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.pos-settings-card-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.pos-settings-card-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.pos-settings-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* 设置项 */
+.pos-settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.pos-settings-item:last-child {
+    border-bottom: none;
+}
+
+.pos-settings-item-row {
+    align-items: center;
+}
+
+.pos-settings-item-left {
+    flex: 1;
+    margin-right: var(--spacing-lg);
+}
+
+.pos-settings-item-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+.pos-settings-label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.pos-settings-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.pos-settings-note {
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
+    margin-top: var(--spacing-xs);
+}
+
+/* 入口行 */
+.pos-settings-entry-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
+}
+
+.pos-settings-input {
+    flex: 1;
+    min-width: 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.pos-settings-input-readonly {
+    background-color: var(--color-neutral-50);
+    color: var(--color-text-secondary);
+}
+
+.pos-settings-select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    min-width: 160px;
+}
+
+/* 开关控件 */
+.pos-settings-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.pos-settings-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.pos-settings-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-neutral-300);
+    transition: var(--transition-base);
+    border-radius: var(--radius-full);
+}
+
+.pos-settings-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    transition: var(--transition-base);
+    border-radius: 50%;
+}
+
+.pos-settings-toggle input:checked + .pos-settings-toggle-slider {
+    background-color: var(--color-primary);
+}
+
+.pos-settings-toggle input:checked + .pos-settings-toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* 支付方式复选框 */
+.pos-settings-payment-methods {
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.pos-settings-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.pos-settings-checkbox-label input {
+    width: 16px;
+    height: 16px;
+}
+
+/* 单选框组 */
+.pos-settings-radio-group .pos-settings-item-right {
+    align-items: flex-start;
+}
+
+.pos-settings-radio-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
+}
+
+.pos-settings-radio-list.pos-settings-radio-inline {
+    flex-direction: row;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xs);
+}
+
+.pos-settings-radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.pos-settings-radio-label input {
+    width: 16px;
+    height: 16px;
+}
+
+.pos-settings-radio-text {
+    font-weight: var(--font-weight-medium);
+}
+
+.pos-settings-radio-list .pos-settings-radio-label .pos-settings-desc {
+    margin-left: var(--spacing-xs);
+    font-weight: normal;
+}
+
+/* 抹零方式单选项：每行一项，带描述 */
+.pos-settings-radio-list .pos-settings-radio-label {
+    padding: var(--spacing-sm) 0;
+}
+
+.pos-settings-radio-list .pos-settings-radio-label .pos-settings-desc {
+    display: block;
+    margin-left: 24px;
+    margin-top: 2px;
+}
+
+/* 提成设置块 */
+.pos-settings-commission-block {
+    padding-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.pos-settings-commission-block:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.pos-settings-commission-detail {
+    padding-top: var(--spacing-sm);
+    padding-left: 0;
+}
+
+.pos-settings-commission-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.pos-settings-input-small {
+    width: 72px;
+    flex: none;
+}
+
+.pos-settings-input-medium {
+    width: 320px;
+    min-width: 200px;
+}
+
+.pos-settings-unit {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+}
+
+/* 分类标签区域 */
+.pos-settings-category-area {
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.pos-settings-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.pos-settings-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--color-neutral-100);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.pos-settings-tag-remove {
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    line-height: 1;
+}
+
+.pos-settings-tag-remove:hover {
+    color: var(--color-error);
+}
+
+/* 按钮 */
+.pos-settings-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base) var(--ease-in-out);
+    white-space: nowrap;
+}
+
+.pos-settings-btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.pos-settings-btn-primary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.pos-settings-btn-outline {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-300);
+}
+
+.pos-settings-btn-outline:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* 上传/预览区域 */
+.pos-settings-upload-item .pos-settings-item-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.pos-settings-upload-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.pos-settings-preview-wrap {
+    margin-top: var(--spacing-xs);
+}
+
+.pos-settings-logo-preview,
+.pos-settings-bg-preview {
+    position: relative;
+    display: inline-block;
+}
+
+.pos-settings-logo-preview {
+    width: 100px;
+    height: 100px;
+}
+
+.pos-settings-logo-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid var(--color-neutral-200);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.pos-settings-logo-text {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.pos-settings-logo-sub {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+.pos-settings-bg-preview {
+    width: 160px;
+    height: 90px;
+}
+
+.pos-settings-bg-placeholder {
+    width: 160px;
+    height: 90px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-neutral-200) 0%, var(--color-neutral-100) 100%);
+    border: 1px solid var(--color-neutral-300);
+}
+
+.pos-settings-bg-preview img {
+    width: 160px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+.pos-settings-preview-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--color-error);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.pos-settings-preview-remove:hover {
+    opacity: 0.9;
+}
+
+/* 操作按钮区域 */
+.pos-settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+@media (max-width: 1200px) {
+    .pos-settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pos-settings-item-right {
+        width: 100%;
+        margin-top: var(--spacing-sm);
+    }
+
+    .pos-settings-entry-row {
+        flex-wrap: wrap;
+    }
+}
