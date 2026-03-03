@@ -9,8 +9,8 @@
 </head>
 <body class="cashier-main-body">
     <div class="cashier-main-container">
-        <!-- 顶部：收银台类型切换 -->
-        <header class="cashier-top-bar">
+        <!-- 顶部：收银台类型切换（仅当无 type 参数时显示） -->
+        <header class="cashier-top-bar" id="cashierTopBar">
             <span class="cashier-top-title">收银台</span>
             <div class="cashier-type-switch">
                 <button type="button" class="cashier-type-btn active" id="btnCatering" data-type="catering">餐饮收银台</button>
