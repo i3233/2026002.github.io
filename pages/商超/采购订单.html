@@ -539,6 +539,12 @@
         <div class="toolbar-card">
             <!-- 左侧按钮组 -->
             <div class="toolbar-left">
+                <button class="btn btn-outline" id="purchasePlanBtn">
+                    <span class="btn-icon-text">
+                        <span class="btn-icon-text-symbol">☑</span>
+                        <span>采购计划</span>
+                    </span>
+                </button>
                 <button class="btn btn-primary" id="addPurchaseOrderBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">＋</span>
@@ -1031,6 +1037,47 @@
         }
 
         const tbody = document.getElementById('purchaseTableBody');
+
+        // 从“采购计划”页面生成的采购订单加载本地数据
+        function loadPurchasesFromPlan() {
+            try {
+                const raw = localStorage.getItem('purchaseOrdersFromPlan');
+                if (!raw) return;
+                const list = JSON.parse(raw);
+                if (!Array.isArray(list)) return;
+                list.forEach(item => {
+                    if (!item || !item.purchase || !item.purchase.id) return;
+                    const p = item.purchase;
+                    if (purchases.some(x => x.id === p.id)) return;
+                    purchases.unshift({
+                        id: p.id,
+                        date: p.date,
+                        partner: p.partner,
+                        project: p.project,
+                        staff: p.staff,
+                        remark: p.remark,
+                        qty: Number(p.qty) || 0,
+                        amount: Number(p.amount) || 0,
+                        payable: Number(p.payable) || 0,
+                        status: p.status || '待审核',
+                        attachment: p.attachment || '0',
+                        recorder: p.recorder || '系统管理员',
+                        recordTime: p.recordTime || new Date().toLocaleString('zh-CN')
+                    });
+                    if (Array.isArray(item.details)) {
+                        purchaseDetailsMap[p.id] = item.details.map(d => ({
+                            name: d.name,
+                            spec: d.spec,
+                            unit: d.unit,
+                            qty: Number(d.qty) || 0,
+                            price: Number(d.price) || 0
+                        }));
+                    }
+                });
+            } catch (e) {
+                console.warn('加载由采购计划生成的采购订单失败', e);
+            }
+        }
 
         function renderTable() {
             tbody.innerHTML = '';
@@ -1851,8 +1898,20 @@
         defaultProducts.forEach(function (p) { var o = document.createElement('option'); o.value = p; poDatalist.appendChild(o); });
         document.body.appendChild(poDatalist);
 
-        // 初始化渲染
+        // 初始化渲染：先合并来自“采购计划”的订单，再渲染
+        loadPurchasesFromPlan();
+        filteredPurchases = [...purchases];
         renderTable();
+
+        // 顶部快捷入口：打开“采购计划”页面
+        (function initPlanEntry() {
+            const btn = document.getElementById('purchasePlanBtn');
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    window.open('采购计划.html', '_blank');
+                });
+            }
+        })();
     </script>
 </body>
 </html>

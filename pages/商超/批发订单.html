@@ -578,6 +578,50 @@
             gap: var(--spacing-sm);
         }
 
+        /* 新增订单 - 商品明细列表 */
+        .detail-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+        .detail-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .detail-table th,
+        .detail-table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+        .detail-table th {
+            background: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+        .detail-table input,
+        .detail-table select {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: var(--font-size-sm);
+        }
+        .detail-total {
+            margin-top: var(--spacing-xs);
+            text-align: right;
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+        }
+
         .form-group {
             margin-bottom: var(--spacing-md);
         }
@@ -872,6 +916,40 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">商品选择列表</label>
+                    <div class="detail-section">
+                        <div class="detail-section-header">
+                            <span class="detail-section-title">商品明细</span>
+                            <div>
+                                <button type="button" class="btn btn-outline btn-sm" id="addOrderProductRowBtn">+ 手工添加</button>
+                                <button type="button" class="btn btn-outline btn-sm" id="openProductSelectModalBtn">从商品库选择</button>
+                            </div>
+                        </div>
+                        <div class="table-container" style="box-shadow:none; border-radius:0; padding:0; margin-top:8px;">
+                            <div class="table-wrapper">
+                                <table class="detail-table">
+                                    <thead>
+                                        <tr>
+                                            <th>商品名称</th>
+                                            <th>规格</th>
+                                            <th>单位</th>
+                                            <th style="width:80px;">数量</th>
+                                            <th style="width:90px;">单价(元)</th>
+                                            <th style="width:90px;">金额(元)</th>
+                                            <th style="width:60px;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orderProductBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="detail-total">
+                                商品数量合计：<span id="detailTotalQty">0</span>
+                                &nbsp;&nbsp; 金额合计：<span id="detailTotalAmount">¥0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="form-label">商品总数量（件）</label>
                     <input type="number" class="form-input" id="totalQtyInput" min="0" step="1" placeholder="请输入本次批发的总件数，例如：50">
                 </div>
@@ -905,6 +983,40 @@
         </div>
     </div>
 
+    <!-- 商品选择列表模态框 -->
+    <div class="modal-overlay" id="productSelectModal">
+        <div class="modal" style="max-width: 720px;">
+            <div class="modal-header">
+                <h3 class="modal-title">选择商品加入订单</h3>
+                <button class="modal-close" id="closeProductSelectModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-container" style="box-shadow:none; border-radius:0; padding:0; max-height:420px; overflow:auto;">
+                    <div class="table-wrapper">
+                        <table class="detail-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:48px; text-align:center;">
+                                        <input type="checkbox" id="productSelectAll">
+                                    </th>
+                                    <th>商品名称</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th class="text-right" style="width:90px;">批发价(元)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productSelectBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="productSelectCancel">取消</button>
+                <button class="btn btn-primary" id="productSelectConfirm">加入订单</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 模拟打印机数据
         const printers = [
@@ -919,6 +1031,15 @@
             { id: 'PT002', name: '成都批发商B', contact: '李经理', mobile: '13800000002' },
             { id: 'PT003', name: '乐山批发商C', contact: '王总', mobile: '13800000003' },
             { id: 'PT004', name: '绵阳批发商D', contact: '赵经理', mobile: '13800000004' }
+        ];
+
+        // 模拟可选商品数据（用于商品选择列表）
+        const wholesaleProducts = [
+            { id: 'WP001', name: '蒙顶山茶礼盒', spec: '1kg/盒', unit: '盒', price: 120.00 },
+            { id: 'WP002', name: '雅安腊肉', spec: '500g/包', unit: '包', price: 48.00 },
+            { id: 'WP003', name: '雅安花椒', spec: '250g/袋', unit: '袋', price: 32.00 },
+            { id: 'WP004', name: '蜂蜜礼盒', spec: '2瓶装', unit: '盒', price: 88.00 },
+            { id: 'WP005', name: '菌菇干货组合', spec: '800g/袋', unit: '袋', price: 65.00 }
         ];
 
         // 模拟批发订单数据
@@ -1125,9 +1246,146 @@
             });
         }
 
+        // 新增订单 - 商品明细行管理
+        const orderProductBody = document.getElementById('orderProductBody');
+
+        function addOrderProductRow(item) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="op-name" placeholder="商品名称" value="${item ? (item.name || '') : ''}"></td>
+                <td><input type="text" class="op-spec" placeholder="规格" value="${item ? (item.spec || '') : ''}"></td>
+                <td>
+                    <select class="op-unit">
+                        <option value="件">件</option>
+                        <option value="盒">盒</option>
+                        <option value="包">包</option>
+                        <option value="袋">袋</option>
+                        <option value="瓶">瓶</option>
+                        <option value="箱">箱</option>
+                    </select>
+                </td>
+                <td><input type="number" class="op-qty" min="0" step="1" value="${item ? (item.qty || 1) : 1}"></td>
+                <td><input type="number" class="op-price" min="0" step="0.01" value="${item ? (item.price || 0) : 0}"></td>
+                <td class="op-amount">0.00</td>
+                <td><button type="button" class="btn-link danger op-remove">删除</button></td>
+            `;
+            orderProductBody.appendChild(tr);
+            const unitSelect = tr.querySelector('.op-unit');
+            if (item && item.unit) unitSelect.value = item.unit;
+            const qtyInput = tr.querySelector('.op-qty');
+            const priceInput = tr.querySelector('.op-price');
+            qtyInput.addEventListener('input', updateOrderProductRowAmount);
+            priceInput.addEventListener('input', updateOrderProductRowAmount);
+            tr.querySelector('.op-remove').addEventListener('click', function () {
+                if (orderProductBody.querySelectorAll('tr').length <= 1) {
+                    // 保留至少一行
+                    qtyInput.value = '1';
+                    priceInput.value = '0';
+                    updateOrderProductRowAmount({ target: qtyInput });
+                    return;
+                }
+                tr.remove();
+                updateOrderProductTotals();
+            });
+            updateOrderProductRowAmount({ target: qtyInput });
+        }
+
+        function updateOrderProductRowAmount(e) {
+            const row = e.target.closest('tr');
+            const qty = parseFloat(row.querySelector('.op-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.op-price').value) || 0;
+            row.querySelector('.op-amount').textContent = (qty * price).toFixed(2);
+            updateOrderProductTotals();
+        }
+
+        function updateOrderProductTotals() {
+            let totalQty = 0;
+            let totalAmount = 0;
+            orderProductBody.querySelectorAll('tr').forEach(tr => {
+                const qty = parseFloat(tr.querySelector('.op-qty').value) || 0;
+                const price = parseFloat(tr.querySelector('.op-price').value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+            const qtySpan = document.getElementById('detailTotalQty');
+            const amountSpan = document.getElementById('detailTotalAmount');
+            if (qtySpan) qtySpan.textContent = totalQty.toFixed(0);
+            if (amountSpan) amountSpan.textContent = '¥' + totalAmount.toFixed(2);
+            // 同步到总数量/金额输入框，便于后续统计
+            const totalQtyInput = document.getElementById('totalQtyInput');
+            const totalAmountInput = document.getElementById('totalAmountInput');
+            if (totalQtyInput) totalQtyInput.value = totalQty > 0 ? totalQty : '';
+            if (totalAmountInput) totalAmountInput.value = totalAmount > 0 ? totalAmount.toFixed(2) : '';
+        }
+
+        // 商品选择列表模态框
+        const productSelectModal = document.getElementById('productSelectModal');
+        const productSelectBody = document.getElementById('productSelectBody');
+
+        function renderProductSelectList() {
+            productSelectBody.innerHTML = '';
+            wholesaleProducts.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = p.id;
+                tr.dataset.name = p.name;
+                tr.dataset.spec = p.spec || '';
+                tr.dataset.unit = p.unit || '件';
+                tr.dataset.price = p.price;
+                tr.innerHTML = `
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="product-select-checkbox">
+                    </td>
+                    <td>${p.name}</td>
+                    <td>${p.spec || '-'}</td>
+                    <td>${p.unit || '件'}</td>
+                    <td class="text-right">${p.price.toFixed(2)}</td>
+                `;
+                productSelectBody.appendChild(tr);
+            });
+            const allCb = document.getElementById('productSelectAll');
+            if (allCb) allCb.checked = false;
+        }
+
+        function openProductSelectModal() {
+            renderProductSelectList();
+            productSelectModal.classList.add('show');
+        }
+
+        function closeProductSelectModal() {
+            productSelectModal.classList.remove('show');
+        }
+
+        function addSelectedProductsToOrder() {
+            const rows = Array.from(productSelectBody.querySelectorAll('tr'));
+            let added = 0;
+            rows.forEach(tr => {
+                const cb = tr.querySelector('.product-select-checkbox');
+                if (cb && cb.checked) {
+                    const item = {
+                        name: tr.dataset.name,
+                        spec: tr.dataset.spec,
+                        unit: tr.dataset.unit,
+                        qty: 1,
+                        price: parseFloat(tr.dataset.price) || 0
+                    };
+                    addOrderProductRow(item);
+                    added++;
+                }
+            });
+            if (!added) {
+                alert('请先勾选要加入订单的商品');
+                return;
+            }
+            closeProductSelectModal();
+        }
+
         // 新增订单
         function addOrder() {
             document.getElementById('addOrderModal').classList.add('show');
+            // 默认添加一行商品明细，方便直接录入
+            if (orderProductBody && orderProductBody.querySelectorAll('tr').length === 0) {
+                addOrderProductRow();
+            }
         }
 
         // 确认新增订单
@@ -1137,8 +1395,8 @@
             const contactName = document.getElementById('contactNameInput').value;
             const contactMobile = document.getElementById('contactMobileInput').value;
             const orderSource = document.getElementById('orderSourceSelect').value || 'manual';
-            const totalQty = parseInt(document.getElementById('totalQtyInput').value, 10) || 0;
-            const totalAmount = parseFloat(document.getElementById('totalAmountInput').value) || 0;
+            let totalQty = parseInt(document.getElementById('totalQtyInput').value, 10) || 0;
+            let totalAmount = parseFloat(document.getElementById('totalAmountInput').value) || 0;
             const paidAmount = parseFloat(document.getElementById('paidAmountInput').value) || 0;
             const autoAudit = document.getElementById('autoAuditCheckbox').checked;
             const remark = document.getElementById('remarkInput').value;
@@ -1150,6 +1408,25 @@
 
             const partnerOption = document.getElementById('partnerSelect').options[document.getElementById('partnerSelect').selectedIndex];
             const partner = JSON.parse(partnerOption.dataset.partner);
+
+            // 从商品明细行计算总数量与金额（如有明细则优先生效）
+            const products = [];
+            if (orderProductBody) {
+                orderProductBody.querySelectorAll('tr').forEach(tr => {
+                    const name = tr.querySelector('.op-name').value.trim();
+                    if (!name) return;
+                    const spec = tr.querySelector('.op-spec').value.trim();
+                    const unit = tr.querySelector('.op-unit').value;
+                    const qty = parseFloat(tr.querySelector('.op-qty').value) || 0;
+                    const price = parseFloat(tr.querySelector('.op-price').value) || 0;
+                    if (qty <= 0) return;
+                    products.push({ name, spec, unit, qty, price });
+                });
+            }
+            if (products.length) {
+                totalQty = products.reduce((s, p) => s + p.qty, 0);
+                totalAmount = products.reduce((s, p) => s + p.qty * p.price, 0);
+            }
 
             // 订单来源文案
             let sourceText = '部门代下单';
@@ -1188,7 +1465,8 @@
                 pickingStatus: 'pending',
                 outboundStatus: 'pending',
                 completedTime: null,
-                remark: remark
+                remark: remark,
+                products: products
             };
 
             wholesaleOrders.unshift(newOrder);
@@ -1211,6 +1489,13 @@
             document.getElementById('paidAmountInput').value = '';
             document.getElementById('autoAuditCheckbox').checked = false;
             document.getElementById('remarkInput').value = '';
+            if (orderProductBody) {
+                orderProductBody.innerHTML = '';
+            }
+            const qtySpan = document.getElementById('detailTotalQty');
+            const amountSpan = document.getElementById('detailTotalAmount');
+            if (qtySpan) qtySpan.textContent = '0';
+            if (amountSpan) amountSpan.textContent = '¥0.00';
         }
 
         // 筛选订单
@@ -1643,6 +1928,27 @@
                 document.getElementById('contactNameInput').value = partner.contact;
                 document.getElementById('contactMobileInput').value = partner.mobile;
             }
+        });
+
+        // 商品明细与选择列表事件
+        document.getElementById('addOrderProductRowBtn').addEventListener('click', function () {
+            addOrderProductRow();
+        });
+        document.getElementById('openProductSelectModalBtn').addEventListener('click', function () {
+            openProductSelectModal();
+        });
+        document.getElementById('closeProductSelectModal').addEventListener('click', function () {
+            closeProductSelectModal();
+        });
+        document.getElementById('productSelectCancel').addEventListener('click', function () {
+            closeProductSelectModal();
+        });
+        document.getElementById('productSelectConfirm').addEventListener('click', function () {
+            addSelectedProductsToOrder();
+        });
+        document.getElementById('productSelectAll').addEventListener('change', function () {
+            const checked = this.checked;
+            productSelectBody.querySelectorAll('.product-select-checkbox').forEach(cb => cb.checked = checked);
         });
 
         // 初始化

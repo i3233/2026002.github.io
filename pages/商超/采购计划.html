@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>采购计划 - 商超</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .plan-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+        .toolbar-card {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+        .toolbar-search-input {
+            flex: 1;
+            min-width: 180px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-base);
+        }
+        .table-container {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+            white-space: nowrap;
+        }
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+        th {
+            text-align: left;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: var(--font-size-xs);
+        }
+        .status-draft {
+            background-color: rgba(108, 117, 125, 0.12);
+            color: var(--color-text-secondary);
+        }
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.12);
+            color: var(--color-warning);
+        }
+        .status-approved {
+            background-color: rgba(40, 167, 69, 0.12);
+            color: var(--color-success);
+        }
+        .status-generated {
+            background-color: rgba(0, 123, 255, 0.12);
+            color: var(--color-primary);
+        }
+        .text-right {
+            text-align: right;
+        }
+        .btn-link {
+            color: var(--color-primary);
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+        .plan-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .plan-modal-overlay.show { display: flex; }
+        .plan-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .plan-modal .modal-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .plan-modal .modal-head h3 {
+            margin: 0;
+            font-size: var(--font-size-lg);
+        }
+        .plan-modal .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .plan-modal .modal-foot {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .form-row {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .form-group .required::after {
+            content: ' *';
+            color: var(--color-error);
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .detail-table th,
+        .detail-table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+        .detail-table th {
+            background: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+        }
+        .detail-table input,
+        .detail-table select {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .detail-total {
+            margin-top: var(--spacing-sm);
+            text-align: right;
+            font-weight: var(--font-weight-medium);
+        }
+        @media (max-width: 1200px) {
+            .toolbar-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="plan-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">采购计划</h1>
+                <div class="page-subtitle">先编制采购计划，提交财务审核，通过后方可生成采购订单并执行进货。</div>
+            </div>
+            <button class="btn btn-outline" id="toPurchaseOrderBtn">进入采购订单</button>
+        </div>
+
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addPlanBtn">新增计划</button>
+            </div>
+            <div class="toolbar-right">
+                <input type="text" class="toolbar-search-input" id="planSearchInput" placeholder="搜索：计划单号 / 往来单位 / 项目">
+                <button class="btn btn-outline" id="planSearchBtn">搜索</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>计划单号</th>
+                            <th>日期</th>
+                            <th>往来单位</th>
+                            <th>仓库</th>
+                            <th>项目</th>
+                            <th>经手人</th>
+                            <th class="text-right">计划数量</th>
+                            <th class="text-right">计划金额</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑 采购计划弹窗 -->
+    <div class="plan-modal-overlay" id="planModalOverlay">
+        <div class="plan-modal">
+            <div class="modal-head">
+                <h3 id="planModalTitle">新增采购计划</h3>
+                <button type="button" class="btn btn-text" id="planModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">计划单号</label>
+                        <input type="text" id="planIdInput" placeholder="可留空自动生成">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">计划日期</label>
+                        <input type="date" id="planDateInput">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">往来单位</label>
+                        <input type="text" id="planPartnerInput" placeholder="供应商名称">
+                    </div>
+                    <div class="form-group">
+                        <label>项目</label>
+                        <input type="text" id="planProjectInput" placeholder="如：节日促销备货">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">仓库</label>
+                        <select id="planWarehouseInput">
+                            <option value="总仓">总仓</option>
+                            <option value="分仓A">分仓A</option>
+                            <option value="分仓B">分仓B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>经手人</label>
+                        <input type="text" id="planStaffInput" placeholder="可选填">
+                    </div>
+                    <div class="form-group" style="flex:2;">
+                        <label>备注</label>
+                        <textarea id="planRemarkInput" placeholder="计划说明、采购策略等"></textarea>
+                    </div>
+                </div>
+
+                <h4 class="section-title" style="font-size: var(--font-size-base); font-weight: var(--font-weight-medium); margin: var(--spacing-md) 0 var(--spacing-sm); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-neutral-200);">
+                    商品明细
+                </h4>
+                <div class="table-container" style="box-shadow:none; border-radius:0; padding:0;">
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>商品名称</th>
+                                <th>规格</th>
+                                <th>单位</th>
+                                <th style="width:90px;">计划数量</th>
+                                <th style="width:90px;">参考单价(元)</th>
+                                <th style="width:90px;">金额(元)</th>
+                                <th style="width:90px;">条码（选填）</th>
+                                <th style="width:60px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planDetailBody"></tbody>
+                    </table>
+                    <button type="button" class="btn btn-outline" id="planAddRowBtn" style="margin-top: 8px;">+ 添加一行</button>
+                    <div class="detail-total">
+                        计划数量合计：<span id="planTotalQty">0</span>
+                        &nbsp;&nbsp; 计划金额合计：<span id="planTotalAmount">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button type="button" class="btn btn-outline" id="planModalCancel">取消</button>
+                <button type="button" class="btn btn-primary" id="planModalSave">保存计划</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 采购计划数据（支持与 localStorage 同步）
+        const purchasePlans = [];
+        let editingPlanId = null;
+        let filteredPlans = purchasePlans;
+
+        function loadPlansFromStorage() {
+            try {
+                const raw = localStorage.getItem('purchasePlans');
+                if (!raw) return;
+                const list = JSON.parse(raw);
+                if (Array.isArray(list)) {
+                    list.forEach(p => {
+                        if (p && p.id && !purchasePlans.some(x => x.id === p.id)) {
+                            purchasePlans.push(p);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('加载采购计划失败', e);
+            }
+        }
+
+        function savePlansToStorage() {
+            try {
+                localStorage.setItem('purchasePlans', JSON.stringify(purchasePlans));
+            } catch (e) {
+                console.warn('保存采购计划失败', e);
+            }
+        }
+
+        function getStatusClass(status) {
+            if (status === '待财务审核') return 'status-pending';
+            if (status === '财务已审核') return 'status-approved';
+            if (status === '已生成采购订单') return 'status-generated';
+            return 'status-draft';
+        }
+
+        function renderPlanTable() {
+            const tbody = document.getElementById('planTableBody');
+            tbody.innerHTML = '';
+            filteredPlans.forEach(plan => {
+                let totalQty = 0;
+                let totalAmount = 0;
+                (plan.items || []).forEach(it => {
+                    const qty = Number(it.qty) || 0;
+                    const price = Number(it.price) || 0;
+                    totalQty += qty;
+                    totalAmount += qty * price;
+                });
+                const tr = document.createElement('tr');
+                const disabledGenerate = plan.status !== '财务已审核' && plan.status !== '已生成采购订单';
+                tr.innerHTML = `
+                    <td>${plan.id}</td>
+                    <td>${plan.date}</td>
+                    <td>${plan.partner}</td>
+                    <td>${plan.warehouse}</td>
+                    <td>${plan.project || '-'}</td>
+                    <td>${plan.staff || '-'}</td>
+                    <td class="text-right">${totalQty.toFixed(2)}</td>
+                    <td class="text-right">¥${totalAmount.toFixed(2)}</td>
+                    <td><span class="status-pill ${getStatusClass(plan.status)}">${plan.status}</span></td>
+                    <td>
+                        <button class="btn-link btn-plan-edit" data-id="${plan.id}">编辑</button>
+                        <button class="btn-link btn-plan-submit" data-id="${plan.id}">提交财务</button>
+                        <button class="btn-link btn-plan-approve" data-id="${plan.id}">财务通过</button>
+                        <button class="btn-link btn-plan-generate" data-id="${plan.id}" ${disabledGenerate ? 'disabled style="color:var(--color-neutral-400);cursor:not-allowed;"' : ''}>生成采购订单</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 新增/编辑弹窗
+        const planModalOverlay = document.getElementById('planModalOverlay');
+        const planDetailBody = document.getElementById('planDetailBody');
+
+        function openPlanModal(plan) {
+            const today = new Date().toISOString().slice(0, 10);
+            if (plan) {
+                document.getElementById('planModalTitle').textContent = '编辑采购计划';
+                document.getElementById('planIdInput').value = plan.id;
+                document.getElementById('planDateInput').value = plan.date;
+                document.getElementById('planPartnerInput').value = plan.partner;
+                document.getElementById('planProjectInput').value = plan.project || '';
+                document.getElementById('planWarehouseInput').value = plan.warehouse || '总仓';
+                document.getElementById('planStaffInput').value = plan.staff || '';
+                document.getElementById('planRemarkInput').value = plan.remark || '';
+                planDetailBody.innerHTML = '';
+                (plan.items || []).forEach(item => addPlanDetailRow(item));
+                if (!plan.items || !plan.items.length) {
+                    addPlanDetailRow();
+                }
+                editingPlanId = plan.id;
+            } else {
+                document.getElementById('planModalTitle').textContent = '新增采购计划';
+                document.getElementById('planIdInput').value = '';
+                document.getElementById('planDateInput').value = today;
+                document.getElementById('planPartnerInput').value = '';
+                document.getElementById('planProjectInput').value = '';
+                document.getElementById('planWarehouseInput').value = '总仓';
+                document.getElementById('planStaffInput').value = '';
+                document.getElementById('planRemarkInput').value = '';
+                planDetailBody.innerHTML = '';
+                addPlanDetailRow();
+                addPlanDetailRow();
+                editingPlanId = null;
+            }
+            updatePlanTotals();
+            planModalOverlay.classList.add('show');
+        }
+
+        function closePlanModal() {
+            planModalOverlay.classList.remove('show');
+        }
+
+        function addPlanDetailRow(item) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="plan-name" placeholder="商品名称" value="${item ? (item.name || '') : ''}"></td>
+                <td><input type="text" class="plan-spec" placeholder="规格" value="${item ? (item.spec || '') : ''}"></td>
+                <td>
+                    <select class="plan-unit">
+                        <option value="个">个</option>
+                        <option value="盒">盒</option>
+                        <option value="袋">袋</option>
+                        <option value="瓶">瓶</option>
+                        <option value="包">包</option>
+                        <option value="套">套</option>
+                        <option value="斤">斤</option>
+                        <option value="kg">kg</option>
+                    </select>
+                </td>
+                <td><input type="number" class="plan-qty" min="0" step="0.01" value="${item ? (item.qty || 0) : 0}"></td>
+                <td><input type="number" class="plan-price" min="0" step="0.01" value="${item ? (item.price || 0) : 0}"></td>
+                <td class="plan-amount">0.00</td>
+                <td><input type="text" class="plan-barcode" placeholder="可选填" value="${item ? (item.barcode || '') : ''}"></td>
+                <td><button type="button" class="btn-link plan-remove-row">删除</button></td>
+            `;
+            planDetailBody.appendChild(tr);
+            const unitSelect = tr.querySelector('.plan-unit');
+            if (item && item.unit) {
+                unitSelect.value = item.unit;
+            }
+            tr.querySelector('.plan-qty').addEventListener('input', updatePlanRowAmount);
+            tr.querySelector('.plan-price').addEventListener('input', updatePlanRowAmount);
+            tr.querySelector('.plan-remove-row').addEventListener('click', function () {
+                if (planDetailBody.querySelectorAll('tr').length <= 1) return;
+                tr.remove();
+                updatePlanTotals();
+            });
+            updatePlanRowAmount({ target: tr.querySelector('.plan-qty') });
+        }
+
+        function updatePlanRowAmount(e) {
+            const row = e.target.closest('tr');
+            const qty = parseFloat(row.querySelector('.plan-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.plan-price').value) || 0;
+            row.querySelector('.plan-amount').textContent = (qty * price).toFixed(2);
+            updatePlanTotals();
+        }
+
+        function updatePlanTotals() {
+            let totalQty = 0;
+            let totalAmount = 0;
+            planDetailBody.querySelectorAll('tr').forEach(tr => {
+                const qty = parseFloat(tr.querySelector('.plan-qty').value) || 0;
+                const price = parseFloat(tr.querySelector('.plan-price').value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+            document.getElementById('planTotalQty').textContent = totalQty.toFixed(2);
+            document.getElementById('planTotalAmount').textContent = '¥' + totalAmount.toFixed(2);
+        }
+
+        function savePlanFromModal() {
+            const manualId = document.getElementById('planIdInput').value.trim();
+            const date = document.getElementById('planDateInput').value;
+            const partner = document.getElementById('planPartnerInput').value.trim();
+            if (!date) {
+                alert('请选择计划日期');
+                return;
+            }
+            if (!partner) {
+                alert('请填写往来单位');
+                return;
+            }
+            let items = [];
+            let totalQty = 0;
+            let totalAmount = 0;
+            planDetailBody.querySelectorAll('tr').forEach(tr => {
+                const name = tr.querySelector('.plan-name').value.trim();
+                const spec = tr.querySelector('.plan-spec').value.trim();
+                const unit = tr.querySelector('.plan-unit').value;
+                const qty = parseFloat(tr.querySelector('.plan-qty').value) || 0;
+                const price = parseFloat(tr.querySelector('.plan-price').value) || 0;
+                const barcode = tr.querySelector('.plan-barcode').value.trim();
+                if (name && qty > 0) {
+                    items.push({ name, spec, unit, qty, price, barcode });
+                    totalQty += qty;
+                    totalAmount += qty * price;
+                }
+            });
+            if (!items.length) {
+                alert('请至少添加一行有效商品明细');
+                return;
+            }
+            let id = manualId;
+            if (!id) {
+                const seq = String(purchasePlans.length + 1).padStart(3, '0');
+                id = 'CGPLAN' + date.replace(/-/g, '') + seq;
+            }
+            if (!editingPlanId && purchasePlans.some(p => p.id === id)) {
+                alert('计划单号已存在，请修改单号或编辑原记录');
+                return;
+            }
+            const planData = {
+                id,
+                date,
+                partner,
+                project: document.getElementById('planProjectInput').value.trim(),
+                warehouse: document.getElementById('planWarehouseInput').value,
+                staff: document.getElementById('planStaffInput').value.trim(),
+                remark: document.getElementById('planRemarkInput').value.trim(),
+                items,
+                status: editingPlanId ? (purchasePlans.find(p => p.id === editingPlanId)?.status || '草稿') : '草稿'
+            };
+            if (editingPlanId) {
+                const idx = purchasePlans.findIndex(p => p.id === editingPlanId);
+                if (idx > -1) {
+                    purchasePlans[idx] = planData;
+                }
+            } else {
+                purchasePlans.unshift(planData);
+            }
+            savePlansToStorage();
+            filteredPlans = purchasePlans;
+            renderPlanTable();
+            closePlanModal();
+        }
+
+        // 状态流转：提交财务 / 财务通过 / 生成采购订单
+        function updatePlanStatus(planId, toStatus) {
+            const plan = purchasePlans.find(p => p.id === planId);
+            if (!plan) return;
+            if (toStatus === '待财务审核') {
+                plan.status = '待财务审核';
+            } else if (toStatus === '财务已审核') {
+                if (plan.status !== '待财务审核') {
+                    if (!confirm('当前不是“待财务审核”状态，仍然标记为财务已审核吗？')) return;
+                }
+                plan.status = '财务已审核';
+            }
+            savePlansToStorage();
+            renderPlanTable();
+        }
+
+        function generatePurchaseOrderFromPlan(planId) {
+            const plan = purchasePlans.find(p => p.id === planId);
+            if (!plan) return;
+            if (plan.status !== '财务已审核' && plan.status !== '已生成采购订单') {
+                alert('请先完成财务审核，再生成采购订单。');
+                return;
+            }
+            if (!plan.items || !plan.items.length) {
+                alert('该计划没有商品明细，无法生成采购订单。');
+                return;
+            }
+            let ordersFromPlan = [];
+            try {
+                const raw = localStorage.getItem('purchaseOrdersFromPlan');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) ordersFromPlan = parsed;
+                }
+            } catch (e) {
+                console.warn('读取计划生成的采购订单失败', e);
+            }
+            if (ordersFromPlan.some(x => x && x.purchase && x.purchase.id === plan.id)) {
+                alert('已根据该计划生成过采购订单。');
+                plan.status = '已生成采购订单';
+                savePlansToStorage();
+                renderPlanTable();
+                return;
+            }
+            let totalQty = 0;
+            let totalAmount = 0;
+            plan.items.forEach(it => {
+                const qty = Number(it.qty) || 0;
+                const price = Number(it.price) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+            const now = new Date();
+            const recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            const purchase = {
+                id: plan.id,
+                date: plan.date,
+                partner: plan.partner,
+                project: plan.project || '-',
+                staff: plan.staff || '',
+                remark: plan.remark || '',
+                qty: totalQty,
+                amount: totalAmount,
+                payable: totalAmount,
+                status: '待审核',
+                attachment: '0',
+                recorder: '系统管理员',
+                recordTime: recordTime
+            };
+            const details = plan.items.map(it => ({
+                name: it.name,
+                spec: it.spec || '',
+                unit: it.unit || '',
+                qty: Number(it.qty) || 0,
+                price: Number(it.price) || 0,
+                barcode: it.barcode || ''
+            }));
+            ordersFromPlan.push({ purchase, details });
+            try {
+                localStorage.setItem('purchaseOrdersFromPlan', JSON.stringify(ordersFromPlan));
+            } catch (e) {
+                console.warn('保存计划生成的采购订单失败', e);
+            }
+            plan.status = '已生成采购订单';
+            savePlansToStorage();
+            renderPlanTable();
+            if (confirm('已根据该计划生成采购订单，是否前往“采购订单”页面查看？')) {
+                window.open('采购订单.html', '_blank');
+            }
+        }
+
+        // 搜索
+        function doPlanSearch() {
+            const kw = document.getElementById('planSearchInput').value.trim().toLowerCase();
+            if (!kw) {
+                filteredPlans = purchasePlans;
+            } else {
+                filteredPlans = purchasePlans.filter(p => {
+                    return (
+                        (p.id || '').toLowerCase().includes(kw) ||
+                        (p.partner || '').toLowerCase().includes(kw) ||
+                        (p.project || '').toLowerCase().includes(kw)
+                    );
+                });
+            }
+            renderPlanTable();
+        }
+
+        // 事件绑定
+        document.getElementById('addPlanBtn').addEventListener('click', () => openPlanModal());
+        document.getElementById('planModalClose').addEventListener('click', closePlanModal);
+        document.getElementById('planModalCancel').addEventListener('click', closePlanModal);
+        planModalOverlay.addEventListener('click', e => {
+            if (e.target === planModalOverlay) closePlanModal();
+        });
+        document.getElementById('planAddRowBtn').addEventListener('click', () => addPlanDetailRow());
+        document.getElementById('planModalSave').addEventListener('click', savePlanFromModal);
+        document.getElementById('planSearchBtn').addEventListener('click', doPlanSearch);
+        document.getElementById('planSearchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') doPlanSearch();
+        });
+        document.getElementById('toPurchaseOrderBtn').addEventListener('click', () => {
+            window.open('采购订单.html', '_blank');
+        });
+
+        document.getElementById('planTableBody').addEventListener('click', function (e) {
+            const editBtn = e.target.closest('.btn-plan-edit');
+            const submitBtn = e.target.closest('.btn-plan-submit');
+            const approveBtn = e.target.closest('.btn-plan-approve');
+            const generateBtn = e.target.closest('.btn-plan-generate');
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                const plan = purchasePlans.find(p => p.id === id);
+                if (plan) openPlanModal(plan);
+            } else if (submitBtn) {
+                const id = submitBtn.dataset.id;
+                if (confirm('确定将该计划提交给财务审核吗？')) {
+                    updatePlanStatus(id, '待财务审核');
+                }
+            } else if (approveBtn) {
+                const id = approveBtn.dataset.id;
+                if (confirm('确认财务审核通过该计划吗？')) {
+                    updatePlanStatus(id, '财务已审核');
+                }
+            } else if (generateBtn && !generateBtn.disabled) {
+                const id = generateBtn.dataset.id;
+                generatePurchaseOrderFromPlan(id);
+            }
+        });
+
+        // 初始化
+        loadPlansFromStorage();
+        filteredPlans = purchasePlans;
+        renderPlanTable();
+    </script>
+</body>
+</html>
+

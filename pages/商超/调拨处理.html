@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>调拨处理（列表） - 2026新项目二</title>
+    <title>调拨处理 - 2026新项目二</title>
     <link rel="stylesheet" href="../../css/Main.css">
     <style>
         .transfer-page {
@@ -866,8 +866,8 @@
         <!-- 页面标题 -->
         <div class="page-header">
             <div>
-                <h1 class="page-title">调拨处理（列表）</h1>
-                <div class="page-subtitle">管理和查询仓库之间的商品调拨记录</div>
+                <h1 class="page-title">调拨处理</h1>
+                <div class="page-subtitle">管理和查询门店之间的商品调拨记录</div>
             </div>
         </div>
 
@@ -883,7 +883,7 @@
                 <input type="date" id="datePicker" title="选择日期">
             </div>
             <div class="search-input-wrapper">
-                <input type="text" id="searchInput" placeholder="关键字搜索：支持按调出仓库、调入仓库、备注等搜索">
+                <input type="text" id="searchInput" placeholder="关键字搜索：支持按调出门店、调入门店、备注等搜索">
             </div>
             <button class="btn btn-outline" id="searchBtn">搜索</button>
         </div>
@@ -896,8 +896,8 @@
                         <tr>
                             <th class="text-center">序号</th>
                             <th>日期</th>
-                            <th>调出仓库</th>
-                            <th>调入仓库</th>
+                            <th>调出门店</th>
+                            <th>调入门店</th>
                             <th>备注</th>
                             <th class="text-center">附件</th>
                             <th class="text-right">数量</th>
@@ -951,16 +951,16 @@
                     <h4 class="form-section-title">基础信息</h4>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label required">调出仓库</label>
+                            <label class="form-label required">调出门店</label>
                             <select class="form-select" id="fromWarehouseSelect">
-                                <option value="">请选择调出仓库</option>
+                                <option value="">请选择调出门店</option>
                                 <!-- 选项由JS动态生成 -->
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">调入仓库</label>
+                            <label class="form-label">调入门店</label>
                             <select class="form-select" id="toWarehouseSelect">
-                                <option value="">请选择调入仓库</option>
+                                <option value="">请选择调入门店</option>
                                 <!-- 选项由JS动态生成 -->
                             </select>
                         </div>
@@ -1125,21 +1125,21 @@
     </div>
 
     <script>
-        // 模拟仓库数据
+        // 模拟门店数据
         const warehouses = [
-            { id: 'WH001', name: '主仓库' },
-            { id: 'WH002', name: '分仓库A' },
-            { id: 'WH003', name: '分仓库B' },
-            { id: 'WH004', name: '临时仓库' }
+            { id: 'WH001', name: '总店' },
+            { id: 'WH002', name: '分店A' },
+            { id: 'WH003', name: '分店B' },
+            { id: 'WH004', name: '临时店' }
         ];
 
-        // 模拟调拨数据
+        // 模拟调拨数据（门店之间）
         const transferData = [
             {
                 id: 'TB20250826001',
                 date: '2025-08-26',
-                fromWarehouse: '主仓库',
-                toWarehouse: '分仓库A',
+                fromWarehouse: '总店',
+                toWarehouse: '分店A',
                 remark: '日常补货',
                 attachment: 1,
                 qty: 50,
@@ -1150,8 +1150,8 @@
             {
                 id: 'TB20250826002',
                 date: '2025-08-26',
-                fromWarehouse: '主仓库',
-                toWarehouse: '分仓库B',
+                fromWarehouse: '总店',
+                toWarehouse: '分店B',
                 remark: '紧急调拨',
                 attachment: 0,
                 qty: 30,
@@ -1162,8 +1162,8 @@
             {
                 id: 'TB20250827001',
                 date: '2025-08-27',
-                fromWarehouse: '分仓库A',
-                toWarehouse: '主仓库',
+                fromWarehouse: '分店A',
+                toWarehouse: '总店',
                 remark: '库存回拨',
                 attachment: 2,
                 qty: 25,
@@ -1174,8 +1174,8 @@
             {
                 id: 'TB20250827002',
                 date: '2025-08-27',
-                fromWarehouse: '主仓库',
-                toWarehouse: '临时仓库',
+                fromWarehouse: '总店',
+                toWarehouse: '临时店',
                 remark: '活动备货',
                 attachment: 0,
                 qty: 100,
@@ -1186,8 +1186,8 @@
             {
                 id: 'TB20250828001',
                 date: '2025-08-28',
-                fromWarehouse: '分仓库B',
-                toWarehouse: '分仓库A',
+                fromWarehouse: '分店B',
+                toWarehouse: '分店A',
                 remark: '平衡库存',
                 attachment: 1,
                 qty: 40,
@@ -1198,8 +1198,8 @@
             {
                 id: 'TB20250828002',
                 date: '2025-08-28',
-                fromWarehouse: '主仓库',
-                toWarehouse: '分仓库A',
+                fromWarehouse: '总店',
+                toWarehouse: '分店A',
                 remark: '日常补货',
                 attachment: 0,
                 qty: 60,
@@ -1210,8 +1210,8 @@
             {
                 id: 'TB20250829001',
                 date: '2025-08-29',
-                fromWarehouse: '临时仓库',
-                toWarehouse: '主仓库',
+                fromWarehouse: '临时店',
+                toWarehouse: '总店',
                 remark: '活动结束回库',
                 attachment: 1,
                 qty: 80,
@@ -1222,8 +1222,8 @@
             {
                 id: 'TB20250829002',
                 date: '2025-08-29',
-                fromWarehouse: '主仓库',
-                toWarehouse: '分仓库B',
+                fromWarehouse: '总店',
+                toWarehouse: '分店B',
                 remark: '新店开业备货',
                 attachment: 2,
                 qty: 120,
@@ -1234,8 +1234,8 @@
             {
                 id: 'TB20250830001',
                 date: '2025-08-30',
-                fromWarehouse: '分仓库A',
-                toWarehouse: '主仓库',
+                fromWarehouse: '分店A',
+                toWarehouse: '总店',
                 remark: '库存调整',
                 attachment: 0,
                 qty: 35,
@@ -1246,8 +1246,8 @@
             {
                 id: 'TB20250830002',
                 date: '2025-08-30',
-                fromWarehouse: '主仓库',
-                toWarehouse: '临时仓库',
+                fromWarehouse: '总店',
+                toWarehouse: '临时店',
                 remark: '促销活动',
                 attachment: 1,
                 qty: 90,
@@ -1258,8 +1258,8 @@
             {
                 id: 'TB20250831001',
                 date: '2025-08-31',
-                fromWarehouse: '分仓库B',
-                toWarehouse: '分仓库A',
+                fromWarehouse: '分店B',
+                toWarehouse: '分店A',
                 remark: '紧急调拨',
                 attachment: 0,
                 qty: 45,
@@ -1468,7 +1468,7 @@
                 btn.addEventListener('click', function() {
                     const transferId = this.dataset.id;
                     const transfer = transferData.find(t => t.id === transferId);
-                    alert(`调拨详情（示例）\n调拨单号：${transfer.id}\n日期：${transfer.date}\n调出仓库：${transfer.fromWarehouse}\n调入仓库：${transfer.toWarehouse}\n数量：${transfer.qty}\n金额：¥${transfer.amount.toFixed(2)}\n备注：${transfer.remark || '无'}`);
+                    alert(`调拨详情（示例）\n调拨单号：${transfer.id}\n日期：${transfer.date}\n调出门店：${transfer.fromWarehouse}\n调入门店：${transfer.toWarehouse}\n数量：${transfer.qty}\n金额：¥${transfer.amount.toFixed(2)}\n备注：${transfer.remark || '无'}`);
                 });
             });
 
@@ -2252,7 +2252,7 @@
             const transferDate = document.getElementById('transferDateInput').value;
 
             if (!fromWarehouse) {
-                alert('请选择调出仓库');
+                alert('请选择调出门店');
                 document.getElementById('fromWarehouseSelect').classList.add('error');
                 return;
             }

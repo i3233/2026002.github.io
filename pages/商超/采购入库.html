@@ -423,7 +423,7 @@
         <div class="page-header">
             <div>
                 <h1 class="page-title">采购入库</h1>
-                <div class="page-subtitle">选择采购订单，匹配条码入库，提交财务审核</div>
+                <div class="page-subtitle">选择采购订单，匹配条码入库，完成后自动更新应付和库存（无需再次财务审核）</div>
             </div>
         </div>
 
@@ -666,6 +666,41 @@
         let barcodeRequired = false;
         // 审核状态：none-未提交, pending-审核中, approved-已通过, rejected-已拒绝
         let auditStatus = 'none';
+
+        // 从“采购计划”生成的采购订单中补充订单数据
+        function loadPurchaseOrdersFromPlan() {
+            try {
+                const raw = localStorage.getItem('purchaseOrdersFromPlan');
+                if (!raw) return;
+                const list = JSON.parse(raw);
+                if (!Array.isArray(list)) return;
+                list.forEach(item => {
+                    if (!item || !item.purchase || !item.purchase.id) return;
+                    const p = item.purchase;
+                    if (purchaseOrders.some(o => o.id === p.id)) return;
+                    const products = Array.isArray(item.details) ? item.details.map((d, idx) => ({
+                        id: d.id || (idx + 1),
+                        name: d.name,
+                        spec: d.spec || '',
+                        unit: d.unit || '',
+                        qty: Number(d.qty) || 0,
+                        price: Number(d.price) || 0,
+                        barcode: d.barcode || ''
+                    })) : [];
+                    purchaseOrders.push({
+                        id: p.id,
+                        date: p.date,
+                        partner: p.partner,
+                        project: p.project,
+                        amount: Number(p.amount) || 0,
+                        payable: Number(p.payable) || 0,
+                        products
+                    });
+                });
+            } catch (e) {
+                console.warn('加载由采购计划生成的采购订单到入库页面失败', e);
+            }
+        }
 
         // 初始化订单列表
         function initOrderList() {
@@ -942,7 +977,7 @@
             }
         }
 
-        // 提交财务审核
+        // 确认入库（不再走财务审核环节）
         function submitAudit() {
             if (!selectedOrder) {
                 alert('请先选择采购订单');
@@ -953,7 +988,7 @@
             if (barcodeRequired) {
                 const missingBarcode = storageItems.find(item => !item.scannedBarcode || !item.scannedBarcode.trim());
                 if (missingBarcode) {
-                    alert('请为所有商品录入条码后再提交审核');
+                    alert('请为所有商品录入条码后再确认入库');
                     return;
                 }
             }
@@ -965,24 +1000,18 @@
                 return;
             }
 
-            if (!confirm('确定要提交财务审核吗？提交后将无法修改。')) {
+            if (!confirm('确定要确认入库吗？确认后将视为入库完成，并增加应付与库存。')) {
                 return;
             }
 
-            // 更新审核状态
-            auditStatus = 'pending';
+            // 直接视为入库完成
+            auditStatus = 'approved';
             updateAuditStatus();
-            
-            // 模拟审核流程（3秒后自动通过）
-            setTimeout(() => {
-                auditStatus = 'approved';
-                updateAuditStatus();
-                
-                // 更新应付金额
-                updatePayable();
-                
-                alert('审核已通过！入库成功，应付金额已更新。');
-            }, 3000);
+
+            // 更新应付金额（视为应付增加）
+            updatePayable();
+
+            alert('入库成功，应付金额已更新。');
         }
 
         // 更新审核状态
@@ -994,31 +1023,31 @@
             
             switch(auditStatus) {
                 case 'none':
-                    badge.textContent = '未提交';
-                    text.textContent = '请完成商品明细和条码录入后提交财务审核';
+                    badge.textContent = '未入库';
+                    text.textContent = '请完成商品明细和条码录入后，点击“确认入库”。';
                     break;
                 case 'pending':
-                    badge.textContent = '审核中';
-                    text.textContent = '已提交财务审核，请等待审核结果...';
+                    badge.textContent = '入库中';
+                    text.textContent = '入库处理中...';
                     break;
                 case 'approved':
-                    badge.textContent = '审核通过';
-                    text.textContent = '审核已通过，入库成功！应付金额已更新。';
+                    badge.textContent = '已入库';
+                    text.textContent = '该采购订单已完成入库，应付金额已更新。';
                     break;
                 case 'rejected':
-                    badge.textContent = '审核拒绝';
-                    text.textContent = '审核未通过，请检查后重新提交。';
+                    badge.textContent = '入库失败';
+                    text.textContent = '入库未完成，请检查后重新操作。';
                     break;
             }
 
             // 更新提交按钮状态
             const submitBtn = document.getElementById('submitAuditBtn');
-            if (auditStatus === 'pending' || auditStatus === 'approved') {
+            if (auditStatus === 'approved') {
                 submitBtn.disabled = true;
-                submitBtn.textContent = auditStatus === 'approved' ? '已审核通过' : '审核中...';
+                submitBtn.textContent = '已入库完成';
             } else {
                 submitBtn.disabled = false;
-                submitBtn.textContent = '提交财务审核';
+                submitBtn.textContent = '确认入库';
             }
         }
 
@@ -1134,7 +1163,7 @@
             }
         });
 
-        document.getElementById('submitAuditBtn').addEventListener('click', submitAudit);
+            document.getElementById('submitAuditBtn').addEventListener('click', submitAudit);
         document.getElementById('resetBtn').addEventListener('click', resetForm);
 
         // 强制条码录入开关
@@ -1148,7 +1177,8 @@
             }
         });
 
-        // 初始化
+        // 初始化：先合并来自“采购计划”的采购订单，再初始化列表
+        loadPurchaseOrdersFromPlan();
         initOrderList();
         updateAuditStatus();
 

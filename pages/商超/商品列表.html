@@ -46,6 +46,61 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
         }
+        /* 左侧分类菜单 + 右侧内容布局 */
+        .product-layout {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-lg);
+        }
+        .category-menu-panel {
+            width: 200px;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md);
+        }
+        .category-menu-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+        .category-menu-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .category-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            transition: all var(--transition-base) var(--ease-in-out);
+        }
+        .category-menu-item:hover {
+            background-color: var(--color-neutral-50);
+            color: var(--color-text-primary);
+        }
+        .category-menu-item.active {
+            background-color: rgba(44, 131, 235, 0.08);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .category-menu-count {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+        .product-main-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
 
         .tab-nav-item {
             padding: var(--spacing-sm) var(--spacing-lg);
@@ -139,11 +194,6 @@
             min-width: 200px;
         }
 
-        .filter-item--category {
-            flex: 0 0 auto;
-            min-width: auto;
-        }
-
         .filter-item label {
             display: block;
             margin-bottom: var(--spacing-xs);
@@ -165,44 +215,6 @@
             outline: none;
             border-color: var(--color-primary);
             box-shadow: var(--shadow-input-focus);
-        }
-
-        .category-filter-btn {
-            margin-top: var(--spacing-xs);
-        }
-
-        .category-tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-xs);
-            margin-top: var(--spacing-sm);
-        }
-
-        .category-selected-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            background-color: rgba(44, 131, 235, 0.1);
-            color: var(--color-primary);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-sm);
-        }
-
-        .category-selected-tag .close-btn {
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all var(--transition-base) var(--ease-in-out);
-        }
-
-        .category-selected-tag .close-btn:hover {
-            background-color: var(--color-primary);
-            color: #ffffff;
         }
 
         /* 弹窗遮罩 */
@@ -743,10 +755,21 @@
 
         /* 响应式 */
         @media (max-width: 1200px) {
+            .product-layout {
+                flex-direction: column;
+            }
+            .category-menu-panel {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--spacing-xs);
+            }
+            .category-menu-title {
+                width: 100%;
+            }
             .filter-row {
                 flex-direction: column;
             }
-
             .filter-item {
                 width: 100%;
             }
@@ -774,117 +797,92 @@
 
         <!-- Tab标签导航 -->
         <div class="tabs-nav">
-            <button class="tab-nav-item active" data-tab="all">全部</button>
-            <button class="tab-nav-item" data-tab="selling">销售中</button>
+            <button class="tab-nav-item active" data-tab="selling">销售中</button>
             <button class="tab-nav-item" data-tab="offline">下架中</button>
             <button class="tab-nav-item" data-tab="soldout">售罄</button>
         </div>
 
-        <!-- 筛选区域 -->
-        <div class="filter-section">
-            <div class="filter-row">
-                <div class="filter-item filter-item--category">
-                    <label>分类筛选</label>
-                    <button class="btn btn-outline category-filter-btn" id="categoryFilterBtn">分类筛选</button>
-                    <div class="category-tags-container" id="categoryTagsContainer"></div>
-                </div>
-                <div class="filter-item">
-                    <label>添加时间</label>
-                    <div class="date-range">
-                        <input type="date" id="startDate" value="2025-01-01">
-                        <span>至</span>
-                        <input type="date" id="endDate" value="2025-12-31">
-                    </div>
-                </div>
-                <div class="filter-item search-box">
-                    <label>搜索</label>
-                    <input type="text" id="searchInput" placeholder="支持输入商品ID、关键词、货号、条形码或名称搜索">
-                </div>
-            </div>
-        </div>
+        <div class="product-layout">
+            <!-- 左侧分类菜单 -->
+            <aside class="category-menu-panel">
+                <div class="category-menu-title">商品分类</div>
+                <ul class="category-menu-list" id="categoryMenuList">
+                    <!-- JS 渲染 -->
+                </ul>
+            </aside>
 
-        <!-- 批量操作区域（常显） -->
-        <div class="batch-actions" id="batchActions">
-            <span class="selected-count">已选择 <span id="selectedCount">0</span> 项</span>
-            <button class="btn btn-outline">上架</button>
-            <button class="btn btn-outline">下架</button>
-            <button class="btn btn-outline">删除</button>
-            <button class="btn btn-outline" id="batchEditBtn">批量设置</button>
-        </div>
+            <!-- 右侧主内容 -->
+            <section class="product-main-panel">
+                <!-- 筛选区域 -->
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <div class="filter-item">
+                            <label>添加时间</label>
+                            <div class="date-range">
+                                <input type="date" id="startDate" value="2025-01-01">
+                                <span>至</span>
+                                <input type="date" id="endDate" value="2025-12-31">
+                            </div>
+                        </div>
+                        <div class="filter-item search-box">
+                            <label>搜索</label>
+                            <input type="text" id="searchInput" placeholder="支持输入商品ID、关键词、货号、条形码或名称搜索">
+                        </div>
+                    </div>
+                </div>
 
-        <!-- 表格容器 -->
-        <div class="table-container">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="checkbox-cell">
-                                <input type="checkbox" id="selectAll">
-                            </th>
-                            <th class="sortable" data-sort="id">ID</th>
-                            <th>排序</th>
-                            <th>分类</th>
-                            <th>标签</th>
-                            <th>商品名称</th>
-                            <th>售价</th>
-                            <th>成本价</th>
-                            <th>库存</th>
-                            <th>销售/下架</th>
-                            <th>已出售量</th>
-                            <th>同步到线上商城</th>
-                            <th>添加时间</th>
-                            <th>状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productTableBody">
-                        <!-- 数据由JavaScript动态生成 -->
-                    </tbody>
-                </table>
-            </div>
-            <!-- 分页 -->
-            <div class="pagination">
-                <div class="pagination-info">
-                    共 <span id="totalCount">8</span> 条数据，每页显示 10 条
+                <!-- 批量操作区域（常显） -->
+                <div class="batch-actions" id="batchActions">
+                    <span class="selected-count">已选择 <span id="selectedCount">0</span> 项</span>
+                    <button class="btn btn-outline">上架</button>
+                    <button class="btn btn-outline">下架</button>
+                    <button class="btn btn-outline">删除</button>
+                    <button class="btn btn-outline" id="batchEditBtn">批量设置</button>
                 </div>
-                <div class="pagination-controls">
-                    <button class="pagination-btn" disabled>上一页</button>
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn" disabled>下一页</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- 分类选择弹窗 -->
-        <div class="modal-overlay" id="categoryModalOverlay">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3 class="modal-title">选择分类</h3>
-                    <button class="modal-close" id="modalClose">
-                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="category-checkbox-item">
-                        <input type="checkbox" id="category1" value="雅安好物">
-                        <label for="category1">雅安好物</label>
+                <!-- 表格容器 -->
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-cell">
+                                        <input type="checkbox" id="selectAll">
+                                    </th>
+                                    <th class="sortable" data-sort="id">ID</th>
+                                    <th>排序</th>
+                                    <th>分类</th>
+                                    <th>标签</th>
+                                    <th>商品名称</th>
+                                    <th>售价</th>
+                                    <th>成本价</th>
+                                    <th>库存</th>
+                                    <th>销售/下架</th>
+                                    <th>已出售量</th>
+                                    <th>同步到线上商城</th>
+                                    <th>收银台展示</th>
+                                    <th>添加时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                <!-- 数据由JavaScript动态生成 -->
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="category-checkbox-item">
-                        <input type="checkbox" id="category2" value="雅安好景">
-                        <label for="category2">雅安好景</label>
-                    </div>
-                    <div class="category-checkbox-item">
-                        <input type="checkbox" id="category3" value="文创产品">
-                        <label for="category3">文创产品</label>
+                    <!-- 分页 -->
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            共 <span id="totalCount">8</span> 条数据，每页显示 10 条
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" disabled>上一页</button>
+                            <button class="pagination-btn active">1</button>
+                            <button class="pagination-btn" disabled>下一页</button>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline" id="modalCancel">取消</button>
-                    <button class="btn btn-primary" id="modalConfirm">确定</button>
-                </div>
-            </div>
+            </section>
         </div>
 
         <!-- 批量修改弹窗 -->
@@ -941,21 +939,21 @@
 
         // 商品数据（与商超收银台、商品分类、商品标签对应；tags 为商品标签页中的标签名称）
         const products = [
-            { id: 1, sort: 100, category: '雅安好景', tags: ['雅安特产', '热销'], name: '雅安特产绿营养蛋', image: '../../images/01.jpg', price: 20.00, costPrice: 0.00, stock: 6977, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 2, sort: 100, category: '雅安好景', tags: ['产地直供', '包邮'], name: '土司农家散养蛋', image: '../../images/02.jpg', price: 18.00, costPrice: 0.00, stock: 1306, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 3, sort: 100, category: '雅安好景', tags: ['雅安特产', '推荐'], name: '有机山茶油', image: '../../images/03.jpg', price: 36.00, costPrice: 0.00, stock: 2623, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 4, sort: 100, category: '雅安好景', tags: ['热销', '包邮'], name: '腊味礼盒', image: '../../images/04.jpg', price: 15.00, costPrice: 0.00, stock: 856, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 5, sort: 100, category: '雅安好景', tags: ['雅安特产', '精选'], name: '蒙顶山茶', image: '../../images/05.jpg', price: 49.00, costPrice: 0.00, stock: 420, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 6, sort: 100, category: '雅安好景', tags: ['推荐', '爆款'], name: '雅鱼鲜礼盒', image: '../../images/06.jpg', price: 68.00, costPrice: 0.00, stock: 318, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 7, sort: 100, category: '雅安好景', tags: ['热销', '自营'], name: '花椒油', image: '../../images/01.jpg', price: 15.00, costPrice: 0.00, stock: 2100, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 13, sort: 100, category: '雅安好物', tags: ['雅安特产', '新品'], name: '雅安蜂蜜', image: '../../images/01.jpg', price: 38.00, costPrice: 0.00, stock: 520, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 14, sort: 100, category: '雅安好物', tags: ['精选', '会员专享'], name: '雅安黑茶', image: '../../images/02.jpg', price: 88.00, costPrice: 0.00, stock: 260, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 15, sort: 100, category: '雅安好物', tags: ['产地直供', '推荐'], name: '雅安菌菇干货', image: '../../images/03.jpg', price: 45.00, costPrice: 0.00, stock: 380, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 8, sort: 100, category: '文创产品', tags: ['新品', '热销'], name: '熊猫周边玩偶', image: '../../images/02.jpg', price: 28.00, costPrice: 0.00, stock: 560, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 9, sort: 100, category: '文创产品', tags: ['精选', '推荐'], name: '雅安风景明信片', image: '../../images/03.jpg', price: 58.00, costPrice: 0.00, stock: 890, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 10, sort: 100, category: '文创产品', tags: ['自营', '包邮'], name: '茶具套装', image: '../../images/04.jpg', price: 52.00, costPrice: 0.00, stock: 234, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 11, sort: 100, category: '文创产品', tags: ['雅安特产', '限时抢购'], name: '手工茶饼', image: '../../images/05.jpg', price: 58.00, costPrice: 0.00, stock: 445, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' },
-            { id: 12, sort: 100, category: '文创产品', tags: ['精选', '会员专享', '包邮'], name: '精品礼盒装', image: '../../images/06.jpg', price: 268.00, costPrice: 0.00, stock: 120, sold: '0+0', quickBuy: false, addTime: '2025-08-26', status: 'selling' }
+            { id: 1, sort: 100, category: '雅安好景', tags: ['雅安特产', '热销'], name: '雅安特产绿营养蛋', image: '../../images/01.jpg', price: 20.00, costPrice: 0.00, stock: 6977, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 2, sort: 100, category: '雅安好景', tags: ['产地直供', '包邮'], name: '土司农家散养蛋', image: '../../images/02.jpg', price: 18.00, costPrice: 0.00, stock: 1306, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 3, sort: 100, category: '雅安好景', tags: ['雅安特产', '推荐'], name: '有机山茶油', image: '../../images/03.jpg', price: 36.00, costPrice: 0.00, stock: 2623, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 4, sort: 100, category: '雅安好景', tags: ['热销', '包邮'], name: '腊味礼盒', image: '../../images/04.jpg', price: 15.00, costPrice: 0.00, stock: 856, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 5, sort: 100, category: '雅安好景', tags: ['雅安特产', '精选'], name: '蒙顶山茶', image: '../../images/05.jpg', price: 49.00, costPrice: 0.00, stock: 420, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 6, sort: 100, category: '雅安好景', tags: ['推荐', '爆款'], name: '雅鱼鲜礼盒', image: '../../images/06.jpg', price: 68.00, costPrice: 0.00, stock: 318, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 7, sort: 100, category: '雅安好景', tags: ['热销', '自营'], name: '花椒油', image: '../../images/01.jpg', price: 15.00, costPrice: 0.00, stock: 2100, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 13, sort: 100, category: '雅安好物', tags: ['雅安特产', '新品'], name: '雅安蜂蜜', image: '../../images/01.jpg', price: 38.00, costPrice: 0.00, stock: 520, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 14, sort: 100, category: '雅安好物', tags: ['精选', '会员专享'], name: '雅安黑茶', image: '../../images/02.jpg', price: 88.00, costPrice: 0.00, stock: 260, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 15, sort: 100, category: '雅安好物', tags: ['产地直供', '推荐'], name: '雅安菌菇干货', image: '../../images/03.jpg', price: 45.00, costPrice: 0.00, stock: 380, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 8, sort: 100, category: '文创产品', tags: ['新品', '热销'], name: '熊猫周边玩偶', image: '../../images/02.jpg', price: 28.00, costPrice: 0.00, stock: 560, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 9, sort: 100, category: '文创产品', tags: ['精选', '推荐'], name: '雅安风景明信片', image: '../../images/03.jpg', price: 58.00, costPrice: 0.00, stock: 890, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 10, sort: 100, category: '文创产品', tags: ['自营', '包邮'], name: '茶具套装', image: '../../images/04.jpg', price: 52.00, costPrice: 0.00, stock: 234, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 11, sort: 100, category: '文创产品', tags: ['雅安特产', '限时抢购'], name: '手工茶饼', image: '../../images/05.jpg', price: 58.00, costPrice: 0.00, stock: 445, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' },
+            { id: 12, sort: 100, category: '文创产品', tags: ['精选', '会员专享', '包邮'], name: '精品礼盒装', image: '../../images/06.jpg', price: 268.00, costPrice: 0.00, stock: 120, sold: '0+0', quickBuy: false, cashierVisible: true, addTime: '2025-08-26', status: 'selling' }
         ];
 
         try { localStorage.setItem('shangchaoProductList', JSON.stringify(products)); } catch (e) {}
@@ -964,7 +962,7 @@
         let currentTab = 'all';
         let sortColumn = null;
         let sortDirection = 'asc';
-        let selectedCategories = []; // 选中的分类数组
+        let currentCategory = '全部';
 
         function getMallSyncedList() {
             try {
@@ -974,6 +972,32 @@
         }
         function setMallSyncedList(list) {
             localStorage.setItem('mallSyncedProducts', JSON.stringify(list));
+        }
+
+        // 渲染分类菜单
+        function initCategoryMenu() {
+            const listEl = document.getElementById('categoryMenuList');
+            if (!listEl) return;
+            const categories = Array.from(new Set(products.map(p => p.category || '未分类')));
+            const items = ['全部', ...categories];
+            listEl.innerHTML = '';
+            items.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'category-menu-item' + (cat === currentCategory ? ' active' : '');
+                li.dataset.category = cat;
+                const count = cat === '全部'
+                    ? products.length
+                    : products.filter(p => p.category === cat).length;
+                li.innerHTML = `<span>${cat}</span><span class="category-menu-count">${count}</span>`;
+                li.addEventListener('click', function () {
+                    currentCategory = this.dataset.category;
+                    listEl.querySelectorAll('.category-menu-item').forEach(item => {
+                        item.classList.toggle('active', item === this);
+                    });
+                    filterProducts();
+                });
+                listEl.appendChild(li);
+            });
         }
 
         // 渲染表格
@@ -1063,12 +1087,13 @@
                             <span class="toggle-slider"></span>
                         </label>
                     </td>
-                    <td>${product.addTime}</td>
                     <td>
-                        <span class="status-tag ${product.status === 'soldout' ? 'sold-out' : product.status === 'offline' ? 'offline' : ''}">
-                            ${product.status === 'selling' ? '销售中' : product.status === 'offline' ? '下架中' : '售罄'}
-                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="cashier-toggle" data-id="${product.id}" ${product.cashierVisible !== false ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </td>
+                    <td>${product.addTime}</td>
                     <td>
                         <div class="action-buttons">
                             <button class="btn-icon edit-btn" data-id="${product.id}" title="编辑">
@@ -1131,6 +1156,16 @@
                 });
             });
 
+            // 收银台展示开关
+            tbody.querySelectorAll('.cashier-toggle').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    var id = parseInt(this.dataset.id, 10);
+                    var product = products.find(function (p) { return p.id === id; });
+                    if (!product) return;
+                    product.cashierVisible = this.checked;
+                });
+            });
+
             updateSelectedCount();
         }
 
@@ -1190,26 +1225,6 @@
             });
         });
 
-        // 渲染分类标签
-        function renderCategoryTags() {
-            const container = document.getElementById('categoryTagsContainer');
-            container.innerHTML = '';
-            
-            selectedCategories.forEach(category => {
-                const tag = document.createElement('div');
-                tag.className = 'category-selected-tag';
-                tag.innerHTML = `
-                    <span>${category}</span>
-                    <span class="close-btn" data-category="${category}">×</span>
-                `;
-                container.appendChild(tag);
-            });
-
-            // 更新按钮文本（始终显示“分类筛选”）
-            const btn = document.getElementById('categoryFilterBtn');
-            btn.textContent = '分类筛选';
-        }
-
         // 筛选产品
         function filterProducts() {
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -1222,8 +1237,8 @@
                 if (currentTab === 'offline' && product.status !== 'offline') return false;
                 if (currentTab === 'soldout' && product.status !== 'soldout') return false;
 
-                // 分类筛选
-                if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
+                // 分类筛选：通过左侧分类菜单
+                if (currentCategory && currentCategory !== '全部' && product.category !== currentCategory) {
                     return false;
                 }
 
@@ -1305,63 +1320,6 @@
             const count = document.querySelectorAll('.row-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count;
         }
-
-        // 分类弹窗相关
-        const categoryModal = document.getElementById('categoryModalOverlay');
-        const categoryFilterBtn = document.getElementById('categoryFilterBtn');
-        const modalClose = document.getElementById('modalClose');
-        const modalCancel = document.getElementById('modalCancel');
-        const modalConfirm = document.getElementById('modalConfirm');
-        const categoryCheckboxes = document.querySelectorAll('.category-checkbox-item input[type="checkbox"]');
-
-        // 打开弹窗
-        categoryFilterBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            // 同步当前选中的分类到复选框
-            categoryCheckboxes.forEach(checkbox => {
-                checkbox.checked = selectedCategories.includes(checkbox.value);
-            });
-            categoryModal.classList.add('show');
-        });
-
-        // 关闭弹窗
-        function closeModal() {
-            categoryModal.classList.remove('show');
-        }
-
-        modalClose.addEventListener('click', closeModal);
-        modalCancel.addEventListener('click', closeModal);
-
-        // 点击遮罩关闭弹窗
-        categoryModal.addEventListener('click', function(e) {
-            if (e.target === categoryModal) {
-                closeModal();
-            }
-        });
-
-        // 确定按钮
-        modalConfirm.addEventListener('click', function() {
-            selectedCategories = [];
-            categoryCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    selectedCategories.push(checkbox.value);
-                }
-            });
-            renderCategoryTags();
-            filterProducts();
-            closeModal();
-        });
-
-        // 标签删除
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('close-btn') || e.target.closest('.close-btn')) {
-                const closeBtn = e.target.classList.contains('close-btn') ? e.target : e.target.closest('.close-btn');
-                const category = closeBtn.dataset.category;
-                selectedCategories = selectedCategories.filter(c => c !== category);
-                renderCategoryTags();
-                filterProducts();
-            }
-        });
 
         // 批量修改弹窗相关
         const batchEditModal = document.getElementById('batchEditModalOverlay');
@@ -1537,8 +1495,8 @@
         });
 
         // 初始化
-        renderCategoryTags();
-        renderTable();
+        initCategoryMenu();
+        filterProducts();
     </script>
 </body>
 </html>
