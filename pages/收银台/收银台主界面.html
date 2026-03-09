@@ -21,9 +21,9 @@
         <div class="cashier-view cashier-view-catering" id="viewCatering">
         <aside class="cashier-sidebar">
             <nav class="cashier-sidebar-menu">
-                <a href="#" class="cashier-menu-item active" title="桌位" data-menu="table">
-                    <span class="cashier-menu-icon">🪑</span>
-                    <span class="cashier-menu-text">桌位</span>
+                <a href="#" class="cashier-menu-item active" title="点单" data-menu="table">
+                    <span class="cashier-menu-icon">📋</span>
+                    <span class="cashier-menu-text">点单</span>
                 </a>
                 <a href="#" class="cashier-menu-item" title="订单" data-menu="order-list">
                     <span class="cashier-menu-icon">📝</span>
@@ -33,10 +33,6 @@
                     <span class="cashier-menu-icon">📦</span>
                     <span class="cashier-menu-text">商品</span>
                 </a>
-                <a href="#" class="cashier-menu-item" title="排号" data-menu="queue">
-                    <span class="cashier-menu-icon">🎫</span>
-                    <span class="cashier-menu-text">排号</span>
-                </a>
                 <a href="#" class="cashier-menu-item" title="财务" data-menu="finance">
                     <span class="cashier-menu-icon">💰</span>
                     <span class="cashier-menu-text">财务</span>
@@ -45,18 +41,15 @@
                     <span class="cashier-menu-icon">👥</span>
                     <span class="cashier-menu-text">会员</span>
                 </a>
-                <a href="#" class="cashier-menu-item" title="制作" data-menu="kitchen">
-                    <span class="cashier-menu-icon">🍳</span>
-                    <span class="cashier-menu-text">制作</span>
-                </a>
                 <a href="#" class="cashier-menu-item" title="设置" data-menu="settings">
                     <span class="cashier-menu-icon">⚙️</span>
                     <span class="cashier-menu-text">设置</span>
                 </a>
             </nav>
             <div class="cashier-sidebar-footer">
-                <button class="cashier-menu-item cashier-power-btn" title="退出" id="powerBtn">
-                    <span class="cashier-menu-icon">⏻</span>
+                <button type="button" class="cashier-menu-item cashier-shift-btn" title="交班" id="shiftBtn">
+                    <span class="cashier-menu-icon">🔄</span>
+                    <span class="cashier-menu-text">交班</span>
                 </button>
             </div>
         </aside>
@@ -69,6 +62,92 @@
         <!-- 商超收银台：整页 iframe -->
         <div class="cashier-view cashier-view-mall hidden" id="viewMall">
             <iframe id="mallCashierFrame" class="cashier-mall-frame" src="商超收银台.html" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- 交班数据弹窗 -->
+    <div class="cashier-modal shift-modal" id="shiftModal" role="dialog" aria-label="交班数据">
+        <div class="cashier-modal-backdrop shift-modal-backdrop"></div>
+        <div class="shift-modal-content">
+            <header class="shift-modal-header">
+                <div class="shift-modal-title-wrap">
+                    <span class="shift-modal-title-bar"></span>
+                    <h3 class="shift-modal-title">营业数据</h3>
+                </div>
+                <div class="shift-modal-meta">
+                    <span class="shift-modal-update" id="shiftUpdateTime">2026-03-08 15:02:48 已更新</span>
+                    <button type="button" class="shift-modal-refresh" id="shiftRefreshBtn" title="刷新">🔄</button>
+                    <button type="button" class="shift-modal-close" id="shiftCloseBtn" title="关闭">×</button>
+                </div>
+            </header>
+            <div class="shift-modal-body">
+                <div class="shift-metrics-grid">
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">总营业额 (元) <span class="shift-metric-help" title="总营业额">?</span></div>
+                        <div class="shift-metric-value" id="shiftTotalRevenue">0</div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">营业收入 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftBizRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 营业支付：<span id="shiftBizPay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 营业退款：<span id="shiftBizRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">营业有效订单数 <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftOrderCount">0</div>
+                        <div class="shift-metric-sub">营业支付笔数：<span id="shiftPayCount">0</span></div>
+                        <div class="shift-metric-sub">营业退款笔数：<span id="shiftRefundCount">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">营业外收入 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftOutRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 营业外支付：<span id="shiftOutPay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 营业外退款：<span id="shiftOutRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">营业外储值营收 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftStoreRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 营业外储值支付：<span id="shiftStorePay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 营业外储值退款：<span id="shiftStoreRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">微信支付营收 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftWxRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 微信支付：<span id="shiftWxPay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 微信退款：<span id="shiftWxRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">支付宝支付营收 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftAlipayRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 支付宝支付：<span id="shiftAlipayPay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 支付宝退款：<span id="shiftAlipayRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">现金支付营收 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftCashRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 现金支付：<span id="shiftCashPay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 现金退款：<span id="shiftCashRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">自定义支付营收 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftCustomRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 自定义支付：<span id="shiftCustomPay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 自定义退款：<span id="shiftCustomRefund">0</span></div>
+                    </div>
+                    <div class="shift-metric-card">
+                        <div class="shift-metric-label">余额支付营收 (元) <span class="shift-metric-help">?</span></div>
+                        <div class="shift-metric-value" id="shiftBalanceRevenue">0.00</div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-pay"></span> 余额支付：<span id="shiftBalancePay">0</span></div>
+                        <div class="shift-metric-sub"><span class="shift-dot shift-dot-refund"></span> 余额退款：<span id="shiftBalanceRefund">0</span></div>
+                    </div>
+                </div>
+            </div>
+            <footer class="shift-modal-footer">
+                <label class="shift-print-check">
+                    <input type="checkbox" id="shiftPrintReceipt"> 打印交接班小票
+                </label>
+                <button type="button" class="shift-submit-btn" id="shiftSubmitBtn">交接班并退出登录</button>
+            </footer>
         </div>
     </div>
 
