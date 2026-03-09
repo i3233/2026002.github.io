@@ -12,7 +12,7 @@
             background-color: var(--color-neutral-50);
         }
 
-        /* 页面头部 */
+        /* 页面头部（含 tabs 与操作按钮） */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -23,12 +23,9 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
         }
-
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin: 0;
+        .page-header-with-tabs {
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
         }
 
         .header-actions {
@@ -36,7 +33,7 @@
             gap: var(--spacing-sm);
         }
 
-        /* Tab标签导航 */
+        /* Tab 在头部左侧内联显示 */
         .tabs-nav {
             display: flex;
             gap: var(--spacing-xs);
@@ -46,11 +43,20 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
         }
-        /* 左侧分类菜单 + 右侧内容布局 */
+        .tabs-nav-inline {
+            margin-bottom: 0;
+            padding: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+        /* 主内容布局（无左侧分类面板时单列） */
         .product-layout {
             display: flex;
             align-items: flex-start;
             gap: var(--spacing-lg);
+        }
+        .product-layout-single {
+            display: block;
         }
         .category-menu-panel {
             width: 200px;
@@ -755,7 +761,7 @@
 
         /* 响应式 */
         @media (max-width: 1200px) {
-            .product-layout {
+            .product-layout:not(.product-layout-single) {
                 flex-direction: column;
             }
             .category-menu-panel {
@@ -778,9 +784,13 @@
 </head>
 <body>
     <div class="product-list-page">
-        <!-- 页面头部 -->
-        <div class="page-header">
-            <h1 class="page-title">商品列表</h1>
+        <!-- 顶部：销售中/下架中/售罄 + 操作按钮（原标题位置） -->
+        <div class="page-header page-header-with-tabs">
+            <div class="tabs-nav tabs-nav-inline">
+                <button class="tab-nav-item active" data-tab="selling">销售中</button>
+                <button class="tab-nav-item" data-tab="offline">下架中</button>
+                <button class="tab-nav-item" data-tab="soldout">售罄</button>
+            </div>
             <div class="header-actions">
                 <button class="btn btn-primary" id="addProductBtn">添加商品</button>
                 <button class="btn btn-outline" id="batchImportBtn">批量导入</button>
@@ -795,23 +805,8 @@
             </div>
         </div>
 
-        <!-- Tab标签导航 -->
-        <div class="tabs-nav">
-            <button class="tab-nav-item active" data-tab="selling">销售中</button>
-            <button class="tab-nav-item" data-tab="offline">下架中</button>
-            <button class="tab-nav-item" data-tab="soldout">售罄</button>
-        </div>
-
-        <div class="product-layout">
-            <!-- 左侧分类菜单 -->
-            <aside class="category-menu-panel">
-                <div class="category-menu-title">商品分类</div>
-                <ul class="category-menu-list" id="categoryMenuList">
-                    <!-- JS 渲染 -->
-                </ul>
-            </aside>
-
-            <!-- 右侧主内容 -->
+        <div class="product-layout product-layout-single">
+            <!-- 主内容（分类已移至左侧栏子菜单） -->
             <section class="product-main-panel">
                 <!-- 筛选区域 -->
                 <div class="filter-section">
@@ -963,6 +958,12 @@
         let sortColumn = null;
         let sortDirection = 'asc';
         let currentCategory = '全部';
+        // 从 URL 读取分类（左侧栏「商品列表」子菜单传入）
+        (function() {
+            var params = new URLSearchParams(window.location.search || '');
+            var cat = params.get('category');
+            if (cat) currentCategory = cat;
+        })();
 
         function getMallSyncedList() {
             try {
@@ -974,31 +975,8 @@
             localStorage.setItem('mallSyncedProducts', JSON.stringify(list));
         }
 
-        // 渲染分类菜单
-        function initCategoryMenu() {
-            const listEl = document.getElementById('categoryMenuList');
-            if (!listEl) return;
-            const categories = Array.from(new Set(products.map(p => p.category || '未分类')));
-            const items = ['全部', ...categories];
-            listEl.innerHTML = '';
-            items.forEach(cat => {
-                const li = document.createElement('li');
-                li.className = 'category-menu-item' + (cat === currentCategory ? ' active' : '');
-                li.dataset.category = cat;
-                const count = cat === '全部'
-                    ? products.length
-                    : products.filter(p => p.category === cat).length;
-                li.innerHTML = `<span>${cat}</span><span class="category-menu-count">${count}</span>`;
-                li.addEventListener('click', function () {
-                    currentCategory = this.dataset.category;
-                    listEl.querySelectorAll('.category-menu-item').forEach(item => {
-                        item.classList.toggle('active', item === this);
-                    });
-                    filterProducts();
-                });
-                listEl.appendChild(li);
-            });
-        }
+        // 分类已移至父页面左侧栏「商品列表」子菜单，此处不再渲染分类面板
+        function initCategoryMenu() {}
 
         // 渲染表格
         function renderTable() {

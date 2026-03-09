@@ -36,7 +36,7 @@
             margin-top: var(--spacing-xs);
         }
 
-        /* 订单选择区域 */
+        /* 采购计划列表 + 订单选择区域 */
         .order-select-section {
             background-color: #ffffff;
             border-radius: var(--radius-lg);
@@ -44,6 +44,12 @@
             padding: var(--spacing-lg);
             margin-bottom: var(--spacing-lg);
         }
+        .plan-list-table { margin-bottom: 0; }
+        .plan-list-table tbody tr:hover { background-color: var(--color-neutral-50); }
+        .plan-list-table tbody tr.selected { background-color: rgba(44, 131, 235, 0.1); }
+        .plan-list-clickable { cursor: pointer; }
+        .plan-list-actions { white-space: nowrap; }
+        .plan-list-actions .btn-text { padding: 2px 8px; font-size: var(--font-size-sm); }
 
         .order-select-header {
             display: flex;
@@ -161,90 +167,8 @@
             border-bottom: none;
         }
 
-        .barcode-input {
-            width: 100%;
-            min-width: 150px;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-sm);
-            font-family: var(--font-family-mono);
-            transition: all var(--transition-base) var(--ease-in-out);
-        }
-
-        .barcode-input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: var(--shadow-input-focus);
-        }
-
-        .barcode-input.required {
-            border-color: var(--color-error);
-        }
-
-        .barcode-input.required:focus {
-            border-color: var(--color-error);
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-        }
-
-        .barcode-status {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            font-size: var(--font-size-xs);
-        }
-
-        .barcode-status.matched {
-            color: var(--color-success);
-        }
-
-        .barcode-status.unmatched {
-            color: var(--color-error);
-        }
-
         .text-right {
             text-align: right;
-        }
-
-        /* 条码扫描区域 */
-        .barcode-scan-section {
-            background-color: #ffffff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .barcode-scan-box {
-            display: flex;
-            gap: var(--spacing-sm);
-            align-items: center;
-            padding: var(--spacing-md);
-            background-color: var(--color-neutral-50);
-            border-radius: var(--radius-md);
-            border: 2px dashed var(--color-neutral-300);
-        }
-
-        .barcode-scan-input {
-            flex: 1;
-            padding: var(--spacing-md);
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-base);
-            font-family: var(--font-family-mono);
-            transition: all var(--transition-base) var(--ease-in-out);
-        }
-
-        .barcode-scan-input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: var(--shadow-input-focus);
-        }
-
-        .barcode-scan-hint {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            margin-top: var(--spacing-sm);
         }
 
         /* 应付金额区域 */
@@ -281,53 +205,6 @@
             font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
             margin-top: var(--spacing-xs);
-        }
-
-        /* 审核状态区域 */
-        .audit-status-section {
-            background-color: #ffffff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .audit-status {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-md);
-            background-color: var(--color-neutral-50);
-            border-radius: var(--radius-md);
-        }
-
-        .audit-status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-        }
-
-        .audit-status-badge.pending {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--color-warning);
-        }
-
-        .audit-status-badge.approved {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: var(--color-success);
-        }
-
-        .audit-status-badge.rejected {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: var(--color-error);
-        }
-
-        .audit-status-badge.none {
-            background-color: var(--color-neutral-200);
-            color: var(--color-text-secondary);
         }
 
         /* 操作按钮区域 */
@@ -367,54 +244,64 @@
             display: none;
         }
 
-        /* 新增入库单弹窗 */
-        .storage-modal-overlay {
+        /* 入库单详情弹窗 */
+        .order-detail-modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            background: rgba(0,0,0,0.45);
+            z-index: 1050;
             display: none;
             align-items: center;
             justify-content: center;
         }
-        .storage-modal-overlay.show { display: flex; }
-        .storage-modal {
+        .order-detail-modal-overlay.show { display: flex; }
+        .order-detail-modal {
             background: #fff;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             width: 92%;
-            max-width: 560px;
+            max-width: 720px;
+            max-height: 85vh;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        .storage-modal .modal-head {
+        .order-detail-modal-head {
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--color-neutral-200);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .storage-modal .modal-head h3 { margin: 0; font-size: var(--font-size-lg); }
-        .storage-modal .modal-body {
+        .order-detail-modal-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .order-detail-modal-body {
             padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
         }
-        .storage-modal .modal-foot {
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-top: 1px solid var(--color-neutral-200);
-            display: flex;
-            justify-content: flex-end;
-            gap: var(--spacing-sm);
-        }
-        .storage-modal .form-row { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); flex-wrap: wrap; }
-        .storage-modal .form-group { flex: 1; min-width: 200px; }
-        .storage-modal .form-group label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-primary); }
-        .storage-modal .form-group input, .storage-modal .form-group select, .storage-modal .form-group textarea {
-            width: 100%;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
+        .order-detail-section-title {
+            margin: 0 0 var(--spacing-sm) 0;
             font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
         }
-        .storage-modal .form-group textarea { min-height: 60px; resize: vertical; }
+        .order-detail-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        .order-detail-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .order-detail-info-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .order-detail-info-value { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .order-detail-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .order-detail-table th, .order-detail-table td { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); text-align: left; }
+        .order-detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+
     </style>
 </head>
 <body>
@@ -423,39 +310,33 @@
         <div class="page-header">
             <div>
                 <h1 class="page-title">采购入库</h1>
-                <div class="page-subtitle">选择采购订单，匹配条码入库，完成后自动更新应付和库存（无需再次财务审核）</div>
+                <div class="page-subtitle">上方为入库订单列表，点击某条后在下边展示该计划的商品明细并办理入库</div>
             </div>
         </div>
 
-        <!-- 订单选择区域 -->
+        <!-- 入库订单列表（内容为采购计划列表） -->
         <div class="order-select-section">
-            <div class="order-select-header">
-                <label class="order-select-label">选择采购订单：</label>
-                <div class="order-select-wrapper">
-                    <input type="text" 
-                           class="order-select-input" 
-                           id="orderSearchInput" 
-                           placeholder="请输入订单号或往来单位搜索"
-                           list="orderList">
-                    <datalist id="orderList">
-                        <!-- 选项由JS动态生成 -->
-                    </datalist>
-                    <button class="btn btn-outline" id="selectOrderBtn">选择</button>
-                    <button class="btn btn-text" id="clearOrderBtn">清空</button>
-                    <button class="btn btn-primary" id="addStorageBtn">新增入库单</button>
-                </div>
-            </div>
-            
-            <!-- 条码设置 -->
-            <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-neutral-200);">
-                <label style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer;">
-                    <input type="checkbox" id="barcodeRequiredCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
-                    <span style="font-size: var(--font-size-sm); color: var(--color-text-primary);">强制条码录入</span>
-                </label>
-                <span style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">（开启后，所有商品必须录入条码才能提交审核）</span>
+            <h2 class="section-title" style="margin-top: 0;">入库订单列表</h2>
+            <div class="table-container">
+                <table class="plan-list-table">
+                    <thead>
+                        <tr>
+                            <th>单号</th>
+                            <th>日期</th>
+                            <th>往来单位</th>
+                            <th>项目</th>
+                            <th class="text-right">订单金额</th>
+                            <th class="text-right">应付余额</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planListBody">
+                        <!-- JS 渲染 -->
+                    </tbody>
+                </table>
             </div>
 
-            <!-- 订单信息卡片（选中订单后显示） -->
+            <!-- 订单信息卡片（选中某条后显示） -->
             <div id="orderInfoCard" class="order-info-card hidden">
                 <div class="order-info-item">
                     <span class="order-info-label">订单单号</span>
@@ -487,12 +368,6 @@
         <!-- 商品明细表格 -->
         <div class="products-section" id="productsSection" style="display: none;">
             <h2 class="section-title">商品明细</h2>
-            
-            <!-- 条码强制提示 -->
-            <div class="alert-warning" id="barcodeRequiredAlert" style="display: none;">
-                <strong>注意：</strong>当前设置为强制条码录入，所有商品必须录入条码后才能提交审核。
-            </div>
-
             <div class="table-container">
                 <table>
                     <thead>
@@ -501,11 +376,18 @@
                             <th>商品名称</th>
                             <th>规格</th>
                             <th>单位</th>
+                            <th>分类</th>
                             <th class="text-right">订单数量</th>
                             <th class="text-right">单价</th>
                             <th class="text-right">金额</th>
+                            <th class="text-right">入库单价</th>
+                            <th class="text-right">入库金额</th>
                             <th>条码</th>
-                            <th>条码状态</th>
+                            <th>货区</th>
+                            <th>货架</th>
+                            <th>照片</th>
+                            <th>备注</th>
+                            <th>添加时间</th>
                             <th class="text-right">入库数量</th>
                         </tr>
                     </thead>
@@ -514,29 +396,16 @@
                     </tbody>
                     <tfoot>
                         <tr style="background-color: var(--color-neutral-50); font-weight: var(--font-weight-medium);">
-                            <td colspan="4" class="text-right">合计：</td>
+                            <td colspan="5" class="text-right">合计：</td>
                             <td class="text-right" id="totalOrderQty">0.00</td>
                             <td colspan="2"></td>
                             <td colspan="2"></td>
+                            <td></td>
+                            <td colspan="5"></td>
                             <td class="text-right" id="totalStorageQty">0.00</td>
                         </tr>
                     </tfoot>
                 </table>
-            </div>
-        </div>
-
-        <!-- 条码扫描区域 -->
-        <div class="barcode-scan-section" id="barcodeScanSection" style="display: none;">
-            <h2 class="section-title">条码扫描</h2>
-            <div class="barcode-scan-box">
-                <input type="text" 
-                       class="barcode-scan-input" 
-                       id="barcodeScanInput" 
-                       placeholder="请扫描或手动输入商品条码，按回车键匹配">
-                <button class="btn btn-primary" id="scanBarcodeBtn">扫描</button>
-            </div>
-            <div class="barcode-scan-hint">
-                提示：扫描条码后会自动匹配到对应的商品行，如果商品已存在条码，将自动填充。
             </div>
         </div>
 
@@ -552,65 +421,80 @@
             </div>
         </div>
 
-        <!-- 审核状态区域 -->
-        <div class="audit-status-section" id="auditStatusSection" style="display: none;">
-            <h2 class="section-title">审核状态</h2>
-            <div class="audit-status">
-                <span class="audit-status-badge none" id="auditStatusBadge">未提交</span>
-                <span id="auditStatusText">请完成商品明细和条码录入后提交财务审核</span>
-            </div>
-        </div>
-
         <!-- 操作按钮区域 -->
         <div class="action-section" id="actionSection" style="display: none;">
             <button class="btn btn-outline" id="resetBtn">重置</button>
             <button class="btn btn-primary" id="submitAuditBtn">提交财务审核</button>
         </div>
 
-        <!-- 新增入库单弹窗 -->
-        <div class="storage-modal-overlay" id="storageModalOverlay">
-            <div class="storage-modal">
-                <div class="modal-head">
-                    <h3>新增入库单</h3>
-                    <button type="button" class="btn btn-text" id="storageModalClose">×</button>
+        <!-- 申请退货弹窗（与审核配置-采购退货联动，生成待提交退货单到采购退货列表） -->
+        <div class="order-detail-modal-overlay" id="applyReturnModalOverlay">
+            <div class="order-detail-modal">
+                <div class="order-detail-modal-head">
+                    <h3>申请退货</h3>
+                    <button type="button" class="btn btn-outline order-detail-modal-close" id="applyReturnModalClose">× 关闭</button>
                 </div>
-                <div class="modal-body">
-                    <div class="form-row">
+                <div class="order-detail-modal-body">
+                    <div class="order-detail-info" id="applyReturnOrderInfo">
+                        <!-- JS 填充关联入库单信息 -->
+                    </div>
+                    <div class="order-detail-section-title">退货信息</div>
+                    <div class="form-row" style="margin-bottom: 12px;">
                         <div class="form-group" style="flex: 1 1 100%;">
-                            <label>采购订单</label>
-                            <select id="storageOrderSelect"></select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>入库日期</label>
-                            <input type="date" id="storageDate">
-                        </div>
-                        <div class="form-group">
-                            <label>入库仓库</label>
-                            <select id="storageWarehouse">
-                                <option value="总仓">总仓</option>
-                                <option value="分仓A">分仓A</option>
-                                <option value="分仓B">分仓B</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>经手人</label>
-                            <input type="text" id="storageStaff" placeholder="选填">
+                            <label>退货原因 <span style="color:var(--color-error);">*</span></label>
+                            <input type="text" id="applyReturnReason" placeholder="如：质量不符、过期、错发等">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex: 1 1 100%;">
                             <label>备注</label>
-                            <textarea id="storageRemark" placeholder="选填"></textarea>
+                            <textarea id="applyReturnRemark" placeholder="选填" style="min-height: 60px;"></textarea>
                         </div>
                     </div>
+                    <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px;">
+                        <button type="button" class="btn btn-outline" id="applyReturnCancel">取消</button>
+                        <button type="button" class="btn btn-primary" id="applyReturnConfirm">确认申请</button>
+                    </div>
                 </div>
-                <div class="modal-foot">
-                    <button type="button" class="btn btn-text" id="storageModalCancel">取消</button>
-                    <button type="button" class="btn btn-primary" id="storageModalConfirm">确定</button>
+            </div>
+        </div>
+
+        <!-- 入库单详情弹窗 -->
+        <div class="order-detail-modal-overlay" id="orderDetailModalOverlay">
+            <div class="order-detail-modal">
+                <div class="order-detail-modal-head">
+                    <h3>入库单详情</h3>
+                    <button type="button" class="btn btn-outline order-detail-modal-close" id="orderDetailModalClose">× 关闭</button>
+                </div>
+                <div class="order-detail-modal-body">
+                    <div class="order-detail-info">
+                        <h4 class="order-detail-section-title">订单信息</h4>
+                        <div class="order-detail-info-grid" id="orderDetailInfoGrid">
+                            <!-- JS 填充 -->
+                        </div>
+                    </div>
+                    <div class="order-detail-products">
+                        <h4 class="order-detail-section-title">商品明细</h4>
+                        <div class="table-container">
+                            <table class="order-detail-table">
+                                <thead>
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>商品名称</th>
+                                        <th>规格</th>
+                                        <th>单位</th>
+                                        <th>分类</th>
+                                        <th class="text-right">数量</th>
+                                        <th class="text-right">单价</th>
+                                        <th class="text-right">金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderDetailProductBody">
+                                    <!-- JS 填充 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -627,9 +511,9 @@
                 amount: 1800.20,
                 payable: 800.00,
                 products: [
-                    { id: 1, name: '蒙顶山茶叶', spec: '500g/盒', unit: '盒', qty: 20, price: 45.00, barcode: '6901234567890' },
-                    { id: 2, name: '雅安花椒', spec: '250g/袋', unit: '袋', qty: 30, price: 28.00, barcode: '6901234567891' },
-                    { id: 3, name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 15, price: 38.00, barcode: '' }
+                    { id: 1, name: '蒙顶山茶叶', spec: '500g/盒', unit: '盒', category: '雅安好景', qty: 20, price: 45.00, barcode: '6901234567890' },
+                    { id: 2, name: '雅安花椒', spec: '250g/袋', unit: '袋', category: '雅安好物', qty: 30, price: 28.00, barcode: '6901234567891' },
+                    { id: 3, name: '雅安腊肉', spec: '500g/包', unit: '包', category: '雅安好物', qty: 15, price: 38.00, barcode: '' }
                 ]
             },
             {
@@ -640,8 +524,8 @@
                 amount: 1200.00,
                 payable: 560.00,
                 products: [
-                    { id: 4, name: '熊猫玩偶', spec: '20cm', unit: '个', qty: 50, price: 15.00, barcode: '6901234567892' },
-                    { id: 5, name: '雅安明信片', spec: '一套10张', unit: '套', qty: 30, price: 12.00, barcode: '6901234567893' }
+                    { id: 4, name: '熊猫玩偶', spec: '20cm', unit: '个', category: '文创产品', qty: 50, price: 15.00, barcode: '6901234567892' },
+                    { id: 5, name: '雅安明信片', spec: '一套10张', unit: '套', category: '文创产品', qty: 30, price: 12.00, barcode: '6901234567893' }
                 ]
             },
             {
@@ -652,18 +536,16 @@
                 amount: 2300.50,
                 payable: 1500.00,
                 products: [
-                    { id: 6, name: '雅安特产礼盒', spec: '1kg装', unit: '盒', qty: 25, price: 88.00, barcode: '6901234567894' },
-                    { id: 7, name: '雅安蜂蜜', spec: '500g/瓶', unit: '瓶', qty: 40, price: 35.00, barcode: '' }
+                    { id: 6, name: '雅安特产礼盒', spec: '1kg装', unit: '盒', category: '雅安好景', qty: 25, price: 88.00, barcode: '6901234567894' },
+                    { id: 7, name: '雅安蜂蜜', spec: '500g/瓶', unit: '瓶', category: '雅安好物', qty: 40, price: 35.00, barcode: '' }
                 ]
             }
         ];
 
         // 当前选中的订单
         let selectedOrder = null;
-        // 当前入库的商品明细（包含条码和入库数量）
+        // 当前入库的商品明细（含入库单价、货区、货架、照片、备注、添加时间等）
         let storageItems = [];
-        // 是否强制条码录入
-        let barcodeRequired = false;
         // 审核状态：none-未提交, pending-审核中, approved-已通过, rejected-已拒绝
         let auditStatus = 'none';
 
@@ -683,6 +565,7 @@
                         name: d.name,
                         spec: d.spec || '',
                         unit: d.unit || '',
+                        category: d.category || '未分类',
                         qty: Number(d.qty) || 0,
                         price: Number(d.price) || 0,
                         barcode: d.barcode || ''
@@ -702,17 +585,179 @@
             }
         }
 
-        // 初始化订单列表
-        function initOrderList() {
-            const datalist = document.getElementById('orderList');
-            datalist.innerHTML = '';
+        // 渲染入库订单列表（上方表格，含操作列）
+        function renderPlanList() {
+            const tbody = document.getElementById('planListBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
             purchaseOrders.forEach(order => {
-                const option = document.createElement('option');
-                option.value = `${order.id} - ${order.partner}`;
-                option.dataset.orderId = order.id;
-                datalist.appendChild(option);
+                const tr = document.createElement('tr');
+                tr.dataset.orderId = order.id;
+                if (selectedOrder && selectedOrder.id === order.id) tr.classList.add('selected');
+                tr.innerHTML = `
+                    <td class="plan-list-clickable">${order.id}</td>
+                    <td class="plan-list-clickable">${order.date}</td>
+                    <td class="plan-list-clickable">${order.partner}</td>
+                    <td class="plan-list-clickable">${order.project || '-'}</td>
+                    <td class="text-right plan-list-clickable">¥${(order.amount || 0).toFixed(2)}</td>
+                    <td class="text-right plan-list-clickable">¥${(order.payable || 0).toFixed(2)}</td>
+                    <td class="plan-list-actions">
+                        <button type="button" class="btn btn-text plan-list-btn-view" data-order-id="${order.id}">查看</button>
+                        <button type="button" class="btn btn-text plan-list-btn-return" data-order-id="${order.id}" style="color:var(--color-error);">退货</button>
+                    </td>
+                `;
+                tr.querySelectorAll('.plan-list-clickable').forEach(function (cell) {
+                    cell.addEventListener('click', function () {
+                        selectOrder(order.id);
+                        tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+                        tr.classList.add('selected');
+                    });
+                });
+                tr.querySelector('.plan-list-btn-view').addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    openOrderDetailModal(order);
+                });
+                tr.querySelector('.plan-list-btn-return').addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    openApplyReturnModal(order);
+                });
+                tbody.appendChild(tr);
             });
         }
+
+        // 入库单详情弹窗：查看该条入库单的详情
+        const orderDetailModalOverlay = document.getElementById('orderDetailModalOverlay');
+        const orderDetailInfoGrid = document.getElementById('orderDetailInfoGrid');
+        const orderDetailProductBody = document.getElementById('orderDetailProductBody');
+
+        function openOrderDetailModal(order) {
+            if (!order) return;
+            orderDetailInfoGrid.innerHTML = '';
+            var items = [
+                { label: '单号', value: order.id },
+                { label: '日期', value: order.date },
+                { label: '往来单位', value: order.partner },
+                { label: '项目', value: order.project || '-' },
+                { label: '订单金额', value: '¥' + (order.amount || 0).toFixed(2) },
+                { label: '应付余额', value: '¥' + (order.payable || 0).toFixed(2) }
+            ];
+            items.forEach(function (item) {
+                var div = document.createElement('div');
+                div.className = 'order-detail-info-item';
+                div.innerHTML = '<span class="order-detail-info-label">' + item.label + '</span><span class="order-detail-info-value">' + (item.value || '-') + '</span>';
+                orderDetailInfoGrid.appendChild(div);
+            });
+            orderDetailProductBody.innerHTML = '';
+            (order.products || []).forEach(function (p, idx) {
+                var tr = document.createElement('tr');
+                var amt = (p.qty || 0) * (p.price || 0);
+                tr.innerHTML = '<td>' + (idx + 1) + '</td><td>' + (p.name || '-') + '</td><td>' + (p.spec || '-') + '</td><td>' + (p.unit || '-') + '</td><td>' + (p.category || '未分类') + '</td><td class="text-right">' + (p.qty || 0).toFixed(2) + '</td><td class="text-right">¥' + (p.price || 0).toFixed(2) + '</td><td class="text-right">¥' + amt.toFixed(2) + '</td>';
+                orderDetailProductBody.appendChild(tr);
+            });
+            orderDetailModalOverlay.classList.add('show');
+        }
+
+        function closeOrderDetailModal() {
+            orderDetailModalOverlay.classList.remove('show');
+        }
+
+        document.getElementById('orderDetailModalClose').addEventListener('click', closeOrderDetailModal);
+        orderDetailModalOverlay.addEventListener('click', function (e) {
+            if (e.target === orderDetailModalOverlay) closeOrderDetailModal();
+        });
+
+        // 申请退货弹窗（与审核配置-采购退货联动，写入采购退货列表 localStorage）
+        const PURCHASE_RETURN_LIST_KEY = 'purchaseReturnList';
+        const PURCHASE_RETURN_DETAILS_KEY = 'purchaseReturnDetails';
+        const applyReturnModalOverlay = document.getElementById('applyReturnModalOverlay');
+        const applyReturnOrderInfo = document.getElementById('applyReturnOrderInfo');
+        let applyReturnCurrentOrder = null;
+
+        function openApplyReturnModal(order) {
+            if (!order) return;
+            applyReturnCurrentOrder = order;
+            applyReturnOrderInfo.innerHTML = '';
+            var items = [
+                { label: '关联入库单号', value: order.id },
+                { label: '日期', value: order.date },
+                { label: '往来单位', value: order.partner },
+                { label: '项目', value: order.project || '-' },
+                { label: '订单金额', value: '¥' + (order.amount || 0).toFixed(2) }
+            ];
+            items.forEach(function (item) {
+                var div = document.createElement('div');
+                div.className = 'order-detail-info-item';
+                div.innerHTML = '<span class="order-detail-info-label">' + item.label + '</span><span class="order-detail-info-value">' + (item.value || '-') + '</span>';
+                applyReturnOrderInfo.appendChild(div);
+            });
+            document.getElementById('applyReturnReason').value = '';
+            document.getElementById('applyReturnRemark').value = '';
+            applyReturnModalOverlay.classList.add('show');
+        }
+
+        function closeApplyReturnModal() {
+            applyReturnModalOverlay.classList.remove('show');
+            applyReturnCurrentOrder = null;
+        }
+
+        document.getElementById('applyReturnModalClose').addEventListener('click', closeApplyReturnModal);
+        document.getElementById('applyReturnCancel').addEventListener('click', closeApplyReturnModal);
+        applyReturnModalOverlay.addEventListener('click', function (e) {
+            if (e.target === applyReturnModalOverlay) closeApplyReturnModal();
+        });
+
+        document.getElementById('applyReturnConfirm').addEventListener('click', function () {
+            var reason = (document.getElementById('applyReturnReason').value || '').trim();
+            if (!reason) {
+                alert('请填写退货原因。');
+                return;
+            }
+            var remark = (document.getElementById('applyReturnRemark').value || '').trim();
+            var order = applyReturnCurrentOrder;
+            if (!order) {
+                closeApplyReturnModal();
+                return;
+            }
+            try {
+                var list = JSON.parse(localStorage.getItem(PURCHASE_RETURN_LIST_KEY) || '[]');
+                var detailsMap = JSON.parse(localStorage.getItem(PURCHASE_RETURN_DETAILS_KEY) || '{}');
+                var today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                var sameDay = list.filter(function (r) { return r.id && r.id.indexOf('TH' + today) === 0; });
+                var seq = sameDay.length + 1;
+                var returnId = 'TH' + today + String(seq).padStart(3, '0');
+                var totalQty = (order.products || []).reduce(function (sum, p) { return sum + (Number(p.qty) || 0); }, 0);
+                var amount = Number(order.amount) || 0;
+                var row = {
+                    id: returnId,
+                    date: order.date || new Date().toISOString().slice(0, 10),
+                    partner: order.partner,
+                    project: order.project || '',
+                    staff: '',
+                    remark: reason + (remark ? '\n' + remark : ''),
+                    qty: totalQty,
+                    amount: amount,
+                    payable: -amount,
+                    status: '待提交',
+                    attachment: '',
+                    recorder: '当前用户',
+                    recordTime: new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                    sourceOrderId: order.id
+                };
+                list.push(row);
+                detailsMap[returnId] = (order.products || []).map(function (p) {
+                    return { name: p.name, spec: p.spec || '', unit: p.unit || '', qty: Number(p.qty) || 0, price: Number(p.price) || 0 };
+                });
+                localStorage.setItem(PURCHASE_RETURN_LIST_KEY, JSON.stringify(list));
+                localStorage.setItem(PURCHASE_RETURN_DETAILS_KEY, JSON.stringify(detailsMap));
+                closeApplyReturnModal();
+                if (confirm('已提交退货申请，请到采购退货页面查看。是否立即前往采购退货？')) {
+                    window.location.href = '采购退货.html';
+                }
+            } catch (e) {
+                console.error(e);
+                alert('保存退货单失败：' + (e.message || '未知错误'));
+            }
+        });
 
         // 选择订单
         function selectOrder(orderId) {
@@ -731,26 +776,32 @@
             document.getElementById('orderPayableDisplay').textContent = `¥${selectedOrder.payable.toFixed(2)}`;
             document.getElementById('orderInfoCard').classList.remove('hidden');
 
-            // 初始化入库商品明细
+            // 初始化入库商品明细（含分类、入库单价、货区、货架、照片、备注、添加时间）
+            const nowStr = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
             storageItems = selectedOrder.products.map(product => ({
                 ...product,
+                category: product.category || '未分类',
                 storageQty: product.qty,
-                scannedBarcode: product.barcode || ''
+                storageUnitPrice: product.price,
+                storageAmount: (product.qty * product.price),
+                zone: '',
+                shelf: '',
+                photo: '',
+                remark: '',
+                addTime: nowStr
             }));
 
             // 显示商品明细表格
             renderProductsTable();
             document.getElementById('productsSection').style.display = 'block';
-            document.getElementById('barcodeScanSection').style.display = 'block';
             document.getElementById('payableSection').style.display = 'block';
-            document.getElementById('auditStatusSection').style.display = 'block';
             document.getElementById('actionSection').style.display = 'flex';
 
             // 更新应付金额
             updatePayable();
         }
 
-        // 渲染商品明细表格
+        // 渲染商品明细表格（含分类、入库单价、入库金额、货区、货架、照片、备注、添加时间）
         function renderProductsTable() {
             const tbody = document.getElementById('productsTableBody');
             tbody.innerHTML = '';
@@ -761,46 +812,34 @@
             storageItems.forEach((item, index) => {
                 totalOrderQty += item.qty;
                 totalStorageQty += item.storageQty || 0;
+                const storageUnitPrice = item.storageUnitPrice != null ? item.storageUnitPrice : item.price;
+                const storageAmt = (item.storageQty || 0) * storageUnitPrice;
 
                 const row = document.createElement('tr');
                 row.dataset.productId = item.id;
                 row.dataset.index = index;
-                
-                const barcodeValue = item.scannedBarcode || '';
-                const isMatched = barcodeValue && item.barcode && barcodeValue === item.barcode;
-                const barcodeClass = barcodeRequired && !barcodeValue ? 'required' : '';
-                
+
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${item.name}</td>
-                    <td>${item.spec}</td>
-                    <td>${item.unit}</td>
+                    <td>${item.spec || '-'}</td>
+                    <td>${item.unit || '-'}</td>
+                    <td>${item.category || '未分类'}</td>
                     <td class="text-right">${item.qty.toFixed(2)}</td>
                     <td class="text-right">¥${item.price.toFixed(2)}</td>
                     <td class="text-right">¥${(item.qty * item.price).toFixed(2)}</td>
-                    <td>
-                        <input type="text" 
-                               class="barcode-input ${barcodeClass}" 
-                               data-product-id="${item.id}"
-                               data-index="${index}"
-                               value="${barcodeValue}"
-                               placeholder="${barcodeRequired ? '必填' : '可选'}">
-                    </td>
-                    <td>
-                        <span class="barcode-status ${isMatched ? 'matched' : barcodeValue ? 'unmatched' : ''}">
-                            ${isMatched ? '✓ 已匹配' : barcodeValue ? '✗ 未匹配' : '未录入'}
-                        </span>
-                    </td>
                     <td class="text-right">
-                        <input type="number" 
-                               class="form-input" 
-                               style="width: 100px; text-align: right; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-sm);"
-                               data-product-id="${item.id}"
-                               data-index="${index}"
-                               value="${item.storageQty.toFixed(2)}"
-                               min="0"
-                               max="${item.qty}"
-                               step="0.01">
+                        <input type="number" class="storage-unit-price-input" data-index="${index}" value="${storageUnitPrice.toFixed(2)}" min="0" step="0.01" style="width:80px;text-align:right;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);">
+                    </td>
+                    <td class="text-right storage-amount-cell">¥${storageAmt.toFixed(2)}</td>
+                    <td><input type="text" class="barcode-input" data-index="${index}" value="${item.barcode || ''}" placeholder="条码" style="width:100px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="zone-input" data-index="${index}" value="${item.zone || ''}" placeholder="货区" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="shelf-input" data-index="${index}" value="${item.shelf || ''}" placeholder="货架" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="photo-input" data-index="${index}" value="${item.photo || ''}" placeholder="照片" style="width:60px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="remark-input" data-index="${index}" value="${item.remark || ''}" placeholder="备注" style="width:80px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td class="add-time-cell">${item.addTime || '-'}</td>
+                    <td class="text-right">
+                        <input type="number" class="form-input storage-qty-input" data-product-id="${item.id}" data-index="${index}" value="${item.storageQty.toFixed(2)}" min="0" max="${item.qty}" step="0.01" style="width:90px;text-align:right;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);">
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -809,91 +848,72 @@
             document.getElementById('totalOrderQty').textContent = totalOrderQty.toFixed(2);
             document.getElementById('totalStorageQty').textContent = totalStorageQty.toFixed(2);
 
-            // 显示/隐藏强制条码提示
-            const alert = document.getElementById('barcodeRequiredAlert');
-            if (barcodeRequired) {
-                alert.style.display = 'block';
-            } else {
-                alert.style.display = 'none';
-            }
-
-            // 绑定条码输入事件
-            bindBarcodeInputs();
-            // 绑定入库数量输入事件
             bindStorageQtyInputs();
+            bindStorageExtraInputs();
         }
 
-        // 绑定条码输入事件
-        function bindBarcodeInputs() {
-            document.querySelectorAll('.barcode-input').forEach(input => {
-                input.addEventListener('input', function() {
-                    const productId = parseInt(this.dataset.productId);
-                    const index = parseInt(this.dataset.index);
-                    const barcode = this.value.trim();
-                    
-                    storageItems[index].scannedBarcode = barcode;
-                    
-                    // 检查是否匹配
-                    const item = storageItems[index];
-                    const isMatched = barcode && item.barcode && barcode === item.barcode;
-                    
-                    // 更新状态显示
+        // 绑定入库单价、货区、货架、照片、备注
+        function bindStorageExtraInputs() {
+            const tbody = document.getElementById('productsTableBody');
+            if (!tbody) return;
+            tbody.querySelectorAll('.storage-unit-price-input').forEach(function (input) {
+                const idx = parseInt(input.dataset.index, 10);
+                input.addEventListener('input', function () {
+                    const v = parseFloat(this.value) || 0;
+                    storageItems[idx].storageUnitPrice = v;
+                    storageItems[idx].storageAmount = (storageItems[idx].storageQty || 0) * v;
                     const row = this.closest('tr');
-                    const statusCell = row.querySelector('.barcode-status');
-                    if (isMatched) {
-                        statusCell.className = 'barcode-status matched';
-                        statusCell.textContent = '✓ 已匹配';
-                        this.classList.remove('required');
-                    } else if (barcode) {
-                        statusCell.className = 'barcode-status unmatched';
-                        statusCell.textContent = '✗ 未匹配';
-                        if (barcodeRequired) {
-                            this.classList.add('required');
-                        }
-                    } else {
-                        statusCell.className = 'barcode-status';
-                        statusCell.textContent = '未录入';
-                        if (barcodeRequired) {
-                            this.classList.add('required');
-                        } else {
-                            this.classList.remove('required');
-                        }
-                    }
-
-                    // 检查是否可以提交
-                    checkCanSubmit();
+                    const amountCell = row.querySelector('.storage-amount-cell');
+                    if (amountCell) amountCell.textContent = '¥' + storageItems[idx].storageAmount.toFixed(2);
+                    updatePayable();
                 });
-
-                input.addEventListener('blur', function() {
-                    if (barcodeRequired && !this.value.trim()) {
-                        this.classList.add('required');
-                    }
+            });
+            tbody.querySelectorAll('.barcode-input').forEach(function (input) {
+                const idx = parseInt(input.dataset.index, 10);
+                if (storageItems[idx]) storageItems[idx].barcode = input.value;
+                input.addEventListener('input', function () {
+                    const i = parseInt(this.dataset.index, 10);
+                    if (storageItems[i]) storageItems[i].barcode = this.value;
                 });
+            });
+            tbody.querySelectorAll('.zone-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].zone = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].zone = this.value; });
+            });
+            tbody.querySelectorAll('.shelf-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].shelf = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].shelf = this.value; });
+            });
+            tbody.querySelectorAll('.photo-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].photo = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].photo = this.value; });
+            });
+            tbody.querySelectorAll('.remark-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].remark = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].remark = this.value; });
             });
         }
 
         // 绑定入库数量输入事件
         function bindStorageQtyInputs() {
-            document.querySelectorAll('input[type="number"][data-product-id]').forEach(input => {
+            document.querySelectorAll('.storage-qty-input').forEach(input => {
                 input.addEventListener('input', function() {
-                    const productId = parseInt(this.dataset.productId);
-                    const index = parseInt(this.dataset.index);
-                    const qty = parseFloat(this.value) || 0;
+                    const index = parseInt(this.dataset.index, 10);
+                    let qty = parseFloat(this.value) || 0;
                     const maxQty = storageItems[index].qty;
-                    
                     if (qty > maxQty) {
                         this.value = maxQty.toFixed(2);
-                        storageItems[index].storageQty = maxQty;
+                        qty = maxQty;
                     } else if (qty < 0) {
                         this.value = '0.00';
-                        storageItems[index].storageQty = 0;
-                    } else {
-                        storageItems[index].storageQty = qty;
+                        qty = 0;
                     }
-
-                    // 更新合计
+                    storageItems[index].storageQty = qty;
+                    storageItems[index].storageAmount = qty * (storageItems[index].storageUnitPrice != null ? storageItems[index].storageUnitPrice : storageItems[index].price);
+                    const row = this.closest('tr');
+                    const amountCell = row ? row.querySelector('.storage-amount-cell') : null;
+                    if (amountCell) amountCell.textContent = '¥' + storageItems[index].storageAmount.toFixed(2);
                     updateTotals();
-                    // 更新应付金额
                     updatePayable();
                 });
             });
@@ -914,7 +934,8 @@
 
             let totalAmount = 0;
             storageItems.forEach(item => {
-                totalAmount += (item.storageQty || 0) * item.price;
+                const unitPrice = item.storageUnitPrice != null ? item.storageUnitPrice : item.price;
+                totalAmount += (item.storageQty || 0) * unitPrice;
             });
 
             const originalPayable = selectedOrder.payable;
@@ -932,65 +953,11 @@
             }
         }
 
-        // 检查是否可以提交
-        function checkCanSubmit() {
-            if (!selectedOrder) {
-                return false;
-            }
-
-            if (barcodeRequired) {
-                // 检查是否所有商品都录入了条码
-                const allBarcoded = storageItems.every(item => item.scannedBarcode && item.scannedBarcode.trim());
-                return allBarcoded;
-            }
-
-            return true;
-        }
-
-        // 扫描条码
-        function scanBarcode(barcode) {
-            if (!barcode || !barcode.trim()) {
-                return;
-            }
-
-            // 查找匹配的商品
-            const matchedItem = storageItems.find(item => item.barcode === barcode.trim());
-            
-            if (matchedItem) {
-                // 找到匹配的商品，自动填充条码
-                const index = storageItems.findIndex(item => item.id === matchedItem.id);
-                storageItems[index].scannedBarcode = barcode.trim();
-                
-                // 重新渲染表格
-                renderProductsTable();
-                
-                // 高亮显示匹配的行
-                const row = document.querySelector(`tr[data-product-id="${matchedItem.id}"]`);
-                if (row) {
-                    row.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
-                    setTimeout(() => {
-                        row.style.backgroundColor = '';
-                    }, 2000);
-                }
-            } else {
-                alert('未找到匹配的商品条码，请检查条码是否正确');
-            }
-        }
-
-        // 确认入库（不再走财务审核环节）
+        // 确认入库
         function submitAudit() {
             if (!selectedOrder) {
                 alert('请先选择采购订单');
                 return;
-            }
-
-            // 检查条码（如果强制）
-            if (barcodeRequired) {
-                const missingBarcode = storageItems.find(item => !item.scannedBarcode || !item.scannedBarcode.trim());
-                if (missingBarcode) {
-                    alert('请为所有商品录入条码后再确认入库');
-                    return;
-                }
             }
 
             // 检查入库数量
@@ -1014,34 +981,10 @@
             alert('入库成功，应付金额已更新。');
         }
 
-        // 更新审核状态
+        // 更新确认入库按钮状态（审核状态区块已移除）
         function updateAuditStatus() {
-            const badge = document.getElementById('auditStatusBadge');
-            const text = document.getElementById('auditStatusText');
-
-            badge.className = 'audit-status-badge ' + auditStatus;
-            
-            switch(auditStatus) {
-                case 'none':
-                    badge.textContent = '未入库';
-                    text.textContent = '请完成商品明细和条码录入后，点击“确认入库”。';
-                    break;
-                case 'pending':
-                    badge.textContent = '入库中';
-                    text.textContent = '入库处理中...';
-                    break;
-                case 'approved':
-                    badge.textContent = '已入库';
-                    text.textContent = '该采购订单已完成入库，应付金额已更新。';
-                    break;
-                case 'rejected':
-                    badge.textContent = '入库失败';
-                    text.textContent = '入库未完成，请检查后重新操作。';
-                    break;
-            }
-
-            // 更新提交按钮状态
             const submitBtn = document.getElementById('submitAuditBtn');
+            if (!submitBtn) return;
             if (auditStatus === 'approved') {
                 submitBtn.disabled = true;
                 submitBtn.textContent = '已入库完成';
@@ -1061,125 +1004,20 @@
             storageItems = [];
             auditStatus = 'none';
 
-            document.getElementById('orderSearchInput').value = '';
             document.getElementById('orderInfoCard').classList.add('hidden');
             document.getElementById('productsSection').style.display = 'none';
-            document.getElementById('barcodeScanSection').style.display = 'none';
             document.getElementById('payableSection').style.display = 'none';
-            document.getElementById('auditStatusSection').style.display = 'none';
             document.getElementById('actionSection').style.display = 'none';
-            document.getElementById('barcodeScanInput').value = '';
-            
+            renderPlanList();
             updateAuditStatus();
         }
 
-        // 事件绑定
-        document.getElementById('selectOrderBtn').addEventListener('click', function() {
-            const input = document.getElementById('orderSearchInput');
-            const value = input.value.trim();
-            
-            if (!value) {
-                alert('请输入订单号');
-                return;
-            }
-
-            // 从输入值中提取订单号
-            let orderId = value;
-            if (value.includes(' - ')) {
-                orderId = value.split(' - ')[0];
-            }
-
-            selectOrder(orderId);
-        });
-
-        document.getElementById('orderSearchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('selectOrderBtn').click();
-            }
-        });
-
-        document.getElementById('clearOrderBtn').addEventListener('click', resetForm);
-
-        // 新增入库单弹窗
-        const storageModalEl = document.getElementById('storageModalOverlay');
-        const storageOrderSelect = document.getElementById('storageOrderSelect');
-        const storageDateInput = document.getElementById('storageDate');
-        const storageWarehouseSelect = document.getElementById('storageWarehouse');
-        const storageStaffInput = document.getElementById('storageStaff');
-        const storageRemarkInput = document.getElementById('storageRemark');
-
-        function openStorageModal() {
-            const today = new Date().toISOString().slice(0, 10);
-            storageOrderSelect.innerHTML = '<option value="">请选择采购订单</option>';
-            purchaseOrders.forEach(function (o) {
-                const opt = document.createElement('option');
-                opt.value = o.id;
-                opt.textContent = o.id + ' - ' + o.partner + ' (¥' + o.amount.toFixed(2) + ')';
-                storageOrderSelect.appendChild(opt);
-            });
-            storageDateInput.value = today;
-            storageWarehouseSelect.value = '总仓';
-            storageStaffInput.value = '';
-            storageRemarkInput.value = '';
-            storageModalEl.classList.add('show');
-        }
-
-        function closeStorageModal() {
-            storageModalEl.classList.remove('show');
-        }
-
-        document.getElementById('addStorageBtn').addEventListener('click', openStorageModal);
-        document.getElementById('storageModalClose').addEventListener('click', closeStorageModal);
-        document.getElementById('storageModalCancel').addEventListener('click', closeStorageModal);
-        storageModalEl.addEventListener('click', function (e) {
-            if (e.target === storageModalEl) closeStorageModal();
-        });
-        document.getElementById('storageModalConfirm').addEventListener('click', function () {
-            const orderId = storageOrderSelect.value;
-            if (!orderId) {
-                alert('请选择采购订单');
-                return;
-            }
-            selectOrder(orderId);
-            closeStorageModal();
-        });
-
-        document.getElementById('barcodeScanInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const barcode = this.value.trim();
-                if (barcode) {
-                    scanBarcode(barcode);
-                    this.value = '';
-                }
-            }
-        });
-
-        document.getElementById('scanBarcodeBtn').addEventListener('click', function() {
-            const input = document.getElementById('barcodeScanInput');
-            const barcode = input.value.trim();
-            if (barcode) {
-                scanBarcode(barcode);
-                input.value = '';
-            }
-        });
-
-            document.getElementById('submitAuditBtn').addEventListener('click', submitAudit);
         document.getElementById('resetBtn').addEventListener('click', resetForm);
+        document.getElementById('submitAuditBtn').addEventListener('click', submitAudit);
 
-        // 强制条码录入开关
-        document.getElementById('barcodeRequiredCheckbox').addEventListener('change', function() {
-            barcodeRequired = this.checked;
-            
-            // 如果已选择订单，重新渲染表格以更新必填状态
-            if (selectedOrder) {
-                renderProductsTable();
-                checkCanSubmit();
-            }
-        });
-
-        // 初始化：先合并来自“采购计划”的采购订单，再初始化列表
+        // 初始化：先合并来自“采购计划”的采购订单，再渲染采购计划列表
         loadPurchaseOrdersFromPlan();
-        initOrderList();
+        renderPlanList();
         updateAuditStatus();
 
         // 支持从采购订单页跳转带参自动选单：采购入库.html?orderId=JHxxxx
@@ -1188,11 +1026,8 @@
                 const params = new URLSearchParams(window.location.search);
                 const orderId = params.get('orderId');
                 if (orderId) {
-                    // 预填输入框，提升可见性
-                    const input = document.getElementById('orderSearchInput');
-                    if (input) input.value = orderId;
-                    // 自动选单并展开后续区域
                     selectOrder(orderId);
+                    renderPlanList();
                 }
             } catch (e) {
                 // ignore

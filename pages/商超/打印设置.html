@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打印设置 - 商超收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银台基础设置.css">
+</head>
+<body class="pos-settings-page">
+    <div class="pos-settings-container">
+        <div class="pos-settings-header">
+            <div>
+                <h1 class="pos-settings-title">打印设置</h1>
+                <div class="pos-settings-subtitle">配置收银台小票与订单打印</div>
+            </div>
+        </div>
+
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">小票打印</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">是否开启小票打印</div>
+                        <div class="pos-settings-note">结账后可自动或手动打印小票</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableReceipt" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">默认打印机</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <select class="pos-settings-select" id="defaultPrinter">
+                            <option value="">请选择打印机</option>
+                            <option value="printer1" selected>前台小票机</option>
+                            <option value="printer2">后厨打印机</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">纸张规格</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <select class="pos-settings-select" id="paperSize">
+                            <option value="58">58mm 热敏纸</option>
+                            <option value="80" selected>80mm 热敏纸</option>
+                            <option value="a4">A4 纸</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">结账后自动打印</div>
+                        <div class="pos-settings-note">支付成功后自动打印小票</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="autoPrint" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-header">
+                <h3 class="pos-settings-card-title">订单打印</h3>
+            </div>
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">订单打印模板</div>
+                        <div class="pos-settings-note">选择订单详情/发货单等打印样式</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <select class="pos-settings-select" id="orderTemplate">
+                            <option value="default" selected>默认订单单</option>
+                            <option value="simple">简版订单单</option>
+                            <option value="delivery">发货单</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">打印联数</div>
+                        <div class="pos-settings-note">小票打印份数，部分场景需多联</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <select class="pos-settings-select" id="copyCount">
+                            <option value="1">1 联</option>
+                            <option value="2" selected>2 联</option>
+                            <option value="3">3 联</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pos-settings-card">
+            <div class="pos-settings-card-body">
+                <div class="pos-settings-item pos-settings-item-row">
+                    <div class="pos-settings-item-left"></div>
+                    <div class="pos-settings-item-right">
+                        <button type="button" class="pos-settings-btn pos-settings-btn-primary" id="saveBtn">保存设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            alert('打印设置已保存（示例）');
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>采购订单 - 2026新项目二</title>
+    <title>采购计划 - 2026新项目二</title>
     <link rel="stylesheet" href="../../css/Main.css">
     <style>
         .purchase-page {
@@ -399,6 +399,8 @@
         .purchase-modal .detail-table th, .purchase-modal .detail-table td { padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid var(--color-neutral-200); text-align: left; }
         .purchase-modal .detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
         .purchase-modal .detail-table input { width: 100%; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: 4px; }
+        .purchase-modal .detail-table input.po-name { cursor: pointer; background-color: #fff; }
+        .purchase-modal .detail-table input.po-name::placeholder { color: var(--color-text-secondary); }
         .purchase-modal .detail-table .col-num { width: 60px; text-align: right; }
         .purchase-modal .detail-table .col-price { width: 90px; text-align: right; }
         .purchase-modal .detail-table .col-amount { width: 90px; text-align: right; }
@@ -407,6 +409,93 @@
         .btn-text { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: var(--font-size-sm); padding: 0 4px; }
         .btn-text:hover { text-decoration: underline; }
         .btn-text.danger { color: var(--color-error); }
+
+        /* 商品选择器弹窗（左侧分类 + 右侧商品） */
+        .product-picker-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1050;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-picker-overlay.show { display: flex; }
+        .product-picker-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 560px;
+            max-height: 70vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-picker-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-picker-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .product-picker-body {
+            display: flex;
+            flex: 1;
+            min-height: 320px;
+            overflow: hidden;
+        }
+        .product-picker-categories {
+            width: 120px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--color-neutral-200);
+            padding: var(--spacing-sm);
+            overflow-y: auto;
+        }
+        .product-picker-cat-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            margin-bottom: 2px;
+        }
+        .product-picker-cat-item:hover {
+            background: var(--color-neutral-50);
+            color: var(--color-text-primary);
+        }
+        .product-picker-cat-item.active {
+            background: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .product-picker-list-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-sm);
+        }
+        .product-picker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .product-picker-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background var(--transition-base), border-color var(--transition-base);
+        }
+        .product-picker-item:hover {
+            background: var(--color-neutral-50);
+            border-color: var(--color-neutral-200);
+        }
+        .product-picker-item .product-picker-item-spec {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: 2px;
+        }
 
         /* 通用弹窗（汇总/详情/更多搜索/属性） */
         .modal-overlay {
@@ -530,91 +619,27 @@
         <!-- 页面标题 -->
         <div class="page-header">
             <div>
-                <h1 class="page-title">采购订单</h1>
-                <div class="page-subtitle">用于管理和追踪进货/采购订单的列表页面。</div>
+                <h1 class="page-title">采购计划</h1>
+                <div class="page-subtitle">用于管理和追踪进货/采购计划的列表页面。</div>
             </div>
         </div>
 
-        <!-- 顶部工具栏 -->
+        <!-- 顶部工具栏（仅保留新增） -->
         <div class="toolbar-card">
-            <!-- 左侧按钮组 -->
             <div class="toolbar-left">
-                <button class="btn btn-outline" id="purchasePlanBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">☑</span>
-                        <span>采购计划</span>
-                    </span>
-                </button>
                 <button class="btn btn-primary" id="addPurchaseOrderBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">＋</span>
                         <span>新增</span>
                     </span>
                 </button>
-                <button class="btn btn-outline" id="importBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↓</span>
-                        <span>导入</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="exportBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="exportDetailBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出详情</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="purchaseVoucherBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">⊕</span>
-                        <span>进货单</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="toStorageBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">⊕</span>
-                        <span>入库单</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="customAttrBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">≡</span>
-                        <span>属性</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="summaryBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">●</span>
-                        <span>汇总</span>
-                    </span>
-                </button>
             </div>
-
-            <!-- 中间搜索区 -->
             <div class="toolbar-center">
                 <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：支持按单号、往来单位等关键字">
                 <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
             </div>
-
-            <!-- 右侧功能 -->
-            <div class="toolbar-right">
-                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
-                <button class="btn btn-outline" id="statsBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">⊙</span>
-                        <span>统计</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="listViewBtn" title="切换为列表视图">列表</button>
-                <button class="btn btn-outline" id="detailViewBtn" title="切换为详情视图">详情</button>
-            </div>
+            <div class="toolbar-right"></div>
         </div>
-        <input type="file" id="importFileInput" accept=".csv" style="display:none;">
 
         <!-- 统计卡片 -->
         <div class="summary-row">
@@ -655,7 +680,6 @@
                             <th>备注</th>
                             <th class="text-right">数量</th>
                             <th class="text-right">进货金额</th>
-                            <th class="text-right">应付余额</th>
                             <th>订单状态</th>
                             <th>附件</th>
                             <th>录入员</th>
@@ -671,8 +695,7 @@
                             <td colspan="7" class="text-right">合计：</td>
                             <td class="text-right" id="totalQtyCell">537.20</td>
                             <td class="text-right" id="totalAmountCell">7011.46</td>
-                            <td class="text-right" id="totalPayableCell">4357.00</td>
-                            <td colspan="5"></td>
+                            <td colspan="6"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -716,11 +739,11 @@
             </div>
         </div>
 
-        <!-- 新增采购订单弹窗 -->
+        <!-- 新增采购计划弹窗 -->
         <div class="purchase-modal-overlay" id="purchaseOrderModalOverlay">
             <div class="purchase-modal">
                 <div class="modal-head">
-                    <h3>新增采购订单</h3>
+                    <h3>新增采购计划</h3>
                     <button type="button" class="btn btn-outline" id="purchaseOrderModalClose">× 关闭</button>
                 </div>
                 <div class="modal-body">
@@ -796,8 +819,9 @@
                         <div class="form-group">
                             <label>订单状态</label>
                             <select id="poStatus">
-                                <option value="待审核">待审核</option>
-                                <option value="已成交">已成交</option>
+                                <option value="待提交">待提交</option>
+                                <option value="审核中">审核中</option>
+                                <option value="待入库">待入库</option>
                                 <option value="部分入库">部分入库</option>
                                 <option value="已关闭">已关闭</option>
                             </select>
@@ -810,7 +834,31 @@
                 </div>
                 <div class="modal-foot">
                     <button type="button" class="btn btn-outline" id="purchaseOrderModalCancel">取消</button>
-                    <button type="button" class="btn btn-primary" id="purchaseOrderModalSave">保存订单</button>
+                    <button type="button" class="btn btn-outline" id="purchaseOrderModalSaveDraft">存为草稿</button>
+                    <button type="button" class="btn btn-primary" id="purchaseOrderModalSubmit">提交审核</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品选择器弹窗（点击商品名称时弹出：左侧分类、右侧商品列表） -->
+        <div class="product-picker-overlay" id="productPickerOverlay">
+            <div class="product-picker-modal">
+                <div class="product-picker-head">
+                    <h3>选择商品</h3>
+                    <button type="button" class="btn btn-outline product-picker-close" id="productPickerClose">× 关闭</button>
+                </div>
+                <div class="product-picker-body">
+                    <aside class="product-picker-categories" id="productPickerCategories">
+                        <div class="product-picker-cat-item active" data-category="全部">全部</div>
+                        <div class="product-picker-cat-item" data-category="雅安好物">雅安好物</div>
+                        <div class="product-picker-cat-item" data-category="雅安好景">雅安好景</div>
+                        <div class="product-picker-cat-item" data-category="文创产品">文创产品</div>
+                    </aside>
+                    <div class="product-picker-list-wrap">
+                        <div class="product-picker-list" id="productPickerList">
+                            <!-- JS 渲染商品列表 -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -882,9 +930,9 @@
                             <label>订单状态</label>
                             <select id="msStatus">
                                 <option value="">全部</option>
-                                <option value="待审核">待审核</option>
-                                <option value="已成交">已成交</option>
-                                <option value="部分入库">部分入库</option>
+                                <option value="待提交">待提交</option>
+                                <option value="审核中">审核中</option>
+                                <option value="待入库">待入库</option>
                                 <option value="已关闭">已关闭</option>
                             </select>
                         </div>
@@ -943,7 +991,7 @@
     </div>
 
     <script>
-        // 模拟静态采购订单数据
+        // 模拟静态采购订单数据（订单状态：待提交、审核中、待入库）
         const purchases = [
             {
                 id: 'JH20250826001',
@@ -955,7 +1003,7 @@
                 qty: 120.50,
                 amount: 1800.20,
                 payable: 800.00,
-                status: '已成交',
+                status: '待提交',
                 attachment: '1',
                 recorder: '系统管理员',
                 recordTime: '2025-08-26 10:25:00'
@@ -970,7 +1018,7 @@
                 qty: 88.70,
                 amount: 1200.00,
                 payable: 560.00,
-                status: '已成交',
+                status: '审核中',
                 attachment: '0',
                 recorder: '王五',
                 recordTime: '2025-08-26 11:10:12'
@@ -985,7 +1033,7 @@
                 qty: 200.00,
                 amount: 2300.50,
                 payable: 1500.00,
-                status: '已成交',
+                status: '待入库',
                 attachment: '2',
                 recorder: '系统管理员',
                 recordTime: '2025-08-27 09:05:30'
@@ -1000,7 +1048,7 @@
                 qty: 128.00,
                 amount: 1710.76,
                 payable: 1497.00,
-                status: '已成交',
+                status: '待提交',
                 attachment: '0',
                 recorder: '王五',
                 recordTime: '2025-08-28 14:22:09'
@@ -1059,7 +1107,7 @@
                         qty: Number(p.qty) || 0,
                         amount: Number(p.amount) || 0,
                         payable: Number(p.payable) || 0,
-                        status: p.status || '待审核',
+                        status: p.status || '待提交',
                         attachment: p.attachment || '0',
                         recorder: p.recorder || '系统管理员',
                         recordTime: p.recordTime || new Date().toLocaleString('zh-CN')
@@ -1098,7 +1146,6 @@
                     <td>${item.remark || '-'}</td>
                     <td class="text-right">${item.qty.toFixed(2)}</td>
                     <td class="text-right">${item.amount.toFixed(2)}</td>
-                    <td class="text-right">${item.payable.toFixed(2)}</td>
                     <td>
                         <span class="status-pill status-link" data-id="${item.id}">${item.status}</span>
                     </td>
@@ -1250,7 +1297,7 @@
                 const ratio = (Number(p.payable) || 0) / totalPayable;
                 const allocated = actualPay * ratio;
                 p.payable = Math.max(0, (Number(p.payable) || 0) - allocated);
-                if (p.payable === 0 && p.status === '待审核') p.status = '已成交';
+                if (p.payable === 0 && (p.status === '审核中' || p.status === '待入库')) p.status = '待入库';
             });
             filteredPurchases = [...purchases];
             renderTable();
@@ -1434,10 +1481,10 @@
         function auditOrder(id) {
             const item = purchases.find(p => p.id === id);
             if (!item) return;
-            const choice = prompt(`审核采购订单：${id}\\n1. 通过\\n2. 退回（待审核）\\n3. 关闭\\n\\n请输入序号：`, '1');
+            const choice = prompt(`审核采购订单：${id}\\n1. 通过（待入库）\\n2. 退回（待提交）\\n3. 关闭\\n\\n请输入序号：`, '1');
             if (choice === null) return;
-            if (choice === '1') item.status = '已成交';
-            if (choice === '2') item.status = '待审核';
+            if (choice === '1') item.status = '待入库';
+            if (choice === '2') item.status = '待提交';
             if (choice === '3') item.status = '已关闭';
             renderTable();
         }
@@ -1528,16 +1575,20 @@
 
         // ========= 更多搜索 =========
         const moreSearchModal = document.getElementById('moreSearchModal');
-        function openMoreSearch() { moreSearchModal.classList.add('show'); }
-        function closeMoreSearch() { moreSearchModal.classList.remove('show'); }
-        document.getElementById('moreSearchBtn').addEventListener('click', openMoreSearch);
-        document.getElementById('moreSearchModalClose').addEventListener('click', closeMoreSearch);
-        moreSearchModal.addEventListener('click', (e) => { if (e.target === moreSearchModal) closeMoreSearch(); });
-        document.getElementById('moreSearchResetBtn').addEventListener('click', () => {
+        function openMoreSearch() { if (moreSearchModal) moreSearchModal.classList.add('show'); }
+        function closeMoreSearch() { if (moreSearchModal) moreSearchModal.classList.remove('show'); }
+        var moreSearchBtn = document.getElementById('moreSearchBtn');
+        if (moreSearchBtn) moreSearchBtn.addEventListener('click', openMoreSearch);
+        var moreSearchModalClose = document.getElementById('moreSearchModalClose');
+        if (moreSearchModalClose) moreSearchModalClose.addEventListener('click', closeMoreSearch);
+        if (moreSearchModal) moreSearchModal.addEventListener('click', (e) => { if (e.target === moreSearchModal) closeMoreSearch(); });
+        var moreSearchResetBtn = document.getElementById('moreSearchResetBtn');
+        if (moreSearchResetBtn) moreSearchResetBtn.addEventListener('click', () => {
             ['msDateStart','msDateEnd','msPartner','msProject','msStaff'].forEach(id => (document.getElementById(id).value = ''));
-            document.getElementById('msStatus').value = '';
+            var msStatusEl = document.getElementById('msStatus'); if (msStatusEl) msStatusEl.value = '';
         });
-        document.getElementById('moreSearchApplyBtn').addEventListener('click', () => {
+        var moreSearchApplyBtn = document.getElementById('moreSearchApplyBtn');
+        if (moreSearchApplyBtn) moreSearchApplyBtn.addEventListener('click', () => {
             const ds = document.getElementById('msDateStart').value;
             const de = document.getElementById('msDateEnd').value;
             const partner = document.getElementById('msPartner').value.trim().toLowerCase();
@@ -1580,9 +1631,10 @@
                 body.appendChild(tr);
             });
         }
-        function openCustomAttr() { renderCustomAttrTable(); customAttrModal.classList.add('show'); }
-        function closeCustomAttr() { customAttrModal.classList.remove('show'); }
-        document.getElementById('customAttrBtn').addEventListener('click', openCustomAttr);
+        function openCustomAttr() { renderCustomAttrTable(); if (customAttrModal) customAttrModal.classList.add('show'); }
+        function closeCustomAttr() { if (customAttrModal) customAttrModal.classList.remove('show'); }
+        var customAttrBtn = document.getElementById('customAttrBtn');
+        if (customAttrBtn) customAttrBtn.addEventListener('click', openCustomAttr);
         document.getElementById('customAttrModalClose').addEventListener('click', closeCustomAttr);
         document.getElementById('customAttrModalCloseBtn').addEventListener('click', closeCustomAttr);
         customAttrModal.addEventListener('click', (e) => { if (e.target === customAttrModal) closeCustomAttr(); });
@@ -1616,19 +1668,21 @@
             }
         });
 
-        // ========= 导出/导出详情/导入 =========
-        document.getElementById('exportBtn').addEventListener('click', function () {
+        // ========= 导出/导出详情/导入（按钮已移除，保留逻辑供需要时复用） =========
+        var exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) exportBtn.addEventListener('click', function () {
             const data = filteredPurchases;
             if (!data.length) { alert('没有数据可导出'); return; }
-            const headers = ['单号','日期','往来单位','项目','员工','备注','数量','进货金额','应付余额','订单状态','附件','录入员','录入时间'];
+            const headers = ['单号','日期','往来单位','项目','员工','备注','数量','进货金额','订单状态','附件','录入员','录入时间'];
             const rows = data.map(x => [
                 x.id, x.date, x.partner, x.project, x.staff, x.remark || '',
-                x.qty.toFixed(2), x.amount.toFixed(2), x.payable.toFixed(2),
+                x.qty.toFixed(2), x.amount.toFixed(2),
                 x.status, x.attachment, x.recorder, x.recordTime
             ].map(escapeCsvCell).join(','));
             downloadCsv(`采购订单_${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\\n'));
         });
-        document.getElementById('exportDetailBtn').addEventListener('click', function () {
+        var exportDetailBtn = document.getElementById('exportDetailBtn');
+        if (exportDetailBtn) exportDetailBtn.addEventListener('click', function () {
             const data = filteredPurchases;
             if (!data.length) { alert('没有数据可导出'); return; }
             const headers = ['单号','日期','往来单位','项目','员工','订单状态','商品名称','规格','单位','数量','单价','金额'];
@@ -1651,11 +1705,13 @@
             });
             downloadCsv(`采购订单_详情_${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\\n'));
         });
-        document.getElementById('importBtn').addEventListener('click', function () {
-            document.getElementById('importFileInput').value = '';
-            document.getElementById('importFileInput').click();
+        var importBtn = document.getElementById('importBtn');
+        if (importBtn) importBtn.addEventListener('click', function () {
+            var importFileInput = document.getElementById('importFileInput');
+            if (importFileInput) { importFileInput.value = ''; importFileInput.click(); }
         });
-        document.getElementById('importFileInput').addEventListener('change', function () {
+        var importFileInput = document.getElementById('importFileInput');
+        if (importFileInput) importFileInput.addEventListener('change', function () {
             const file = this.files && this.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -1691,7 +1747,7 @@
                             qty: 0,
                             amount: 0,
                             payable: 0,
-                            status: '待审核',
+                            status: '待提交',
                             attachment: '0',
                             recorder: '导入',
                             recordTime: new Date().toLocaleString('zh-CN')
@@ -1709,23 +1765,29 @@
             reader.readAsText(file, 'utf-8');
         });
 
-        // ========= 工具栏：汇总/统计/进货单/入库单/视图 =========
-        document.getElementById('summaryBtn').addEventListener('click', () => openSummary('summary'));
-        document.getElementById('statsBtn').addEventListener('click', () => openSummary('stats'));
-        document.getElementById('purchaseVoucherBtn').addEventListener('click', () => {
+        // ========= 工具栏：汇总/统计/进货单/入库单/视图（按钮已移除，保留逻辑） =========
+        var summaryBtn = document.getElementById('summaryBtn');
+        if (summaryBtn) summaryBtn.addEventListener('click', () => openSummary('summary'));
+        var statsBtn = document.getElementById('statsBtn');
+        if (statsBtn) statsBtn.addEventListener('click', () => openSummary('stats'));
+        var purchaseVoucherBtn = document.getElementById('purchaseVoucherBtn');
+        if (purchaseVoucherBtn) purchaseVoucherBtn.addEventListener('click', () => {
             const ids = getSelectedIds();
             if (!ids.length) { alert('请先勾选需要打印的订单'); return; }
             printVouchers(ids);
         });
-        document.getElementById('toStorageBtn').addEventListener('click', () => {
+        var toStorageBtn = document.getElementById('toStorageBtn');
+        if (toStorageBtn) toStorageBtn.addEventListener('click', () => {
             const ids = getSelectedIds();
             if (!ids.length) { alert('请先勾选需要入库的采购订单'); return; }
             if (ids.length === 1) { gotoStorage(ids[0]); return; }
             const choose = prompt('已选择多条订单，请输入要入库的单号：\\n' + ids.join('\\n'), ids[0]);
             if (choose && ids.includes(choose.trim())) gotoStorage(choose.trim());
         });
-        document.getElementById('listViewBtn').addEventListener('click', () => { viewMode = 'list'; renderTable(); });
-        document.getElementById('detailViewBtn').addEventListener('click', () => { viewMode = 'detail'; renderTable(); });
+        var listViewBtn = document.getElementById('listViewBtn');
+        if (listViewBtn) listViewBtn.addEventListener('click', () => { viewMode = 'list'; renderTable(); });
+        var detailViewBtn = document.getElementById('detailViewBtn');
+        if (detailViewBtn) detailViewBtn.addEventListener('click', () => { viewMode = 'detail'; renderTable(); });
 
         // ========= 可点击元素：单号、状态、操作 =========
         document.addEventListener('click', function (e) {
@@ -1746,12 +1808,32 @@
             }
         });
 
-        // ========== 新增采购订单弹窗 ==========
+        // ========== 新增采购计划弹窗 ==========
         const purchaseOrderModal = document.getElementById('purchaseOrderModalOverlay');
         const poDetailBody = document.getElementById('poDetailBody');
-        const defaultProducts = [
-            '蒙顶山茶', '雅安花椒油', '雅安蜂蜜', '雅安菌菇干货', '熊猫周边玩偶', '精品礼盒装', '雅安特产绿营养蛋', '腊味礼盒', '雅鱼鲜礼盒'
+        // 商品选择器数据（与商超商品分类一致：雅安好物、雅安好景、文创产品）
+        const productPickerProducts = [
+            { name: '雅安特产绿营养蛋', category: '雅安好景', spec: '', unit: '盒' },
+            { name: '土司农家散养蛋', category: '雅安好景', spec: '', unit: '盒' },
+            { name: '有机山茶油', category: '雅安好景', spec: '', unit: '瓶' },
+            { name: '腊味礼盒', category: '雅安好景', spec: '', unit: '盒' },
+            { name: '蒙顶山茶', category: '雅安好景', spec: '500g/盒', unit: '盒' },
+            { name: '雅鱼鲜礼盒', category: '雅安好景', spec: '', unit: '盒' },
+            { name: '花椒油', category: '雅安好景', spec: '250g/瓶', unit: '瓶' },
+            { name: '雅安蜂蜜', category: '雅安好物', spec: '500g/瓶', unit: '瓶' },
+            { name: '雅安黑茶', category: '雅安好物', spec: '', unit: '盒' },
+            { name: '雅安菌菇干货', category: '雅安好物', spec: '200g/袋', unit: '袋' },
+            { name: '熊猫周边玩偶', category: '文创产品', spec: '20cm', unit: '个' },
+            { name: '雅安风景明信片', category: '文创产品', spec: '一套10张', unit: '套' },
+            { name: '茶具套装', category: '文创产品', spec: '', unit: '套' },
+            { name: '手工茶饼', category: '文创产品', spec: '', unit: '盒' },
+            { name: '精品礼盒装', category: '文创产品', spec: '1kg装', unit: '盒' }
         ];
+        let currentPoRowTarget = null; // 当前要回填商品的行
+        const productPickerOverlay = document.getElementById('productPickerOverlay');
+        const productPickerListEl = document.getElementById('productPickerList');
+        const productPickerCategoriesEl = document.getElementById('productPickerCategories');
+        let productPickerCurrentCategory = '全部';
 
         function openPurchaseOrderModal() {
             const today = new Date().toISOString().slice(0, 10);
@@ -1762,7 +1844,7 @@
             document.getElementById('poStaff').value = '';
             document.getElementById('poRemark').value = '';
             document.getElementById('poPayable').value = '';
-            document.getElementById('poStatus').value = '待审核';
+            document.getElementById('poStatus').value = '待提交';
             document.getElementById('poAttachment').value = '';
             poDetailBody.innerHTML = '';
             addPoDetailRow();
@@ -1775,10 +1857,76 @@
             purchaseOrderModal.classList.remove('show');
         }
 
+        // ---------- 商品选择器 ----------
+        function renderProductPickerList() {
+            const cat = productPickerCurrentCategory;
+            const list = cat === '全部'
+                ? productPickerProducts
+                : productPickerProducts.filter(p => p.category === cat);
+            productPickerListEl.innerHTML = '';
+            list.forEach(function (p) {
+                const div = document.createElement('div');
+                div.className = 'product-picker-item';
+                div.dataset.name = p.name;
+                div.dataset.spec = p.spec || '';
+                div.dataset.unit = p.unit || '';
+                div.innerHTML = '<div>' + (p.name || '') + '</div>' + (p.spec ? '<div class="product-picker-item-spec">' + p.spec + '</div>' : '');
+                div.addEventListener('click', function () {
+                    if (!currentPoRowTarget) return;
+                    const nameInput = currentPoRowTarget.querySelector('.po-name');
+                    const specInput = currentPoRowTarget.querySelector('.po-spec');
+                    const unitSelect = currentPoRowTarget.querySelector('.po-unit');
+                    if (nameInput) nameInput.value = p.name;
+                    if (specInput) specInput.value = p.spec || '';
+                    if (unitSelect && p.unit) {
+                        const opt = Array.from(unitSelect.options).find(o => o.value === p.unit);
+                        if (opt) unitSelect.value = p.unit;
+                    }
+                    closeProductPicker();
+                });
+                productPickerListEl.appendChild(div);
+            });
+        }
+        function openProductPicker(rowOrInput) {
+            const row = rowOrInput && rowOrInput.closest ? rowOrInput.closest('tr') : (rowOrInput && rowOrInput.tagName === 'TR' ? rowOrInput : null);
+            if (!row || !row.querySelector('.po-name')) return;
+            currentPoRowTarget = row;
+            productPickerCurrentCategory = '全部';
+            productPickerCategoriesEl.querySelectorAll('.product-picker-cat-item').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.category === '全部');
+            });
+            renderProductPickerList();
+            productPickerOverlay.classList.add('show');
+        }
+        function closeProductPicker() {
+            currentPoRowTarget = null;
+            productPickerOverlay.classList.remove('show');
+        }
+        if (productPickerOverlay) {
+            document.getElementById('productPickerClose').addEventListener('click', closeProductPicker);
+            productPickerOverlay.addEventListener('click', function (e) {
+                if (e.target === productPickerOverlay) closeProductPicker();
+            });
+        }
+        if (productPickerCategoriesEl) {
+            productPickerCategoriesEl.addEventListener('click', function (e) {
+                const cat = e.target.closest('.product-picker-cat-item');
+                if (!cat) return;
+                productPickerCurrentCategory = cat.dataset.category || '全部';
+                productPickerCategoriesEl.querySelectorAll('.product-picker-cat-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === productPickerCurrentCategory);
+                });
+                renderProductPickerList();
+            });
+        }
+        poDetailBody.addEventListener('click', function (e) {
+            if (e.target.classList.contains('po-name')) openProductPicker(e.target);
+        });
+
         function addPoDetailRow() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input type="text" class="po-name" placeholder="商品名称" list="poProductList"></td>
+                <td><input type="text" class="po-name" placeholder="点击选择商品" readonly></td>
                 <td><input type="text" class="po-spec" placeholder="规格"></td>
                 <td>
                     <select class="po-unit">
@@ -1844,7 +1992,7 @@
             }
         });
 
-        document.getElementById('purchaseOrderModalSave').addEventListener('click', function () {
+        function savePurchasePlan(submitAudit) {
             const orderId = document.getElementById('poOrderId').value.trim();
             const date = document.getElementById('poDate').value;
             const partner = document.getElementById('poPartner').value;
@@ -1872,6 +2020,7 @@
             const newId = orderId || ('JH' + date.replace(/-/g, '') + String(purchases.length + 1).padStart(3, '0'));
             const now = new Date();
             const recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            const status = submitAudit ? '审核中' : '待提交';
             purchases.unshift({
                 id: newId,
                 date: date,
@@ -1882,7 +2031,7 @@
                 qty: totalQty,
                 amount: totalAmount,
                 payable: payable,
-                status: document.getElementById('poStatus').value,
+                status: status,
                 attachment: document.getElementById('poAttachment').value.trim() || '0',
                 recorder: '系统管理员',
                 recordTime: recordTime
@@ -1891,12 +2040,14 @@
             filteredPurchases = [...purchases];
             renderTable();
             closePurchaseOrderModal();
+            alert(submitAudit ? '已提交审核' : '已存为草稿');
+        }
+        document.getElementById('purchaseOrderModalSaveDraft').addEventListener('click', function () {
+            savePurchasePlan(false);
         });
-
-        var poDatalist = document.createElement('datalist');
-        poDatalist.id = 'poProductList';
-        defaultProducts.forEach(function (p) { var o = document.createElement('option'); o.value = p; poDatalist.appendChild(o); });
-        document.body.appendChild(poDatalist);
+        document.getElementById('purchaseOrderModalSubmit').addEventListener('click', function () {
+            savePurchasePlan(true);
+        });
 
         // 初始化渲染：先合并来自“采购计划”的订单，再渲染
         loadPurchasesFromPlan();

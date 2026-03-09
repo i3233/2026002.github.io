@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交班记录 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .shift-record-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .filter-section { padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); margin-bottom: var(--spacing-lg); display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--spacing-md); }
+        .filter-item { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .filter-item label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); white-space: nowrap; }
+        .filter-item select, .filter-item input { padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); min-width: 120px; }
+        .filter-item input[type="date"] { min-width: 140px; }
+        .filter-item .date-range { display: flex; align-items: center; gap: var(--spacing-xs); }
+        .table-container { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .table-wrapper { overflow-x: auto; }
+        .table-container table { width: 100%; border-collapse: collapse; }
+        .table-container thead { background: var(--color-neutral-50); }
+        .table-container th, .table-container td { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--color-neutral-200); }
+        .table-container th { text-align: left; font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .text-right { text-align: right; }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--font-size-xs); }
+        .status-badge.normal { background: rgba(40, 167, 69, 0.15); color: var(--color-success); }
+        .status-badge.abnormal { background: rgba(220, 53, 69, 0.15); color: var(--color-danger); }
+        .action-link { color: var(--color-primary); text-decoration: none; cursor: pointer; margin-right: var(--spacing-sm); }
+        .action-link:hover { text-decoration: underline; }
+        .bottom-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); background: #fff; }
+        .pagination-pages { display: inline-flex; align-items: center; gap: 4px; }
+        .pagination-page-btn { min-width: 28px; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; font-size: var(--font-size-sm); cursor: pointer; }
+        .pagination-page-btn:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+        .pagination-page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+        .diff-zero { color: var(--color-text-secondary); }
+        .diff-positive { color: var(--color-success); }
+        .diff-negative { color: var(--color-danger); }
+    </style>
+</head>
+<body>
+    <div class="shift-record-page">
+        <div class="page-header">
+            <h1 class="page-title">交班记录</h1>
+            <div>
+                <button type="button" class="btn btn-secondary" id="printBtn">打印</button>
+                <button type="button" class="btn btn-primary" id="exportBtn">导出</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-item">
+                <label>所属门店</label>
+                <select id="filterStore">
+                    <option value="">全部门店</option>
+                    <option value="WH001">总店</option>
+                    <option value="WH002">分店A</option>
+                    <option value="WH003">自提点1</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>交班时间</label>
+                <div class="date-range">
+                    <input type="date" id="dateStart" title="开始日期">
+                    <span style="color: var(--color-text-secondary);">至</span>
+                    <input type="date" id="dateEnd" title="结束日期">
+                </div>
+            </div>
+            <div class="filter-item">
+                <label>交班人</label>
+                <input type="text" id="filterHandover" placeholder="请输入交班人">
+            </div>
+            <div class="filter-item">
+                <label>接班人</label>
+                <input type="text" id="filterReceiver" placeholder="请输入接班人">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>交班时间</th>
+                            <th>交班单号</th>
+                            <th>交班人</th>
+                            <th>接班人</th>
+                            <th>班次</th>
+                            <th class="text-right">备用金(元)</th>
+                            <th class="text-right">应收金额(元)</th>
+                            <th class="text-right">实收金额(元)</th>
+                            <th class="text-right">差异(元)</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="bottom-toolbar">
+                <div class="pagination-pages" id="paginationPages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var list = [
+            { handoverTime: '2026-03-08 14:00:00', recordNo: 'JB202603081400001', handover: '001 张三', receiver: '002 钱七', shift: '早班', reserveAmount: 500.00, expectedAmount: 3245.50, actualAmount: 3245.50, diff: 0.00, status: '正常', statusClass: 'normal' },
+            { handoverTime: '2026-03-08 08:00:00', recordNo: 'JB202603080800002', handover: '002 钱七', receiver: '001 张三', shift: '夜班', reserveAmount: 500.00, expectedAmount: 1890.00, actualAmount: 1888.50, diff: -1.50, status: '有差异', statusClass: 'abnormal' },
+            { handoverTime: '2026-03-07 22:00:00', recordNo: 'JB202603072200003', handover: '001 张三', receiver: '002 钱七', shift: '晚班', reserveAmount: 500.00, expectedAmount: 4560.00, actualAmount: 4560.00, diff: 0.00, status: '正常', statusClass: 'normal' },
+            { handoverTime: '2026-03-07 14:00:00', recordNo: 'JB202603071400004', handover: '002 钱七', receiver: '001 张三', shift: '早班', reserveAmount: 500.00, expectedAmount: 2100.00, actualAmount: 2102.00, diff: 2.00, status: '有差异', statusClass: 'abnormal' },
+            { handoverTime: '2026-03-07 08:00:00', recordNo: 'JB202603070800005', handover: '001 张三', receiver: '002 钱七', shift: '夜班', reserveAmount: 500.00, expectedAmount: 1680.00, actualAmount: 1680.00, diff: 0.00, status: '正常', statusClass: 'normal' }
+        ];
+        var currentPage = 1;
+        var pageSize = 10;
+
+        function getFilteredList() {
+            var data = list.slice();
+            var store = document.getElementById('filterStore').value;
+            var dateStart = document.getElementById('dateStart').value;
+            var dateEnd = document.getElementById('dateEnd').value;
+            var handover = (document.getElementById('filterHandover').value || '').trim().toLowerCase();
+            var receiver = (document.getElementById('filterReceiver').value || '').trim().toLowerCase();
+            if (store) data = data.filter(function(r) { return r.storeId === store; });
+            if (dateStart) data = data.filter(function(r) { return (r.handoverTime || '').slice(0, 10) >= dateStart; });
+            if (dateEnd) data = data.filter(function(r) { return (r.handoverTime || '').slice(0, 10) <= dateEnd; });
+            if (handover) data = data.filter(function(r) { return ((r.handover || '') + '').toLowerCase().includes(handover); });
+            if (receiver) data = data.filter(function(r) { return ((r.receiver || '') + '').toLowerCase().includes(receiver); });
+            return data;
+        }
+
+        function formatDiff(diff) {
+            if (diff == null || diff === 0) return { text: '0.00', cls: 'diff-zero' };
+            if (diff > 0) return { text: '+' + diff.toFixed(2), cls: 'diff-positive' };
+            return { text: diff.toFixed(2), cls: 'diff-negative' };
+        }
+
+        function render() {
+            var data = getFilteredList();
+            var start = (currentPage - 1) * pageSize;
+            var pageData = data.slice(start, start + pageSize);
+            var totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            pageData.forEach(function(row) {
+                var d = formatDiff(row.diff);
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + (row.handoverTime || '-') + '</td>' +
+                    '<td>' + (row.recordNo || '-') + '</td>' +
+                    '<td>' + (row.handover || '-') + '</td>' +
+                    '<td>' + (row.receiver || '-') + '</td>' +
+                    '<td>' + (row.shift || '-') + '</td>' +
+                    '<td class="text-right">' + (row.reserveAmount != null ? row.reserveAmount.toFixed(2) : '0.00') + '</td>' +
+                    '<td class="text-right">' + (row.expectedAmount != null ? row.expectedAmount.toFixed(2) : '0.00') + '</td>' +
+                    '<td class="text-right">' + (row.actualAmount != null ? row.actualAmount.toFixed(2) : '0.00') + '</td>' +
+                    '<td class="text-right ' + d.cls + '">' + d.text + '</td>' +
+                    '<td><span class="status-badge ' + (row.statusClass || '') + '">' + (row.status || '-') + '</span></td>' +
+                    '<td><a href="#" class="action-link view-detail" data-no="' + (row.recordNo || '') + '">查看</a></td>';
+                tbody.appendChild(tr);
+            });
+
+            var pagination = document.getElementById('paginationPages');
+            pagination.innerHTML = '';
+            var prev = document.createElement('button');
+            prev.className = 'pagination-page-btn';
+            prev.textContent = '‹';
+            prev.disabled = currentPage <= 1;
+            prev.addEventListener('click', function() { if (currentPage > 1) { currentPage--; render(); } });
+            pagination.appendChild(prev);
+            for (var i = 1; i <= totalPages; i++) {
+                (function(p) {
+                    var btn = document.createElement('button');
+                    btn.className = 'pagination-page-btn' + (p === currentPage ? ' active' : '');
+                    btn.textContent = p;
+                    btn.addEventListener('click', function() { currentPage = p; render(); });
+                    pagination.appendChild(btn);
+                })(i);
+            }
+            var next = document.createElement('button');
+            next.className = 'pagination-page-btn';
+            next.textContent = '›';
+            next.disabled = currentPage >= totalPages;
+            next.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; render(); } });
+            pagination.appendChild(next);
+        }
+
+        document.getElementById('filterStore').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('dateStart').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('dateEnd').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('filterHandover').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterReceiver').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('导出交班记录（示例）\n共 ' + getFilteredList().length + ' 条记录');
+        });
+        document.getElementById('tableBody').addEventListener('click', function(e) {
+            var link = e.target.closest('.view-detail');
+            if (link) {
+                e.preventDefault();
+                alert('交班单详情（示例）\n交班单号：' + (link.dataset.no || ''));
+            }
+        });
+        render();
+    </script>
+</body>
+</html>

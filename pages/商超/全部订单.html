@@ -480,15 +480,7 @@
 </head>
 <body>
     <div class="order-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">全部订单</h1>
-                <div class="page-subtitle">销售的全部订单列表，支持统一查看与简单统计</div>
-            </div>
-        </div>
-
-        <!-- 顶部工具栏 -->
+        <!-- 顶部工具栏（右侧内容区不显示“全部订单”标题，线上订单/收银台订单在下方切页切换） -->
         <div class="toolbar-card">
             <!-- 左侧按钮组：以销售为主（去掉新增订单） -->
             <div class="toolbar-left">
@@ -544,11 +536,11 @@
             </div>
         </div>
 
-        <!-- 订单类型 Tab -->
+        <!-- 订单类型 Tab：全部、线上订单、收银台订单、退款/售后 -->
         <div class="order-tabs">
             <button class="order-tab-btn active" data-type="all">全部</button>
             <button class="order-tab-btn" data-type="online">线上订单</button>
-            <button class="order-tab-btn" data-type="store">门店订单</button>
+            <button class="order-tab-btn" data-type="store">收银台订单</button>
             <button class="order-tab-btn" data-type="refund">退款/售后</button>
         </div>
 

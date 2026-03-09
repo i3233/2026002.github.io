@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>减少库存 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .stock-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
+        .toolbar-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); }
+        .toolbar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); }
+        .toolbar-search-input { flex: 1; min-width: 220px; max-width: 400px; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); }
+        .toolbar-right { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .summary-row { display: flex; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg); flex-wrap: wrap; }
+        .summary-card { flex: 1; min-width: 200px; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); }
+        .summary-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs); }
+        .summary-value { font-size: var(--font-size-2xl); font-weight: bold; }
+        .summary-value-blue { color: var(--color-primary); }
+        .summary-value-orange { color: #ff8c42; }
+        .table-container { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .table-wrapper { overflow-x: auto; }
+        .table-container table { width: 100%; border-collapse: collapse; }
+        .table-container thead { background: var(--color-neutral-50); }
+        .table-container th, .table-container td { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--color-neutral-200); }
+        .table-container th { text-align: left; font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .text-right { text-align: right; }
+        .more-search-expand { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); border: 1px solid var(--color-neutral-200); display: none; }
+        .more-search-expand.show { display: block; }
+        .form-row { display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-md); }
+        .form-group { flex: 1; min-width: 140px; }
+        .form-group label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
+        .form-group input, .form-group select { width: 100%; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); }
+        .more-search-actions { display: flex; justify-content: flex-end; gap: var(--spacing-sm); margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-neutral-200); }
+        .photo-view-link { color: var(--color-primary); cursor: pointer; }
+        .photo-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+        .photo-modal-overlay.show { display: flex; }
+        .photo-modal-box { background: #fff; border-radius: var(--radius-lg); padding: var(--spacing-lg); max-width: 90vw; max-height: 90vh; overflow: auto; text-align: center; }
+        .photo-modal-box img { max-width: 100%; max-height: 70vh; }
+        .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="stock-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">减少库存</h1>
+                <div class="page-subtitle">凭空减少的库存记录，如盘亏、报损、报废等</div>
+            </div>
+        </div>
+
+        <div class="toolbar-card">
+            <div class="toolbar-center">
+                <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：单号、商品名称、原因、操作人">
+                <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
+                <button class="btn btn-primary" id="addBtn">+ 新增减少单</button>
+                <button class="btn btn-outline" id="exportBtn">导出</button>
+                <button class="btn btn-outline" id="printBtn">打印</button>
+            </div>
+        </div>
+
+        <div class="more-search-expand" id="moreSearchExpand">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>门店</label>
+                    <select id="msWarehouse">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>日期起</label>
+                    <input type="date" id="msDateStart">
+                </div>
+                <div class="form-group">
+                    <label>日期止</label>
+                    <input type="date" id="msDateEnd">
+                </div>
+            </div>
+            <div class="more-search-actions">
+                <button type="button" class="btn btn-outline" id="moreSearchResetBtn">重置</button>
+                <button type="button" class="btn btn-primary" id="moreSearchApplyBtn">应用筛选</button>
+            </div>
+        </div>
+
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">本期减少笔数</div>
+                <div class="summary-value summary-value-blue" id="summaryCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">减少总数量</div>
+                <div class="summary-value summary-value-orange" id="summaryQty">0</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>单号</th>
+                            <th>日期</th>
+                            <th>门店</th>
+                            <th>商品名称</th>
+                            <th>规格</th>
+                            <th>货区</th>
+                            <th>货架</th>
+                            <th>照片</th>
+                            <th class="text-right">减少数量</th>
+                            <th>单位</th>
+                            <th>原因/备注</th>
+                            <th>操作人</th>
+                            <th>录入时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="photo-modal-overlay" id="photoModalOverlay">
+        <div class="photo-modal-box">
+            <div id="photoModalContent"></div>
+            <button type="button" class="btn btn-outline" id="photoModalClose" style="margin-top:12px;">关闭</button>
+        </div>
+    </div>
+    <script>
+        const warehouses = [{ id: 'WH001', name: '总店' }, { id: 'WH002', name: '分店A' }, { id: 'WH003', name: '分店B' }];
+        let list = [
+            { id: 'JS20250116001', date: '2025-01-16', warehouseId: 'WH001', warehouseName: '总店', productName: 'p-6炒锅', spec: '32cm', zone: 'A区', shelf: 'A-02', photo: '', qty: 2, unit: '个', reason: '盘亏', operator: '张三', recordTime: '2025-01-16 11:00:00' },
+            { id: 'JS20250119001', date: '2025-01-19', warehouseId: 'WH001', warehouseName: '总店', productName: '雅安明信片', spec: '一套10张', zone: 'C区', shelf: 'C-02', photo: '', qty: 10, unit: '套', reason: '报损', operator: '李四', recordTime: '2025-01-19 15:20:00' },
+            { id: 'JS20250121001', date: '2025-01-21', warehouseId: 'WH002', warehouseName: '分店A', productName: '雅安腊肉', spec: '500g/包', zone: 'B区', shelf: 'B-03', photo: '', qty: 3, unit: '包', reason: '过期报废', operator: '王五', recordTime: '2025-01-21 09:30:00' }
+        ];
+        let filtered = [...list];
+
+        function render() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                var photoHtml = '<a href="#" class="photo-view-link" data-url="' + (item.photo || '').replace(/"/g, '&quot;') + '" data-name="' + (item.productName || '').replace(/"/g, '&quot;') + '">查看</a>';
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.date}</td>
+                    <td>${item.warehouseName}</td>
+                    <td>${item.productName}</td>
+                    <td>${item.spec}</td>
+                    <td>${item.zone || '-'}</td>
+                    <td>${item.shelf || '-'}</td>
+                    <td>${photoHtml}</td>
+                    <td class="text-right">${item.qty}</td>
+                    <td>${item.unit}</td>
+                    <td>${item.reason || '-'}</td>
+                    <td>${item.operator}</td>
+                    <td>${item.recordTime}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('summaryCount').textContent = filtered.length;
+            document.getElementById('summaryQty').textContent = filtered.reduce((s, i) => s + (i.qty || 0), 0);
+        }
+
+        function filterData() {
+            const kw = (document.getElementById('quickSearchInput').value || '').trim().toLowerCase();
+            const wh = (document.getElementById('msWarehouse') && document.getElementById('msWarehouse').value) || '';
+            const dateStart = (document.getElementById('msDateStart') && document.getElementById('msDateStart').value) || '';
+            const dateEnd = (document.getElementById('msDateEnd') && document.getElementById('msDateEnd').value) || '';
+            filtered = list.filter(item => {
+                if (kw && !(item.id + ' ' + item.productName + ' ' + (item.reason || '') + ' ' + item.operator).toLowerCase().includes(kw)) return false;
+                if (wh && item.warehouseId !== wh) return false;
+                if (dateStart && item.date < dateStart) return false;
+                if (dateEnd && item.date > dateEnd) return false;
+                return true;
+            });
+            render();
+        }
+
+        document.getElementById('msWarehouse').innerHTML = '<option value="">全部</option>' + warehouses.map(w => '<option value="' + w.id + '">' + w.name + '</option>').join('');
+        document.getElementById('quickSearchBtn').addEventListener('click', filterData);
+        document.getElementById('quickSearchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') filterData(); });
+        document.getElementById('moreSearchBtn').addEventListener('click', function() {
+            document.getElementById('moreSearchExpand').classList.toggle('show');
+            this.textContent = document.getElementById('moreSearchExpand').classList.contains('show') ? '收起搜索' : '更多搜索';
+        });
+        document.getElementById('moreSearchResetBtn').addEventListener('click', function() {
+            document.getElementById('msWarehouse').value = '';
+            if (document.getElementById('msDateStart')) document.getElementById('msDateStart').value = '';
+            if (document.getElementById('msDateEnd')) document.getElementById('msDateEnd').value = '';
+        });
+        document.getElementById('moreSearchApplyBtn').addEventListener('click', filterData);
+        document.getElementById('addBtn').addEventListener('click', function() { alert('新增减少单（示例）：可在此接入新增凭空减少库存的单据流程。'); });
+        document.getElementById('exportBtn').addEventListener('click', function() { alert('导出（示例）\n共 ' + filtered.length + ' 条记录'); });
+        document.getElementById('printBtn').addEventListener('click', function() {
+            if (filtered.length === 0) { alert('没有数据可打印'); return; }
+            var win = window.open('', '_blank');
+            var cols = ['单号','日期','门店','商品名称','规格','货区','货架','减少数量','单位','原因/备注','操作人','录入时间'];
+            var rows = filtered.map(function(item) {
+                return [item.id, item.date, item.warehouseName, item.productName, item.spec, item.zone || '-', item.shelf || '-', item.qty, item.unit, item.reason || '-', item.operator, item.recordTime];
+            }).map(function(r) { return '<tr><td>' + r.join('</td><td>') + '</td></tr>'; }).join('');
+            win.document.write('<html><head><meta charset="utf-8"><title>减少库存-打印</title><style>body{font-family:Microsoft YaHei,sans-serif;padding:16px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:6px;}</style></head><body><h3>减少库存</h3><p>共 ' + filtered.length + ' 条</p><table><thead><tr><th>' + cols.join('</th><th>') + '</th></tr></thead><tbody>' + rows + '</tbody></table></body></html>');
+            win.document.close();
+            win.print();
+            win.close();
+        });
+        document.getElementById('photoModalClose').addEventListener('click', function() { document.getElementById('photoModalOverlay').classList.remove('show'); });
+        document.getElementById('photoModalOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+        document.body.addEventListener('click', function(e) {
+            var link = e.target.closest('.photo-view-link');
+            if (!link) return;
+            e.preventDefault();
+            var url = (link.dataset.url || '').trim();
+            var name = (link.dataset.name || '').replace(/&quot;/g, '"');
+            var content = document.getElementById('photoModalContent');
+            if (url) content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><img src="' + url.replace(/</g, '&lt;') + '" alt="照片" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'block\';"><div class="photo-placeholder" style="display:none;">暂无照片</div>';
+            else content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><div class="photo-placeholder">暂无照片</div>';
+            document.getElementById('photoModalOverlay').classList.add('show');
+        });
+        filterData();
+    </script>
+</body>
+</html>

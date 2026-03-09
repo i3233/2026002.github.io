@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存盘点 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .stock-check-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
+        .toolbar-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); flex-wrap: wrap; }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
+        .toolbar-left label { margin-right: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .toolbar-left select { padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); min-width: 140px; }
+        .summary-row { display: flex; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg); flex-wrap: wrap; }
+        .summary-card { flex: 1; min-width: 180px; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); }
+        .summary-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs); }
+        .summary-value { font-size: var(--font-size-xl); font-weight: bold; }
+        .summary-value-blue { color: var(--color-primary); }
+        .summary-value-green { color: var(--color-success); }
+        .summary-value-orange { color: #ff8c42; }
+        .summary-value-red { color: var(--color-error); }
+        .table-container { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .table-wrapper { overflow-x: auto; }
+        .table-container table { width: 100%; border-collapse: collapse; }
+        .table-container thead { background: var(--color-neutral-50); }
+        .table-container th, .table-container td { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--color-neutral-200); }
+        .table-container th { text-align: left; font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .text-right { text-align: right; }
+        .diff-plus { color: var(--color-success); }
+        .diff-minus { color: var(--color-error); }
+        .diff-zero { color: var(--color-text-secondary); }
+        .actual-qty-input { width: 80px; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); text-align: right; font-size: var(--font-size-sm); }
+        .photo-view-link { color: var(--color-primary); cursor: pointer; }
+        .photo-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+        .photo-modal-overlay.show { display: flex; }
+        .photo-modal-box { background: #fff; border-radius: var(--radius-lg); padding: var(--spacing-lg); max-width: 90vw; max-height: 90vh; overflow: auto; text-align: center; }
+        .photo-modal-box img { max-width: 100%; max-height: 70vh; }
+        .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="stock-check-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">库存盘点</h1>
+                <div class="page-subtitle">查看商品系统数量、录入实际数量，自动计算盈亏数量与盈亏金额</div>
+            </div>
+        </div>
+
+        <div class="toolbar-card">
+            <div class="toolbar-left">
+                <label>盘点单</label>
+                <select id="checkBillSelect">
+                    <option value="PD20250120001">PD20250120001（总店 2025-01-20）</option>
+                    <option value="PD20250115001">PD20250115001（分店A 2025-01-15）</option>
+                </select>
+                <label>门店</label>
+                <select id="warehouseSelect">
+                    <option value="WH001">总店</option>
+                    <option value="WH002">分店A</option>
+                </select>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-outline" id="newCheckBtn">+ 新建盘点</button>
+                <button class="btn btn-outline" id="importCheckBtn">导入盘点单</button>
+                <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                <button class="btn btn-primary" id="saveCheckBtn">保存盘点</button>
+                <button class="btn btn-outline" id="exportBtn">导出</button>
+                <button class="btn btn-outline" id="printBtn">打印</button>
+            </div>
+        </div>
+
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">盘点商品数</div>
+                <div class="summary-value summary-value-blue" id="summaryProductCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">盘盈品种数</div>
+                <div class="summary-value summary-value-green" id="summaryGainCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">盘亏品种数</div>
+                <div class="summary-value summary-value-red" id="summaryLossCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">盈亏金额合计(元)</div>
+                <div class="summary-value" id="summaryDiffAmount">0.00</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>商品ID</th>
+                            <th>商品名称</th>
+                            <th>规格</th>
+                            <th>分类</th>
+                            <th>货区</th>
+                            <th>货架</th>
+                            <th>照片</th>
+                            <th class="text-right">系统数量</th>
+                            <th class="text-right">实际数量</th>
+                            <th class="text-right">盈亏数量</th>
+                            <th class="text-right">单价(元)</th>
+                            <th class="text-right">盈亏金额(元)</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="photo-modal-overlay" id="photoModalOverlay">
+        <div class="photo-modal-box">
+            <div id="photoModalContent"></div>
+            <button type="button" class="btn btn-outline" id="photoModalClose" style="margin-top:12px;">关闭</button>
+        </div>
+    </div>
+    <script>
+        const warehouses = [{ id: 'WH001', name: '总店' }, { id: 'WH002', name: '分店A' }];
+        // 模拟盘点明细：与库存查询商品一致，含系统数量；实际数量可录入，盈亏自动计算
+        let checkDetails = [
+            { productId: 'PRD001', productName: '隔热垫', spec: '30cm×30cm', category: '厨房用品', zone: 'A区', shelf: 'A-01', photo: '', systemQty: 107, actualQty: 107, unit: '个', avgCost: 12.50 },
+            { productId: 'PRD002', productName: 'p-6炒锅', spec: '32cm', category: '厨房用品', zone: 'A区', shelf: 'A-02', photo: '', systemQty: 2, actualQty: 2, unit: '个', avgCost: 158.00 },
+            { productId: 'PRD003', productName: '雅安茶叶', spec: '500g/盒', category: '食品', zone: 'B区', shelf: 'B-01', photo: '', systemQty: 80, actualQty: 78, unit: '盒', avgCost: 45.00 },
+            { productId: 'PRD004', productName: '雅安花椒', spec: '250g/袋', category: '食品', zone: 'B区', shelf: 'B-02', photo: '', systemQty: 50, actualQty: 52, unit: '袋', avgCost: 28.00 },
+            { productId: 'PRD005', productName: '雅安腊肉', spec: '500g/包', category: '食品', zone: 'B区', shelf: 'B-03', photo: '', systemQty: 5, actualQty: 5, unit: '包', avgCost: 38.00 },
+            { productId: 'PRD006', productName: '熊猫玩偶', spec: '20cm', category: '其他', zone: 'C区', shelf: 'C-01', photo: '', systemQty: 50, actualQty: 48, unit: '个', avgCost: 15.00 },
+            { productId: 'PRD007', productName: '雅安明信片', spec: '一套10张', category: '其他', zone: 'C区', shelf: 'C-02', photo: '', systemQty: 20, actualQty: 20, unit: '套', avgCost: 12.00 }
+        ];
+
+        function getDiffQty(row) {
+            const actual = parseFloat(row.actualQty);
+            return isNaN(actual) ? null : actual - (row.systemQty || 0);
+        }
+        function getDiffAmount(row) {
+            const diff = getDiffQty(row);
+            if (diff === null) return null;
+            return diff * (row.avgCost || 0);
+        }
+
+        function render() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            let gainCount = 0, lossCount = 0;
+            let totalDiffAmount = 0;
+
+            checkDetails.forEach((row, idx) => {
+                const diffQty = getDiffQty(row);
+                const diffAmount = getDiffAmount(row);
+                if (diffQty !== null) {
+                    if (diffQty > 0) gainCount++;
+                    else if (diffQty < 0) lossCount++;
+                    if (diffAmount !== null) totalDiffAmount += diffAmount;
+                }
+
+                const diffQtyCls = diffQty === null ? '' : diffQty > 0 ? 'diff-plus' : diffQty < 0 ? 'diff-minus' : 'diff-zero';
+                const diffQtyText = diffQty === null ? '-' : (diffQty > 0 ? '+' : '') + diffQty;
+                const diffAmtText = diffAmount === null ? '-' : (diffAmount >= 0 ? '+' : '') + diffAmount.toFixed(2);
+
+                const tr = document.createElement('tr');
+                const photoHtml = '<a href="#" class="photo-view-link" data-url="' + (row.photo || '').replace(/"/g, '&quot;') + '" data-name="' + (row.productName || '').replace(/"/g, '&quot;') + '">查看</a>';
+                tr.innerHTML = `
+                    <td>${row.productId}</td>
+                    <td>${row.productName}</td>
+                    <td>${row.spec}</td>
+                    <td>${row.category}</td>
+                    <td>${row.zone || '-'}</td>
+                    <td>${row.shelf || '-'}</td>
+                    <td>${photoHtml}</td>
+                    <td class="text-right">${row.systemQty} ${row.unit}</td>
+                    <td class="text-right">
+                        <input type="number" class="actual-qty-input" data-idx="${idx}" value="${row.actualQty}" min="0" step="1">
+                    </td>
+                    <td class="text-right ${diffQtyCls}">${diffQtyText}</td>
+                    <td class="text-right">${(row.avgCost || 0).toFixed(2)}</td>
+                    <td class="text-right ${diffQtyCls}">${diffAmtText}</td>
+                    <td>${row.remark || '-'}</td>
+                `;
+                tr.querySelector('.actual-qty-input').addEventListener('input', function() {
+                    row.actualQty = this.value;
+                    render();
+                });
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('summaryProductCount').textContent = checkDetails.length;
+            document.getElementById('summaryGainCount').textContent = gainCount;
+            document.getElementById('summaryLossCount').textContent = lossCount;
+            const amtEl = document.getElementById('summaryDiffAmount');
+            amtEl.textContent = (totalDiffAmount >= 0 ? '+' : '') + totalDiffAmount.toFixed(2);
+            amtEl.className = 'summary-value ' + (totalDiffAmount > 0 ? 'summary-value-green' : totalDiffAmount < 0 ? 'summary-value-red' : 'summary-value-blue');
+        }
+
+        document.getElementById('checkBillSelect').addEventListener('change', function() {
+            // 切换盘点单可在此加载对应明细，此处仅示例
+            render();
+        });
+        document.getElementById('warehouseSelect').addEventListener('change', function() {
+            render();
+        });
+        document.getElementById('newCheckBtn').addEventListener('click', function() {
+            alert('新建盘点（示例）：可选择门店、盘点范围，生成盘点单并带出当前系统库存作为系统数量，再录入实际数量。');
+        });
+
+        // 导入盘点单：支持 CSV（Excel 另存为 CSV 或 .xlsx 需浏览器支持）
+        document.getElementById('importCheckBtn').addEventListener('click', function() {
+            document.getElementById('importFileInput').click();
+        });
+        document.getElementById('importFileInput').addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            const name = (file.name || '').toLowerCase();
+            if (name.endsWith('.csv')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const text = (e.target.result || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                        const lines = text.split('\n').filter(function(l) { return l.trim(); });
+                        if (lines.length < 2) {
+                            alert('文件至少需要表头一行和数据一行。');
+                            return;
+                        }
+                        const header = parseCsvLine(lines[0]);
+                        const col = function(row, name) {
+                            const i = header.indexOf(name);
+                            return i >= 0 ? (row[i] || '').trim() : '';
+                        };
+                        const rows = [];
+                        for (let i = 1; i < lines.length; i++) {
+                            const cells = parseCsvLine(lines[i]);
+                            const productId = col(cells, '商品ID') || col(cells, '商品id');
+                            const productName = col(cells, '商品名称') || col(cells, '商品名称') || '-';
+                            const spec = col(cells, '规格');
+                            const category = col(cells, '分类');
+                            const systemQty = parseFloat(col(cells, '系统数量')) || 0;
+                            const actualQty = parseFloat(col(cells, '实际数量')) || 0;
+                            const unit = col(cells, '单位') || '个';
+                            const avgCost = parseFloat(col(cells, '单价') || col(cells, '单价(元)')) || 0;
+                            if (!productId && !productName) continue;
+                            rows.push({
+                                productId: productId || 'IMP' + i,
+                                productName: productName || '-',
+                                spec: spec || '',
+                                category: category || '',
+                                systemQty: systemQty,
+                                actualQty: actualQty,
+                                unit: unit,
+                                avgCost: avgCost,
+                                remark: col(cells, '备注') || ''
+                            });
+                        }
+                        if (rows.length === 0) {
+                            alert('未解析到有效数据行。请确保表头包含：商品ID、商品名称、规格、分类、系统数量、实际数量、单位、单价。');
+                            return;
+                        }
+                        checkDetails = rows;
+                        render();
+                        alert('导入成功，共 ' + rows.length + ' 条盘点明细。');
+                    } catch (err) {
+                        alert('解析失败：' + (err.message || String(err)));
+                    }
+                };
+                reader.readAsText(file, 'UTF-8');
+            } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+                alert('当前仅支持 CSV 格式。请将 Excel 文件另存为“CSV (逗号分隔)”后重新导入。');
+            } else {
+                alert('请选择 .csv 文件（或 Excel 另存为 CSV）。');
+            }
+            this.value = '';
+        });
+        function parseCsvLine(line) {
+            const out = [];
+            let cur = '';
+            let inQuote = false;
+            for (let i = 0; i < line.length; i++) {
+                const c = line[i];
+                if (c === '"') {
+                    inQuote = !inQuote;
+                } else if ((c === ',' && !inQuote) || c === '\t') {
+                    out.push(cur);
+                    cur = '';
+                } else {
+                    cur += c;
+                }
+            }
+            out.push(cur);
+            return out.map(function(s) { return s.replace(/^"|"$/g, '').trim(); });
+        }
+
+        document.getElementById('saveCheckBtn').addEventListener('click', function() {
+            alert('保存盘点（示例）：将当前实际数量与盈亏结果保存，可生成盘盈/盘亏单并更新库存。');
+        });
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('导出（示例）\n共 ' + checkDetails.length + ' 条盘点明细');
+        });
+        document.getElementById('printBtn').addEventListener('click', function() {
+            if (checkDetails.length === 0) { alert('没有数据可打印'); return; }
+            var cols = ['商品ID','商品名称','规格','分类','货区','货架','系统数量','实际数量','盈亏数量','单价','盈亏金额','备注'];
+            var rows = checkDetails.map(function(row) {
+                var dq = getDiffQty(row);
+                var da = getDiffAmount(row);
+                return [row.productId, row.productName, row.spec, row.category, row.zone || '-', row.shelf || '-', row.systemQty + (row.unit || ''), row.actualQty, dq !== null ? dq : '-', (row.avgCost || 0).toFixed(2), da !== null ? da.toFixed(2) : '-', row.remark || '-'];
+            }).map(function(r) { return '<tr><td>' + r.join('</td><td>') + '</td></tr>'; }).join('');
+            var win = window.open('', '_blank');
+            win.document.write('<html><head><meta charset="utf-8"><title>库存盘点-打印</title><style>body{font-family:Microsoft YaHei,sans-serif;padding:16px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:6px;}</style></head><body><h3>库存盘点</h3><p>共 ' + checkDetails.length + ' 条</p><table><thead><tr><th>' + cols.join('</th><th>') + '</th></tr></thead><tbody>' + rows + '</tbody></table></body></html>');
+            win.document.close();
+            win.print();
+            win.close();
+        });
+        document.getElementById('photoModalClose').addEventListener('click', function() { document.getElementById('photoModalOverlay').classList.remove('show'); });
+        document.getElementById('photoModalOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+        document.body.addEventListener('click', function(e) {
+            var link = e.target.closest('.photo-view-link');
+            if (!link) return;
+            e.preventDefault();
+            var url = (link.dataset.url || '').trim();
+            var name = (link.dataset.name || '').replace(/&quot;/g, '"');
+            var content = document.getElementById('photoModalContent');
+            if (url) content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><img src="' + url.replace(/</g, '&lt;') + '" alt="照片" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'block\';"><div class="photo-placeholder" style="display:none;">暂无照片</div>';
+            else content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><div class="photo-placeholder">暂无照片</div>';
+            document.getElementById('photoModalOverlay').classList.add('show');
+        });
+        render();
+    </script>
+</body>
+</html>

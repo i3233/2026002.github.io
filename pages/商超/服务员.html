@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务员 - 商超收银台</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .staff-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .filter-section { padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); margin-bottom: var(--spacing-lg); display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--spacing-md); }
+        .filter-item { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .filter-item label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); white-space: nowrap; }
+        .filter-item select, .filter-item input { padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); min-width: 120px; }
+        .table-container { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .table-wrapper { overflow-x: auto; }
+        .table-container table { width: 100%; border-collapse: collapse; }
+        .table-container thead { background: var(--color-neutral-50); }
+        .table-container th, .table-container td { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--color-neutral-200); }
+        .table-container th { text-align: left; font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--font-size-xs); }
+        .status-badge.enabled { background: rgba(40, 167, 69, 0.15); color: var(--color-success); }
+        .status-badge.disabled { background: var(--color-neutral-200); color: var(--color-text-secondary); }
+        .action-link { color: var(--color-primary); text-decoration: none; cursor: pointer; margin-right: var(--spacing-sm); }
+        .action-link:hover { text-decoration: underline; }
+        .action-link.danger { color: var(--color-danger); }
+        .bottom-toolbar { display: flex; justify-content: flex-end; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); background: #fff; }
+        .pagination-pages { display: inline-flex; align-items: center; gap: 4px; }
+        .pagination-page-btn { min-width: 28px; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; font-size: var(--font-size-sm); cursor: pointer; }
+        .pagination-page-btn:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+        .pagination-page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="staff-page">
+        <div class="page-header">
+            <h1 class="page-title">服务员</h1>
+            <button type="button" class="btn btn-primary" id="addBtn">新增服务员</button>
+        </div>
+        <div class="filter-section">
+            <div class="filter-item">
+                <label>姓名/工号</label>
+                <input type="text" id="filterKeyword" placeholder="请输入姓名或工号">
+            </div>
+            <div class="filter-item">
+                <label>所属门店</label>
+                <select id="filterStore">
+                    <option value="">全部</option>
+                    <option value="WH001">总店</option>
+                    <option value="WH002">分店A</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>状态</label>
+                <select id="filterStatus">
+                    <option value="">全部</option>
+                    <option value="enabled">启用</option>
+                    <option value="disabled">禁用</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>工号</th>
+                            <th>姓名</th>
+                            <th>手机号</th>
+                            <th>所属门店</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="bottom-toolbar">
+                <div class="pagination-pages" id="paginationPages"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var list = [
+            { code: 'WT01', name: '王五', mobile: '13700137001', store: '总店', status: 'enabled' },
+            { code: 'WT02', name: '孙八', mobile: '13700137002', store: '总店', status: 'enabled' },
+            { code: 'WT03', name: '陈十二', mobile: '13700137003', store: '分店A', status: 'enabled' },
+            { code: 'WT04', name: '林十三', mobile: '13700137004', store: '分店A', status: 'disabled' }
+        ];
+        var currentPage = 1, pageSize = 10;
+        function getFilteredList() {
+            var data = list.slice();
+            var kw = (document.getElementById('filterKeyword').value || '').trim().toLowerCase();
+            var store = document.getElementById('filterStore').value;
+            var status = document.getElementById('filterStatus').value;
+            if (kw) data = data.filter(function(r) { return ((r.code || '') + (r.name || '')).toLowerCase().includes(kw); });
+            if (store) data = data.filter(function(r) { return r.storeId === store; });
+            if (status) data = data.filter(function(r) { return r.status === status; });
+            return data;
+        }
+        function render() {
+            var data = getFilteredList();
+            var start = (currentPage - 1) * pageSize;
+            var pageData = data.slice(start, start + pageSize);
+            var totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            pageData.forEach(function(row) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + (row.code || '-') + '</td><td>' + (row.name || '-') + '</td><td>' + (row.mobile || '-') + '</td><td>' + (row.store || '-') + '</td>' +
+                    '<td><span class="status-badge ' + (row.status || '') + '">' + (row.status === 'enabled' ? '启用' : '禁用') + '</span></td>' +
+                    '<td><a href="#" class="action-link edit-item" data-code="' + (row.code || '') + '">编辑</a><a href="#" class="action-link danger toggle-item" data-code="' + (row.code || '') + '">' + (row.status === 'enabled' ? '禁用' : '启用') + '</a></td>';
+                tbody.appendChild(tr);
+            });
+            var pagination = document.getElementById('paginationPages');
+            pagination.innerHTML = '';
+            var prev = document.createElement('button'); prev.className = 'pagination-page-btn'; prev.textContent = '‹'; prev.disabled = currentPage <= 1;
+            prev.addEventListener('click', function() { if (currentPage > 1) { currentPage--; render(); } }); pagination.appendChild(prev);
+            for (var i = 1; i <= totalPages; i++) {
+                (function(p) {
+                    var btn = document.createElement('button'); btn.className = 'pagination-page-btn' + (p === currentPage ? ' active' : ''); btn.textContent = p;
+                    btn.addEventListener('click', function() { currentPage = p; render(); }); pagination.appendChild(btn);
+                })(i);
+            }
+            var next = document.createElement('button'); next.className = 'pagination-page-btn'; next.textContent = '›'; next.disabled = currentPage >= totalPages;
+            next.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; render(); } }); pagination.appendChild(next);
+        }
+        document.getElementById('filterKeyword').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterStore').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('filterStatus').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('addBtn').addEventListener('click', function() { alert('新增服务员（示例）'); });
+        document.getElementById('tableBody').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (e.target.closest('.edit-item')) alert('编辑服务员（示例）');
+            if (e.target.closest('.toggle-item')) alert('切换启用/禁用（示例）');
+        });
+        render();
+    </script>
+</body>
+</html>

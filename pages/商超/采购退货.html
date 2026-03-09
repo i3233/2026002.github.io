@@ -509,45 +509,8 @@
 
         <!-- 顶部工具栏 -->
         <div class="toolbar-card">
-            <!-- 左侧按钮组 -->
-            <div class="toolbar-left">
-                <button class="btn btn-primary" id="addReturnBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">＋</span>
-                        <span>新增</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="exportBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="exportDetailBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出详情</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="returnVoucherBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">⊕</span>
-                        <span>退货单</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="customAttrBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">≡</span>
-                        <span>属性</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="summaryBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">●</span>
-                        <span>汇总</span>
-                    </span>
-                </button>
-            </div>
+            <!-- 左侧（已去掉：新增、导入、导出详情、退货单、属性、汇总，与采购入库退货流程联动） -->
+            <div class="toolbar-left"></div>
 
             <!-- 中间搜索区 -->
             <div class="toolbar-center">
@@ -826,9 +789,10 @@
                             <label>订单状态</label>
                             <select id="msStatus">
                                 <option value="">全部</option>
-                                <option value="待审核">待审核</option>
-                                <option value="已成交">已成交</option>
-                                <option value="已关闭">已关闭</option>
+                                <option value="待提交">待提交</option>
+                                <option value="审核中">审核中</option>
+                                <option value="待退货">待退货</option>
+                                <option value="已完成">已完成</option>
                             </select>
                         </div>
                     </div>
@@ -884,82 +848,69 @@
     </div>
 
     <script>
-        // 静态退货数据（共 4 条记录）
-        const returns = [
-            {
-                id: 'TH20250826001',
-                date: '2025-08-26',
-                partner: '天蓝商行',
-                project: '餐厅',
-                staff: '',
-                remark: '',
-                qty: 5.00,
-                amount: 30.00,
-                payable: -30.00,
-                status: '已成交',
-                attachment: '',
-                recorder: '系统管理员',
-                recordTime: '2025-08-26 09:30:00'
-            },
-            {
-                id: 'TH20250826002',
-                date: '2025-08-26',
-                partner: '天蓝商行',
-                project: '餐厅',
-                staff: '',
-                remark: '',
-                qty: 4.00,
-                amount: 24.00,
-                payable: -24.00,
-                status: '已成交',
-                attachment: '',
-                recorder: '系统管理员',
-                recordTime: '2025-08-26 11:15:21'
-            },
-            {
-                id: 'TH20250827001',
-                date: '2025-08-27',
-                partner: '天蓝商行',
-                project: '餐厅',
-                staff: '',
-                remark: '',
-                qty: 3.00,
-                amount: 18.00,
-                payable: -18.00,
-                status: '已成交',
-                attachment: '',
-                recorder: '系统管理员',
-                recordTime: '2025-08-27 10:02:13'
-            },
-            {
-                id: 'TH20250828001',
-                date: '2025-08-28',
-                partner: '天蓝商行',
-                project: '餐厅',
-                staff: '',
-                remark: '',
-                qty: 5.00,
-                amount: 34.00,
-                payable: -34.00,
-                status: '已成交',
-                attachment: '',
-                recorder: '系统管理员',
-                recordTime: '2025-08-28 16:40:55'
-            }
+        const PURCHASE_RETURN_LIST_KEY = 'purchaseReturnList';
+        const PURCHASE_RETURN_DETAILS_KEY = 'purchaseReturnDetails';
+
+        // 退货列表与明细（静态示例 + 从采购入库写入的 localStorage 合并，状态：待提交/审核中/待退货/已完成）
+        let returns = [
+            { id: 'TH20250826001', date: '2025-08-26', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 5.00, amount: 30.00, payable: -30.00, status: '待提交', attachment: '', recorder: '系统管理员', recordTime: '2025-08-26 09:30:00' },
+            { id: 'TH20250826002', date: '2025-08-26', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 4.00, amount: 24.00, payable: -24.00, status: '审核中', attachment: '', recorder: '系统管理员', recordTime: '2025-08-26 11:15:21' },
+            { id: 'TH20250827001', date: '2025-08-27', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 3.00, amount: 18.00, payable: -18.00, status: '待退货', attachment: '', recorder: '系统管理员', recordTime: '2025-08-27 10:02:13' },
+            { id: 'TH20250828001', date: '2025-08-28', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 5.00, amount: 34.00, payable: -34.00, status: '已完成', attachment: '', recorder: '系统管理员', recordTime: '2025-08-28 16:40:55' }
         ];
-
-        let filteredReturns = [...returns];
-        let sortColumn = null;
-        let sortDirection = 'asc';
-        let viewMode = 'list'; // list | detail（当前仅用于切换按钮状态）
-
-        // 明细数据（用于详情/导出详情/打印退货单）
-        const returnDetailsMap = {
+        let returnDetailsMap = {
             'TH20250826001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00 }],
             'TH20250826002': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00 }],
             'TH20250827001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 3, price: 6.00 }],
             'TH20250828001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 5, price: 6.80 }]
         };
+
+        function loadReturnsFromStorage() {
+            try {
+                const rawList = localStorage.getItem(PURCHASE_RETURN_LIST_KEY);
+                const rawDetails = localStorage.getItem(PURCHASE_RETURN_DETAILS_KEY);
+                if (rawList) {
+                    const list = JSON.parse(rawList);
+                    if (Array.isArray(list)) {
+                        list.forEach(r => {
+                            if (!r || !r.id) return;
+                            const idx = returns.findIndex(o => o.id === r.id);
+                            if (idx >= 0) {
+                                returns[idx] = { ...returns[idx], ...r };
+                            } else {
+                                returns.push(r);
+                            }
+                        });
+                    }
+                }
+                if (rawDetails) {
+                    const details = JSON.parse(rawDetails);
+                    if (details && typeof details === 'object') {
+                        Object.keys(details).forEach(id => {
+                            returnDetailsMap[id] = details[id];
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('加载采购退货列表失败', e);
+            }
+        }
+        function saveReturnsToStorage() {
+            try {
+                localStorage.setItem(PURCHASE_RETURN_LIST_KEY, JSON.stringify(returns));
+                localStorage.setItem(PURCHASE_RETURN_DETAILS_KEY, JSON.stringify(returnDetailsMap));
+            } catch (e) {
+                console.warn('保存采购退货列表失败', e);
+            }
+        }
+
+        loadReturnsFromStorage();
+
+        let filteredReturns = [...returns];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let viewMode = 'list';
+
         function getDetailsById(id) {
             return returnDetailsMap[id] || [];
         }
@@ -1259,25 +1210,53 @@
         document.getElementById('summaryModalCloseBtn').addEventListener('click', closeSummary);
         summaryModal.addEventListener('click', (e) => { if (e.target === summaryModal) closeSummary(); });
 
-        // ========= 操作菜单 =========
+        // ========= 操作菜单（按状态：待提交/审核中/待退货/已完成）=========
         const actionMenu = document.getElementById('actionMenu');
         let currentActionId = null;
         function openActionMenu(id, anchorEl) {
             currentActionId = id;
+            const item = returns.find(r => r.id === id);
+            const status = item ? item.status : '';
+            let html = '<div class="action-menu-item" data-action="view">查看详情</div>';
+            if (status === '待提交') html += '<div class="action-menu-item" data-action="submitAudit">提交审核</div>';
+            if (status === '审核中') html += '<div class="action-menu-item" data-action="audit">审核</div>';
+            if (status === '待退货') html += '<div class="action-menu-item" data-action="doReturn">执行退货</div>';
+            html += '<div class="action-menu-item" data-action="print">打印退货单</div>';
+            html += '<div class="action-menu-item danger" data-action="delete">删除</div>';
+            actionMenu.innerHTML = html;
             const rect = anchorEl.getBoundingClientRect();
             actionMenu.style.left = rect.left + 'px';
             actionMenu.style.top = (rect.bottom + 6) + 'px';
             actionMenu.classList.add('show');
         }
         function hideActionMenu() { actionMenu.classList.remove('show'); }
+        function submitForAudit(id) {
+            const item = returns.find(r => r.id === id);
+            if (!item) return;
+            if (item.status !== '待提交') return;
+            item.status = '审核中';
+            saveReturnsToStorage();
+            filteredReturns = [...returns];
+            renderTable();
+        }
         function auditOrder(id) {
             const item = returns.find(r => r.id === id);
             if (!item) return;
-            const choice = prompt(`审核退货单：${id}\\n1. 通过\\n2. 退回（待审核）\\n3. 关闭\\n\\n请输入序号：`, '1');
+            const choice = prompt('审核退货单：' + id + '\n1. 通过（进入待退货）\n2. 退回（待提交）\n\n请输入序号：', '1');
             if (choice === null) return;
-            if (choice === '1') item.status = '已成交';
-            if (choice === '2') item.status = '待审核';
-            if (choice === '3') item.status = '已关闭';
+            if (choice === '1') item.status = '待退货';
+            if (choice === '2') item.status = '待提交';
+            saveReturnsToStorage();
+            filteredReturns = [...returns];
+            renderTable();
+        }
+        function doReturn(id) {
+            const item = returns.find(r => r.id === id);
+            if (!item) return;
+            if (item.status !== '待退货') return;
+            item.status = '已完成';
+            saveReturnsToStorage();
+            filteredReturns = [...returns];
             renderTable();
         }
         function printVouchers(ids) {
@@ -1347,13 +1326,16 @@
             hideActionMenu();
             if (!id) return;
             if (action === 'view') openOrderDetail(id);
+            if (action === 'submitAudit') submitForAudit(id);
             if (action === 'audit') auditOrder(id);
+            if (action === 'doReturn') doReturn(id);
             if (action === 'print') printVouchers([id]);
             if (action === 'delete') {
                 const idx = returns.findIndex(r => r.id === id);
                 if (idx > -1 && confirm('确定删除该退货单吗？')) {
                     returns.splice(idx, 1);
                     delete returnDetailsMap[id];
+                    saveReturnsToStorage();
                     filteredReturns = [...returns];
                     renderTable();
                 }
@@ -1414,7 +1396,8 @@
         }
         function openCustomAttr() { renderCustomAttrTable(); customAttrModal.classList.add('show'); }
         function closeCustomAttr() { customAttrModal.classList.remove('show'); }
-        document.getElementById('customAttrBtn').addEventListener('click', openCustomAttr);
+        const customAttrBtn = document.getElementById('customAttrBtn');
+        if (customAttrBtn) customAttrBtn.addEventListener('click', openCustomAttr);
         document.getElementById('customAttrModalClose').addEventListener('click', closeCustomAttr);
         document.getElementById('customAttrModalCloseBtn').addEventListener('click', closeCustomAttr);
         customAttrModal.addEventListener('click', (e) => { if (e.target === customAttrModal) closeCustomAttr(); });
@@ -1448,8 +1431,9 @@
             }
         });
 
-        // ========= 导出/导出详情 =========
-        document.getElementById('exportBtn').addEventListener('click', function () {
+        // ========= 导出/导出详情（按钮已从工具栏移除，保留逻辑供需要时复用）=========
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) exportBtn.addEventListener('click', function () {
             const data = filteredReturns;
             if (!data.length) { alert('没有数据可导出'); return; }
             const headers = ['单号','日期','往来单位','项目','员工','备注','数量','退货金额','应付余额','订单状态','附件','录入员','录入时间'];
@@ -1460,7 +1444,8 @@
             ].map(escapeCsvCell).join(','));
             downloadCsv(`采购退货_${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\\n'));
         });
-        document.getElementById('exportDetailBtn').addEventListener('click', function () {
+        const exportDetailBtn = document.getElementById('exportDetailBtn');
+        if (exportDetailBtn) exportDetailBtn.addEventListener('click', function () {
             const data = filteredReturns;
             if (!data.length) { alert('没有数据可导出'); return; }
             const headers = ['单号','日期','往来单位','项目','订单状态','商品名称','规格','单位','数量','单价','金额'];
@@ -1484,10 +1469,12 @@
             downloadCsv(`采购退货_详情_${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\\n'));
         });
 
-        // ========= 工具栏按钮：汇总/统计/退货单/视图 =========
-        document.getElementById('summaryBtn').addEventListener('click', () => openSummary('summary'));
+        // ========= 工具栏按钮：汇总/统计/退货单/视图（新增/导出/导出详情/退货单/属性/汇总已移除）=========
+        const summaryBtn = document.getElementById('summaryBtn');
+        if (summaryBtn) summaryBtn.addEventListener('click', () => openSummary('summary'));
         document.getElementById('statsBtn').addEventListener('click', () => openSummary('stats'));
-        document.getElementById('returnVoucherBtn').addEventListener('click', () => {
+        const returnVoucherBtn = document.getElementById('returnVoucherBtn');
+        if (returnVoucherBtn) returnVoucherBtn.addEventListener('click', () => {
             const ids = getSelectedIds();
             if (!ids.length) { alert('请先勾选需要打印的退货单'); return; }
             printVouchers(ids);
@@ -1501,7 +1488,10 @@
             const statusLink = e.target.closest('.status-link');
             const viewBtn = e.target.closest('.view-btn');
             if (orderLink) openOrderDetail(orderLink.dataset.id);
-            if (statusLink) auditOrder(statusLink.dataset.id);
+            if (statusLink) {
+                const it = returns.find(r => r.id === statusLink.dataset.id);
+                if (it && it.status === '审核中') auditOrder(statusLink.dataset.id);
+            }
             if (viewBtn) {
                 e.stopPropagation();
                 openActionMenu(viewBtn.dataset.id, viewBtn);
@@ -1591,7 +1581,8 @@
             if (payInput && !payInput.value) payInput.placeholder = '-' + totalAmount.toFixed(2);
         }
 
-        document.getElementById('addReturnBtn').addEventListener('click', openReturnModal);
+        const addReturnBtn = document.getElementById('addReturnBtn');
+        if (addReturnBtn) addReturnBtn.addEventListener('click', openReturnModal);
         document.getElementById('returnModalClose').addEventListener('click', closeReturnModal);
         document.getElementById('returnModalCancel').addEventListener('click', closeReturnModal);
         returnModalEl.addEventListener('click', function (e) {

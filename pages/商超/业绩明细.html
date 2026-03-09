@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>业绩明细 - 2026新项目二</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .performance-detail-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .filter-section { padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); margin-bottom: var(--spacing-lg); display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--spacing-md); }
+        .filter-item { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .filter-item label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); white-space: nowrap; }
+        .filter-item select, .filter-item input { padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); min-width: 120px; }
+        .filter-item input[type="date"] { min-width: 140px; }
+        .filter-item .date-range { display: flex; align-items: center; gap: var(--spacing-xs); }
+        .tabs-row { display: flex; gap: 0; margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); }
+        .tab-btn { padding: var(--spacing-sm) var(--spacing-lg); border: none; background: none; font-size: var(--font-size-base); color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab-btn:hover { color: var(--color-primary); }
+        .tab-btn.active { color: var(--color-primary); font-weight: var(--font-weight-medium); border-bottom-color: var(--color-primary); }
+        .table-container { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .table-wrapper { overflow-x: auto; }
+        .table-container table { width: 100%; border-collapse: collapse; }
+        .table-container thead { background: var(--color-neutral-50); }
+        .table-container th, .table-container td { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); border-bottom: 1px solid var(--color-neutral-200); }
+        .table-container th { text-align: left; font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .text-right { text-align: right; }
+        .order-link { color: var(--color-primary); text-decoration: none; cursor: pointer; }
+        .order-link:hover { text-decoration: underline; }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--font-size-xs); }
+        .status-badge.completed { background: rgba(40, 167, 69, 0.15); color: var(--color-success); }
+        .status-badge.pending { background: rgba(255, 193, 7, 0.2); color: #856404; }
+        .bottom-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); background: #fff; }
+        .pagination-pages { display: inline-flex; align-items: center; gap: 4px; }
+        .pagination-page-btn { min-width: 28px; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; font-size: var(--font-size-sm); cursor: pointer; }
+        .pagination-page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+        .pagination-page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="performance-detail-page">
+        <div class="page-header">
+            <h1 class="page-title">业绩明细</h1>
+            <button type="button" class="btn btn-primary" id="exportReportBtn">导出报表</button>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-item">
+                <label>所属门店/自提点</label>
+                <select id="filterStore">
+                    <option value="">全部部门/自提点</option>
+                    <option value="WH001">总店</option>
+                    <option value="WH002">分店A</option>
+                    <option value="WH003">自提点1</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>下单时间</label>
+                <div class="date-range">
+                    <input type="date" id="dateStart" title="开始日期">
+                    <span style="color: var(--color-text-secondary);">至</span>
+                    <input type="date" id="dateEnd" title="结束日期">
+                </div>
+            </div>
+            <div class="filter-item" id="filterCashierWrap">
+                <label>收银员</label>
+                <input type="text" id="filterCashier" placeholder="请输入收银员">
+            </div>
+            <div class="filter-item" id="filterSalespersonWrap">
+                <label>导购员</label>
+                <input type="text" id="filterSalesperson" placeholder="请输入导购员">
+            </div>
+            <div class="filter-item" id="filterWaiterWrap">
+                <label>服务员</label>
+                <input type="text" id="filterWaiter" placeholder="请输入服务员">
+            </div>
+            <div class="filter-item">
+                <label>类型</label>
+                <select id="filterType">
+                    <option value="">全部</option>
+                    <option value="买单">买单</option>
+                    <option value="退款">退款</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>付款方式</label>
+                <select id="filterPayment">
+                    <option value="">全部</option>
+                    <option value="现金支付">现金支付</option>
+                    <option value="pos机支付">pos机支付</option>
+                    <option value="微信">微信</option>
+                    <option value="支付宝">支付宝</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="tabs-row">
+            <button type="button" class="tab-btn active" data-tab="cashier">收银员</button>
+            <button type="button" class="tab-btn" data-tab="salesperson">导购员</button>
+            <button type="button" class="tab-btn" data-tab="waiter">服务员</button>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr id="tableHeadRow"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="bottom-toolbar">
+                <div class="pagination-pages" id="paginationPages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 三条角色维度：收银员、导购员、服务员各有工号/姓名及对应提成
+        let list = [
+            { orderTime: '2026-03-08 11:42:03', orderId: '20260308114203110977', status: '已完成', statusClass: 'completed', cashier: '001 张三', salesperson: 'SP01 李四', waiter: 'WT01 王五', type: '买单', payment: '现金支付', amount: 89.00, refund: 0.00, cashierCommission: 0.89, salespersonCommission: 0.45, waiterCommission: 0.30 },
+            { orderTime: '2026-03-08 11:38:22', orderId: '20260308113822110976', status: '已完成', statusClass: 'completed', cashier: '001 张三', salesperson: 'SP02 赵六', waiter: 'WT01 王五', type: '买单', payment: 'pos机支付', amount: 156.00, refund: 0.00, cashierCommission: 1.56, salespersonCommission: 0.78, waiterCommission: 0.50 },
+            { orderTime: '2026-03-08 10:15:10', orderId: '20260308101510110975', status: '已完成', statusClass: 'completed', cashier: '002 钱七', salesperson: 'SP01 李四', waiter: '-', type: '买单', payment: '微信', amount: 68.50, refund: 0.00, cashierCommission: 0.69, salespersonCommission: 0.34, waiterCommission: 0.00 },
+            { orderTime: '2026-03-08 09:52:33', orderId: '20260308095233110974', status: '待核算', statusClass: 'pending', cashier: '001 张三', salesperson: 'SP01 李四', waiter: 'WT02 孙八', type: '买单', payment: '支付宝', amount: 120.00, refund: 0.00, cashierCommission: 1.20, salespersonCommission: 0.60, waiterCommission: 0.40 },
+            { orderTime: '2026-03-07 16:20:15', orderId: '20260307162015110973', status: '已完成', statusClass: 'completed', cashier: '001 张三', salesperson: '-', waiter: 'WT01 王五', type: '退款', payment: '现金支付', amount: 0.00, refund: 89.00, cashierCommission: 0.00, salespersonCommission: 0.00, waiterCommission: 0.00 }
+        ];
+        let currentTab = 'cashier';
+        let currentPage = 1;
+        let pageSize = 10;
+        var TAB_CONFIG = {
+            cashier: { roleLabel: '收银员', roleKey: 'cashier', commissionKey: 'cashierCommission', filterId: 'filterCashier' },
+            salesperson: { roleLabel: '导购员', roleKey: 'salesperson', commissionKey: 'salespersonCommission', filterId: 'filterSalesperson' },
+            waiter: { roleLabel: '服务员', roleKey: 'waiter', commissionKey: 'waiterCommission', filterId: 'filterWaiter' }
+        };
+
+        function getFilteredList() {
+            var data = list.slice();
+            var store = document.getElementById('filterStore').value;
+            var dateStart = document.getElementById('dateStart').value;
+            var dateEnd = document.getElementById('dateEnd').value;
+            var type = document.getElementById('filterType').value;
+            var payment = document.getElementById('filterPayment').value;
+            var cfg = TAB_CONFIG[currentTab];
+            var roleKeyword = (document.getElementById(cfg.filterId).value || '').trim().toLowerCase();
+            if (store) data = data.filter(function(r) { return r.storeId === store; });
+            if (dateStart) data = data.filter(function(r) { return (r.orderTime || '').slice(0, 10) >= dateStart; });
+            if (dateEnd) data = data.filter(function(r) { return (r.orderTime || '').slice(0, 10) <= dateEnd; });
+            if (roleKeyword) data = data.filter(function(r) { return ((r[cfg.roleKey] || '') + '').toLowerCase().includes(roleKeyword); });
+            if (type) data = data.filter(function(r) { return r.type === type; });
+            if (payment) data = data.filter(function(r) { return r.payment === payment; });
+            return data;
+        }
+        function renderHead() {
+            var cfg = TAB_CONFIG[currentTab];
+            var th = document.getElementById('tableHeadRow');
+            th.innerHTML = '<th>下单时间</th><th>订单号</th><th>状态</th><th>' + cfg.roleLabel + '</th><th>类型</th><th>付款方式</th><th class="text-right">实收金额(元)</th><th class="text-right">退款金额(元)</th><th class="text-right">提成(元)</th>';
+        }
+
+        function render() {
+            renderHead();
+            var data = getFilteredList();
+            var start = (currentPage - 1) * pageSize;
+            var pageData = data.slice(start, start + pageSize);
+            var totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+            var cfg = TAB_CONFIG[currentTab];
+
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            pageData.forEach(function(row) {
+                var roleVal = row[cfg.roleKey] || '-';
+                var commission = row[cfg.commissionKey];
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + (row.orderTime || '-') + '</td>' +
+                    '<td><a href="#" class="order-link" data-id="' + (row.orderId || '') + '">' + (row.orderId || '-') + '</a></td>' +
+                    '<td><span class="status-badge ' + (row.statusClass || '') + '">' + (row.status || '-') + '</span></td>' +
+                    '<td>' + roleVal + '</td>' +
+                    '<td>' + (row.type || '-') + '</td>' +
+                    '<td>' + (row.payment || '-') + '</td>' +
+                    '<td class="text-right">' + (row.amount != null ? row.amount.toFixed(2) : '0.00') + '</td>' +
+                    '<td class="text-right">' + (row.refund != null ? row.refund.toFixed(2) : '0.00') + '</td>' +
+                    '<td class="text-right">' + (commission != null ? commission.toFixed(2) : '0.00') + '</td>';
+                tbody.appendChild(tr);
+            });
+
+            var pagination = document.getElementById('paginationPages');
+            pagination.innerHTML = '';
+            var prev = document.createElement('button');
+            prev.className = 'pagination-page-btn';
+            prev.textContent = '‹';
+            prev.disabled = currentPage <= 1;
+            prev.addEventListener('click', function() { if (currentPage > 1) { currentPage--; render(); } });
+            pagination.appendChild(prev);
+            for (var i = 1; i <= totalPages; i++) {
+                (function(p) {
+                    var btn = document.createElement('button');
+                    btn.className = 'pagination-page-btn' + (p === currentPage ? ' active' : '');
+                    btn.textContent = p;
+                    btn.addEventListener('click', function() { currentPage = p; render(); });
+                    pagination.appendChild(btn);
+                })(i);
+            }
+            var next = document.createElement('button');
+            next.className = 'pagination-page-btn';
+            next.textContent = '›';
+            next.disabled = currentPage >= totalPages;
+            next.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; render(); } });
+            pagination.appendChild(next);
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                currentTab = this.dataset.tab || 'cashier';
+                currentPage = 1;
+                render();
+            });
+        });
+        document.getElementById('filterStore').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('dateStart').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('dateEnd').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('filterCashier').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterSalesperson').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterWaiter').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterType').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('filterPayment').addEventListener('change', function() { currentPage = 1; render(); });
+        document.getElementById('exportReportBtn').addEventListener('click', function() {
+            alert('导出报表（示例）\n共 ' + getFilteredList().length + ' 条业绩明细');
+        });
+        document.getElementById('tableBody').addEventListener('click', function(e) {
+            var link = e.target.closest('.order-link');
+            if (link) {
+                e.preventDefault();
+                alert('订单详情（示例）\n订单号：' + (link.dataset.id || ''));
+            }
+        });
+        render();
+    </script>
+</body>
+</html>
