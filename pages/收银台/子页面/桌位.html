@@ -219,6 +219,26 @@
             flex-shrink: 0;
         }
         .table-order-back-bar .order-table-value { font-weight: bold; color: var(--color-primary); }
+        .order-product-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+        .order-checkout-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+        .order-checkout-view.hidden { display: none !important; }
+        .order-product-view.hidden { display: none !important; }
+        .checkout-layout { display: flex; flex: 1; min-height: 0; background: var(--color-neutral-50); }
+        .checkout-left { width: 33%; min-width: 200px; padding: var(--spacing-lg); background: #fff; border-right: 1px solid var(--color-neutral-200); display: flex; flex-direction: column; gap: var(--spacing-lg); }
+        .checkout-right { flex: 1; padding: var(--spacing-lg); background: var(--color-neutral-50); display: flex; flex-direction: column; gap: var(--spacing-lg); }
+        .checkout-block-title { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0 0 var(--spacing-sm) 0; }
+        .checkout-discount-text { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .checkout-payment-options { display: flex; gap: var(--spacing-md); flex-wrap: wrap; }
+        .checkout-pay-btn { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-xs); padding: var(--spacing-lg); min-width: 100px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; cursor: pointer; font-size: var(--font-size-sm); transition: all 0.2s; }
+        .checkout-pay-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+        .checkout-pay-icon { font-size: 24px; }
+        .checkout-order-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); margin-top: var(--spacing-md); }
+        .checkout-action-btn { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; cursor: pointer; }
+        .checkout-action-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+        .checkout-bill-rows { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+        .checkout-bill-row { display: flex; justify-content: space-between; font-size: var(--font-size-sm); }
+        .checkout-bill-value { font-weight: var(--font-weight-medium); }
+        .checkout-remain-bar { margin-top: auto; padding: var(--spacing-md) var(--spacing-lg); background: var(--color-neutral-200); border-radius: var(--radius-md); text-align: center; font-size: var(--font-size-base); font-weight: var(--font-weight-medium); flex-shrink: 0; }
     </style>
 </head>
 <body class="table-mgmt-body">
@@ -262,10 +282,6 @@
     <div class="table-order-overlay" id="tableOrderOverlay">
         <div class="order-page-container">
             <aside class="order-left-panel">
-                <div class="table-order-back-bar">
-                    <span><span class="order-table-label">当前桌台</span> <span class="order-table-value" id="tableOrderCode">-</span></span>
-                    <button type="button" class="order-btn order-btn-outline" id="tableOrderBackBtn">← 返回桌位</button>
-                </div>
                 <div class="order-customer-section">
                     <div class="order-customer-select">
                         <button type="button" class="order-customer-link"><span class="order-customer-icon">👤</span><span>点击选择客户</span></button>
@@ -303,7 +319,13 @@
             </aside>
             <div class="order-middle-panel">
                 <div class="order-number-section">
-                    <div class="order-number-header"><h3 class="order-number-title">号牌</h3></div>
+                    <div class="order-number-header">
+                        <h3 class="order-number-title">号牌 <span class="order-table-value" id="tableOrderCode">-</span></h3>
+                        <div class="order-number-header-actions">
+                            <button type="button" class="order-tool-btn order-tool-btn-outline order-number-temp-btn" title="临时商品">临时商品</button>
+                            <button type="button" class="order-btn order-btn-outline" id="tableOrderBackBtn">← 返回桌位</button>
+                        </div>
+                    </div>
                     <div class="order-number-actions">
                         <div class="order-action-item">
                             <label class="order-switch"><input type="checkbox" id="tableOrderPackSwitch"><span class="order-switch-slider"></span></label>
@@ -313,7 +335,6 @@
                         <button type="button" class="order-action-btn">取单</button>
                         <button type="button" class="order-action-btn">整单打折\减免</button>
                         <button type="button" class="order-action-btn">整单备注</button>
-                        <button type="button" class="order-action-btn">团购券先核销</button>
                     </div>
                     <div class="order-number-footer">
                         <button type="button" class="order-scroll-btn" id="tableOrderScrollUp">向上滑</button>
@@ -322,39 +343,73 @@
                 </div>
             </div>
             <main class="order-right-panel">
-                <div class="order-product-toolbar">
-                    <div class="order-search-section">
-                        <input type="text" class="order-search-input" id="tableOrderSearch" placeholder="🔍 商品名称">
+                <!-- 商品展示区（点单时显示） -->
+                <div class="order-product-view" id="tableOrderProductView">
+                    <div class="order-product-toolbar">
+                        <div class="order-search-section">
+                            <input type="text" class="order-search-input" id="tableOrderSearch" placeholder="🔍 商品名称">
+                        </div>
+                        <div class="order-toolbar-buttons">
+                            <button type="button" class="order-tool-btn" title="大图">大</button>
+                            <button type="button" class="order-tool-btn" title="中图">中</button>
+                            <button type="button" class="order-tool-btn" title="小图">小</button>
+                        </div>
                     </div>
-                    <div class="order-toolbar-buttons">
-                        <button type="button" class="order-tool-btn order-tool-btn-outline" title="临时商品">临时商品</button>
-                        <button type="button" class="order-tool-btn" title="大图">大</button>
-                        <button type="button" class="order-tool-btn" title="中图">中</button>
-                        <button type="button" class="order-tool-btn" title="小图">小</button>
+                    <div class="order-category-tabs">
+                        <div class="order-category-tabs-wrapper">
+                            <button type="button" class="order-category-tab active" data-category="all">全部</button>
+                            <button type="button" class="order-category-tab" data-category="soft-drink">软饮</button>
+                            <button type="button" class="order-category-tab" data-category="beer">啤酒</button>
+                            <button type="button" class="order-category-tab" data-category="snack">小号</button>
+                            <button type="button" class="order-category-tab" data-category="other">其它</button>
+                            <button type="button" class="order-category-tab" data-category="wine">洋酒</button>
+                            <button type="button" class="order-category-tab" data-category="special">特色</button>
+                            <button type="button" class="order-category-tab" data-category="rainbow">彩虹</button>
+                            <button type="button" class="order-category-tab" data-category="package">套餐</button>
+                            <button type="button" class="order-category-tab" data-category="chinese">中餐</button>
+                        </div>
+                    </div>
+                    <div class="order-product-content">
+                        <div class="order-products-grid order-products-grid-medium" id="tableOrderProductsGrid"></div>
                     </div>
                 </div>
-                <div class="order-category-tabs">
-                    <div class="order-category-tabs-wrapper">
-                        <button type="button" class="order-category-tab active" data-category="all">全部</button>
-                        <button type="button" class="order-category-tab" data-category="soft-drink">软饮</button>
-                        <button type="button" class="order-category-tab" data-category="beer">啤酒</button>
-                        <button type="button" class="order-category-tab" data-category="snack">小号</button>
-                        <button type="button" class="order-category-tab" data-category="other">其它</button>
-                        <button type="button" class="order-category-tab" data-category="wine">洋酒</button>
-                        <button type="button" class="order-category-tab" data-category="special">特色</button>
-                        <button type="button" class="order-category-tab" data-category="rainbow">彩虹</button>
-                        <button type="button" class="order-category-tab" data-category="package">套餐</button>
-                        <button type="button" class="order-category-tab" data-category="chinese">中餐</button>
+                <!-- 收银结账区（点击收银后显示） -->
+                <div class="order-checkout-view hidden" id="tableOrderCheckoutView">
+                    <div class="checkout-layout">
+                        <div class="checkout-left">
+                            <div class="checkout-block">
+                                <h3 class="checkout-block-title">选择优惠</h3>
+                                <div class="checkout-discount-text" id="checkoutDiscountText">无优惠</div>
+                            </div>
+                            <div class="checkout-block">
+                                <h3 class="checkout-block-title">账单明细</h3>
+                                <div class="checkout-bill-rows">
+                                    <div class="checkout-bill-row"><span>菜单价格合计</span><span class="checkout-bill-value" id="checkoutMenuTotal">¥0.00</span></div>
+                                    <div class="checkout-bill-row"><span>应收</span><span class="checkout-bill-value" id="checkoutPayable">¥0.00 抹零</span></div>
+                                </div>
+                            </div>
+                            <div class="checkout-block">
+                                <h3 class="checkout-block-title">选择支付方式</h3>
+                                <div class="checkout-payment-options">
+                                    <button type="button" class="checkout-pay-btn" title="扫码"><span class="checkout-pay-icon">📷</span><span>扫码</span></button>
+                                    <button type="button" class="checkout-pay-btn" title="现金支付"><span class="checkout-pay-icon">💵</span><span>现金支付</span></button>
+                                </div>
+                                <div class="checkout-order-actions">
+                                    <button type="button" class="checkout-action-btn" title="整单打折/减免">整单打折/减免</button>
+                                    <button type="button" class="checkout-action-btn" title="整单取消打折/减免">整单取消打折/减免</button>
+                                    <button type="button" class="checkout-action-btn" title="整单备注">整单备注</button>
+                                    <button type="button" class="checkout-action-btn" title="整单打包">整单打包</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkout-right">
+                            <div class="checkout-remain-bar" id="checkoutRemainBar">还差¥0.00</div>
+                        </div>
                     </div>
-                </div>
-                <div class="order-product-content">
-                    <div class="order-products-grid order-products-grid-medium" id="tableOrderProductsGrid"></div>
                 </div>
                 <div class="order-payment-bar">
-                    <button type="button" class="order-payment-btn order-payment-btn-outline">扫付</button>
-                    <button type="button" class="order-payment-btn order-payment-btn-outline">现金</button>
                     <button type="button" class="order-payment-btn order-payment-btn-douyin"><span class="douyin-logo">抖音</span></button>
-                    <button type="button" class="order-payment-btn order-payment-btn-primary">先吃后付</button>
+                    <button type="button" class="order-payment-btn order-payment-btn-primary" title="团购券先核销">团购券先核销</button>
                 </div>
             </main>
         </div>
@@ -525,6 +580,7 @@
 
             var tableOrderCurrentCode = '';
             var tableOrderItems = [];
+            var isCheckoutView = false;
             var tableOrderCategory = 'all';
             var tableOrderSearch = '';
 
@@ -650,6 +706,13 @@
                 });
                 tableOrderUpdateDisplay();
                 tableOrderRenderProducts();
+                var pv = document.getElementById('tableOrderProductView');
+                var cv = document.getElementById('tableOrderCheckoutView');
+                var checkoutBtn = document.getElementById('tableOrderCheckoutBtn');
+                if (pv) pv.classList.remove('hidden');
+                if (cv) cv.classList.add('hidden');
+                if (checkoutBtn) checkoutBtn.textContent = '收银';
+                isCheckoutView = false;
             }
 
             document.getElementById('tableOrderBackBtn').addEventListener('click', function () {
@@ -664,9 +727,32 @@
                     saveTableOrderToStorage();
                 }
             });
-            document.getElementById('tableOrderCheckoutBtn').addEventListener('click', function () {
+            function updateCheckoutAmounts() {
                 var total = tableOrderItems.reduce(function (s, it) { return s + (it.price || 0) * (it.quantity || 1); }, 0);
-                alert('收银（本桌台合计 ¥' + total.toFixed(2) + '）');
+                var totalStr = '¥' + total.toFixed(2);
+                var menuEl = document.getElementById('checkoutMenuTotal');
+                var payEl = document.getElementById('checkoutPayable');
+                var remainEl = document.getElementById('checkoutRemainBar');
+                if (menuEl) menuEl.textContent = totalStr;
+                if (payEl) payEl.textContent = totalStr + ' 抹零';
+                if (remainEl) remainEl.textContent = '还差' + totalStr;
+            }
+            document.getElementById('tableOrderCheckoutBtn').addEventListener('click', function () {
+                var productView = document.getElementById('tableOrderProductView');
+                var checkoutView = document.getElementById('tableOrderCheckoutView');
+                var btn = this;
+                if (!isCheckoutView) {
+                    updateCheckoutAmounts();
+                    if (productView) productView.classList.add('hidden');
+                    if (checkoutView) checkoutView.classList.remove('hidden');
+                    btn.textContent = '继续点单';
+                    isCheckoutView = true;
+                } else {
+                    if (productView) productView.classList.remove('hidden');
+                    if (checkoutView) checkoutView.classList.add('hidden');
+                    btn.textContent = '收银';
+                    isCheckoutView = false;
+                }
             });
             document.getElementById('tableOrderSearch').addEventListener('input', function () {
                 tableOrderSearch = this.value.trim();
@@ -691,6 +777,10 @@
 
             renderGrid();
             updateSummary();
+            // 进入收银台后直接展示点单界面（即点击桌台后的页面），默认打开第一个桌台
+            if (tables.length > 0) {
+                openTableOrderPanel(tables[0].code);
+            }
         })();
     </script>
 </body>

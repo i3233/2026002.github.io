@@ -3,127 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品 - 餐饮收银台</title>
+    <title>商品 - 收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
     <link rel="stylesheet" href="../../../css/收银台子页面.css">
+    <style>
+        .product-mgmt-page { display: flex; height: 100vh; margin: 0; padding: 0; background: var(--color-neutral-50); overflow: hidden; }
+        .product-mgmt-sidebar { width: 160px; flex-shrink: 0; background: #fff; border-right: 1px solid var(--color-neutral-200); padding: var(--spacing-lg) 0; }
+        .product-mgmt-sidebar-title { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-text-primary); padding: 0 var(--spacing-md); margin-bottom: var(--spacing-md); }
+        .product-mgmt-sidebar-item { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-primary); cursor: pointer; }
+        .product-mgmt-sidebar-item.active { background: #f0f9eb; color: var(--color-primary); }
+        .product-mgmt-sidebar-sub { padding-left: var(--spacing-lg); font-size: var(--font-size-sm); }
+        .product-mgmt-main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; background: #fff; }
+        .product-mgmt-toolbar { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200); flex-shrink: 0; }
+        .product-mgmt-cats { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
+        .product-mgmt-cat-btn { padding: 6px 14px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; }
+        .product-mgmt-cat-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+        .product-mgmt-cat-btn.active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+        .product-mgmt-status-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
+        .product-mgmt-status-btn { padding: 6px 14px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; }
+        .product-mgmt-status-btn.active { background: #f0f9eb; border-color: var(--color-primary); color: var(--color-primary); }
+        .product-mgmt-search-row { display: flex; justify-content: flex-end; }
+        .product-mgmt-search-wrap { display: flex; align-items: center; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); overflow: hidden; width: 260px; }
+        .product-mgmt-search-wrap span { padding: 8px 10px; color: var(--color-text-secondary); font-size: 14px; }
+        .product-mgmt-search-wrap input { flex: 1; border: none; padding: 8px 10px; font-size: var(--font-size-sm); }
+        .product-mgmt-table-wrap { flex: 1; overflow: auto; padding: var(--spacing-lg); }
+        .product-mgmt-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .product-mgmt-table th, .product-mgmt-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--color-neutral-200); vertical-align: middle; }
+        .product-mgmt-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .product-mgmt-table .product-name-cell { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .product-mgmt-table .product-thumb { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--color-neutral-100); object-fit: cover; flex-shrink: 0; }
+        .product-mgmt-table .product-price-cell, .product-mgmt-table .product-stock-cell { color: var(--color-text-secondary); }
+        .product-mgmt-table .edit-link { color: var(--color-primary); cursor: pointer; margin-left: 6px; }
+        .product-mgmt-table .edit-link:hover { text-decoration: underline; }
+        .product-mgmt-table .op-btns { display: flex; gap: var(--spacing-sm); }
+        .product-mgmt-table .op-btn { padding: 4px 12px; font-size: var(--font-size-xs); border-radius: var(--radius-md); border: 1px solid var(--color-neutral-300); background: #fff; cursor: pointer; }
+        .product-mgmt-table .op-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    </style>
 </head>
-<body class="cashier-sub-body">
-    <div class="cashier-sub-container">
-        <h1 class="cashier-sub-title">商品</h1>
-        <div class="cashier-sub-card">
-            <div class="cashier-sub-filter">
-                <input type="text" id="productSearch" placeholder="商品名称" style="width:200px;">
-                <select id="productCategory">
-                    <option value="">全部分类</option>
-                    <option value="housekeeping">家政</option>
-                    <option value="soft-drink">软饮系列</option>
-                    <option value="beer">啤酒</option>
-                    <option value="snack">小吃系列</option>
-                    <option value="other">其他系列</option>
-                    <option value="wine">洋酒香槟</option>
-                    <option value="special">特色斗酒</option>
-                    <option value="rainbow">彩虹斗酒</option>
-                    <option value="package">优惠套餐</option>
-                    <option value="department">百货</option>
-                    <option value="chinese">中餐</option>
-                </select>
-                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="productSearchBtn">查询</button>
+<body class="product-mgmt-page">
+    <aside class="product-mgmt-sidebar">
+        <div class="product-mgmt-sidebar-title">商品管理</div>
+        <div class="product-mgmt-sidebar-item" style="cursor:default;color:var(--color-text-secondary);">商品售卖</div>
+        <div class="product-mgmt-sidebar-item product-mgmt-sidebar-sub active" data-view="product">商品</div>
+        <div class="product-mgmt-sidebar-item product-mgmt-sidebar-sub" data-view="package">套餐</div>
+    </aside>
+    <div class="product-mgmt-main">
+        <div class="product-mgmt-toolbar" id="productToolbar">
+            <div class="product-mgmt-cats" id="productCatRow"></div>
+            <div class="product-mgmt-status-row">
+                <button type="button" class="product-mgmt-status-btn active" data-status="all">全部</button>
+                <button type="button" class="product-mgmt-status-btn" data-status="on">上架</button>
+                <button type="button" class="product-mgmt-status-btn" data-status="off">下架</button>
             </div>
-            <div class="cashier-sub-card" style="padding:0; margin:0;">
-                <table class="cashier-sub-table">
-                    <thead>
-                        <tr>
-                            <th>名称</th>
-                            <th>分类</th>
-                            <th>售价</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productTableBody"></tbody>
-                </table>
-                <div class="cashier-sub-empty" id="productEmpty" style="display:none;">暂无商品</div>
+            <div class="product-mgmt-search-row">
+                <div class="product-mgmt-search-wrap">
+                    <span>🔍</span>
+                    <input type="text" id="productSearch" placeholder="请输入商品名称">
+                </div>
             </div>
+        </div>
+        <div class="product-mgmt-table-wrap" id="productViewWrap">
+            <table class="product-mgmt-table" id="productTable">
+                <thead>
+                    <tr>
+                        <th>商品名称</th>
+                        <th>价格</th>
+                        <th>剩余库存</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+            </table>
+            <div class="cashier-sub-empty" id="productEmpty" style="display:none;text-align:center;padding:40px;color:#999;">暂无商品</div>
+        </div>
+        <div class="product-mgmt-table-wrap" id="packageViewWrap" style="display:none;">
+            <table class="product-mgmt-table">
+                <thead>
+                    <tr>
+                        <th>套餐名称</th>
+                        <th>价格</th>
+                        <th>剩余库存</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="packageTableBody"></tbody>
+            </table>
+            <div class="cashier-sub-empty" id="packageEmpty" style="display:none;text-align:center;padding:40px;color:#999;">暂无套餐</div>
         </div>
     </div>
     <script>
         (function () {
-            var categoryNames = {
-                'housekeeping': '家政',
-                'soft-drink': '软饮系列',
-                'beer': '啤酒',
-                'snack': '小吃系列',
-                'other': '其他系列',
-                'wine': '洋酒香槟',
-                'special': '特色斗酒',
-                'rainbow': '彩虹斗酒',
-                'package': '优惠套餐',
-                'department': '百货',
-                'chinese': '中餐'
-            };
-            // 优先从餐饮商品列表写入的 localStorage 读取，保持与餐饮模块统一
-            var products = [];
-            try {
-                var raw = localStorage.getItem('canyinProductList');
-                var list = raw ? JSON.parse(raw) : null;
-                if (Array.isArray(list) && list.length) {
-                    products = list;
-                }
-            } catch (e) { products = []; }
-            if (!products.length) {
-                // 回退到与餐饮商品列表相同的默认数据
-                products = [
-                    { id: 1,  name: '包间卫生清洁',      category: 'housekeeping', categoryName: '家政',       price: 30.00 },
-                    { id: 2,  name: '餐具深度消毒',      category: 'housekeeping', categoryName: '家政',       price: 15.00 },
-                    { id: 3,  name: '可乐（听装）',      category: 'soft-drink',   categoryName: '软饮系列',   price: 8.00 },
-                    { id: 4,  name: '雪碧（听装）',      category: 'soft-drink',   categoryName: '软饮系列',   price: 8.00 },
-                    { id: 5,  name: '鲜榨橙汁',          category: 'soft-drink',   categoryName: '软饮系列',   price: 18.00 },
-                    { id: 6,  name: '青岛纯生（瓶）',    category: 'beer',         categoryName: '啤酒',       price: 12.00 },
-                    { id: 7,  name: '百威啤酒（听装）',  category: 'beer',         categoryName: '啤酒',       price: 10.00 },
-                    { id: 8,  name: '小食拼盘',          category: 'snack',        categoryName: '小吃系列',   price: 28.00 },
-                    { id: 9,  name: '花生米',            category: 'snack',        categoryName: '小吃系列',   price: 15.00 },
-                    { id: 10, name: '拍黄瓜',            category: 'snack',        categoryName: '小吃系列',   price: 12.00 },
-                    { id: 11, name: '纸巾（大包）',      category: 'other',        categoryName: '其他系列',   price: 6.00 },
-                    { id: 12, name: '一次性围兜',        category: 'other',        categoryName: '其他系列',   price: 3.00 },
-                    { id: 13, name: '威士忌（杯）',      category: 'wine',         categoryName: '洋酒香槟',   price: 58.00 },
-                    { id: 14, name: '香槟（瓶）',        category: 'wine',         categoryName: '洋酒香槟',   price: 268.00 },
-                    { id: 15, name: '特色斗酒一号',      category: 'special',      categoryName: '特色斗酒',   price: 88.00 },
-                    { id: 16, name: '特色斗酒二号',      category: 'special',      categoryName: '特色斗酒',   price: 98.00 },
-                    { id: 17, name: '彩虹斗酒套装41支', category: 'rainbow',      categoryName: '彩虹斗酒',   price: 178.00 },
-                    { id: 18, name: '红尘玫瑰17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
-                    { id: 19, name: '猕猴蓝17支',        category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
-                    { id: 20, name: '草莓蜜酒17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
-                    { id: 21, name: '星空17支',          category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
-                    { id: 22, name: '蓝莓之恋17支',      category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
-                    { id: 23, name: '蜜桃17支',          category: 'rainbow',      categoryName: '彩虹斗酒',   price: 118.00 },
-                    { id: 24, name: '优惠套餐A',          category: 'package',      categoryName: '优惠套餐',   price: 198.00 },
-                    { id: 25, name: '优惠套餐B',          category: 'package',      categoryName: '优惠套餐',   price: 298.00 },
-                    { id: 26, name: '零食大礼包',        category: 'department',   categoryName: '百货',       price: 39.90 },
-                    { id: 27, name: '日用品组合装',      category: 'department',   categoryName: '百货',       price: 59.90 },
-                    { id: 28, name: '锅巴肉片',          category: 'chinese',      categoryName: '中餐',       price: 68.00 },
-                    { id: 29, name: '肥肠血旺',          category: 'chinese',      categoryName: '中餐',       price: 45.00 }
-                ];
-            }
+            var params = new URLSearchParams(window.location.search || '');
+            var isMall = params.get('type') === 'mall';
+            var categoryOrder = [ '全部', '优惠套餐', '彩虹斗酒', '特色斗酒', '洋酒香槟', '其他系列', '小吃系列', '啤酒', '软饮系列', '家政', '中餐', '百货' ];
+            var imgBase = '../../../images/';
+            var categoryKeys = { '全部': '', '优惠套餐': 'package', '彩虹斗酒': 'rainbow', '特色斗酒': 'special', '洋酒香槟': 'wine', '其他系列': 'other', '小吃系列': 'snack', '啤酒': 'beer', '软饮系列': 'soft-drink', '家政': 'housekeeping', '中餐': 'chinese', '百货': 'department' };
+            var products = [
+                { id: 28, name: '锅巴肉片', category: 'chinese', categoryName: '中餐', price: 68.00, stock: null, status: 'on', image: '01.jpg' },
+                { id: 29, name: '肥肠血旺', category: 'chinese', categoryName: '中餐', price: 45.00, stock: null, status: 'on', image: '02.jpg' },
+                { id: 17, name: '彩虹斗酒套装41支', category: 'rainbow', categoryName: '彩虹斗酒', price: 178.00, stock: null, status: 'on', image: '03.jpg' },
+                { id: 18, name: '红尘玫瑰17支', category: 'rainbow', categoryName: '彩虹斗酒', price: 118.00, stock: null, status: 'on', image: '04.jpg' },
+                { id: 19, name: '猴赛荔17支', category: 'rainbow', categoryName: '彩虹斗酒', price: 118.00, stock: null, status: 'on', image: '05.jpg' },
+                { id: 20, name: '草莓蜜酒17支', category: 'rainbow', categoryName: '彩虹斗酒', price: 118.00, stock: null, status: 'on', image: '06.jpg' },
+                { id: 21, name: '蓝莓之夜17支', category: 'rainbow', categoryName: '彩虹斗酒', price: 118.00, stock: null, status: 'on', image: '01.jpg' },
+                { id: 22, name: '八月桂花17支', category: 'rainbow', categoryName: '彩虹斗酒', price: 118.00, stock: null, status: 'on', image: '02.jpg' },
+                { id: 23, name: '平衡薄荷17支', category: 'rainbow', categoryName: '彩虹斗酒', price: 118.00, stock: null, status: 'on', image: '03.jpg' },
+                { id: 33, name: '金茉莉晕茶(小)', category: 'special', categoryName: '特色斗酒', price: 128.00, stock: null, status: 'on', image: '04.jpg' },
+                { id: 13, name: '威士忌（杯）', category: 'wine', categoryName: '洋酒香槟', price: 58.00, stock: null, status: 'on', image: '05.jpg' },
+                { id: 14, name: '香槟（瓶）', category: 'wine', categoryName: '洋酒香槟', price: 268.00, stock: null, status: 'on', image: '06.jpg' },
+                { id: 11, name: '纸巾（大包）', category: 'other', categoryName: '其他系列', price: 6.00, stock: null, status: 'on', image: '01.jpg' },
+                { id: 8, name: '小食拼盘', category: 'snack', categoryName: '小吃系列', price: 28.00, stock: null, status: 'on', image: '02.jpg' },
+                { id: 9, name: '花生米', category: 'snack', categoryName: '小吃系列', price: 15.00, stock: null, status: 'on', image: '03.jpg' },
+                { id: 6, name: '青岛纯生（瓶）', category: 'beer', categoryName: '啤酒', price: 12.00, stock: null, status: 'on', image: '04.jpg' },
+                { id: 7, name: '百威啤酒（听装）', category: 'beer', categoryName: '啤酒', price: 10.00, stock: null, status: 'on', image: '05.jpg' },
+                { id: 3, name: '可乐（听装）', category: 'soft-drink', categoryName: '软饮系列', price: 8.00, stock: null, status: 'on', image: '06.jpg' },
+                { id: 4, name: '雪碧（听装）', category: 'soft-drink', categoryName: '软饮系列', price: 8.00, stock: null, status: 'on', image: '01.jpg' },
+                { id: 1, name: '包间卫生清洁', category: 'housekeeping', categoryName: '家政', price: 30.00, stock: null, status: 'on', image: '02.jpg' },
+                { id: 30, name: '优惠套餐A', category: 'package', categoryName: '优惠套餐', price: 198.00, stock: null, status: 'on', image: '03.jpg' },
+                { id: 25, name: '优惠套餐B', category: 'package', categoryName: '优惠套餐', price: 298.00, stock: null, status: 'on', image: '04.jpg' },
+                { id: 26, name: '零食大礼包', category: 'department', categoryName: '百货', price: 39.90, stock: null, status: 'on', image: '05.jpg' }
+            ];
+            var packages = [
+                { id: 1, name: '超值双人套餐', price: 168.00, stock: null, status: 'on', image: '01.jpg' },
+                { id: 2, name: '欢乐斗酒套餐', price: 258.00, stock: null, status: 'on', image: '02.jpg' },
+                { id: 3, name: '彩虹斗酒畅饮套餐', price: 388.00, stock: null, status: 'on', image: '03.jpg' }
+            ];
+            var currentView = 'product';
             var catFilter = '';
+            var statusFilter = 'all';
             var kw = '';
-            function render() {
+
+            function renderCatRow() {
+                var html = categoryOrder.map(function (label) {
+                    var key = categoryKeys[label] !== undefined ? categoryKeys[label] : label;
+                    var active = (key === '' && !catFilter) || catFilter === key ? ' active' : '';
+                    return '<button type="button" class="product-mgmt-cat-btn' + active + '" data-cat="' + key + '">' + label + '</button>';
+                }).join('');
+                document.getElementById('productCatRow').innerHTML = html;
+                document.querySelectorAll('.product-mgmt-cat-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        catFilter = this.dataset.cat || '';
+                        document.querySelectorAll('.product-mgmt-cat-btn').forEach(function (b) { b.classList.remove('active'); });
+                        this.classList.add('active');
+                        renderTable();
+                    });
+                });
+            }
+
+            function renderTable() {
                 var list = products.filter(function (p) {
-                    var cat = p.category || p.categoryName;
-                    if (catFilter && cat !== catFilter) return false;
+                    if (catFilter && (p.category || '') !== catFilter) return false;
+                    if (statusFilter !== 'all' && (p.status || 'on') !== statusFilter) return false;
                     if (kw && !(p.name || '').toLowerCase().includes(kw.toLowerCase())) return false;
                     return true;
                 });
                 var tbody = document.getElementById('productTableBody');
                 var empty = document.getElementById('productEmpty');
-                if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+                if (list.length === 0) {
+                    tbody.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
                 empty.style.display = 'none';
                 tbody.innerHTML = list.map(function (p) {
-                    var cat = p.category || p.categoryName || '';
-                    return '<tr><td>' + (p.name || '') + '</td><td>' + (categoryNames[cat] || p.categoryName || cat) + '</td><td>¥' + (p.price || 0).toFixed(2) + '</td></tr>';
+                    var imgSrc = imgBase + (p.image || '01.jpg');
+                    var thumbHtml = '<img class="product-thumb" src="' + imgSrc + '" alt="" onerror="this.src=\'' + imgBase + '01.jpg\';this.onerror=null;">';
+                    var nameHtml = '<div class="product-name-cell">' + thumbHtml + '<span>' + (p.name || '') + '</span></div>';
+                    var stockText = p.stock != null ? (p.stock + '') : '不限';
+                    return '<tr><td>' + nameHtml + '</td>' +
+                        '<td class="product-price-cell">¥' + (p.price || 0).toFixed(2) + ' <span class="edit-link">编辑</span></td>' +
+                        '<td class="product-stock-cell">' + stockText + ' <span class="edit-link">编辑</span></td>' +
+                        '<td><div class="op-btns"><button type="button" class="op-btn" data-action="off">下架</button><button type="button" class="op-btn" data-action="stop">停售</button></div></td></tr>';
+                }).join('');
+                tbody.querySelectorAll('.product-price-cell .edit-link, .product-stock-cell .edit-link').forEach(function (el) {
+                    el.addEventListener('click', function () { alert('编辑（示例）'); });
+                });
+                tbody.querySelectorAll('.op-btn[data-action="off"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () { alert('下架'); });
+                });
+                tbody.querySelectorAll('.op-btn[data-action="stop"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () { alert('停售'); });
+                });
+            }
+
+            function setView(view) {
+                currentView = view;
+                document.querySelectorAll('.product-mgmt-sidebar-sub').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.view === view);
+                });
+                var showProduct = view === 'product';
+                document.getElementById('productViewWrap').style.display = showProduct ? 'block' : 'none';
+                document.getElementById('packageViewWrap').style.display = showProduct ? 'none' : 'block';
+                document.getElementById('productToolbar').style.display = showProduct ? 'block' : 'none';
+                if (view === 'product') renderTable();
+                else renderPackageTable();
+            }
+            function renderPackageTable() {
+                var tbody = document.getElementById('packageTableBody');
+                var empty = document.getElementById('packageEmpty');
+                if (!packages.length) {
+                    tbody.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+                empty.style.display = 'none';
+                tbody.innerHTML = packages.map(function (p) {
+                    var imgSrc = imgBase + (p.image || '01.jpg');
+                    var nameHtml = '<div class="product-name-cell"><img class="product-thumb" src="' + imgSrc + '" alt="" onerror="this.src=\'' + imgBase + '01.jpg\';this.onerror=null;"><span>' + (p.name || '') + '</span></div>';
+                    var stockText = p.stock != null ? (p.stock + '') : '不限';
+                    return '<tr><td>' + nameHtml + '</td><td class="product-price-cell">¥' + (p.price || 0).toFixed(2) + ' <span class="edit-link">编辑</span></td><td class="product-stock-cell">' + stockText + ' <span class="edit-link">编辑</span></td><td><div class="op-btns"><button type="button" class="op-btn">下架</button><button type="button" class="op-btn">停售</button></div></td></tr>';
                 }).join('');
             }
-            document.getElementById('productCategory').addEventListener('change', function () { catFilter = this.value || ''; render(); });
-            document.getElementById('productSearch').addEventListener('input', function () { kw = this.value.trim(); });
-            document.getElementById('productSearchBtn').addEventListener('click', function () { render(); });
-            render();
+            document.querySelectorAll('.product-mgmt-sidebar-sub').forEach(function (el) {
+                el.addEventListener('click', function () {
+                    setView(this.dataset.view || 'product');
+                });
+            });
+            document.querySelectorAll('.product-mgmt-status-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    statusFilter = this.dataset.status || 'all';
+                    document.querySelectorAll('.product-mgmt-status-btn').forEach(function (b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    renderTable();
+                });
+            });
+            document.getElementById('productSearch').addEventListener('input', function () { kw = this.value.trim(); renderTable(); });
+
+            renderCatRow();
+            setView('product');
         })();
     </script>
 </body>

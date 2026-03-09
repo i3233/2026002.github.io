@@ -3,94 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单 - 餐饮收银台</title>
+    <title>订单管理 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
     <link rel="stylesheet" href="../../../css/收银台子页面.css">
+    <style>
+        .order-mgmt-page { display: flex; flex-direction: column; height: 100vh; margin: 0; padding: 0; background: var(--color-neutral-50); overflow: hidden; }
+        .order-mgmt-top { flex-shrink: 0; background: #fff; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200); }
+        .order-mgmt-title-row { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-sm); }
+        .order-mgmt-title { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
+        .order-mgmt-count { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+        .order-mgmt-refresh { width: 32px; height: 32px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .order-mgmt-type-tabs { display: flex; gap: 4px; margin-bottom: var(--spacing-sm); flex-wrap: wrap; }
+        .order-mgmt-type-tab { padding: 6px 14px; border: none; border-radius: var(--radius-md); background: var(--color-neutral-100); color: var(--color-text-secondary); font-size: var(--font-size-sm); cursor: pointer; }
+        .order-mgmt-type-tab.active { background: var(--color-primary); color: #fff; }
+        .order-mgmt-filter-row { display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap; }
+        .order-mgmt-date { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .order-mgmt-dropdown { padding: 6px 10px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-sm); background: #fff; }
+        .order-mgmt-fetch { padding: 6px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-primary); color: var(--color-primary); background: #fff; font-size: var(--font-size-sm); cursor: pointer; }
+        .order-mgmt-body { flex: 1; display: flex; min-height: 0; }
+        .order-mgmt-left { width: 320px; flex-shrink: 0; background: #fff; border-right: 1px solid var(--color-neutral-200); overflow-y: auto; padding: var(--spacing-sm); }
+        .order-mgmt-card { padding: var(--spacing-md); margin-bottom: var(--spacing-sm); border-radius: var(--radius-md); border: 1px solid var(--color-neutral-200); background: #fff; cursor: pointer; border-left: 3px solid transparent; }
+        .order-mgmt-card:hover { background: var(--color-neutral-50); }
+        .order-mgmt-card.selected { background: #f0f9eb; border-left-color: var(--color-primary); }
+        .order-mgmt-card-no { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); margin-bottom: 4px; }
+        .order-mgmt-card-badge { display: inline-block; padding: 2px 6px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); background: var(--color-primary); color: #fff; margin-bottom: 4px; }
+        .order-mgmt-card-status { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: 2px; }
+        .order-mgmt-card-time { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: 2px; }
+        .order-mgmt-card-tail { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: 4px; }
+        .order-mgmt-card-pay { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-danger); }
+        .order-mgmt-card-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .order-mgmt-card-action { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--color-primary); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .order-mgmt-right { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff; overflow: hidden; }
+        .order-detail-inner { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+        .order-detail-header { margin-bottom: var(--spacing-lg); }
+        .order-detail-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0 0 var(--spacing-sm); }
+        .order-detail-meta { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 4px; }
+        .order-detail-meta a { color: var(--color-primary); margin-left: var(--spacing-md); }
+        .order-detail-row { display: flex; flex-wrap: wrap; gap: var(--spacing-lg) var(--spacing-xl); margin-bottom: var(--spacing-md); font-size: var(--font-size-sm); }
+        .order-detail-label { color: var(--color-text-secondary); }
+        .order-detail-copy { padding: 2px 8px; font-size: var(--font-size-xs); border-radius: var(--radius-sm); background: var(--color-primary); color: #fff; border: none; cursor: pointer; margin-left: 8px; }
+        .order-detail-section { margin-bottom: var(--spacing-lg); }
+        .order-detail-section-title { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); margin: 0 0 var(--spacing-sm); }
+        .order-detail-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .order-detail-table th, .order-detail-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--color-neutral-200); }
+        .order-detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+        .order-detail-table .text-right { text-align: right; }
+        .order-detail-payrow { display: flex; justify-content: space-between; padding: 4px 0; font-size: var(--font-size-sm); }
+        .order-detail-payrow.total { font-weight: var(--font-weight-bold); color: var(--color-danger); }
+        .order-mgmt-footer { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); background: #fff; border-top: 1px solid var(--color-neutral-200); }
+        .order-footer-btn { padding: 8px 20px; border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; border: 1px solid var(--color-neutral-300); background: #fff; }
+        .order-footer-btn.primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+        .order-footer-btn.green { background: #f0f9eb; color: var(--color-primary); border-color: var(--color-primary); }
+        .order-footer-right { display: flex; gap: var(--spacing-sm); }
+    </style>
 </head>
-<body class="cashier-sub-body">
-    <div class="cashier-sub-container">
-        <h1 class="cashier-sub-title">订单</h1>
-        <div class="cashier-sub-card">
-            <div class="cashier-sub-tabs">
-                <button type="button" class="cashier-sub-tab active" data-tab="today">今日订单</button>
-                <button type="button" class="cashier-sub-tab" data-tab="all">全部订单</button>
+<body class="order-mgmt-page">
+    <div class="order-mgmt-top">
+        <div class="order-mgmt-title-row">
+            <h1 class="order-mgmt-title">订单管理</h1>
+            <span class="order-mgmt-count" id="orderCount">0</span>
+            <button type="button" class="order-mgmt-refresh" id="orderRefresh" title="刷新">↻</button>
+        </div>
+        <div class="order-mgmt-type-tabs">
+            <button type="button" class="order-mgmt-type-tab active" data-type="all">全部</button>
+            <button type="button" class="order-mgmt-type-tab" data-type="cashier">收银台</button>
+            <button type="button" class="order-mgmt-fetch" id="btnVerifyOrder" style="margin-left:auto;">核销订单</button>
+        </div>
+        <div class="order-mgmt-filter-row">
+            <span class="order-mgmt-date" id="orderDateRange">下单: 2026-03-08 00:00 - 2026-03-08 23:59</span>
+            <select class="order-mgmt-dropdown" id="filterStatus"><option value="">订单状态</option><option value="making">制作中</option><option value="done">制作完成</option></select>
+            <select class="order-mgmt-dropdown" id="filterSource"><option value="">订单来源</option></select>
+            <select class="order-mgmt-dropdown" id="filterPayType"><option value="">支付类型</option></select>
+            <button type="button" class="order-mgmt-fetch" id="btnFetchOrder">取单</button>
+        </div>
+    </div>
+    <div class="order-mgmt-body">
+        <div class="order-mgmt-left" id="orderListLeft">
+            <!-- 订单卡片由 JS 渲染 -->
+        </div>
+        <div class="order-mgmt-right">
+            <div class="order-detail-inner" id="orderDetailArea">
+                <!-- 选中订单详情由 JS 渲染 -->
+                <div class="order-detail-placeholder" id="orderDetailPlaceholder" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-secondary);">请从左侧选择订单</div>
             </div>
-            <div class="cashier-sub-filter">
-                <input type="text" id="orderSearch" placeholder="订单号/桌台" style="width:180px;">
-                <select id="orderStatus">
-                    <option value="">全部状态</option>
-                    <option value="pending">待结账</option>
-                    <option value="paid">已结账</option>
-                    <option value="refund">已退单</option>
-                </select>
-                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="orderSearchBtn">查询</button>
-            </div>
-            <div class="cashier-sub-card" style="padding:0; margin:0;">
-                <table class="cashier-sub-table">
-                    <thead>
-                        <tr>
-                            <th>订单号</th>
-                            <th>桌台</th>
-                            <th>商品数</th>
-                            <th>金额</th>
-                            <th>状态</th>
-                            <th>时间</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orderTableBody"></tbody>
-                </table>
-                <div class="cashier-sub-empty" id="orderEmpty" style="display:none;">暂无订单</div>
+            <div class="order-mgmt-footer">
+                <button type="button" class="order-footer-btn green" id="btnPrint">打印小票</button>
+                <div class="order-footer-right">
+                    <button type="button" class="order-footer-btn" id="btnCancel">退单</button>
+                    <button type="button" class="order-footer-btn" id="btnRefund">退款</button>
+                    <button type="button" class="order-footer-btn" id="btnNote">备注</button>
+                </div>
             </div>
         </div>
     </div>
     <script>
         (function () {
-            var currentTab = 'today';
-            var statusFilter = '';
-            var searchKw = '';
-            var orders = [
-                { orderNo: 'OD20260203001', tableCode: 'A02', itemCount: 5, total: 268.00, status: 'paid', time: '2026-02-03 12:30' },
-                { orderNo: 'OD20260203002', tableCode: 'A05', itemCount: 3, total: 89.00, status: 'pending', time: '2026-02-03 13:15' },
-                { orderNo: 'OD20260203003', tableCode: 'B01', itemCount: 8, total: 456.00, status: 'paid', time: '2026-02-03 14:00' }
+            // 商品与桌位点单系统一致（来自 桌位.html tableOrderProductData）
+            var productMaster = [
+                { id: 1, name: '红牛', price: 15 }, { id: 2, name: '旺仔牛奶', price: 15 }, { id: 3, name: '王老吉（听装）', price: 10 },
+                { id: 4, name: '可乐（听装）', price: 8 }, { id: 5, name: '红茶', price: 8 }, { id: 6, name: '农夫山泉550ml', price: 8 },
+                { id: 7, name: '苏打水', price: 10 }, { id: 8, name: '雪碧', price: 8 }, { id: 9, name: '脉动', price: 12 },
+                { id: 10, name: '百威经典（半打）', price: 108 }, { id: 11, name: '百威经典（一打）', price: 198 },
+                { id: 12, name: '科罗娜（半打）', price: 158 }, { id: 13, name: '科罗娜（一打）', price: 298 },
+                { id: 16, name: '福佳白（半打）', price: 138 }, { id: 18, name: '1664桃红（半打）', price: 198 },
+                { id: 22, name: '崂山啤酒（半打）', price: 68 }, { id: 23, name: '崂山啤酒（一打）', price: 128 },
+                { id: 26, name: '小食拼盘', price: 28 }, { id: 27, name: '花生米', price: 15 }, { id: 28, name: '瓜子', price: 12 },
+                { id: 31, name: '威士忌', price: 388 }, { id: 32, name: '白兰地', price: 488 }, { id: 39, name: '宫保鸡丁', price: 38 }, { id: 40, name: '麻婆豆腐', price: 28 }
             ];
-            function statusText(s) { return { pending: '待结账', paid: '已结账', refund: '已退单' }[s] || s; }
-            function statusClass(s) { return { pending: 'cashier-sub-badge-warning', paid: 'cashier-sub-badge-success', refund: 'cashier-sub-badge-danger' }[s] || ''; }
-            function render() {
-                var list = orders.filter(function (o) {
-                    if (statusFilter && o.status !== statusFilter) return false;
-                    if (searchKw) {
-                        var k = searchKw.toLowerCase();
-                        if ((o.orderNo || '').toLowerCase().indexOf(k) < 0 && (o.tableCode || '').toLowerCase().indexOf(k) < 0) return false;
-                    }
+            var orders = [
+                { id: 103, type: '堂食', typeBadge: '堂食', status: 'making', statusText: '制作中', itemCount: 10, orderTime: '2026-03-08 11:44:55', tailNo: '924170', payAmount: 1210.00, storeName: '测试', orderType: '收银订单', orderSn: 'SN8320260308110842924170', diners: 1, cashier: '13000000001', customer: '', discount: 78, payMethod: '现金支付', items: [
+                    { name: '科罗娜（一打）', qty: 1, price: 298 }, { name: '1664桃红（半打）', qty: 1, price: 198 }, { name: '福佳白（半打）', qty: 1, price: 138 }, { name: '百威经典（一打）', qty: 1, price: 198 }, { name: '威士忌', qty: 1, price: 388 }, { name: '小食拼盘', qty: 1, price: 28 }, { name: '红茶', qty: 1, price: 8 }, { name: '可乐（听装）', qty: 1, price: 8 }, { name: '王老吉（听装）', qty: 1, price: 10 }, { name: '花生米', qty: 1, price: 15 }
+                ] },
+                { id: 102, type: '堂食', typeBadge: '堂食', status: 'making', statusText: '制作中', itemCount: 12, orderTime: '2026-03-08 11:44:32', tailNo: '279683', payAmount: 977.60, storeName: '测试', orderType: '收银订单', orderSn: 'SN832026030811044279683', diners: 2, cashier: '13000000001', customer: '', discount: 0, payMethod: '现金支付', items: [
+                    { name: '崂山啤酒（一打）', qty: 1, price: 128 }, { name: '百威经典（半打）', qty: 2, price: 108 }, { name: '福佳白（半打）', qty: 1, price: 138 }, { name: '小食拼盘', qty: 2, price: 28 }, { name: '宫保鸡丁', qty: 1, price: 38 }, { name: '麻婆豆腐', qty: 1, price: 28 }, { name: '红茶', qty: 2, price: 8 }, { name: '可乐（听装）', qty: 2, price: 8 }, { name: '瓜子', qty: 1, price: 12 }
+                ] },
+                { id: 101, type: '堂食', typeBadge: '堂食', status: 'making', statusText: '制作中', itemCount: 10, orderTime: '2026-03-08 11:42:18', tailNo: '593416', payAmount: 700.80, storeName: '测试', orderType: '收银订单', orderSn: 'SN832026030811042593416', diners: 1, cashier: '13000000001', customer: '', discount: 0, payMethod: '现金支付', items: [
+                    { name: '科罗娜（半打）', qty: 1, price: 158 }, { name: '1664桃红（半打）', qty: 1, price: 198 }, { name: '白兰地', qty: 1, price: 488 }, { name: '花生米', qty: 2, price: 15 }, { name: '红茶', qty: 1, price: 8 }, { name: '雪碧', qty: 1, price: 8 }
+                ] },
+                { id: 100, type: '堂食', typeBadge: '堂食', status: 'making', statusText: '制作中', itemCount: 6, orderTime: '2026-03-08 11:00:05', tailNo: '302798', payAmount: 660.00, storeName: '测试', orderType: '收银订单', orderSn: 'SN832026030811000302798', diners: 2, cashier: '13000000001', customer: '', discount: 0, payMethod: '现金支付', items: [
+                    { name: '百威经典（一打）', qty: 1, price: 198 }, { name: '崂山啤酒（一打）', qty: 1, price: 128 }, { name: '小食拼盘', qty: 2, price: 28 }, { name: '宫保鸡丁', qty: 2, price: 38 }, { name: '可乐（听装）', qty: 2, price: 8 }
+                ] }
+            ];
+            var currentType = 'all';
+            var selectedOrderId = 103;
+
+            function getFilteredOrders() {
+                return orders.filter(function (o) {
+                    if (currentType !== 'all' && (o.type !== currentType && o.orderType !== currentType)) return false;
                     return true;
                 });
-                var tbody = document.getElementById('orderTableBody');
-                var empty = document.getElementById('orderEmpty');
-                if (list.length === 0) {
-                    tbody.innerHTML = '';
-                    empty.style.display = 'block';
+            }
+
+            function renderList() {
+                var list = getFilteredOrders();
+                document.getElementById('orderCount').textContent = list.length;
+                var html = list.map(function (o) {
+                    var selected = o.id === selectedOrderId ? ' selected' : '';
+                    return '<div class="order-mgmt-card' + selected + '" data-id="' + o.id + '">' +
+                        '<div class="order-mgmt-card-row">' +
+                        '<div><div class="order-mgmt-card-no">单号: ' + o.id + '</div>' +
+                        '<span class="order-mgmt-card-badge">' + (o.typeBadge || '堂食') + '</span>' +
+                        '<div class="order-mgmt-card-status">(' + (o.itemCount || 0) + '份) ' + (o.statusText || '制作中') + '</div>' +
+                        '<div class="order-mgmt-card-time">下单: ' + (o.orderTime || '').slice(5, 16).replace('-', '/') + '</div>' +
+                        '<div class="order-mgmt-card-tail">订单尾号: ' + (o.tailNo || '') + '</div>' +
+                        '<div class="order-mgmt-card-pay">支付金额: ¥' + (o.payAmount || 0).toFixed(2) + '</div></div>' +
+                        '<button type="button" class="order-mgmt-card-action" title="打印">▶</button></div></div>';
+                }).join('');
+                var el = document.getElementById('orderListLeft');
+                el.innerHTML = html || '<div style="padding:16px;color:#999;">暂无订单</div>';
+                el.querySelectorAll('.order-mgmt-card').forEach(function (card) {
+                    card.addEventListener('click', function () {
+                        selectedOrderId = parseInt(this.dataset.id, 10);
+                        renderList();
+                        renderDetail();
+                    });
+                });
+                el.querySelectorAll('.order-mgmt-card-action').forEach(function (btn) {
+                    btn.addEventListener('click', function (e) { e.stopPropagation(); alert('打印小票'); });
+                });
+            }
+
+            function renderDetail() {
+                var o = orders.filter(function (x) { return x.id === selectedOrderId; })[0];
+                var placeholder = document.getElementById('orderDetailPlaceholder');
+                if (!o) {
+                    if (placeholder) placeholder.style.display = 'flex';
+                    document.getElementById('orderDetailArea').innerHTML = '';
+                    document.getElementById('orderDetailArea').appendChild(placeholder);
                     return;
                 }
-                empty.style.display = 'none';
-                tbody.innerHTML = list.map(function (o) {
-                    return '<tr><td>' + (o.orderNo || '') + '</td><td>' + (o.tableCode || '') + '</td><td>' + (o.itemCount || 0) + '</td><td>¥' + (o.total || 0).toFixed(2) + '</td><td><span class="cashier-sub-badge ' + statusClass(o.status) + '">' + statusText(o.status) + '</span></td><td>' + (o.time || '') + '</td><td><button type="button" class="cashier-sub-btn" data-no="' + (o.orderNo || '') + '" data-action="print">打印小票</button> <button type="button" class="cashier-sub-btn" data-no="' + (o.orderNo || '') + '" data-action="detail">详情</button></td></tr>';
+                if (placeholder) placeholder.style.display = 'none';
+                var itemsHtml = (o.items || []).map(function (it) {
+                    return '<tr><td>' + (it.name || '') + '</td><td class="text-right">x' + (it.qty || 1) + '</td><td class="text-right">¥' + (it.price || 0).toFixed(2) + '</td></tr>';
                 }).join('');
-                tbody.querySelectorAll('[data-action="print"]').forEach(function (btn) { btn.addEventListener('click', function () { alert('打印小票：' + this.dataset.no); }); });
-                tbody.querySelectorAll('[data-action="detail"]').forEach(function (btn) { btn.addEventListener('click', function () { alert('订单详情：' + this.dataset.no); }); });
+                var total = (o.items || []).reduce(function (s, it) { return s + (it.price || 0) * (it.qty || 1); }, 0);
+                var discount = o.discount || 0;
+                var payAmount = o.payAmount != null ? o.payAmount : total - discount;
+                var html = '<div class="order-detail-header">' +
+                    '<div class="order-detail-meta">原单号: ' + o.id + ' &nbsp; 订单类型: ' + (o.orderType || '') + ' &nbsp; 订单编号: ' + (o.orderSn || '') + '<button type="button" class="order-detail-copy" data-sn="' + (o.orderSn || '') + '">复制</button></div>' +
+                    '<div class="order-detail-meta">下单时间: ' + (o.orderTime || '') + '</div>' +
+                    '<div class="order-detail-meta">下单门店: ' + (o.storeName || '') + '</div>' +
+                    '<div class="order-detail-row"><span class="order-detail-label">客户:</span> ' + (o.customer || '') + ' &nbsp; <span class="order-detail-label">收银员:</span> ' + (o.cashier || '') + ' &nbsp; <span class="order-detail-label">支付金额:</span> <span style="color:var(--color-danger);font-weight:bold;">¥' + payAmount.toFixed(2) + '</span></div>' +
+                    '</div>' +
+                    '<div class="order-detail-section"><h3 class="order-detail-section-title">商品</h3>' +
+                    '<table class="order-detail-table"><thead><tr><th>商品</th><th class="text-right">数量</th><th class="text-right">单价</th></tr></thead><tbody>' + itemsHtml + '</tbody></table></div>' +
+                    '<div class="order-detail-section"><h3 class="order-detail-section-title">支付信息</h3>' +
+                    '<div class="order-detail-payrow"><span>商品总价</span><span>¥' + total.toFixed(2) + '</span></div>' +
+                    '<div class="order-detail-payrow"><span>订单优惠金额</span><span>¥' + discount.toFixed(2) + '</span></div>' +
+                    '<div class="order-detail-payrow"><span>' + (o.payMethod || '现金支付') + '</span><span>¥' + payAmount.toFixed(2) + '</span></div>' +
+                    '<div class="order-detail-payrow total"><span>订单支付金额</span><span>¥' + payAmount.toFixed(2) + '</span></div></div>' +
+                    '<div class="order-detail-section"><div class="order-detail-meta">用户备注: 无</div><div class="order-detail-meta">商家备注: 无</div></div>';
+                var area = document.getElementById('orderDetailArea');
+                var ph = document.getElementById('orderDetailPlaceholder');
+                area.innerHTML = html;
+                if (ph && ph.parentNode) ph.parentNode.removeChild(ph);
+                area.querySelectorAll('.order-detail-copy').forEach(function (btn) {
+                    btn.addEventListener('click', function () { navigator.clipboard && navigator.clipboard.writeText(this.dataset.sn || ''); alert('已复制订单编号'); });
+                });
             }
-            document.querySelectorAll('.cashier-sub-tab').forEach(function (t) {
+
+            document.querySelectorAll('.order-mgmt-type-tab').forEach(function (t) {
                 t.addEventListener('click', function () {
-                    document.querySelectorAll('.cashier-sub-tab').forEach(function (x) { x.classList.remove('active'); });
+                    document.querySelectorAll('.order-mgmt-type-tab').forEach(function (x) { x.classList.remove('active'); });
                     this.classList.add('active');
-                    currentTab = this.dataset.tab || 'today';
-                    render();
+                    currentType = this.dataset.type || 'all';
+                    renderList();
                 });
             });
-            document.getElementById('orderStatus').addEventListener('change', function () { statusFilter = this.value || ''; render(); });
-            document.getElementById('orderSearch').addEventListener('input', function () { searchKw = this.value.trim(); });
-            document.getElementById('orderSearchBtn').addEventListener('click', function () { render(); });
-            render();
+            document.getElementById('orderRefresh').addEventListener('click', function () { renderList(); renderDetail(); });
+            document.getElementById('btnFetchOrder').addEventListener('click', function () { alert('取单'); });
+            document.getElementById('btnVerifyOrder').addEventListener('click', function () { alert('核销订单'); });
+            document.getElementById('btnPrint').addEventListener('click', function () { alert('打印小票'); });
+            document.getElementById('btnCancel').addEventListener('click', function () { alert('退单'); });
+            document.getElementById('btnRefund').addEventListener('click', function () { alert('退款'); });
+            document.getElementById('btnNote').addEventListener('click', function () { alert('备注'); });
+
+            renderList();
+            renderDetail();
         })();
     </script>
 </body>
