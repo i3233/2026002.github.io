@@ -52,15 +52,8 @@ function copyEntryLink() {
 }
 
 function enterPos() {
-    try {
-        if (window.parent && typeof window.parent.loadPage === 'function') {
-            window.parent.loadPage({ preventDefault: function() {} }, POS_PAGE_PATH, '商超收银台');
-        } else {
-            window.location.href = '../收银台/收银台主界面.html?type=mall';
-        }
-    } catch (e) {
-        window.location.href = '../收银台/收银台主界面.html?type=mall';
-    }
+    // 在新窗口中打开商超收银台主界面
+    window.open('../收银台/收银台主界面.html?type=mall', '_blank');
 }
 
 function selectCategory() {
