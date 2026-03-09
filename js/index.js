@@ -17,7 +17,7 @@ const menuData = [
             {
                 title: "采购",
                 children: [
-                    { title: "采购订单", path: "pages/商超/采购订单.html" },
+                    { title: "采购计划", path: "pages/商超/采购订单.html" },
                     { title: "采购入库", path: "pages/商超/采购入库.html" },
                     { title: "采购退货", path: "pages/商超/采购退货.html" }
                 ]
@@ -25,27 +25,38 @@ const menuData = [
             {
                 title: "销售",
                 children: [
-                    { title: "全部订单", path: "pages/商超/全部订单.html" },
-                    { title: "线上订单", path: "pages/商超/线上订单.html" },
-                    { title: "收银台订单", path: "pages/商超/收银台订单.html" },
-                    { title: "批发订单", path: "pages/商超/批发订单.html" }
+                    { title: "零售管理", path: "pages/商超/全部订单.html" },
+                    { title: "批发管理", path: "pages/商超/批发订单.html" }
                 ]
             },
             {
                 title: "库存",
                 children: [
                     { title: "库存查询", path: "pages/商超/库存查询.html" },
-                    { title: "调拨处理", path: "pages/商超/调拨处理.html" }
+                    { title: "增加库存", path: "pages/商超/增加库存.html" },
+                    { title: "减少库存", path: "pages/商超/减少库存.html" },
+                    { title: "库存盘点", path: "pages/商超/库存盘点.html" }
                 ]
             },
             {
                 title: "报表",
                 children: [
                     { title: "当日结存单", path: "pages/商超/当日结存单.html" },
-                    { title: "历史结存", path: "pages/商超/历史结存.html" }
+                    { title: "历史结存", path: "pages/商超/历史结存.html" },
+                    { title: "业绩明细", path: "pages/商超/业绩明细.html" },
+                    { title: "交班记录", path: "pages/商超/交班记录.html" }
                 ]
             },
-            { title: "商超收银台", path: "pages/商超/收银台基础设置.html" },
+            {
+                title: "商超收银台",
+                children: [
+                    { title: "基础设置", path: "pages/商超/收银台基础设置.html" },
+                    { title: "收银员", path: "pages/商超/收银员.html" },
+                    { title: "导购员", path: "pages/商超/导购员.html" },
+                    { title: "服务员", path: "pages/商超/服务员.html" },
+                    { title: "打印设置", path: "pages/商超/打印设置.html" }
+                ]
+            },
             {
                 title: "设置",
                 children: [

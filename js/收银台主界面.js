@@ -1,9 +1,9 @@
 // 收银台主界面交互逻辑
 
-// 菜单页面配置（点单已整合到桌位内，不再单独入口）
+// 菜单页面配置（点单对应桌位页，内含点单浮层）
 const menuPages = {
     'table': {
-        name: '桌位',
+        name: '点单',
         path: '子页面/桌位.html'
     },
     'order-list': {
@@ -14,10 +14,6 @@ const menuPages = {
         name: '商品',
         path: '子页面/商品.html'
     },
-    'queue': {
-        name: '排号',
-        path: '子页面/排号.html'
-    },
     'finance': {
         name: '财务',
         path: '子页面/财务.html'
@@ -25,10 +21,6 @@ const menuPages = {
     'member': {
         name: '会员',
         path: '子页面/会员.html'
-    },
-    'kitchen': {
-        name: '制作',
-        path: '子页面/制作.html'
     },
     'settings': {
         name: '设置',
@@ -60,11 +52,11 @@ function applyUrlTypeParam() {
 document.addEventListener('DOMContentLoaded', function() {
     applyUrlTypeParam();
     initMenuEvents();
-    initPowerButton();
+    initShiftButton();
     initTypeSwitch();
     var type = getCashierType();
-    var defaultMenu = type === 'mall' ? 'product' : 'table';
-    // 商超模式默认加载商品页，餐饮模式默认加载桌位页
+    var defaultMenu = 'table';
+    // 默认进入桌位界面（餐饮/商超均一致）
     document.querySelectorAll('.cashier-menu-item[data-menu]').forEach(function(item) {
         item.classList.toggle('active', item.dataset.menu === defaultMenu);
     });
@@ -137,16 +129,65 @@ window.addEventListener('message', function (e) {
     }
 });
 
-// 初始化电源按钮
-function initPowerButton() {
-    const powerBtn = document.getElementById('powerBtn');
-    if (powerBtn) {
-        powerBtn.addEventListener('click', function() {
-            if (confirm('请选择操作：\n1. 确定 - 注销登录\n2. 取消 - 取消操作')) {
-                // 执行注销登录逻辑
-                console.log('注销登录');
-                // window.location.href = '../../index.html';
-            }
+// 交班数据弹窗
+function getShiftUpdateTimeStr() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    var h = String(d.getHours()).padStart(2, '0');
+    var min = String(d.getMinutes()).padStart(2, '0');
+    var s = String(d.getSeconds()).padStart(2, '0');
+    return y + '-' + m + '-' + day + ' ' + h + ':' + min + ':' + s + ' 已更新';
+}
+
+function showShiftModal() {
+    var modal = document.getElementById('shiftModal');
+    if (modal) {
+        document.getElementById('shiftUpdateTime').textContent = getShiftUpdateTimeStr();
+        modal.classList.add('shift-modal-show');
+    }
+}
+
+function hideShiftModal() {
+    var modal = document.getElementById('shiftModal');
+    if (modal) modal.classList.remove('shift-modal-show');
+}
+
+function initShiftModal() {
+    var modal = document.getElementById('shiftModal');
+    var backdrop = modal && modal.querySelector('.shift-modal-backdrop');
+    var refreshBtn = document.getElementById('shiftRefreshBtn');
+    var closeBtn = document.getElementById('shiftCloseBtn');
+    var submitBtn = document.getElementById('shiftSubmitBtn');
+    if (backdrop) {
+        backdrop.addEventListener('click', function () { hideShiftModal(); });
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () { hideShiftModal(); });
+    }
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+            document.getElementById('shiftUpdateTime').textContent = getShiftUpdateTimeStr();
         });
     }
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function () {
+            var needPrint = document.getElementById('shiftPrintReceipt') && document.getElementById('shiftPrintReceipt').checked;
+            hideShiftModal();
+            if (needPrint) alert('已打印交接班小票（示例）');
+            alert('交接班成功，请重新登录（示例）');
+        });
+    }
+}
+
+// 初始化交班按钮
+function initShiftButton() {
+    const shiftBtn = document.getElementById('shiftBtn');
+    if (shiftBtn) {
+        shiftBtn.addEventListener('click', function() {
+            showShiftModal();
+        });
+    }
+    initShiftModal();
 }
