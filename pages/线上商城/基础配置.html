@@ -11,7 +11,7 @@
     <div class="mall-config-container">
         <div class="mall-config-header">
             <h1 class="mall-config-title">基础配置</h1>
-            <p class="mall-config-subtitle">配置线上商城/小程序的基础信息、订单、配送与支付等</p>
+            <p class="mall-config-subtitle">配置线上商城/小程序的店铺信息与小程序设置，订单、配送、支付请前往 商超 → 设置</p>
         </div>
 
         <!-- 店铺信息 -->
@@ -76,95 +76,17 @@
             </div>
         </div>
 
-        <!-- 订单设置 -->
+        <!-- 订单 / 配送 / 支付设置（已统一到商超→设置） -->
         <div class="mall-config-card">
             <div class="mall-config-card-header">
-                <h3 class="mall-config-card-title">订单设置</h3>
-                <div class="mall-config-card-desc">订单超时与自动处理规则</div>
+                <h3 class="mall-config-card-title">订单 / 配送 / 支付设置</h3>
+                <div class="mall-config-card-desc">订单、配送、支付相关配置已统一在 商超 → 设置 中管理，避免重复配置</div>
             </div>
             <div class="mall-config-card-body">
-                <div class="mall-config-item">
-                    <label class="mall-config-label">未支付自动取消（分钟）</label>
-                    <input type="number" class="mall-config-input mall-config-input-sm" id="unpaidCancelMinutes" value="30" min="1">
-                </div>
-                <div class="mall-config-item">
-                    <label class="mall-config-label">订单自动完成（天）</label>
-                    <input type="number" class="mall-config-input mall-config-input-sm" id="autoCompleteDays" value="7" min="1" placeholder="发货后多少天自动完成">
-                </div>
-                <div class="mall-config-item mall-config-item-row">
-                    <div class="mall-config-label-wrap">
-                        <label class="mall-config-label">允许用户取消订单</label>
-                        <span class="mall-config-desc">未发货前用户可取消</span>
-                    </div>
-                    <label class="mall-config-switch">
-                        <input type="checkbox" id="allowUserCancel" checked>
-                        <span class="mall-config-slider"></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- 配送设置 -->
-        <div class="mall-config-card">
-            <div class="mall-config-card-header">
-                <h3 class="mall-config-card-title">配送设置</h3>
-                <div class="mall-config-card-desc">起送价、配送费、配送范围</div>
-            </div>
-            <div class="mall-config-card-body">
-                <div class="mall-config-item mall-config-item-row">
-                    <div class="mall-config-label-wrap">
-                        <label class="mall-config-label">支持配送</label>
-                        <span class="mall-config-desc">开启后用户可选择配送到家</span>
-                    </div>
-                    <label class="mall-config-switch">
-                        <input type="checkbox" id="enableDelivery" checked>
-                        <span class="mall-config-slider"></span>
-                    </label>
-                </div>
-                <div class="mall-config-item">
-                    <label class="mall-config-label">起送金额（元）</label>
-                    <input type="number" class="mall-config-input mall-config-input-sm" id="minOrderAmount" value="0" min="0" step="0.01">
-                </div>
-                <div class="mall-config-item">
-                    <label class="mall-config-label">默认配送费（元）</label>
-                    <input type="number" class="mall-config-input mall-config-input-sm" id="deliveryFee" value="5" min="0" step="0.01">
-                </div>
-                <div class="mall-config-item">
-                    <label class="mall-config-label">免配送费金额（元）</label>
-                    <input type="number" class="mall-config-input mall-config-input-sm" id="freeDeliveryAmount" value="99" min="0" step="0.01" placeholder="满多少元免配送费">
-                </div>
-                <div class="mall-config-item">
-                    <label class="mall-config-label">配送范围（公里）</label>
-                    <input type="number" class="mall-config-input mall-config-input-sm" id="deliveryRadius" value="5" min="1" placeholder="默认配送半径">
-                </div>
-            </div>
-        </div>
-
-        <!-- 支付设置 -->
-        <div class="mall-config-card">
-            <div class="mall-config-card-header">
-                <h3 class="mall-config-card-title">支付设置</h3>
-                <div class="mall-config-card-desc">小程序内可用支付方式</div>
-            </div>
-            <div class="mall-config-card-body">
-                <div class="mall-config-item mall-config-item-row">
-                    <div class="mall-config-label-wrap">
-                        <label class="mall-config-label">微信支付</label>
-                    </div>
-                    <label class="mall-config-switch">
-                        <input type="checkbox" id="enableWechatPay" checked>
-                        <span class="mall-config-slider"></span>
-                    </label>
-                </div>
-                <div class="mall-config-item mall-config-item-row">
-                    <div class="mall-config-label-wrap">
-                        <label class="mall-config-label">余额支付</label>
-                        <span class="mall-config-desc">用户账户余额可支付订单</span>
-                    </div>
-                    <label class="mall-config-switch">
-                        <input type="checkbox" id="enableBalancePay">
-                        <span class="mall-config-slider"></span>
-                    </label>
+                <div class="mall-config-item" style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                    <a href="../商超/设置/订单.html" target="_blank" class="mall-config-btn mall-config-btn-outline" style="text-decoration: none;">订单设置</a>
+                    <a href="../商超/设置/配送.html" target="_blank" class="mall-config-btn mall-config-btn-outline" style="text-decoration: none;">配送设置</a>
+                    <a href="../商超/设置/支付.html" target="_blank" class="mall-config-btn mall-config-btn-outline" style="text-decoration: none;">支付设置</a>
                 </div>
             </div>
         </div>
