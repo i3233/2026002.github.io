@@ -343,6 +343,9 @@
 }
 
 /* ========== 中间号牌区 ========== */
+.order-number-actions.hidden {
+    display: none !important;
+}
 .order-middle-panel {
     width: 100px;
     background-color: #ffffff;
@@ -479,6 +482,36 @@
     background-color: var(--color-neutral-100);
     border-color: var(--color-primary);
     color: var(--color-primary);
+}
+
+.order-qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+}
+.order-qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-neutral-300);
+    background: #fff;
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.order-qty-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+.order-qty-value {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    min-width: 20px;
+    text-align: center;
 }
 
 .order-number-footer {
@@ -980,6 +1013,10 @@
     font-weight: var(--font-weight-medium);
     color: var(--color-text-primary);
 }
+.order-form-required { color: #ef4444; }
+.order-form-textarea { resize: vertical; min-height: 60px; }
+.order-btn-temp-add { background: #22c55e !important; color: #fff !important; width: 100%; }
+.order-btn-temp-add:hover { background: #16a34a !important; }
 
 .order-form-input {
     width: 100%;
