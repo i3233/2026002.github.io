@@ -280,19 +280,8 @@
                 document.getElementById('orderList').innerHTML = html || '<p class="mall-order-empty">暂无订单</p>';
             }
             function getDemoOrders() {
-                return [
-                    { orderNo: '20251227144628721232', guideId: 'dg001', cashierId: '001', total: 1500.00, itemCount: 34, products: [
-                        { name: '蒙顶山茶', image: '../../images/05.jpg', price: 49, qty: 6 },
-                        { name: '腊味礼盒', image: '../../images/04.jpg', price: 15, qty: 11 },
-                        { name: '花椒油', image: '../../images/01.jpg', price: 15, qty: 1 },
-                        { name: '土司农家散养蛋', image: '../../images/02.jpg', price: 18, qty: 2 }
-                    ]},
-                    { orderNo: '20251227143855221198', cashierId: '001', total: 183.00, itemCount: 6, products: [
-                        { name: '蒙顶山茶', image: '../../images/05.jpg', price: 49, qty: 2 },
-                        { name: '雅鱼鲜礼盒', image: '../../images/06.jpg', price: 68, qty: 1 },
-                        { name: '熊猫周边玩偶', image: '../../images/02.jpg', price: 28, qty: 1 }
-                    ]}
-                ];
+                // 默认不预置任何订单数据，订单列表为空
+                return [];
             }
             document.getElementById('memberModalClose').addEventListener('click', function () {
                 document.getElementById('memberModal').classList.add('hidden');
