@@ -223,6 +223,9 @@
         .order-checkout-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
         .order-checkout-view.hidden { display: none !important; }
         .order-product-view.hidden { display: none !important; }
+        .order-number-actions.hidden { display: none !important; }
+        #tableOrderModalContainer { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+        #tableOrderModalContainer .order-modal { pointer-events: auto; }
         .checkout-layout { display: flex; flex: 1; min-height: 0; background: var(--color-neutral-50); }
         .checkout-left { width: 33%; min-width: 200px; padding: var(--spacing-lg); background: #fff; border-right: 1px solid var(--color-neutral-200); display: flex; flex-direction: column; gap: var(--spacing-lg); }
         .checkout-right { flex: 1; padding: var(--spacing-lg); background: var(--color-neutral-50); display: flex; flex-direction: column; gap: var(--spacing-lg); }
@@ -242,6 +245,7 @@
     </style>
 </head>
 <body class="table-mgmt-body">
+    <div id="tableOrderModalContainer"></div>
     <div class="table-mgmt-container">
         <header class="table-mgmt-header">
             <div class="table-mgmt-title-wrap">
@@ -326,15 +330,32 @@
                             <button type="button" class="order-btn order-btn-outline" id="tableOrderBackBtn">← 返回桌位</button>
                         </div>
                     </div>
-                    <div class="order-number-actions">
-                        <div class="order-action-item">
-                            <label class="order-switch"><input type="checkbox" id="tableOrderPackSwitch"><span class="order-switch-slider"></span></label>
-                            <span class="order-action-text">整单打包</span>
-                        </div>
+                    <!-- 点单列表为空时显示的按钮 -->
+                    <div class="order-number-actions order-number-actions-empty" id="tableOrderActionsEmpty">
                         <button type="button" class="order-action-btn" id="tableOrderClearBtn">清空</button>
                         <button type="button" class="order-action-btn">取单</button>
                         <button type="button" class="order-action-btn">整单打折\减免</button>
                         <button type="button" class="order-action-btn">整单备注</button>
+                    </div>
+                    <!-- 点单列表有内容时显示的按钮 -->
+                    <div class="order-number-actions order-number-actions-has-items hidden" id="tableOrderActionsHasItems">
+                        <div class="order-qty-row">
+                            <button type="button" class="order-qty-btn" id="tableOrderQtyMinus">-</button>
+                            <span class="order-qty-value" id="tableOrderQtyValue">1</span>
+                            <button type="button" class="order-qty-btn" id="tableOrderQtyPlus">+</button>
+                        </div>
+                        <button type="button" class="order-action-btn" id="tableOrderClearBtn2">清空</button>
+                        <button type="button" class="order-action-btn">修改商品</button>
+                        <button type="button" class="order-action-btn">商品备注</button>
+                        <button type="button" class="order-action-btn">打包</button>
+                        <button type="button" class="order-action-btn">挂单</button>
+                        <button type="button" class="order-action-btn">取单</button>
+                        <button type="button" class="order-action-btn">整单打折/减免</button>
+                        <button type="button" class="order-action-btn">打折减免</button>
+                        <button type="button" class="order-action-btn">整单备注</button>
+                        <button type="button" class="order-action-btn">赠菜</button>
+                        <button type="button" class="order-action-btn">团购券先核销</button>
+                        <button type="button" class="order-action-btn">移除商品</button>
                     </div>
                     <div class="order-number-footer">
                         <button type="button" class="order-scroll-btn" id="tableOrderScrollUp">向上滑</button>
@@ -380,6 +401,12 @@
                             <div class="checkout-block">
                                 <h3 class="checkout-block-title">选择优惠</h3>
                                 <div class="checkout-discount-text" id="checkoutDiscountText">无优惠</div>
+                                <div class="checkout-order-actions">
+                                    <button type="button" class="checkout-action-btn" title="整单打折/减免">整单打折/减免</button>
+                                    <button type="button" class="checkout-action-btn" title="整单取消打折/减免">整单取消打折/减免</button>
+                                    <button type="button" class="checkout-action-btn" title="整单备注">整单备注</button>
+                                    <button type="button" class="checkout-action-btn" title="整单打包">整单打包</button>
+                                </div>
                             </div>
                             <div class="checkout-block">
                                 <h3 class="checkout-block-title">账单明细</h3>
@@ -393,12 +420,6 @@
                                 <div class="checkout-payment-options">
                                     <button type="button" class="checkout-pay-btn" title="扫码"><span class="checkout-pay-icon">📷</span><span>扫码</span></button>
                                     <button type="button" class="checkout-pay-btn" title="现金支付"><span class="checkout-pay-icon">💵</span><span>现金支付</span></button>
-                                </div>
-                                <div class="checkout-order-actions">
-                                    <button type="button" class="checkout-action-btn" title="整单打折/减免">整单打折/减免</button>
-                                    <button type="button" class="checkout-action-btn" title="整单取消打折/减免">整单取消打折/减免</button>
-                                    <button type="button" class="checkout-action-btn" title="整单备注">整单备注</button>
-                                    <button type="button" class="checkout-action-btn" title="整单打包">整单打包</button>
                                 </div>
                             </div>
                         </div>
@@ -598,6 +619,14 @@
                 var listEl = document.getElementById('tableOrderItemsList');
                 var emptyEl = document.getElementById('tableOrderEmpty');
                 var totalEl = document.getElementById('tableOrderTotalPrice');
+                var actionsEmpty = document.getElementById('tableOrderActionsEmpty');
+                var actionsHasItems = document.getElementById('tableOrderActionsHasItems');
+                if (actionsEmpty) actionsEmpty.classList.toggle('hidden', tableOrderItems.length > 0);
+                if (actionsHasItems) actionsHasItems.classList.toggle('hidden', tableOrderItems.length === 0);
+                if (listEl && document.getElementById('tableOrderQtyValue')) {
+                    var selIdx = tableOrderItems.length > 0 ? 0 : -1;
+                    document.getElementById('tableOrderQtyValue').textContent = selIdx >= 0 ? (tableOrderItems[selIdx].quantity || 1) : '1';
+                }
                 if (!listEl) return;
                 if (tableOrderItems.length === 0) {
                     if (emptyEl) emptyEl.style.display = 'flex';
@@ -685,9 +714,10 @@
             }
 
             function tableOrderAddItem(product) {
+                var qty = product.quantity != null ? product.quantity : 1;
                 var exist = tableOrderItems.filter(function (it) { return it.id === product.id; })[0];
-                if (exist) exist.quantity = (exist.quantity || 1) + 1;
-                else tableOrderItems.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+                if (exist) exist.quantity = (exist.quantity || 1) + qty;
+                else tableOrderItems.push({ id: product.id, name: product.name, price: product.price, quantity: qty });
                 tableOrderUpdateDisplay();
                 saveTableOrderToStorage();
             }
@@ -720,9 +750,29 @@
                 renderGrid();
                 updateSummary();
             });
-            document.getElementById('tableOrderClearBtn').addEventListener('click', function () {
+            function doClearTableOrder() {
                 if (confirm('确定清空当前桌台订单？')) {
                     tableOrderItems = [];
+                    tableOrderUpdateDisplay();
+                    saveTableOrderToStorage();
+                }
+            }
+            document.getElementById('tableOrderClearBtn').addEventListener('click', doClearTableOrder);
+            var clearBtn2 = document.getElementById('tableOrderClearBtn2');
+            if (clearBtn2) clearBtn2.addEventListener('click', doClearTableOrder);
+            var qtyMinus = document.getElementById('tableOrderQtyMinus');
+            var qtyPlus = document.getElementById('tableOrderQtyPlus');
+            if (qtyMinus) qtyMinus.addEventListener('click', function () {
+                if (tableOrderItems.length > 0 && tableOrderItems[0]) {
+                    tableOrderItems[0].quantity = (tableOrderItems[0].quantity || 1) - 1;
+                    if (tableOrderItems[0].quantity <= 0) tableOrderItems.splice(0, 1);
+                    tableOrderUpdateDisplay();
+                    saveTableOrderToStorage();
+                }
+            });
+            if (qtyPlus) qtyPlus.addEventListener('click', function () {
+                if (tableOrderItems.length > 0 && tableOrderItems[0]) {
+                    tableOrderItems[0].quantity = (tableOrderItems[0].quantity || 1) + 1;
                     tableOrderUpdateDisplay();
                     saveTableOrderToStorage();
                 }
@@ -766,6 +816,57 @@
                     tableOrderRenderProducts();
                 });
             });
+            function createTableOrderModal(content) {
+                var container = document.getElementById('tableOrderModalContainer');
+                if (!container) return null;
+                container.innerHTML = '';
+                var modal = document.createElement('div');
+                modal.className = 'order-modal';
+                modal.innerHTML = '<div class="order-modal-backdrop"></div>' + content;
+                container.appendChild(modal);
+                modal.querySelector('.order-modal-backdrop').addEventListener('click', function () {
+                    modal.classList.remove('order-modal-show');
+                    setTimeout(function () { modal.remove(); }, 300);
+                });
+                setTimeout(function () { modal.classList.add('order-modal-show'); }, 10);
+                return modal;
+            }
+            function closeTableOrderModal(modal) {
+                if (modal) {
+                    modal.classList.remove('order-modal-show');
+                    setTimeout(function () { modal.remove(); }, 300);
+                }
+            }
+            function showTableOrderTempProductModal() {
+                var suffix = '_' + Date.now();
+                var html = '<div class="order-modal-content order-modal-temp-product">' +
+                    '<div class="order-modal-header"><h3>添加临时商品</h3><button type="button" class="order-modal-close">×</button></div>' +
+                    '<div class="order-modal-body">' +
+                    '<div class="order-form-group"><label for="tableTempName' + suffix + '">名称 <span class="order-form-required">*</span></label><input type="text" class="order-form-input" value="临时商品" id="tableTempName' + suffix + '" placeholder="临时商品"></div>' +
+                    '<div class="order-form-group"><label for="tableTempPrice' + suffix + '">价格 <span class="order-form-required">*</span></label><input type="number" class="order-form-input" placeholder="输入商品价格" id="tableTempPrice' + suffix + '" step="0.01"></div>' +
+                    '<div class="order-form-group"><label for="tableTempQty' + suffix + '">数量 <span class="order-form-required">*</span></label><input type="number" class="order-form-input" value="1" id="tableTempQty' + suffix + '" min="1"></div>' +
+                    '<div class="order-form-group"><label for="tableTempStall' + suffix + '">档口</label><select class="order-form-input" id="tableTempStall' + suffix + '"><option value="">请选择档口</option></select></div>' +
+                    '<div class="order-form-group"><label for="tableTempRemark' + suffix + '">备注</label><textarea class="order-form-input order-form-textarea" id="tableTempRemark' + suffix + '" placeholder="请输入自定义备注" rows="3"></textarea></div>' +
+                    '</div>' +
+                    '<div class="order-modal-footer"><button type="button" class="order-btn order-btn-primary order-btn-temp-add table-temp-add-btn">加入购物车</button></div>' +
+                    '</div>';
+                var modal = createTableOrderModal(html);
+                modal.querySelector('.order-modal-close').addEventListener('click', function () { closeTableOrderModal(modal); });
+                modal.querySelector('.table-temp-add-btn').addEventListener('click', function () {
+                    var nameEl = modal.querySelector('#tableTempName' + suffix);
+                    var priceEl = modal.querySelector('#tableTempPrice' + suffix);
+                    var qtyEl = modal.querySelector('#tableTempQty' + suffix);
+                    if (!nameEl || !nameEl.value.trim()) { alert('请输入商品名称'); return; }
+                    var price = parseFloat(priceEl ? priceEl.value : 0);
+                    if (isNaN(price) || price < 0) { alert('请输入有效的商品价格'); return; }
+                    var qty = parseInt(qtyEl ? qtyEl.value : 1, 10) || 1;
+                    tableOrderAddItem({ id: 'temp_' + Date.now(), name: nameEl.value.trim(), price: price, quantity: qty });
+                    closeTableOrderModal(modal);
+                });
+            }
+            var tempBtn = document.querySelector('.order-number-temp-btn');
+            if (tempBtn) tempBtn.addEventListener('click', showTableOrderTempProductModal);
+
             document.getElementById('tableOrderScrollUp').addEventListener('click', function () {
                 var el = document.getElementById('tableOrderItemsList');
                 if (el) el.scrollTop -= 100;

@@ -88,31 +88,33 @@
                     <h3 class="order-number-title">号牌</h3>
                 </div>
                 
-                <!-- 功能按钮区 -->
-                <div class="order-number-actions">
-                    <!-- 整单打包开关 -->
-                    <div class="order-action-item">
-                        <label class="order-switch">
-                            <input type="checkbox" id="packSwitch">
-                            <span class="order-switch-slider"></span>
-                        </label>
-                        <span class="order-action-text">整单打包</span>
-                    </div>
-                    
-                    <!-- 清空按钮 -->
+                <!-- 点单列表为空时显示 -->
+                <div class="order-number-actions order-number-actions-empty" id="orderActionsEmpty">
                     <button class="order-action-btn" id="clearBtn">清空</button>
-                    
-                    <!-- 取单按钮 -->
                     <button class="order-action-btn" id="takeOrderBtn">取单</button>
-                    
-                    <!-- 整单打折\减免按钮 -->
                     <button class="order-action-btn" id="discountBtn">整单打折\减免</button>
-                    
-                    <!-- 整单备注按钮 -->
                     <button class="order-action-btn" id="remarkBtn">整单备注</button>
-                    
-                    <!-- 团购券先核销按钮 -->
                     <button class="order-action-btn" id="grouponBtn">团购券先核销</button>
+                </div>
+                <!-- 点单列表有内容时显示 -->
+                <div class="order-number-actions order-number-actions-has-items hidden" id="orderActionsHasItems">
+                    <div class="order-qty-row">
+                        <button type="button" class="order-qty-btn" id="orderQtyMinus">-</button>
+                        <span class="order-qty-value" id="orderQtyValue">1</span>
+                        <button type="button" class="order-qty-btn" id="orderQtyPlus">+</button>
+                    </div>
+                    <button class="order-action-btn" id="clearBtn2">清空</button>
+                    <button class="order-action-btn">修改商品</button>
+                    <button class="order-action-btn">商品备注</button>
+                    <button class="order-action-btn">打包</button>
+                    <button class="order-action-btn">挂单</button>
+                    <button class="order-action-btn" id="takeOrderBtn2">取单</button>
+                    <button class="order-action-btn" id="discountBtn2">整单打折/减免</button>
+                    <button class="order-action-btn">打折减免</button>
+                    <button class="order-action-btn" id="remarkBtn2">整单备注</button>
+                    <button class="order-action-btn">赠菜</button>
+                    <button class="order-action-btn" id="grouponBtn2">团购券先核销</button>
+                    <button class="order-action-btn">移除商品</button>
                 </div>
                 
                 <!-- 底部滚动控制 -->
