@@ -151,56 +151,58 @@ function initEventListeners() {
         });
     }
 
-    // 整单打包开关
-    const packSwitch = document.getElementById('packSwitch');
-    if (packSwitch) {
-        packSwitch.addEventListener('change', function() {
-            console.log('整单打包:', this.checked);
-        });
-    }
-
     // 清空按钮
-    const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function() {
-            if (confirm('确定清空当前订单？')) {
-                orderItems = [];
-                updateOrderDisplay();
-            }
-        });
+    function doClearOrder() {
+        if (confirm('确定清空当前订单？')) {
+            orderItems = [];
+            updateOrderDisplay();
+        }
     }
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) clearBtn.addEventListener('click', doClearOrder);
+    const clearBtn2 = document.getElementById('clearBtn2');
+    if (clearBtn2) clearBtn2.addEventListener('click', doClearOrder);
+
+    // 数量 +/-（有内容时号牌列）
+    const qtyMinus = document.getElementById('orderQtyMinus');
+    const qtyPlus = document.getElementById('orderQtyPlus');
+    if (qtyMinus) qtyMinus.addEventListener('click', function() {
+        if (orderItems.length > 0 && orderItems[0]) {
+            orderItems[0].quantity -= 1;
+            if (orderItems[0].quantity <= 0) orderItems.splice(0, 1);
+            updateOrderDisplay();
+        }
+    });
+    if (qtyPlus) qtyPlus.addEventListener('click', function() {
+        if (orderItems.length > 0 && orderItems[0]) {
+            orderItems[0].quantity += 1;
+            updateOrderDisplay();
+        }
+    });
 
     // 取单按钮
     const takeOrderBtn = document.getElementById('takeOrderBtn');
-    if (takeOrderBtn) {
-        takeOrderBtn.addEventListener('click', function() {
-            showHangOrderModal();
-        });
-    }
+    if (takeOrderBtn) takeOrderBtn.addEventListener('click', showHangOrderModal);
+    const takeOrderBtn2 = document.getElementById('takeOrderBtn2');
+    if (takeOrderBtn2) takeOrderBtn2.addEventListener('click', showHangOrderModal);
 
     // 整单打折\减免按钮
     const discountBtn = document.getElementById('discountBtn');
-    if (discountBtn) {
-        discountBtn.addEventListener('click', function() {
-            showDiscountModal();
-        });
-    }
+    if (discountBtn) discountBtn.addEventListener('click', showDiscountModal);
+    const discountBtn2 = document.getElementById('discountBtn2');
+    if (discountBtn2) discountBtn2.addEventListener('click', showDiscountModal);
 
     // 整单备注按钮
     const remarkBtn = document.getElementById('remarkBtn');
-    if (remarkBtn) {
-        remarkBtn.addEventListener('click', function() {
-            showRemarkModal();
-        });
-    }
+    if (remarkBtn) remarkBtn.addEventListener('click', showRemarkModal);
+    const remarkBtn2 = document.getElementById('remarkBtn2');
+    if (remarkBtn2) remarkBtn2.addEventListener('click', showRemarkModal);
 
     // 团购券先核销按钮
     const grouponBtn = document.getElementById('grouponBtn');
-    if (grouponBtn) {
-        grouponBtn.addEventListener('click', function() {
-            showGrouponModal();
-        });
-    }
+    if (grouponBtn) grouponBtn.addEventListener('click', showGrouponModal);
+    const grouponBtn2 = document.getElementById('grouponBtn2');
+    if (grouponBtn2) grouponBtn2.addEventListener('click', showGrouponModal);
 
     // 向上滑按钮
     const scrollUpBtn = document.getElementById('scrollUpBtn');
@@ -354,51 +356,71 @@ function setViewMode(mode) {
 
 // 显示临时商品弹窗
 function showTempProductModal() {
+    const suffix = '_' + Date.now();
     const modal = createModal(`
-        <div class="order-modal-content">
+        <div class="order-modal-content order-modal-temp-product">
             <div class="order-modal-header">
-                <h3>临时商品</h3>
-                <button class="order-modal-close" onclick="closeOrderModal()">×</button>
+                <h3>添加临时商品</h3>
+                <button type="button" class="order-modal-close" onclick="closeOrderModal()">×</button>
             </div>
             <div class="order-modal-body">
                 <div class="order-form-group">
-                    <label>商品名称</label>
-                    <input type="text" class="order-form-input" placeholder="请输入商品名称" id="tempProductName">
+                    <label for="tempProductName${suffix}">名称 <span class="order-form-required">*</span></label>
+                    <input type="text" class="order-form-input" value="临时商品" id="tempProductName${suffix}" placeholder="临时商品">
                 </div>
                 <div class="order-form-group">
-                    <label>价格</label>
-                    <input type="number" class="order-form-input" placeholder="请输入价格" id="tempProductPrice" step="0.01">
+                    <label for="tempProductPrice${suffix}">价格 <span class="order-form-required">*</span></label>
+                    <input type="number" class="order-form-input" placeholder="输入商品价格" id="tempProductPrice${suffix}" step="0.01">
                 </div>
                 <div class="order-form-group">
-                    <label>数量</label>
-                    <input type="number" class="order-form-input" value="1" placeholder="请输入数量" id="tempProductQuantity" min="1">
+                    <label for="tempProductQuantity${suffix}">数量 <span class="order-form-required">*</span></label>
+                    <input type="number" class="order-form-input" value="1" id="tempProductQuantity${suffix}" min="1">
+                </div>
+                <div class="order-form-group">
+                    <label for="tempProductStall${suffix}">档口</label>
+                    <select class="order-form-input" id="tempProductStall${suffix}">
+                        <option value="">请选择档口</option>
+                    </select>
+                </div>
+                <div class="order-form-group">
+                    <label for="tempProductRemark${suffix}">备注</label>
+                    <textarea class="order-form-input order-form-textarea" id="tempProductRemark${suffix}" placeholder="请输入自定义备注" rows="3"></textarea>
                 </div>
             </div>
             <div class="order-modal-footer">
-                <button class="order-btn order-btn-secondary" onclick="closeOrderModal()">取消</button>
-                <button class="order-btn order-btn-primary" onclick="confirmTempProduct()">添加</button>
+                <button type="button" class="order-btn order-btn-primary order-btn-temp-add" data-temp-suffix="${suffix}" onclick="confirmTempProduct(this)">加入购物车</button>
             </div>
         </div>
     `);
 }
 
 // 确认临时商品
-function confirmTempProduct() {
-    const name = document.getElementById('tempProductName');
-    const price = document.getElementById('tempProductPrice');
-    const quantity = document.getElementById('tempProductQuantity');
+function confirmTempProduct(btn) {
+    const suffix = btn && btn.dataset && btn.dataset.tempSuffix ? btn.dataset.tempSuffix : '_' + Date.now();
+    const nameEl = document.getElementById('tempProductName' + suffix);
+    const priceEl = document.getElementById('tempProductPrice' + suffix);
+    const quantityEl = document.getElementById('tempProductQuantity' + suffix);
     
-    if (name && price && quantity) {
-        const product = {
-            id: 'temp_' + Date.now(),
-            name: name.value,
-            price: parseFloat(price.value) || 0,
-            quantity: parseInt(quantity.value) || 1
-        };
-        
-        addToOrder(product);
-        closeOrderModal();
+    if (!nameEl || !nameEl.value.trim()) {
+        alert('请输入商品名称');
+        return;
     }
+    const price = parseFloat(priceEl ? priceEl.value : 0);
+    if (isNaN(price) || price < 0) {
+        alert('请输入有效的商品价格');
+        return;
+    }
+    const quantity = parseInt(quantityEl ? quantityEl.value : 1, 10) || 1;
+    
+    const product = {
+        id: 'temp_' + Date.now(),
+        name: nameEl.value.trim(),
+        price: price,
+        quantity: quantity
+    };
+    
+    addToOrder(product);
+    closeOrderModal();
 }
 
 // 渲染商品列表
@@ -567,6 +589,12 @@ function updateOrderDisplay() {
     const orderItemsList = document.getElementById('orderItemsList');
     const orderItemsEmpty = document.getElementById('orderItemsEmpty');
     const totalPriceEl = document.getElementById('totalPrice');
+    const actionsEmpty = document.getElementById('orderActionsEmpty');
+    const actionsHasItems = document.getElementById('orderActionsHasItems');
+    if (actionsEmpty) actionsEmpty.classList.toggle('hidden', orderItems.length > 0);
+    if (actionsHasItems) actionsHasItems.classList.toggle('hidden', orderItems.length === 0);
+    const qtyVal = document.getElementById('orderQtyValue');
+    if (qtyVal) qtyVal.textContent = orderItems.length > 0 ? (orderItems[0].quantity || 1) : '1';
 
     if (!orderItemsList) return;
 
