@@ -122,21 +122,56 @@
     color: var(--color-text-primary);
 }
 
-/* 子分类名称缩进显示 */
-.category-list-category-name--child {
-    position: relative;
-    padding-left: 24px;
-    color: var(--color-text-secondary);
+/* 一级分类：无缩进，粗体 */
+.category-list-category-name--level1 {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
 }
 
-.category-list-category-name--child::before {
-    content: '└';
+/* 二级分类：缩进 + 树形符号 */
+.category-list-category-name--level2 {
+    position: relative;
+    padding-left: 28px;
+    color: var(--color-text-primary);
+}
+
+.category-list-category-name--level2::before {
+    content: '├';
     position: absolute;
-    left: 0;
+    left: 8px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--color-neutral-400);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
+}
+
+/* 三级分类：更多缩进 + 树形符号 */
+.category-list-category-name--level3 {
+    position: relative;
+    padding-left: 52px;
+    color: var(--color-text-secondary);
+}
+
+.category-list-category-name--level3::before {
+    content: '└';
+    position: absolute;
+    left: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-neutral-400);
+    font-size: var(--font-size-sm);
+}
+
+/* 批量删除按钮：危险色 */
+.category-list-btn-danger {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.category-list-btn-danger:hover:not(:disabled) {
+    background-color: var(--color-error);
+    border-color: var(--color-error);
+    color: #ffffff;
 }
 
 .category-list-product-count {

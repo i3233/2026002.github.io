@@ -91,9 +91,29 @@
     flex-shrink: 0;
 }
 
+.cashier-sidebar-logo {
+    padding: var(--spacing-md) var(--spacing-xs) 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cashier-logo-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--color-primary-soft, rgba(44,131,235,0.1));
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: var(--font-weight-medium);
+}
+
 .cashier-sidebar-menu {
     flex: 1;
-    padding: var(--spacing-md) 0;
+    padding: var(--spacing-md) 0 var(--spacing-md);
     overflow-y: auto;
 }
 
