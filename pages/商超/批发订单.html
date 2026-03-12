@@ -260,6 +260,69 @@
             color: var(--color-error);
         }
 
+        /* 收款码弹窗 */
+        .paycode-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .paycode-modal-overlay.show { display: flex; }
+        .paycode-modal {
+            background:#fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 360px;
+            max-width: 90vw;
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+        .paycode-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .paycode-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+        .paycode-box {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto var(--spacing-md);
+            border-radius: var(--radius-md);
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.08),
+                rgba(0,0,0,0.08) 4px,
+                rgba(0,0,0,0.02) 4px,
+                rgba(0,0,0,0.02) 8px
+            );
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+            padding: 12px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+        }
+        .paycode-amount {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+        .paycode-footer {
+            display:flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
         .btn-link {
             color: var(--color-primary);
             background-color: transparent;
@@ -718,6 +781,28 @@
                     <input type="number" class="pagination-jump-input" min="1" value="1" id="jumpToPage">
                     <span class="pagination-info">页</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收款码弹窗 -->
+    <div class="paycode-modal-overlay" id="paycodeModal">
+        <div class="paycode-modal">
+            <div class="paycode-title">批发订单收款码</div>
+            <div class="paycode-desc" id="paycodeDesc">请让商家扫码付款</div>
+            <div class="paycode-box">
+                <div>
+                    <div style="margin-bottom:8px;">此处为模拟二维码区域</div>
+                    <div style="font-size:12px; line-height:1.6;">
+                        可接入实际收款二维码接口，<br>
+                        例如生成微信/支付宝/聚合码等。
+                    </div>
+                </div>
+            </div>
+            <div class="paycode-amount" id="paycodeAmount">¥0.00</div>
+            <div class="paycode-desc" style="margin-bottom:0;" id="paycodeOrderInfo"></div>
+            <div class="paycode-footer">
+                <button class="btn btn-outline" type="button" id="paycodeCloseBtn">关闭</button>
             </div>
         </div>
     </div>
@@ -1483,6 +1568,9 @@
             if (order.status === 'pendingOutbound') {
                 buttons += `<button class="btn-link outbound-btn" data-id="${order.id}">出库</button>`;
             }
+            if (order.status === 'completed') {
+                buttons += `<button class="btn-link paycode-btn" data-id="${order.id}">收款码</button>`;
+            }
             return buttons;
         }
 
@@ -1542,6 +1630,14 @@
                 btn.addEventListener('click', function() {
                     const orderId = this.dataset.id;
                     doOutbound(orderId);
+                });
+            });
+
+            // 收款码
+            document.querySelectorAll('.paycode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.dataset.id;
+                    openPaycodeModal(orderId);
                 });
             });
 
@@ -1622,6 +1718,36 @@
                 alert(`订单出库成功！订单已完成。\n订单号：${order.id}\n完成时间：${order.completedTime}`);
             }
         }
+
+        // 收款码弹窗
+        const paycodeModal = document.getElementById('paycodeModal');
+        const paycodeAmountEl = document.getElementById('paycodeAmount');
+        const paycodeOrderInfoEl = document.getElementById('paycodeOrderInfo');
+        const paycodeDescEl = document.getElementById('paycodeDesc');
+
+        function openPaycodeModal(orderId) {
+            const order = wholesaleOrders.find(o => o.id === orderId);
+            if (!order) return;
+            const remain = (Number(order.amount) || 0) - (Number(order.paid) || 0);
+            const payAmount = remain > 0 ? remain : order.amount;
+
+            paycodeAmountEl.textContent = '¥' + payAmount.toFixed(2);
+            paycodeOrderInfoEl.textContent = '订单号：' + order.id + ' ｜ 往来单位：' + order.partner;
+            paycodeDescEl.textContent = remain > 0
+                ? '请让商家扫码支付本次应收金额（未结清部分）。'
+                : '请让商家扫码完成本单支付（示意）。';
+
+            paycodeModal.classList.add('show');
+        }
+
+        function closePaycodeModal() {
+            paycodeModal.classList.remove('show');
+        }
+
+        document.getElementById('paycodeCloseBtn').addEventListener('click', closePaycodeModal);
+        paycodeModal.addEventListener('click', function (e) {
+            if (e.target === paycodeModal) closePaycodeModal();
+        });
 
         // 批量审核
         function batchAudit() {

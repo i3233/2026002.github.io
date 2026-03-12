@@ -182,17 +182,19 @@
 
         .payable-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             padding: var(--spacing-md);
             background-color: var(--color-neutral-50);
             border-radius: var(--radius-md);
+            gap: var(--spacing-lg);
         }
 
         .payable-label {
             font-size: var(--font-size-base);
             font-weight: var(--font-weight-medium);
             color: var(--color-text-primary);
+            text-align: right;
         }
 
         .payable-value {
@@ -205,6 +207,7 @@
             font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
             margin-top: var(--spacing-xs);
+            text-align: right;
         }
 
         /* 操作按钮区域 */
@@ -310,7 +313,7 @@
         <div class="page-header">
             <div>
                 <h1 class="page-title">采购入库</h1>
-                <div class="page-subtitle">上方为入库订单列表，点击某条后在下边展示该计划的商品明细并办理入库</div>
+                <div class="page-subtitle">上方为入库订单列表，点击某条后在下方展示该计划的商品明细并办理入库</div>
             </div>
         </div>
 
@@ -380,6 +383,7 @@
                             <th class="text-right">订单数量</th>
                             <th class="text-right">单价</th>
                             <th class="text-right">金额</th>
+                            <th class="text-right">入库数量</th>
                             <th class="text-right">入库单价</th>
                             <th class="text-right">入库金额</th>
                             <th>条码</th>
@@ -387,8 +391,6 @@
                             <th>货架</th>
                             <th>照片</th>
                             <th>备注</th>
-                            <th>添加时间</th>
-                            <th class="text-right">入库数量</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
@@ -399,10 +401,8 @@
                             <td colspan="5" class="text-right">合计：</td>
                             <td class="text-right" id="totalOrderQty">0.00</td>
                             <td colspan="2"></td>
-                            <td colspan="2"></td>
-                            <td></td>
-                            <td colspan="5"></td>
                             <td class="text-right" id="totalStorageQty">0.00</td>
+                            <td colspan="6"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -437,6 +437,26 @@
                 <div class="order-detail-modal-body">
                     <div class="order-detail-info" id="applyReturnOrderInfo">
                         <!-- JS 填充关联入库单信息 -->
+                    </div>
+                    <div class="order-detail-section-title">退货商品</div>
+                    <div class="table-container" style="margin-bottom: 12px;">
+                        <table class="order-detail-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px; text-align:center;"><input type="checkbox" id="applyReturnSelectAll"></th>
+                                    <th>商品名称</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th class="text-right">订单数量</th>
+                                    <th class="text-right">单价(元)</th>
+                                    <th class="text-right">退货数量</th>
+                                    <th class="text-right">退货金额(元)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applyReturnProductBody">
+                                <!-- JS 填充退货商品 -->
+                            </tbody>
+                        </table>
                     </div>
                     <div class="order-detail-section-title">退货信息</div>
                     <div class="form-row" style="margin-bottom: 12px;">
@@ -671,7 +691,9 @@
         const PURCHASE_RETURN_DETAILS_KEY = 'purchaseReturnDetails';
         const applyReturnModalOverlay = document.getElementById('applyReturnModalOverlay');
         const applyReturnOrderInfo = document.getElementById('applyReturnOrderInfo');
+        const applyReturnProductBody = document.getElementById('applyReturnProductBody');
         let applyReturnCurrentOrder = null;
+        let applyReturnItems = [];
 
         function openApplyReturnModal(order) {
             if (!order) return;
@@ -692,6 +714,22 @@
             });
             document.getElementById('applyReturnReason').value = '';
             document.getElementById('applyReturnRemark').value = '';
+
+            // 初始化退货商品列表（默认全选、数量为订单数量）
+            applyReturnItems = (order.products || []).map(function (p, idx) {
+                return {
+                    id: p.id || (idx + 1),
+                    name: p.name,
+                    spec: p.spec || '',
+                    unit: p.unit || '',
+                    qty: Number(p.qty) || 0,
+                    price: Number(p.price) || 0,
+                    checked: true,
+                    returnQty: Number(p.qty) || 0
+                };
+            });
+            renderApplyReturnProducts();
+
             applyReturnModalOverlay.classList.add('show');
         }
 
@@ -704,6 +742,65 @@
         document.getElementById('applyReturnCancel').addEventListener('click', closeApplyReturnModal);
         applyReturnModalOverlay.addEventListener('click', function (e) {
             if (e.target === applyReturnModalOverlay) closeApplyReturnModal();
+        });
+
+        function renderApplyReturnProducts() {
+            if (!applyReturnProductBody) return;
+            applyReturnProductBody.innerHTML = '';
+            applyReturnItems.forEach(function (item, index) {
+                var amount = (item.returnQty || 0) * (item.price || 0);
+                var tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="apply-return-checkbox" data-index="${index}" ${item.checked ? 'checked' : ''}>
+                    </td>
+                    <td>${item.name || '-'}</td>
+                    <td>${item.spec || '-'}</td>
+                    <td>${item.unit || '-'}</td>
+                    <td class="text-right">${item.qty.toFixed(2)}</td>
+                    <td class="text-right">${item.price.toFixed(2)}</td>
+                    <td class="text-right">
+                        <input type="number" class="apply-return-qty-input" data-index="${index}" min="0" max="${item.qty}" step="0.01" value="${item.returnQty.toFixed(2)}" style="width:90px;text-align:right;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);">
+                    </td>
+                    <td class="text-right apply-return-amount-cell">¥${amount.toFixed(2)}</td>
+                `;
+                applyReturnProductBody.appendChild(tr);
+            });
+
+            // 绑定事件
+            applyReturnProductBody.querySelectorAll('.apply-return-checkbox').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    var idx = parseInt(this.dataset.index, 10);
+                    if (Number.isNaN(idx) || !applyReturnItems[idx]) return;
+                    applyReturnItems[idx].checked = this.checked;
+                });
+            });
+            applyReturnProductBody.querySelectorAll('.apply-return-qty-input').forEach(function (input) {
+                input.addEventListener('input', function () {
+                    var idx = parseInt(this.dataset.index, 10);
+                    if (Number.isNaN(idx) || !applyReturnItems[idx]) return;
+                    var maxQty = applyReturnItems[idx].qty;
+                    var v = parseFloat(this.value) || 0;
+                    if (v > maxQty) {
+                        v = maxQty;
+                        this.value = maxQty.toFixed(2);
+                    } else if (v < 0) {
+                        v = 0;
+                        this.value = '0.00';
+                    }
+                    applyReturnItems[idx].returnQty = v;
+                    var row = this.closest('tr');
+                    var cell = row ? row.querySelector('.apply-return-amount-cell') : null;
+                    if (cell) cell.textContent = '¥' + (v * applyReturnItems[idx].price).toFixed(2);
+                });
+            });
+        }
+
+        // 全选/反选退货商品
+        document.getElementById('applyReturnSelectAll').addEventListener('change', function () {
+            var checked = this.checked;
+            applyReturnItems.forEach(function (item) { item.checked = checked; });
+            renderApplyReturnProducts();
         });
 
         document.getElementById('applyReturnConfirm').addEventListener('click', function () {
@@ -725,8 +822,15 @@
                 var sameDay = list.filter(function (r) { return r.id && r.id.indexOf('TH' + today) === 0; });
                 var seq = sameDay.length + 1;
                 var returnId = 'TH' + today + String(seq).padStart(3, '0');
-                var totalQty = (order.products || []).reduce(function (sum, p) { return sum + (Number(p.qty) || 0); }, 0);
-                var amount = Number(order.amount) || 0;
+
+                // 仅统计勾选且退货数量>0的商品
+                var chosenItems = applyReturnItems.filter(function (i) { return i.checked && i.returnQty > 0; });
+                if (!chosenItems.length) {
+                    alert('请选择至少一个退货商品，并设置退货数量。');
+                    return;
+                }
+                var totalQty = chosenItems.reduce(function (sum, p) { return sum + (Number(p.returnQty) || 0); }, 0);
+                var amount = chosenItems.reduce(function (sum, p) { return sum + (Number(p.returnQty) || 0) * (Number(p.price) || 0); }, 0);
                 var row = {
                     id: returnId,
                     date: order.date || new Date().toISOString().slice(0, 10),
@@ -744,8 +848,14 @@
                     sourceOrderId: order.id
                 };
                 list.push(row);
-                detailsMap[returnId] = (order.products || []).map(function (p) {
-                    return { name: p.name, spec: p.spec || '', unit: p.unit || '', qty: Number(p.qty) || 0, price: Number(p.price) || 0 };
+                detailsMap[returnId] = chosenItems.map(function (p) {
+                    return {
+                        name: p.name,
+                        spec: p.spec || '',
+                        unit: p.unit || '',
+                        qty: Number(p.returnQty) || 0,
+                        price: Number(p.price) || 0
+                    };
                 });
                 localStorage.setItem(PURCHASE_RETURN_LIST_KEY, JSON.stringify(list));
                 localStorage.setItem(PURCHASE_RETURN_DETAILS_KEY, JSON.stringify(detailsMap));
@@ -827,20 +937,19 @@
                     <td>${item.category || '未分类'}</td>
                     <td class="text-right">${item.qty.toFixed(2)}</td>
                     <td class="text-right">¥${item.price.toFixed(2)}</td>
-                    <td class="text-right">¥${(item.qty * item.price).toFixed(2)}</td>
-                    <td class="text-right">
-                        <input type="number" class="storage-unit-price-input" data-index="${index}" value="${storageUnitPrice.toFixed(2)}" min="0" step="0.01" style="width:80px;text-align:right;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);">
-                    </td>
-                    <td class="text-right storage-amount-cell">¥${storageAmt.toFixed(2)}</td>
-                    <td><input type="text" class="barcode-input" data-index="${index}" value="${item.barcode || ''}" placeholder="条码" style="width:100px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
-                    <td><input type="text" class="zone-input" data-index="${index}" value="${item.zone || ''}" placeholder="货区" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
-                    <td><input type="text" class="shelf-input" data-index="${index}" value="${item.shelf || ''}" placeholder="货架" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
-                    <td><input type="text" class="photo-input" data-index="${index}" value="${item.photo || ''}" placeholder="照片" style="width:60px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
-                    <td><input type="text" class="remark-input" data-index="${index}" value="${item.remark || ''}" placeholder="备注" style="width:80px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
-                    <td class="add-time-cell">${item.addTime || '-'}</td>
-                    <td class="text-right">
-                        <input type="number" class="form-input storage-qty-input" data-product-id="${item.id}" data-index="${index}" value="${item.storageQty.toFixed(2)}" min="0" max="${item.qty}" step="0.01" style="width:90px;text-align:right;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);">
-                    </td>
+                            <td class="text-right">¥${(item.qty * item.price).toFixed(2)}</td>
+                            <td class="text-right">
+                                <input type="number" class="form-input storage-qty-input" data-product-id="${item.id}" data-index="${index}" value="${item.storageQty.toFixed(2)}" min="0" max="${item.qty}" step="0.01" style="width:90px;text-align:right;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);">
+                            </td>
+                            <td class="text-right">
+                                <input type="number" class="storage-unit-price-input" data-index="${index}" value="${storageUnitPrice.toFixed(2)}" min="0" step="0.01" style="width:80px;text-align:right;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);">
+                            </td>
+                            <td class="text-right storage-amount-cell">¥${storageAmt.toFixed(2)}</td>
+                            <td><input type="text" class="barcode-input" data-index="${index}" value="${item.barcode || ''}" placeholder="条码" style="width:100px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                            <td><input type="text" class="zone-input" data-index="${index}" value="${item.zone || ''}" placeholder="货区" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                            <td><input type="text" class="shelf-input" data-index="${index}" value="${item.shelf || ''}" placeholder="货架" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                            <td><input type="text" class="photo-input" data-index="${index}" value="${item.photo || ''}" placeholder="照片" style="width:60px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                            <td><input type="text" class="remark-input" data-index="${index}" value="${item.remark || ''}" placeholder="备注" style="width:80px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -938,14 +1047,12 @@
                 totalAmount += (item.storageQty || 0) * unitPrice;
             });
 
-            const originalPayable = selectedOrder.payable;
-            const newPayable = originalPayable + totalAmount;
-            const change = totalAmount;
-
-            document.getElementById('payableValue').textContent = `¥${newPayable.toFixed(2)}`;
+            // 统一展示本次入库对应的应付金额（红字和蓝字显示相同的数字）
+            const payableThisStorage = totalAmount;
+            document.getElementById('payableValue').textContent = `¥${payableThisStorage.toFixed(2)}`;
             
-            if (change > 0) {
-                document.getElementById('payableChange').textContent = `入库后将增加应付金额 ¥${change.toFixed(2)}`;
+            if (payableThisStorage > 0) {
+                document.getElementById('payableChange').textContent = `入库后将增加应付金额 ¥${payableThisStorage.toFixed(2)}`;
                 document.getElementById('payableChange').style.color = 'var(--color-error)';
             } else {
                 document.getElementById('payableChange').textContent = '应付金额无变化';
@@ -1015,7 +1122,7 @@
         document.getElementById('resetBtn').addEventListener('click', resetForm);
         document.getElementById('submitAuditBtn').addEventListener('click', submitAudit);
 
-        // 初始化：先合并来自“采购计划”的采购订单，再渲染采购计划列表
+        // 初始化：先合并来自“采购计划”的采购订单，再渲染入库订单列表
         loadPurchaseOrdersFromPlan();
         renderPlanList();
         updateAuditStatus();

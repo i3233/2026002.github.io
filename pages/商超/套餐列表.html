@@ -506,6 +506,95 @@
             gap: var(--spacing-md);
         }
 
+        .package-edit-left.hidden {
+            display: none !important;
+        }
+
+        .package-edit-left .product-panel-close {
+            align-self: flex-end;
+            margin-bottom: -8px;
+        }
+
+        .combo-block {
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .combo-block-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .combo-block-title-input {
+            flex: 1;
+            min-width: 120px;
+            padding: 6px 10px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+        }
+
+        .combo-required-setting {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .combo-required-setting input {
+            width: 40px;
+            padding: 4px 6px;
+            text-align: center;
+        }
+
+        .btn-add-product {
+            padding: 4px 10px;
+            font-size: var(--font-size-sm);
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+
+        .btn-add-product:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-remove-combo {
+            padding: 4px 8px;
+            font-size: var(--font-size-xs);
+            color: var(--color-error);
+            background: none;
+            border: 1px solid var(--color-error);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .btn-remove-combo:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .add-combo-btn {
+            padding: 8px 16px;
+            font-size: var(--font-size-sm);
+            color: var(--color-primary);
+            background: none;
+            border: 1px dashed var(--color-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-top: var(--spacing-sm);
+        }
+
+        .add-combo-btn:hover {
+            background: rgba(44, 131, 235, 0.05);
+        }
+
         .package-edit-right {
             flex: 2;
             display: flex;
@@ -851,13 +940,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="package-edit-layout">
-                        <!-- 左侧：选择商品 -->
-                        <section class="package-edit-left">
-                            <div>
-                                <div class="section-title-sm">选择套餐商品</div>
-                                <div class="section-desc-sm">
-                                    从下方商品列表勾选要加入套餐的商品，可为每个商品设置数量，右侧会自动计算原价合计与建议套餐价。
-                                </div>
+                        <!-- 左侧：选择商品（默认隐藏，点击「添加商品」时显示） -->
+                        <section class="package-edit-left hidden" id="packageEditLeftPanel">
+                            <div style="flex:1;">
+                                <button type="button" class="btn btn-outline product-panel-close" id="productPanelClose">关闭</button>
+                                <div class="section-title-sm">选择商品</div>
+                                <div class="section-desc-sm">勾选要加入当前组合的商品，点击「确认添加」完成。</div>
                                 <div class="select-filter-row">
                                     <input type="text" id="productSearchInput" placeholder="输入商品名称或ID搜索">
                                 </div>
@@ -868,18 +956,16 @@
                                                 <th style="width: 32px; text-align: center;">选</th>
                                                 <th>商品</th>
                                                 <th>售价</th>
-                                                <th style="width: 120px;">加入组合</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="selectProductTableBody">
-                                            <!-- 商品数据由JS渲染 -->
-                                        </tbody>
+                                        <tbody id="selectProductTableBody"></tbody>
                                     </table>
                                 </div>
+                                <button type="button" class="btn btn-primary" id="confirmAddProductsBtn" style="margin-top: 8px;">确认添加</button>
                             </div>
                         </section>
 
-                        <!-- 右侧：套餐信息 + 已选商品列表 + 价格设置 -->
+                        <!-- 右侧：套餐信息 + 套餐内组合（可增删）+ 价格设置 -->
                         <section class="package-edit-right">
                             <div>
                                 <div class="section-title-sm">套餐基础信息</div>
@@ -890,32 +976,16 @@
                                             <label for="packageNameInput">套餐名称 <span style="color: var(--color-error);">*</span></label>
                                             <input type="text" id="packageNameInput" placeholder="请输入套餐名称">
                                         </div>
-                                        <div class="section-desc-sm">
-                                            暂不接入真实上传，当前示例以占位图表示套餐主图。
-                                        </div>
+                                        <div class="section-desc-sm">暂不接入真实上传，当前示例以占位图表示套餐主图。</div>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <div class="section-title-sm">套餐内组合一</div>
-                                <div class="form-field-inline" style="margin-bottom: 6px;">
-                                    <label for="combo1TitleInput">组合标题</label>
-                                    <input type="text" id="combo1TitleInput" placeholder="如：饮品2选1">
-                                </div>
-                                <div class="section-desc-sm" style="margin-bottom: 6px;">必选：<strong>2选1</strong>（本组合需勾选 2 个商品，顾客下单时从中选 1）</div>
-                                <div class="package-selected-list package-combo-list" id="packageCombo1List"></div>
-                                <div class="section-desc-sm" id="combo1Tips">暂未选择，请在左侧勾选商品并选择「组合一」。</div>
-                            </div>
-                            <div>
-                                <div class="section-title-sm">套餐内组合二</div>
-                                <div class="form-field-inline" style="margin-bottom: 6px;">
-                                    <label for="combo2TitleInput">组合标题</label>
-                                    <input type="text" id="combo2TitleInput" placeholder="如：小食8选6">
-                                </div>
-                                <div class="section-desc-sm" style="margin-bottom: 6px;">必选：<strong>8选6</strong>（本组合需勾选 8 个商品，顾客下单时从中选 6）</div>
-                                <div class="package-selected-list package-combo-list" id="packageCombo2List"></div>
-                                <div class="section-desc-sm" id="combo2Tips">暂未选择，请在左侧勾选商品并选择「组合二」。</div>
+                                <div class="section-title-sm">套餐内组合</div>
+                                <div class="section-desc-sm" style="margin-bottom: 8px;">可为每个组合设置标题、必选规则（几选几，与参数模板联动），点击「添加商品」从商品列表中选择。</div>
+                                <div id="packageCombosContainer"></div>
+                                <button type="button" class="add-combo-btn" id="addComboBtn">+ 添加组合</button>
                             </div>
 
                             <div>
@@ -995,12 +1065,24 @@
         let sortDirection = 'asc';
 
         // 新建/编辑套餐时的临时状态
-        let editingPackageId = null; // null 表示新建
-        let selectedItems = []; // { productId, name, image, price, quantity, combo: 1|2 }
-        const COMBO1_MAX = 2;  // 组合一 2选1
-        const COMBO2_MAX = 8;  // 组合二 8选6
-
+        let editingPackageId = null;
+        // combos: [{ id, title, total, required, items: [{ productId, name, image, price, quantity }] }]
+        let packageCombos = [];
+        let comboIdCounter = 1;
+        let addingToComboIndex = -1; // 当前正在为哪个组合添加商品
         const packageTableBody = document.getElementById('packageTableBody');
+
+        // 从参数模板读取默认几选几
+        function getParamTemplateDefault() {
+            try {
+                var s = localStorage.getItem('shangchaoParamTemplate');
+                if (s) {
+                    var d = JSON.parse(s);
+                    return { total: d.chooseTotal || 2, required: d.chooseCount || 1 };
+                }
+            } catch (e) {}
+            return { total: 2, required: 1 };
+        }
 
         // 渲染套餐表格
         function renderPackageTable() {
@@ -1241,12 +1323,11 @@
         const packagePriceInput = document.getElementById('packagePriceInput');
         const productSearchInput = document.getElementById('productSearchInput');
         const selectProductTableBody = document.getElementById('selectProductTableBody');
-        const packageCombo1List = document.getElementById('packageCombo1List');
-        const packageCombo2List = document.getElementById('packageCombo2List');
-        const combo1TitleInput = document.getElementById('combo1TitleInput');
-        const combo2TitleInput = document.getElementById('combo2TitleInput');
-        const combo1Tips = document.getElementById('combo1Tips');
-        const combo2Tips = document.getElementById('combo2Tips');
+        const packageCombosContainer = document.getElementById('packageCombosContainer');
+        const addComboBtn = document.getElementById('addComboBtn');
+        const packageEditLeftPanel = document.getElementById('packageEditLeftPanel');
+        const productPanelClose = document.getElementById('productPanelClose');
+        const confirmAddProductsBtn = document.getElementById('confirmAddProductsBtn');
         const originPriceText = document.getElementById('originPriceText');
         const packagePriceText = document.getElementById('packagePriceText');
         const saveAmountText = document.getElementById('saveAmountText');
@@ -1254,54 +1335,50 @@
 
         function openPackageModal(isEdit = false, pkg = null) {
             editingPackageId = isEdit && pkg ? pkg.id : null;
+            addingToComboIndex = -1;
+            if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden');
+
             if (isEdit && pkg) {
                 packageModalTitle.textContent = '编辑套餐';
                 packageNameInput.value = pkg.name;
                 packagePriceInput.value = pkg.price.toFixed(2);
-                combo1TitleInput.value = (pkg.combo1 && pkg.combo1.title) ? pkg.combo1.title : '';
-                combo2TitleInput.value = (pkg.combo2 && pkg.combo2.title) ? pkg.combo2.title : '';
-                selectedItems = [];
-                if (pkg.combo1 && pkg.combo1.items && pkg.combo1.items.length) {
-                    pkg.combo1.items.forEach(item => selectedItems.push({
-                        productId: item.productId,
-                        name: item.name,
-                        image: item.image,
-                        price: item.price,
-                        quantity: item.quantity || 1,
-                        combo: 1
-                    }));
+                packageCombos = [];
+                var def = getParamTemplateDefault();
+                if (pkg.combo1 && pkg.combo1.items) {
+                    packageCombos.push({
+                        id: comboIdCounter++,
+                        title: pkg.combo1.title || '组合一',
+                        total: 2,
+                        required: 1,
+                        items: pkg.combo1.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 }))
+                    });
                 }
-                if (pkg.combo2 && pkg.combo2.items && pkg.combo2.items.length) {
-                    pkg.combo2.items.forEach(item => selectedItems.push({
-                        productId: item.productId,
-                        name: item.name,
-                        image: item.image,
-                        price: item.price,
-                        quantity: item.quantity || 1,
-                        combo: 2
-                    }));
+                if (pkg.combo2 && pkg.combo2.items) {
+                    packageCombos.push({
+                        id: comboIdCounter++,
+                        title: pkg.combo2.title || '组合二',
+                        total: 8,
+                        required: 6,
+                        items: pkg.combo2.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 }))
+                    });
                 }
-                if (!selectedItems.length && pkg.items && pkg.items.length) {
-                    pkg.items.forEach((item, idx) => selectedItems.push({
-                        productId: item.productId,
-                        name: item.name,
-                        image: item.image,
-                        price: item.price,
-                        quantity: item.quantity || 1,
-                        combo: idx < 2 ? 1 : 2
-                    }));
+                if (!packageCombos.length && pkg.items && pkg.items.length) {
+                    var half = Math.ceil(pkg.items.length / 2);
+                    packageCombos = [
+                        { id: comboIdCounter++, title: '组合一', total: 2, required: 1, items: pkg.items.slice(0, half) },
+                        { id: comboIdCounter++, title: '组合二', total: 8, required: 6, items: pkg.items.slice(half) }
+                    ];
                 }
             } else {
                 packageModalTitle.textContent = '新建套餐';
                 packageNameInput.value = '';
                 packagePriceInput.value = '';
-                combo1TitleInput.value = '';
-                combo2TitleInput.value = '';
-                selectedItems = [];
+                var def = getParamTemplateDefault();
+                packageCombos = [{ id: comboIdCounter++, title: '组合一', total: def.total, required: def.required, items: [] }];
             }
             productSearchInput.value = '';
+            renderCombosBlocks();
             renderSelectProductTable();
-            renderComboLists();
             updatePriceSummary();
             packageValidationText.style.display = 'none';
             packageValidationText.textContent = '';
@@ -1368,233 +1445,157 @@
             }
         });
 
-        function getComboCounts() {
-            const c1 = selectedItems.filter(i => i.combo === 1).length;
-            const c2 = selectedItems.filter(i => i.combo === 2).length;
-            return { c1, c2 };
+        // 渲染组合区块（可增删、含添加商品按钮）
+        function renderCombosBlocks() {
+            if (!packageCombosContainer) return;
+            packageCombosContainer.innerHTML = '';
+            packageCombos.forEach((combo, idx) => {
+                var block = document.createElement('div');
+                block.className = 'combo-block';
+                block.dataset.comboIndex = idx;
+                var total = Math.max(1, combo.total || 2);
+                var required = Math.min(combo.required || 1, total);
+                block.innerHTML = '<div class="combo-block-header">' +
+                    '<input type="text" class="combo-block-title-input" placeholder="组合标题" value="' + (combo.title || '') + '">' +
+                    '<span class="combo-required-setting">必选：<input type="number" class="combo-total-input" min="1" value="' + total + '" title="本组合需勾选几个商品">选' +
+                    '<input type="number" class="combo-required-input" min="1" max="' + total + '" value="' + required + '" title="顾客下单时从中选几个">' +
+                    '</span>' +
+                    '<button type="button" class="btn-add-product" data-combo-index="' + idx + '">+ 添加商品</button>' +
+                    (packageCombos.length > 1 ? '<button type="button" class="btn-remove-combo" data-combo-index="' + idx + '">删除组合</button>' : '') +
+                    '</div>' +
+                    '<div class="package-selected-list package-combo-list" id="comboList' + idx + '"></div>' +
+                    '<div class="section-desc-sm" id="comboTips' + idx + '">' + (combo.items.length ? '' : '暂未选择商品，请点击「添加商品」从商品列表中选择。') + '</div>';
+                packageCombosContainer.appendChild(block);
+
+                var listEl = block.querySelector('.package-selected-list');
+                var tipsEl = block.querySelector('.section-desc-sm');
+                combo.items.forEach(function (item) {
+                    var div = document.createElement('div');
+                    div.className = 'package-selected-item';
+                    div.dataset.productId = item.productId;
+                    div.dataset.comboIndex = idx;
+                    div.innerHTML = '<div class="package-selected-main"><img src="' + (item.image || '../../images/01.jpg') + '" alt="" onerror="this.src=\'../../images/01.jpg\'"><div><div class="package-selected-name">' + item.name + '</div><div class="package-selected-sub">单价：¥' + (item.price ? item.price.toFixed(2) : '0.00') + '</div></div></div>' +
+                        '<div class="package-selected-qty"><span>数量</span><input type="number" min="1" class="selected-qty-input" data-product-id="' + item.productId + '" data-combo-index="' + idx + '" value="' + (item.quantity || 1) + '"><span class="package-selected-remove" data-product-id="' + item.productId + '" data-combo-index="' + idx + '">移除</span></div>';
+                    listEl.appendChild(div);
+                });
+                tipsEl.style.display = combo.items.length ? 'none' : 'block';
+
+                block.querySelector('.combo-total-input').addEventListener('input', function () {
+                    var v = Math.max(1, parseInt(this.value, 10) || 1);
+                    combo.total = v;
+                    var req = block.querySelector('.combo-required-input');
+                    req.max = v;
+                    if (parseInt(req.value, 10) > v) req.value = v;
+                    combo.required = Math.min(parseInt(req.value, 10) || 1, v);
+                });
+                block.querySelector('.combo-required-input').addEventListener('input', function () {
+                    combo.required = Math.min(Math.max(1, parseInt(this.value, 10) || 1), combo.total || 999);
+                });
+                block.querySelector('.combo-block-title-input').addEventListener('input', function () { combo.title = this.value; });
+
+                block.querySelector('.btn-add-product').addEventListener('click', function () {
+                    addingToComboIndex = idx;
+                    if (packageEditLeftPanel) packageEditLeftPanel.classList.remove('hidden');
+                    renderSelectProductTable();
+                });
+                if (block.querySelector('.btn-remove-combo')) {
+                    block.querySelector('.btn-remove-combo').addEventListener('click', function () {
+                        packageCombos.splice(idx, 1);
+                        renderCombosBlocks();
+                        updatePriceSummary();
+                    });
+                }
+            });
         }
 
-        // 渲染商品选择表格（含加入组合下拉）
-        function renderSelectProductTable() {
-            const keyword = productSearchInput.value.toLowerCase();
-            const { c1, c2 } = getComboCounts();
-            selectProductTableBody.innerHTML = '';
-            products
-                .filter(p => {
-                    if (!keyword) return true;
-                    const kw = keyword.toLowerCase();
-                    return p.id.toString().includes(kw) || p.name.toLowerCase().includes(kw);
-                })
-                .forEach(p => {
-                    const tr = document.createElement('tr');
-                    const sel = selectedItems.find(item => item.productId === p.id);
-                    const selected = !!sel;
-                    const comboVal = selected ? String(sel.combo) : '';
-                    const opt1Disabled = !selected && c1 >= COMBO1_MAX ? ' disabled' : '';
-                    const opt2Disabled = !selected && c2 >= COMBO2_MAX ? ' disabled' : '';
-                    tr.innerHTML = `
-                        <td style="text-align: center;">
-                            <input type="checkbox" class="select-product-checkbox" data-id="${p.id}" ${selected ? 'checked' : ''}>
-                        </td>
-                        <td>
-                            <span class="select-product-name" data-id="${p.id}">${p.name}</span>
-                        </td>
-                        <td>¥${p.price.toFixed(2)}</td>
-                        <td>
-                            <select class="select-combo-select" data-id="${p.id}">
-                                <option value="">请选择</option>
-                                <option value="1"${opt1Disabled}>组合一(2选1)</option>
-                                <option value="2"${opt2Disabled}>组合二(8选6)</option>
-                            </select>
-                        </td>
-                    `;
-                    const selectEl = tr.querySelector('.select-combo-select');
-                    if (comboVal) selectEl.value = comboVal;
-                    selectProductTableBody.appendChild(tr);
+        if (addComboBtn) {
+            addComboBtn.addEventListener('click', function () {
+                var def = getParamTemplateDefault();
+                packageCombos.push({ id: comboIdCounter++, title: '组合' + (packageCombos.length + 1), total: def.total, required: def.required, items: [] });
+                renderCombosBlocks();
+            });
+        }
+        if (productPanelClose) productPanelClose.addEventListener('click', function () { if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden'); addingToComboIndex = -1; });
+        if (confirmAddProductsBtn) {
+            confirmAddProductsBtn.addEventListener('click', function () {
+                if (addingToComboIndex < 0 || addingToComboIndex >= packageCombos.length) return;
+                var combo = packageCombos[addingToComboIndex];
+                document.querySelectorAll('.select-product-checkbox:checked').forEach(function (cb) {
+                    var pid = parseInt(cb.dataset.id, 10);
+                    if (combo.items.some(function (i) { return i.productId === pid; })) return;
+                    var p = products.find(function (x) { return x.id === pid; });
+                    if (p) combo.items.push({ productId: p.id, name: p.name, image: p.image, price: p.price, quantity: 1 });
                 });
+                document.querySelectorAll('.select-product-checkbox').forEach(function (cb) { cb.checked = false; });
+                addingToComboIndex = -1;
+                if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden');
+                renderCombosBlocks();
+                updatePriceSummary();
+            });
+        }
+
+        function renderSelectProductTable() {
+            if (!selectProductTableBody) return;
+            var keyword = (productSearchInput && productSearchInput.value) ? productSearchInput.value.toLowerCase() : '';
+            var combo = addingToComboIndex >= 0 && addingToComboIndex < packageCombos.length ? packageCombos[addingToComboIndex] : null;
+            var existingIds = combo ? combo.items.map(function (i) { return i.productId; }) : [];
+            selectProductTableBody.innerHTML = '';
+            products.filter(function (p) {
+                if (keyword && !p.id.toString().includes(keyword) && !p.name.toLowerCase().includes(keyword)) return false;
+                return true;
+            }).forEach(function (p) {
+                var tr = document.createElement('tr');
+                var inCombo = existingIds.indexOf(p.id) >= 0;
+                tr.innerHTML = '<td style="text-align:center;"><input type="checkbox" class="select-product-checkbox" data-id="' + p.id + '"' + (inCombo ? ' checked disabled' : '') + '></td>' +
+                    '<td><span class="select-product-name" data-id="' + p.id + '">' + p.name + '</span></td>' +
+                    '<td>¥' + p.price.toFixed(2) + '</td>';
+                selectProductTableBody.appendChild(tr);
+            });
         }
 
         productSearchInput.addEventListener('input', renderSelectProductTable);
 
-        // 处理左侧勾选：必须已选「加入组合」再勾选，且组合一最多2个、组合二最多8个
-        document.addEventListener('change', function (e) {
-            if (e.target.classList.contains('select-product-checkbox')) {
-                const productId = parseInt(e.target.dataset.id, 10);
-                const product = products.find(p => p.id === productId);
-                if (!product) return;
-                const row = e.target.closest('tr');
-                const comboSelect = row ? row.querySelector('.select-combo-select') : null;
-                const comboVal = comboSelect ? comboSelect.value : '';
-
-                if (e.target.checked) {
-                    if (!comboVal) {
-                        e.target.checked = false;
-                        alert('请先在「加入组合」中选择组合一或组合二，再勾选商品。');
-                        return;
-                    }
-                    const combo = parseInt(comboVal, 10);
-                    const { c1, c2 } = getComboCounts();
-                    if (combo === 1 && c1 >= COMBO1_MAX) {
-                        e.target.checked = false;
-                        alert('组合一最多只能选 2 个商品（2选1）。');
-                        return;
-                    }
-                    if (combo === 2 && c2 >= COMBO2_MAX) {
-                        e.target.checked = false;
-                        alert('组合二最多只能选 8 个商品（8选6）。');
-                        return;
-                    }
-                    const existed = selectedItems.find(item => item.productId === productId);
-                    if (!existed) {
-                        selectedItems.push({
-                            productId: product.id,
-                            name: product.name,
-                            image: product.image,
-                            price: product.price,
-                            quantity: 1,
-                            combo: combo
-                        });
-                    }
-                } else {
-                    selectedItems = selectedItems.filter(item => item.productId !== productId);
-                    if (comboSelect) comboSelect.value = '';
-                }
-                renderSelectProductTable();
-                renderComboLists();
-                updatePriceSummary();
-            }
-
-            if (e.target.classList.contains('select-combo-select')) {
-                const productId = parseInt(e.target.dataset.id, 10);
-                const product = products.find(p => p.id === productId);
-                const val = e.target.value;
-                const row = e.target.closest('tr');
-                const checkbox = row ? row.querySelector('.select-product-checkbox') : null;
-
-                if (val === '') {
-                    selectedItems = selectedItems.filter(item => item.productId !== productId);
-                    if (checkbox) checkbox.checked = false;
-                } else {
-                    const combo = parseInt(val, 10);
-                    const { c1, c2 } = getComboCounts();
-                    const alreadyIn = selectedItems.find(item => item.productId === productId);
-                    const count = alreadyIn ? (alreadyIn.combo === 1 ? c1 : c2) - 1 : (combo === 1 ? c1 : c2);
-                    if (combo === 1 && count >= COMBO1_MAX) {
-                        e.target.value = alreadyIn ? String(alreadyIn.combo) : '';
-                        alert('组合一最多 2 个商品。');
-                        return;
-                    }
-                    if (combo === 2 && count >= COMBO2_MAX) {
-                        e.target.value = alreadyIn ? String(alreadyIn.combo) : '';
-                        alert('组合二最多 8 个商品。');
-                        return;
-                    }
-                    if (!product) return;
-                    if (alreadyIn) {
-                        alreadyIn.combo = combo;
-                    } else {
-                        selectedItems.push({
-                            productId: product.id,
-                            name: product.name,
-                            image: product.image,
-                            price: product.price,
-                            quantity: 1,
-                            combo: combo
-                        });
-                        if (checkbox) checkbox.checked = true;
-                    }
-                }
-                renderSelectProductTable();
-                renderComboLists();
-                updatePriceSummary();
-            }
-        });
-
-        // 点击名称也切换选择（需先选组合）
-        document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('select-product-name')) {
-                const id = e.target.dataset.id;
-                const row = e.target.closest('tr');
-                const checkbox = row ? row.querySelector('.select-product-checkbox') : null;
-                const comboSelect = row ? row.querySelector('.select-combo-select') : null;
-                if (checkbox && comboSelect && comboSelect.value) {
-                    checkbox.checked = !checkbox.checked;
-                    checkbox.dispatchEvent(new Event('change'));
-                }
-            }
-        });
-
-        // 渲染右侧组合一、组合二列表
-        function renderComboLists() {
-            const list1 = selectedItems.filter(i => i.combo === 1);
-            const list2 = selectedItems.filter(i => i.combo === 2);
-
-            combo1Tips.style.display = list1.length ? 'none' : 'block';
-            combo1Tips.textContent = list1.length === 0 ? '暂未选择，请在左侧勾选商品并选择「组合一」。（需满 2 个）' : (list1.length < COMBO1_MAX ? `已选 ${list1.length}/${COMBO1_MAX} 个，还需选满 2 个。` : '');
-            packageCombo1List.innerHTML = '';
-            list1.forEach(item => renderOneComboItem(packageCombo1List, item));
-
-            combo2Tips.style.display = list2.length ? 'none' : 'block';
-            combo2Tips.textContent = list2.length === 0 ? '暂未选择，请在左侧勾选商品并选择「组合二」。（需满 8 个）' : (list2.length < COMBO2_MAX ? `已选 ${list2.length}/${COMBO2_MAX} 个，还需选满 8 个。` : '');
-            packageCombo2List.innerHTML = '';
-            list2.forEach(item => renderOneComboItem(packageCombo2List, item));
-        }
-
-        function renderOneComboItem(container, item) {
-            const div = document.createElement('div');
-            div.className = 'package-selected-item';
-            div.dataset.productId = item.productId;
-            div.innerHTML = `
-                <div class="package-selected-main">
-                    <img src="${item.image || '../../images/01.jpg'}" alt="${item.name}" onerror="this.src='../../images/01.jpg'">
-                    <div>
-                        <div class="package-selected-name">${item.name}</div>
-                        <div class="package-selected-sub">单价：¥${item.price.toFixed(2)}</div>
-                    </div>
-                </div>
-                <div class="package-selected-qty">
-                    <span>数量</span>
-                    <input type="number" min="1" step="1" class="selected-qty-input" data-product-id="${item.productId}" value="${item.quantity || 1}">
-                    <span class="package-selected-remove" data-product-id="${item.productId}">移除</span>
-                </div>
-            `;
-            container.appendChild(div);
-        }
-
-        // 已选商品数量变化
         document.addEventListener('input', function (e) {
             if (e.target.classList.contains('selected-qty-input')) {
-                const productId = parseInt(e.target.dataset.productId, 10);
-                const qty = Math.max(1, parseInt(e.target.value || '1', 10));
+                var pid = parseInt(e.target.dataset.productId, 10);
+                var idx = parseInt(e.target.dataset.comboIndex, 10);
+                var qty = Math.max(1, parseInt(e.target.value, 10) || 1);
                 e.target.value = qty;
-                const item = selectedItems.find(i => i.productId === productId);
-                if (item) {
-                    item.quantity = qty;
-                    updatePriceSummary();
+                var combo = packageCombos[idx];
+                if (combo) {
+                    var item = combo.items.find(function (i) { return i.productId === pid; });
+                    if (item) { item.quantity = qty; updatePriceSummary(); }
                 }
             }
         });
 
         document.addEventListener('click', function (e) {
             if (e.target.classList.contains('package-selected-remove')) {
-                const productId = parseInt(e.target.dataset.productId, 10);
-                selectedItems = selectedItems.filter(i => i.productId !== productId);
-                const checkbox = document.querySelector('.select-product-checkbox[data-id="' + productId + '"]');
-                if (checkbox) checkbox.checked = false;
-                const comboSelect = document.querySelector('.select-combo-select[data-id="' + productId + '"]');
-                if (comboSelect) comboSelect.value = '';
-                renderSelectProductTable();
-                renderComboLists();
-                updatePriceSummary();
+                var pid = parseInt(e.target.dataset.productId, 10);
+                var idx = parseInt(e.target.dataset.comboIndex, 10);
+                var combo = packageCombos[idx];
+                if (combo) {
+                    combo.items = combo.items.filter(function (i) { return i.productId !== pid; });
+                    renderCombosBlocks();
+                    updatePriceSummary();
+                }
+            }
+            if (e.target.classList.contains('select-product-name')) {
+                var row = e.target.closest('tr');
+                var cb = row ? row.querySelector('.select-product-checkbox') : null;
+                if (cb && !cb.disabled) { cb.checked = !cb.checked; }
             }
         });
 
-        // 更新价格汇总区
+
         function calculateOriginPrice() {
-            return selectedItems.reduce((sum, item) => {
-                const qty = item.quantity || 1;
-                return sum + item.price * qty;
-            }, 0);
+            var total = 0;
+            packageCombos.forEach(function (combo) {
+                (combo.items || []).forEach(function (item) {
+                    total += (item.price || 0) * (item.quantity || 1);
+                });
+            });
+            return total;
         }
 
         function updatePriceSummary() {
@@ -1625,93 +1626,79 @@
 
         packagePriceInput.addEventListener('input', updatePriceSummary);
 
-        // 保存套餐（校验组合一2个、组合二8个，并保存组合标题）
         if (packageModalConfirm) {
             packageModalConfirm.addEventListener('click', function () {
-                const name = packageNameInput.value.trim();
-                const combo1Title = combo1TitleInput.value.trim();
-                const combo2Title = combo2TitleInput.value.trim();
-                let price = parseFloat(packagePriceInput.value);
-                const originPrice = calculateOriginPrice();
-                const list1 = selectedItems.filter(i => i.combo === 1);
-                const list2 = selectedItems.filter(i => i.combo === 2);
+                var name = packageNameInput.value.trim();
+                var price = parseFloat(packagePriceInput.value);
+                var originPrice = calculateOriginPrice();
+                var allItems = [];
 
                 if (!name) {
                     alert('请填写套餐名称');
                     return;
                 }
-                if (list1.length !== COMBO1_MAX) {
-                    alert('套餐内组合一必须恰好选择 2 个商品（2选1）。当前已选 ' + list1.length + ' 个。');
+                if (!packageCombos.length) {
+                    alert('请至少添加一个套餐内组合');
                     return;
                 }
-                if (list2.length !== COMBO2_MAX) {
-                    alert('套餐内组合二必须恰好选择 8 个商品（8选6）。当前已选 ' + list2.length + ' 个。');
-                    return;
-                }
-                if (!combo1Title) {
-                    alert('请填写组合一的标题');
-                    return;
-                }
-                if (!combo2Title) {
-                    alert('请填写组合二的标题');
-                    return;
+                for (var i = 0; i < packageCombos.length; i++) {
+                    var combo = packageCombos[i];
+                    var title = (combo.title || '').trim();
+                    if (!title) {
+                        alert('请填写第' + (i + 1) + '个组合的标题');
+                        return;
+                    }
+                    var total = Math.max(1, combo.total || 1);
+                    var required = Math.min(combo.required || 1, total);
+                    if (combo.items.length !== total) {
+                        alert('组合「' + title + '」需勾选 ' + total + ' 个商品（' + total + '选' + required + '），当前已选 ' + combo.items.length + ' 个。');
+                        return;
+                    }
+                    combo.items.forEach(function (it) { allItems.push(it); });
                 }
                 if (isNaN(price) || price <= 0) {
                     alert('请填写有效的套餐售价（大于 0）');
                     return;
                 }
                 if (originPrice > 0 && price > originPrice) {
-                    if (!confirm('套餐售价高于原价合计，是否仍然保存？')) {
-                        return;
-                    }
+                    if (!confirm('套餐售价高于原价合计，是否仍然保存？')) return;
                 }
 
                 price = parseFloat(price.toFixed(2));
-                const now = new Date();
-                const addTime = now.toISOString().slice(0, 10);
-                const combo1Items = list1.map(item => ({
-                    productId: item.productId,
-                    name: item.name,
-                    image: item.image,
-                    price: item.price,
-                    quantity: item.quantity || 1
-                }));
-                const combo2Items = list2.map(item => ({
-                    productId: item.productId,
-                    name: item.name,
-                    image: item.image,
-                    price: item.price,
-                    quantity: item.quantity || 1
-                }));
-                const allItems = [...combo1Items, ...combo2Items];
+                var addTime = new Date().toISOString().slice(0, 10);
+                var combosData = packageCombos.map(function (c) {
+                    return { title: c.title, total: c.total, required: c.required, items: c.items.map(function (i) {
+                        return { productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 };
+                    })};
+                });
 
                 if (editingPackageId) {
-                    const pkg = packages.find(p => p.id === editingPackageId);
+                    var pkg = packages.find(function (p) { return p.id === editingPackageId; });
                     if (pkg) {
                         pkg.name = name;
                         pkg.price = price;
                         pkg.originPrice = parseFloat(originPrice.toFixed(2));
-                        pkg.combo1 = { title: combo1Title, items: combo1Items };
-                        pkg.combo2 = { title: combo2Title, items: combo2Items };
+                        pkg.combos = combosData;
+                        pkg.combo1 = combosData[0] || null;
+                        pkg.combo2 = combosData[1] || null;
                         pkg.items = allItems;
                     }
                 } else {
-                    const newId = packages.length ? Math.max(...packages.map(p => p.id)) + 1 : 1001;
-                    const newPackage = {
+                    var newId = packages.length ? Math.max.apply(null, packages.map(function (p) { return p.id; })) + 1 : 1001;
+                    packages.unshift({
                         id: newId,
-                        name,
-                        image: allItems[0]?.image || '../../images/01.jpg',
-                        price,
+                        name: name,
+                        image: (allItems[0] && allItems[0].image) ? allItems[0].image : '../../images/01.jpg',
+                        price: price,
                         originPrice: parseFloat(originPrice.toFixed(2)),
-                        combo1: { title: combo1Title, items: combo1Items },
-                        combo2: { title: combo2Title, items: combo2Items },
+                        combos: combosData,
+                        combo1: combosData[0] || null,
+                        combo2: combosData[1] || null,
                         items: allItems,
                         status: 'selling',
-                        addTime
-                    };
-                    packages.unshift(newPackage);
+                        addTime: addTime
+                    });
                 }
-
                 filterPackages();
                 closePackageModal();
             });
@@ -1769,7 +1756,6 @@
 
         // 初始化
         filterPackages();
-        renderSelectProductTable();
     </script>
 </body>
 </html>

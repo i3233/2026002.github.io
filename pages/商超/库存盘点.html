@@ -33,12 +33,95 @@
         .diff-minus { color: var(--color-error); }
         .diff-zero { color: var(--color-text-secondary); }
         .actual-qty-input { width: 80px; padding: 4px 8px; border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); text-align: right; font-size: var(--font-size-sm); }
-        .photo-view-link { color: var(--color-primary); cursor: pointer; }
+
+        .inventory-photo-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            background-color: var(--color-neutral-100);
+        }
+
         .photo-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
         .photo-modal-overlay.show { display: flex; }
         .photo-modal-box { background: #fff; border-radius: var(--radius-lg); padding: var(--spacing-lg); max-width: 90vw; max-height: 90vh; overflow: auto; text-align: center; }
         .photo-modal-box img { max-width: 100%; max-height: 70vh; }
         .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
+
+        /* 详情弹窗 */
+        .detail-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-modal-overlay.show { display: flex; }
+        .detail-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 780px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .detail-modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .detail-modal-title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+        }
+        .detail-modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .detail-modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .detail-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--spacing-xs) var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+        .detail-item-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+        .detail-item-value {
+            font-size: var(--font-size-sm);
+        }
+        .serial-list-box {
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: var(--font-size-xs);
+        }
     </style>
 </head>
 <body>
@@ -65,9 +148,10 @@
             </div>
             <div class="toolbar-right">
                 <button class="btn btn-outline" id="newCheckBtn">+ 新建盘点</button>
-                <button class="btn btn-outline" id="importCheckBtn">导入盘点单</button>
+                <!-- 导入/保存按钮移动到新建盘点弹窗中，这里保持隐藏仅复用逻辑 -->
+                <button class="btn btn-outline" id="importCheckBtn" style="display:none;">导入盘点单</button>
                 <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" style="display: none;">
-                <button class="btn btn-primary" id="saveCheckBtn">保存盘点</button>
+                <button class="btn btn-primary" id="saveCheckBtn" style="display:none;">保存盘点</button>
                 <button class="btn btn-outline" id="exportBtn">导出</button>
                 <button class="btn btn-outline" id="printBtn">打印</button>
             </div>
@@ -110,6 +194,7 @@
                             <th class="text-right">单价(元)</th>
                             <th class="text-right">盈亏金额(元)</th>
                             <th>备注</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -123,17 +208,106 @@
             <button type="button" class="btn btn-outline" id="photoModalClose" style="margin-top:12px;">关闭</button>
         </div>
     </div>
+
+    <!-- 详情弹窗：单条商品盘点明细 -->
+    <div class="detail-modal-overlay" id="checkDetailModal">
+        <div class="detail-modal">
+            <div class="detail-modal-header">
+                <h3 class="detail-modal-title" id="checkDetailTitle">盘点明细详情</h3>
+                <button type="button" class="btn btn-outline" id="checkDetailCloseBtn">关闭</button>
+            </div>
+            <div class="detail-modal-body" id="checkDetailContent"></div>
+            <div class="detail-modal-footer">
+                <button type="button" class="btn btn-primary" id="checkDetailOkBtn">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建盘点弹窗 -->
+    <div class="detail-modal-overlay" id="newCheckModal">
+        <div class="detail-modal">
+            <div class="detail-modal-header">
+                <h3 class="detail-modal-title">新建盘点单</h3>
+                <button type="button" class="btn btn-outline" id="newCheckCloseBtn">关闭</button>
+            </div>
+            <div class="detail-modal-body">
+                <div class="detail-section-title">盘点单基础信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">盘点单号</div>
+                        <div class="detail-item-value">
+                            <input type="text" id="newCheckId" placeholder="可留空自动生成" style="width:100%;padding:4px 8px;border:1px solid var(--color-neutral-300);border-radius:4px;">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">盘点日期</div>
+                        <div class="detail-item-value">
+                            <input type="date" id="newCheckDate" style="width:100%;padding:4px 8px;border:1px solid var(--color-neutral-300);border-radius:4px;">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">门店</div>
+                        <div class="detail-item-value">
+                            <select id="newCheckWarehouse" style="width:100%;padding:4px 8px;border:1px solid var(--color-neutral-300);border-radius:4px;">
+                                <option value="WH001">总店</option>
+                                <option value="WH002">分店A</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">盘点范围</div>
+                        <div class="detail-item-value">
+                            <select id="newCheckScope" style="width:100%;padding:4px 8px;border:1px solid var(--color-neutral-300);border-radius:4px;">
+                                <option value="all">全部商品</option>
+                                <option value="category">按分类</option>
+                                <option value="zone">按货区/货架</option>
+                                <option value="manual">手动导入明细</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section-title">其他设置</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">是否启用序列号盘点</div>
+                        <div class="detail-item-value">
+                            <select id="newCheckSerialMode" style="width:100%;padding:4px 8px;border:1px solid var(--color-neutral-300);border-radius:4px;">
+                                <option value="no">否（仅按数量）</option>
+                                <option value="yes">是（需要维护序列号明细）</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">备注</div>
+                        <div class="detail-item-value">
+                            <textarea id="newCheckRemark" rows="2" style="width:100%;padding:4px 8px;border:1px solid var(--color-neutral-300);border-radius:4px;resize:vertical;" placeholder="如：总店月度盘点、节前全面清点等"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-top:4px;">
+                    说明：新建盘点单后，可通过“导入盘点单”将Excel或CSV中的盘点明细导入，或按当前库存自动生成明细，再录入实际数量并保存。
+                </div>
+            </div>
+            <div class="detail-modal-footer">
+                <button type="button" class="btn btn-outline" id="newCheckCancelBtn">取消</button>
+                <button type="button" class="btn btn-outline" id="newCheckImportBtn">导入盘点单</button>
+                <button type="button" class="btn btn-primary" id="newCheckSaveBtn">保存盘点</button>
+            </div>
+        </div>
+    </div>
     <script>
         const warehouses = [{ id: 'WH001', name: '总店' }, { id: 'WH002', name: '分店A' }];
         // 模拟盘点明细：与库存查询商品一致，含系统数量；实际数量可录入，盈亏自动计算
         let checkDetails = [
-            { productId: 'PRD001', productName: '隔热垫', spec: '30cm×30cm', category: '厨房用品', zone: 'A区', shelf: 'A-01', photo: '', systemQty: 107, actualQty: 107, unit: '个', avgCost: 12.50 },
-            { productId: 'PRD002', productName: 'p-6炒锅', spec: '32cm', category: '厨房用品', zone: 'A区', shelf: 'A-02', photo: '', systemQty: 2, actualQty: 2, unit: '个', avgCost: 158.00 },
-            { productId: 'PRD003', productName: '雅安茶叶', spec: '500g/盒', category: '食品', zone: 'B区', shelf: 'B-01', photo: '', systemQty: 80, actualQty: 78, unit: '盒', avgCost: 45.00 },
-            { productId: 'PRD004', productName: '雅安花椒', spec: '250g/袋', category: '食品', zone: 'B区', shelf: 'B-02', photo: '', systemQty: 50, actualQty: 52, unit: '袋', avgCost: 28.00 },
-            { productId: 'PRD005', productName: '雅安腊肉', spec: '500g/包', category: '食品', zone: 'B区', shelf: 'B-03', photo: '', systemQty: 5, actualQty: 5, unit: '包', avgCost: 38.00 },
-            { productId: 'PRD006', productName: '熊猫玩偶', spec: '20cm', category: '其他', zone: 'C区', shelf: 'C-01', photo: '', systemQty: 50, actualQty: 48, unit: '个', avgCost: 15.00 },
-            { productId: 'PRD007', productName: '雅安明信片', spec: '一套10张', category: '其他', zone: 'C区', shelf: 'C-02', photo: '', systemQty: 20, actualQty: 20, unit: '套', avgCost: 12.00 }
+            { productId: 'PRD001', productName: '隔热垫', spec: '30cm×30cm', category: '厨房用品', zone: 'A区', shelf: 'A-01', photo: '../../images/01.jpg', systemQty: 107, actualQty: 107, unit: '个', avgCost: 12.50 },
+            { productId: 'PRD002', productName: 'p-6炒锅', spec: '32cm', category: '厨房用品', zone: 'A区', shelf: 'A-02', photo: '../../images/02.jpg', systemQty: 2, actualQty: 2, unit: '个', avgCost: 158.00 },
+            { productId: 'PRD003', productName: '雅安茶叶', spec: '500g/盒', category: '食品', zone: 'B区', shelf: 'B-01', photo: '../../images/03.jpg', systemQty: 80, actualQty: 78, unit: '盒', avgCost: 45.00 },
+            { productId: 'PRD004', productName: '雅安花椒', spec: '250g/袋', category: '食品', zone: 'B区', shelf: 'B-02', photo: '../../images/04.jpg', systemQty: 50, actualQty: 52, unit: '袋', avgCost: 28.00 },
+            { productId: 'PRD005', productName: '雅安腊肉', spec: '500g/包', category: '食品', zone: 'B区', shelf: 'B-03', photo: '../../images/05.jpg', systemQty: 5, actualQty: 5, unit: '包', avgCost: 38.00, serialNumbers: ['YA-0001','YA-0002','YA-0003','YA-0004','YA-0005'] },
+            { productId: 'PRD006', productName: '熊猫玩偶', spec: '20cm', category: '其他', zone: 'C区', shelf: 'C-01', photo: '../../images/06.jpg', systemQty: 50, actualQty: 48, unit: '个', avgCost: 15.00 },
+            { productId: 'PRD007', productName: '雅安明信片', spec: '一套10张', category: '其他', zone: 'C区', shelf: 'C-02', photo: '../../images/03.jpg', systemQty: 20, actualQty: 20, unit: '套', avgCost: 12.00 }
         ];
 
         function getDiffQty(row) {
@@ -166,7 +340,10 @@
                 const diffAmtText = diffAmount === null ? '-' : (diffAmount >= 0 ? '+' : '') + diffAmount.toFixed(2);
 
                 const tr = document.createElement('tr');
-                const photoHtml = '<a href="#" class="photo-view-link" data-url="' + (row.photo || '').replace(/"/g, '&quot;') + '" data-name="' + (row.productName || '').replace(/"/g, '&quot;') + '">查看</a>';
+                const photoUrl = row.photo || '../../images/01.jpg';
+                const safeUrl = (photoUrl || '').replace(/"/g, '&quot;');
+                const safeName = (row.productName || '').replace(/"/g, '&quot;');
+                const photoHtml = '<img src="' + safeUrl + '" alt="照片" class="inventory-photo-thumb" data-url="' + safeUrl + '" data-name="' + safeName + '">';
                 tr.innerHTML = `
                     <td>${row.productId}</td>
                     <td>${row.productName}</td>
@@ -183,6 +360,7 @@
                     <td class="text-right">${(row.avgCost || 0).toFixed(2)}</td>
                     <td class="text-right ${diffQtyCls}">${diffAmtText}</td>
                     <td>${row.remark || '-'}</td>
+                    <td><a href="#" class="detail-link" data-id="${row.productId}">查看详情</a></td>
                 `;
                 tr.querySelector('.actual-qty-input').addEventListener('input', function() {
                     row.actualQty = this.value;
@@ -206,8 +384,39 @@
         document.getElementById('warehouseSelect').addEventListener('change', function() {
             render();
         });
-        document.getElementById('newCheckBtn').addEventListener('click', function() {
-            alert('新建盘点（示例）：可选择门店、盘点范围，生成盘点单并带出当前系统库存作为系统数量，再录入实际数量。');
+        // 新建盘点弹窗
+        const newCheckModal = document.getElementById('newCheckModal');
+        const newCheckIdInput = document.getElementById('newCheckId');
+        const newCheckDateInput = document.getElementById('newCheckDate');
+        const newCheckWarehouseSelect = document.getElementById('newCheckWarehouse');
+        const newCheckScopeSelect = document.getElementById('newCheckScope');
+        const newCheckSerialModeSelect = document.getElementById('newCheckSerialMode');
+        const newCheckRemarkInput = document.getElementById('newCheckRemark');
+
+        function openNewCheckModal() {
+            const today = new Date().toISOString().slice(0, 10);
+            newCheckIdInput.value = '';
+            newCheckDateInput.value = today;
+            newCheckWarehouseSelect.value = document.getElementById('warehouseSelect').value || 'WH001';
+            newCheckScopeSelect.value = 'all';
+            newCheckSerialModeSelect.value = 'no';
+            newCheckRemarkInput.value = '';
+            newCheckModal.classList.add('show');
+        }
+        function closeNewCheckModal() {
+            newCheckModal.classList.remove('show');
+        }
+
+        document.getElementById('newCheckBtn').addEventListener('click', openNewCheckModal);
+        document.getElementById('newCheckCloseBtn').addEventListener('click', closeNewCheckModal);
+        document.getElementById('newCheckCancelBtn').addEventListener('click', closeNewCheckModal);
+        newCheckModal.addEventListener('click', function (e) {
+            if (e.target === newCheckModal) closeNewCheckModal();
+        });
+
+        // 弹窗里的导入/保存，复用原有逻辑
+        document.getElementById('newCheckImportBtn').addEventListener('click', function () {
+            document.getElementById('importCheckBtn').click();
         });
 
         // 导入盘点单：支持 CSV（Excel 另存为 CSV 或 .xlsx 需浏览器支持）
@@ -296,7 +505,13 @@
         }
 
         document.getElementById('saveCheckBtn').addEventListener('click', function() {
-            alert('保存盘点（示例）：将当前实际数量与盈亏结果保存，可生成盘盈/盘亏单并更新库存。');
+            alert('保存盘点（示例）：将当前实际数量与盈亏结果保存，可生成盘盈/盘亏单并更新库存。\n（当前为示意逻辑，未接入真实数据保存接口）');
+        });
+
+        document.getElementById('newCheckSaveBtn').addEventListener('click', function () {
+            // 这里简单复用原有保存逻辑作为示意
+            document.getElementById('saveCheckBtn').click();
+            closeNewCheckModal();
         });
         document.getElementById('exportBtn').addEventListener('click', function() {
             alert('导出（示例）\n共 ' + checkDetails.length + ' 条盘点明细');
@@ -317,18 +532,136 @@
         });
         document.getElementById('photoModalClose').addEventListener('click', function() { document.getElementById('photoModalOverlay').classList.remove('show'); });
         document.getElementById('photoModalOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
-        document.body.addEventListener('click', function(e) {
-            var link = e.target.closest('.photo-view-link');
-            if (!link) return;
-            e.preventDefault();
-            var url = (link.dataset.url || '').trim();
-            var name = (link.dataset.name || '').replace(/&quot;/g, '"');
-            var content = document.getElementById('photoModalContent');
-            if (url) content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><img src="' + url.replace(/</g, '&lt;') + '" alt="照片" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'block\';"><div class="photo-placeholder" style="display:none;">暂无照片</div>';
-            else content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><div class="photo-placeholder">暂无照片</div>';
-            document.getElementById('photoModalOverlay').classList.add('show');
-        });
+
         render();
+
+        // 缩略图放大 & 详情
+        document.body.addEventListener('click', function (e) {
+            const img = e.target.closest('.inventory-photo-thumb');
+            if (img) {
+                const url = (img.dataset.url || img.src || '').trim();
+                const name = (img.dataset.name || '').replace(/&quot;/g, '"');
+                const content = document.getElementById('photoModalContent');
+                if (url) {
+                    content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><img src="' + url.replace(/</g, '&lt;') + '" alt="照片">';
+                } else {
+                    content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><div class="photo-placeholder">暂无照片</div>';
+                }
+                document.getElementById('photoModalOverlay').classList.add('show');
+                return;
+            }
+            const detailLink = e.target.closest('.detail-link');
+            if (detailLink) {
+                e.preventDefault();
+                openCheckDetail(detailLink.dataset.id);
+            }
+        });
+
+        function openCheckDetail(productId) {
+            const row = checkDetails.find(r => r.productId === productId);
+            if (!row) return;
+            const modal = document.getElementById('checkDetailModal');
+            const titleEl = document.getElementById('checkDetailTitle');
+            const contentEl = document.getElementById('checkDetailContent');
+            if (!modal || !contentEl) return;
+
+            if (titleEl) titleEl.textContent = '盘点明细 - ' + (row.productName || '');
+
+            const baseHtml = `
+                <div class="detail-section-title">基础信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">商品ID</div>
+                        <div class="detail-item-value">${row.productId}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">商品名称</div>
+                        <div class="detail-item-value">${row.productName}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">规格</div>
+                        <div class="detail-item-value">${row.spec}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">分类</div>
+                        <div class="detail-item-value">${row.category}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">货区/货架</div>
+                        <div class="detail-item-value">${(row.zone || '-') + ' / ' + (row.shelf || '-')}</div>
+                    </div>
+                </div>
+            `;
+
+            const diffQty = getDiffQty(row);
+            const diffAmt = getDiffAmount(row);
+            const invHtml = `
+                <div class="detail-section-title">盘点信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">系统数量</div>
+                        <div class="detail-item-value">${row.systemQty} ${row.unit || ''}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">实际数量</div>
+                        <div class="detail-item-value">${row.actualQty} ${row.unit || ''}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">盈亏数量</div>
+                        <div class="detail-item-value">${diffQty == null ? '-' : diffQty}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">单价(元)</div>
+                        <div class="detail-item-value">${(row.avgCost || 0).toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">盈亏金额(元)</div>
+                        <div class="detail-item-value">${diffAmt == null ? '-' : diffAmt.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">备注</div>
+                        <div class="detail-item-value">${row.remark || '-'}</div>
+                    </div>
+                </div>
+            `;
+
+            const serials = row.serialNumbers;
+            let serialHtml = '';
+            if (Array.isArray(serials) && serials.length) {
+                const rows = serials.map((s, idx) => `<div>${idx + 1}. ${s}</div>`).join('');
+                serialHtml = `
+                    <div class="detail-section-title">序列号明细（与当前库存/实际数量对应）</div>
+                    <div class="serial-list-box">${rows}</div>
+                    <div style="margin-top:4px;font-size:var(--font-size-xs);color:var(--color-text-secondary);">
+                        注：示例数据，实际系统可依据入库/出库记录自动关联盘点时在库序列号。
+                    </div>
+                `;
+            } else {
+                serialHtml = `
+                    <div class="detail-section-title">序列号明细</div>
+                    <div class="serial-list-box">当前商品未启用序列号管理或暂无明细。</div>
+                `;
+            }
+
+            contentEl.innerHTML = baseHtml + invHtml + serialHtml;
+            modal.classList.add('show');
+        }
+
+        (function () {
+            const modal = document.getElementById('checkDetailModal');
+            const closeBtn = document.getElementById('checkDetailCloseBtn');
+            const okBtn = document.getElementById('checkDetailOkBtn');
+            function closeDetail() {
+                if (modal) modal.classList.remove('show');
+            }
+            if (closeBtn) closeBtn.addEventListener('click', closeDetail);
+            if (okBtn) okBtn.addEventListener('click', closeDetail);
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeDetail();
+                });
+            }
+        })();
     </script>
 </body>
 </html>

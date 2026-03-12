@@ -69,6 +69,7 @@
                             <th>姓名</th>
                             <th>手机号</th>
                             <th>所属门店</th>
+                            <th>登录帐号</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
@@ -83,10 +84,10 @@
     </div>
     <script>
         var list = [
-            { code: 'SP01', name: '李四', mobile: '13900139001', store: '总店', status: 'enabled' },
-            { code: 'SP02', name: '赵六', mobile: '13900139002', store: '总店', status: 'enabled' },
-            { code: 'SP03', name: '孙八', mobile: '13900139003', store: '分店A', status: 'enabled' },
-            { code: 'SP04', name: '郑十一', mobile: '13900139004', store: '分店A', status: 'disabled' }
+            { code: 'SP01', name: '李四', mobile: '13900139001', store: '总店', login: 'guide001', status: 'enabled' },
+            { code: 'SP02', name: '赵六', mobile: '13900139002', store: '总店', login: 'guide002', status: 'enabled' },
+            { code: 'SP03', name: '孙八', mobile: '13900139003', store: '分店A', login: 'guide003', status: 'enabled' },
+            { code: 'SP04', name: '郑十一', mobile: '13900139004', store: '分店A', login: 'guide004', status: 'disabled' }
         ];
         var currentPage = 1, pageSize = 10;
         function getFilteredList() {
@@ -108,9 +109,18 @@
             tbody.innerHTML = '';
             pageData.forEach(function(row) {
                 var tr = document.createElement('tr');
-                tr.innerHTML = '<td>' + (row.code || '-') + '</td><td>' + (row.name || '-') + '</td><td>' + (row.mobile || '-') + '</td><td>' + (row.store || '-') + '</td>' +
+                tr.innerHTML =
+                    '<td>' + (row.code || '-') + '</td>' +
+                    '<td>' + (row.name || '-') + '</td>' +
+                    '<td>' + (row.mobile || '-') + '</td>' +
+                    '<td>' + (row.store || '-') + '</td>' +
+                    '<td>' + (row.login || '-') + '</td>' +
                     '<td><span class="status-badge ' + (row.status || '') + '">' + (row.status === 'enabled' ? '启用' : '禁用') + '</span></td>' +
-                    '<td><a href="#" class="action-link edit-item" data-code="' + (row.code || '') + '">编辑</a><a href="#" class="action-link danger toggle-item" data-code="' + (row.code || '') + '">' + (row.status === 'enabled' ? '禁用' : '启用') + '</a></td>';
+                    '<td>' +
+                        '<a href="#" class="action-link edit-item" data-code="' + (row.code || '') + '">编辑</a>' +
+                        '<a href="#" class="action-link reset-pwd-item" data-code="' + (row.code || '') + '">重置密码</a>' +
+                        '<a href="#" class="action-link danger toggle-item" data-code="' + (row.code || '') + '">' + (row.status === 'enabled' ? '禁用' : '启用') + '</a>' +
+                    '</td>';
                 tbody.appendChild(tr);
             });
             var pagination = document.getElementById('paginationPages');
@@ -132,8 +142,21 @@
         document.getElementById('addBtn').addEventListener('click', function() { alert('新增导购员（示例）'); });
         document.getElementById('tableBody').addEventListener('click', function(e) {
             e.preventDefault();
-            if (e.target.closest('.edit-item')) alert('编辑导购员（示例）');
-            if (e.target.closest('.toggle-item')) alert('切换启用/禁用（示例）');
+            var editEl = e.target.closest('.edit-item');
+            var toggleEl = e.target.closest('.toggle-item');
+            var resetEl = e.target.closest('.reset-pwd-item');
+            if (editEl) {
+                alert('编辑导购员（示例）');
+            }
+            if (resetEl) {
+                var code = resetEl.getAttribute('data-code') || '';
+                if (confirm('确定要重置该导购员（工号：' + code + '）的登录密码吗？\n重置后将生成一个系统默认密码，请及时通知员工修改。')) {
+                    alert('密码已重置（示例）：\n新密码：123456\n实际系统中应调用后台接口完成重置。');
+                }
+            }
+            if (toggleEl) {
+                alert('切换启用/禁用（示例）');
+            }
         });
         render();
     </script>

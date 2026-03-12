@@ -619,13 +619,6 @@
                 <span>至</span>
                 <input type="date" id="endDate" value="">
             </div>
-            <div class="filter-item">
-                <label>仓库：</label>
-                <select id="warehouseSelect">
-                    <option value="">全部仓库</option>
-                    <!-- 选项由JS动态生成 -->
-                </select>
-            </div>
             <button class="btn btn-primary" id="queryBtn">查询</button>
             <button class="btn btn-outline" id="exportBtn">
                 <span class="btn-icon-text">
@@ -889,15 +882,6 @@
             document.getElementById('endDate').value = today.toISOString().split('T')[0];
             document.getElementById('startDate').value = sevenDaysAgo.toISOString().split('T')[0];
 
-            // 初始化仓库选择器
-            const warehouseSelect = document.getElementById('warehouseSelect');
-            warehouses.forEach(warehouse => {
-                const option = document.createElement('option');
-                option.value = warehouse.id;
-                option.textContent = warehouse.name;
-                warehouseSelect.appendChild(option);
-            });
-
             // 加载数据
             loadHistoryData();
         }
@@ -928,9 +912,6 @@
             if (endDate) {
                 filteredHistoryData = filteredHistoryData.filter(item => item.date <= endDate);
             }
-
-            // 仓库筛选（当前示例数据没有仓库字段，暂时跳过）
-            const warehouseId = document.getElementById('warehouseSelect').value;
 
             // 按日期倒序排列（最新的在前）
             filteredHistoryData.sort((a, b) => b.date.localeCompare(a.date));

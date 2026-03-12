@@ -19,6 +19,15 @@
         .tab-btn { padding: var(--spacing-sm) var(--spacing-lg); border: none; background: none; font-size: var(--font-size-base); color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
         .tab-btn:hover { color: var(--color-primary); }
         .tab-btn.active { color: var(--color-primary); font-weight: var(--font-weight-medium); border-bottom-color: var(--color-primary); }
+        .summary-row { display: flex; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg); flex-wrap: wrap; }
+        .summary-card { flex: 1; min-width: 220px; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); }
+        .summary-label { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs); }
+        .summary-value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); display: flex; align-items: baseline; gap: var(--spacing-xs); }
+        .summary-value-blue { color: var(--color-primary); }
+        .summary-value-green { color: var(--color-success); }
+        .summary-value-orange { color: #ff8c42; }
+        .summary-value-red { color: var(--color-error); }
+
         .table-container { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
         .table-wrapper { overflow-x: auto; }
         .table-container table { width: 100%; border-collapse: collapse; }
@@ -92,6 +101,26 @@
                     <option value="微信">微信</option>
                     <option value="支付宝">支付宝</option>
                 </select>
+            </div>
+        </div>
+
+        <!-- 汇总统计（类似历史结存样式） -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">订单总数</div>
+                <div class="summary-value summary-value-blue" id="summaryOrderCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">实收总金额</div>
+                <div class="summary-value summary-value-green" id="summaryTotalAmount">¥0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">退款总金额</div>
+                <div class="summary-value summary-value-orange" id="summaryTotalRefund">¥0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">提成总额（当前维度）</div>
+                <div class="summary-value summary-value-red" id="summaryTotalCommission">¥0.00</div>
             </div>
         </div>
 
@@ -206,6 +235,15 @@
             next.disabled = currentPage >= totalPages;
             next.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; render(); } });
             pagination.appendChild(next);
+
+            // 汇总统计：订单数、实收总额、退款总额、提成总额（当前维度）
+            var totalAmount = data.reduce(function (sum, row) { return sum + (row.amount || 0); }, 0);
+            var totalRefund = data.reduce(function (sum, row) { return sum + (row.refund || 0); }, 0);
+            var totalCommission = data.reduce(function (sum, row) { return sum + (row[cfg.commissionKey] || 0); }, 0);
+            document.getElementById('summaryOrderCount').textContent = data.length;
+            document.getElementById('summaryTotalAmount').textContent = '¥' + totalAmount.toFixed(2);
+            document.getElementById('summaryTotalRefund').textContent = '¥' + totalRefund.toFixed(2);
+            document.getElementById('summaryTotalCommission').textContent = '¥' + totalCommission.toFixed(2);
         }
 
         document.querySelectorAll('.tab-btn').forEach(function(btn) {

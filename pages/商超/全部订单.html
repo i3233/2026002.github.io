@@ -1110,6 +1110,9 @@
 
             subtitle.textContent = '订单号：' + order.id;
 
+            const isRefund = (order.status && (order.status.indexOf('退款') !== -1 || order.status.indexOf('售后') !== -1))
+                || (order.afterSale && order.afterSale !== '无');
+
             body.innerHTML = `
                 <div class="order-detail-section">
                     <div class="order-detail-section-title">基本信息</div>
@@ -1166,9 +1169,21 @@
                         <span class="order-detail-kv-label">售后状态</span>
                         <span class="order-detail-kv-value">${order.afterSale}</span>
                     </div>
+                    ${isRefund ? `
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">处理流程</span>
+                        <span class="order-detail-kv-value">
+                            <span>发起退款/售后 → 平台审核 → 原路退款/门店处理完成</span>
+                        </span>
+                    </div>
+                    <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 4px;">
+                        当前为示意流程，可根据实际业务补充节点（如：客服介入、退货入库、财务退款等）。
+                    </div>
+                    ` : `
                     <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 8px;">
                         当前详情为示意数据，后续可在此展示商品明细、物流信息等。
                     </div>
+                    `}
                 </div>
             `;
 

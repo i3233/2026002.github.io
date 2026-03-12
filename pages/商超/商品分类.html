@@ -20,6 +20,10 @@
                 </button>
         </div>
             <div class="category-list-actions">
+                <button class="category-list-btn category-list-btn-outline category-list-btn-danger" id="batchDeleteBtn" style="display:none;">
+                    <span class="category-list-btn-icon">×</span>
+                    批量删除
+                </button>
                 <button class="category-list-btn category-list-btn-primary" id="createCategoryBtn">
                     <span class="category-list-btn-icon">+</span>
                     新建分类
@@ -119,9 +123,10 @@
                         </div>
                         <div class="product-list-form-group">
                             <label class="product-list-form-label">上级分类</label>
-                            <div id="parentCategoryDisplay" class="category-parent-display">
-                                当前为一级分类
-                            </div>
+                            <select class="product-list-form-input" id="parentCategorySelect">
+                                <option value="">无（一级分类）</option>
+                            </select>
+                            <div id="parentCategoryDisplay" class="category-parent-display" style="margin-top:6px;display:none;"></div>
                                 </div>
                         <div class="product-list-form-group">
                             <label class="product-list-form-label">排序</label>
@@ -226,6 +231,7 @@
                         </div>
 
     <link rel="stylesheet" href="../../css/餐饮商品列表.css">
+    <script src="../../js/商超分类数据.js"></script>
     <script src="../../js/商超商品分类.js"></script>
 </body>
 </html>

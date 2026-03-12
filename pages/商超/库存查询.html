@@ -258,13 +258,100 @@
             color: var(--color-text-secondary);
         }
 
-        .photo-view-link { color: var(--color-primary); cursor: pointer; }
-        .photo-view-link:hover { text-decoration: underline; }
+        .inventory-photo-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            background-color: var(--color-neutral-100);
+        }
+        .photo-placeholder {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
         .photo-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
         .photo-modal-overlay.show { display: flex; }
         .photo-modal-box { background: #fff; border-radius: var(--radius-lg); padding: var(--spacing-lg); max-width: 90vw; max-height: 90vh; overflow: auto; text-align: center; }
         .photo-modal-box img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; }
         .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
+
+        /* 详情弹窗 */
+        .detail-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-modal-overlay.show { display: flex; }
+        .detail-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .detail-modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .detail-modal-title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+        }
+        .detail-modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .detail-modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .detail-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--spacing-xs) var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+        .detail-item-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+        .detail-item-value {
+            font-size: var(--font-size-sm);
+        }
+        .serial-list-box {
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: var(--font-size-xs);
+        }
 
         /* 底部工具栏 */
         .bottom-toolbar {
@@ -478,6 +565,7 @@
                             <th class="sortable text-right" data-sort="inventory">库存 ◇</th>
                             <th class="text-right">平均单位成本</th>
                             <th class="text-right">库存余额</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="inventoryTableBody">
@@ -516,6 +604,22 @@
         <div class="photo-modal-box">
             <div id="photoModalContent"></div>
             <div style="margin-top:12px;"><button type="button" class="btn btn-outline" id="photoModalClose">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- 库存详情弹窗 -->
+    <div class="detail-modal-overlay" id="inventoryDetailModal">
+        <div class="detail-modal">
+            <div class="detail-modal-header">
+                <h3 class="detail-modal-title" id="inventoryDetailTitle">库存详情</h3>
+                <button type="button" class="btn btn-outline" id="inventoryDetailCloseBtn">关闭</button>
+            </div>
+            <div class="detail-modal-body" id="inventoryDetailContent">
+                <!-- JS 渲染 -->
+            </div>
+            <div class="detail-modal-footer">
+                <button type="button" class="btn btn-primary" id="inventoryDetailOkBtn">我知道了</button>
+            </div>
         </div>
     </div>
 
@@ -637,7 +741,8 @@
                 lastTradeDate: '2025-01-30',
                 zone: 'B区',
                 shelf: 'B-03',
-                photo: ''
+                photo: '',
+                serialNumbers: ['PRD005-0001', 'PRD005-0002', 'PRD005-0003', 'PRD005-0004', 'PRD005-0005']
             },
             {
                 id: 'PRD006',
@@ -903,7 +1008,7 @@
             tbody.innerHTML = '';
 
             if (filteredData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无数据</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无数据</td></tr>';
                 document.getElementById('totalRecords').textContent = '0';
                 return;
             }
@@ -915,8 +1020,11 @@
 
             pageData.forEach((item, index) => {
                 const row = document.createElement('tr');
-                const photoUrl = item.photo || '';
-                const photoHtml = '<a href="#" class="photo-view-link" data-url="' + (photoUrl || '').replace(/"/g, '&quot;') + '" data-name="' + (item.name || '').replace(/"/g, '&quot;') + '">查看</a>';
+                // 默认使用 images 文件夹下的图片作为缩略图
+                const photoUrl = item.photo || '../../images/01.jpg';
+                const safeName = (item.name || '').replace(/"/g, '&quot;');
+                const safeUrl = (photoUrl || '').replace(/"/g, '&quot;');
+                const photoHtml = '<img src="' + safeUrl + '" alt="照片" class="inventory-photo-thumb" data-url="' + safeUrl + '" data-name="' + safeName + '">';
                 row.innerHTML = `
                     <td>${startIndex + index + 1}</td>
                     <td>${item.id}</td>
@@ -935,6 +1043,7 @@
                     </td>
                     <td class="text-right">¥${item.avgCost.toFixed(2)}</td>
                     <td class="text-right">¥${item.balance.toFixed(2)}</td>
+                    <td><a href="#" class="detail-link" data-id="${item.id}">查看详情</a></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1049,8 +1158,7 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const productId = this.dataset.id;
-                    const product = inventoryData.find(p => p.id === productId);
-                    alert(`产品详情（示例）\n产品ID：${product.id}\n产品名称：${product.name}\n规格型号：${product.spec}\n库存：${product.inventory}${product.unit}\n库存余额：¥${product.balance.toFixed(2)}`);
+                    openInventoryDetail(productId);
                 });
             });
 
@@ -1063,11 +1171,10 @@
                 });
             });
 
-            // 照片查看大图
-            document.querySelectorAll('.photo-view-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const url = (this.dataset.url || '').trim();
+            // 照片缩略图放大
+            document.querySelectorAll('.inventory-photo-thumb').forEach(img => {
+                img.addEventListener('click', function() {
+                    const url = (this.dataset.url || this.src || '').trim();
                     const name = (this.dataset.name || '商品').replace(/&quot;/g, '"');
                     const content = document.getElementById('photoModalContent');
                     const overlay = document.getElementById('photoModalOverlay');
@@ -1079,6 +1186,15 @@
                     overlay.classList.add('show');
                 });
             });
+
+            // 查看详情
+            document.querySelectorAll('.detail-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = this.dataset.id;
+                    openInventoryDetail(productId);
+                });
+            });
         }
 
         // 照片弹窗关闭
@@ -1088,6 +1204,133 @@
         document.getElementById('photoModalOverlay').addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('show');
         });
+
+        // 库存详情弹窗
+        function openInventoryDetail(productId) {
+            const product = inventoryData.find(p => p.id === productId);
+            if (!product) return;
+            const modal = document.getElementById('inventoryDetailModal');
+            const titleEl = document.getElementById('inventoryDetailTitle');
+            const contentEl = document.getElementById('inventoryDetailContent');
+            if (!modal || !contentEl) return;
+
+            if (titleEl) {
+                titleEl.textContent = '库存详情 - ' + (product.name || '');
+            }
+
+            const baseInfoHtml = `
+                <div class="detail-section-title">基础信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">产品ID</div>
+                        <div class="detail-item-value">${product.id || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">产品名称</div>
+                        <div class="detail-item-value">${product.name || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">规格型号</div>
+                        <div class="detail-item-value">${product.spec || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">分类</div>
+                        <div class="detail-item-value">${product.category || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">仓库/门店</div>
+                        <div class="detail-item-value">${product.warehouse || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">货区/货架</div>
+                        <div class="detail-item-value">${(product.zone || '-') + ' / ' + (product.shelf || '-')}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">条码</div>
+                        <div class="detail-item-value">${product.barcode || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">备注</div>
+                        <div class="detail-item-value">${product.remark || '-'}</div>
+                    </div>
+                </div>
+            `;
+
+            const inventoryInfoHtml = `
+                <div class="detail-section-title">库存信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">入库数量</div>
+                        <div class="detail-item-value">${product.inQty}${product.unit || ''}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">出库数量</div>
+                        <div class="detail-item-value">${product.outQty}${product.unit || ''}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">当前库存</div>
+                        <div class="detail-item-value">${product.inventory}${product.unit || ''}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">平均单位成本</div>
+                        <div class="detail-item-value">¥${product.avgCost.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">库存余额</div>
+                        <div class="detail-item-value">¥${product.balance.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">入库日期</div>
+                        <div class="detail-item-value">${product.entryDate || '-'}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">最后交易日期</div>
+                        <div class="detail-item-value">${product.lastTradeDate || '-'}</div>
+                    </div>
+                </div>
+            `;
+
+            let serialHtml = '';
+            const serials = product.serialNumbers;
+            if (Array.isArray(serials) && serials.length) {
+                const itemsHtml = serials.map((s, idx) => `<div>${idx + 1}. ${s}</div>`).join('');
+                serialHtml = `
+                    <div class="detail-section-title">序列号明细（库存中商品）</div>
+                    <div class="serial-list-box">
+                        ${itemsHtml}
+                    </div>
+                    <div style="margin-top:4px; font-size: var(--font-size-xs); color: var(--color-text-secondary);">
+                        注：本示例显示与当前库存数量对应的序列号列表，实际系统可根据入库/出库记录动态维护。
+                    </div>
+                `;
+            } else {
+                serialHtml = `
+                    <div class="detail-section-title">序列号明细</div>
+                    <div class="serial-list-box">
+                        当前商品未启用序列号管理或暂无可用序列号明细。
+                    </div>
+                `;
+            }
+
+            contentEl.innerHTML = baseInfoHtml + inventoryInfoHtml + serialHtml;
+            modal.classList.add('show');
+        }
+
+        (function () {
+            const modal = document.getElementById('inventoryDetailModal');
+            const closeBtn = document.getElementById('inventoryDetailCloseBtn');
+            const okBtn = document.getElementById('inventoryDetailOkBtn');
+            function closeDetail() {
+                if (modal) modal.classList.remove('show');
+            }
+            if (closeBtn) closeBtn.addEventListener('click', closeDetail);
+            if (okBtn) okBtn.addEventListener('click', closeDetail);
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeDetail();
+                });
+            }
+        })();
 
         // 打印
         function printData() {

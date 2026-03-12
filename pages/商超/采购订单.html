@@ -817,16 +817,6 @@
                             <input type="number" id="poPayable" min="0" step="0.01" placeholder="可与进货金额一致或部分付款">
                         </div>
                         <div class="form-group">
-                            <label>订单状态</label>
-                            <select id="poStatus">
-                                <option value="待提交">待提交</option>
-                                <option value="审核中">审核中</option>
-                                <option value="待入库">待入库</option>
-                                <option value="部分入库">部分入库</option>
-                                <option value="已关闭">已关闭</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label>附件</label>
                             <input type="text" id="poAttachment" placeholder="如：上传后填写数量或说明">
                         </div>
@@ -840,7 +830,7 @@
             </div>
         </div>
 
-        <!-- 商品选择器弹窗（点击商品名称时弹出：左侧分类、右侧商品列表） -->
+        <!-- 商品选择器弹窗（点击商品名称时弹出：左侧分类、右侧商品列表，可多选） -->
         <div class="product-picker-overlay" id="productPickerOverlay">
             <div class="product-picker-modal">
                 <div class="product-picker-head">
@@ -859,6 +849,10 @@
                             <!-- JS 渲染商品列表 -->
                         </div>
                     </div>
+                </div>
+                <div class="modal-foot" style="border-top: 1px solid var(--color-neutral-200); padding: var(--spacing-sm) var(--spacing-md); display:flex; justify-content:flex-end; gap: var(--spacing-sm);">
+                    <button type="button" class="btn btn-outline" id="productPickerCancelBtn">取消</button>
+                    <button type="button" class="btn btn-primary" id="productPickerConfirmBtn">确定</button>
                 </div>
             </div>
         </div>
@@ -1476,7 +1470,7 @@
             actionMenu.classList.remove('show');
         }
         function gotoStorage(orderId) {
-            window.open(`采购入库.html?orderId=${encodeURIComponent(orderId)}`, '_blank');
+            window.open(`采购入库办理.html?orderId=${encodeURIComponent(orderId)}`, '_blank');
         }
         function auditOrder(id) {
             const item = purchases.find(p => p.id === id);
@@ -1829,7 +1823,9 @@
             { name: '手工茶饼', category: '文创产品', spec: '', unit: '盒' },
             { name: '精品礼盒装', category: '文创产品', spec: '1kg装', unit: '盒' }
         ];
-        let currentPoRowTarget = null; // 当前要回填商品的行
+        // 多选：记录当前已勾选的商品索引
+        let productPickerSelectedIdx = new Set();
+        let currentPoRowTarget = null; // 当前要回填商品的行（保留，首个商品可回填到当前行）
         const productPickerOverlay = document.getElementById('productPickerOverlay');
         const productPickerListEl = document.getElementById('productPickerList');
         const productPickerCategoriesEl = document.getElementById('productPickerCategories');
@@ -1844,7 +1840,6 @@
             document.getElementById('poStaff').value = '';
             document.getElementById('poRemark').value = '';
             document.getElementById('poPayable').value = '';
-            document.getElementById('poStatus').value = '待提交';
             document.getElementById('poAttachment').value = '';
             poDetailBody.innerHTML = '';
             addPoDetailRow();
@@ -1864,26 +1859,16 @@
                 ? productPickerProducts
                 : productPickerProducts.filter(p => p.category === cat);
             productPickerListEl.innerHTML = '';
-            list.forEach(function (p) {
+            list.forEach(function (p, idx) {
                 const div = document.createElement('div');
                 div.className = 'product-picker-item';
-                div.dataset.name = p.name;
-                div.dataset.spec = p.spec || '';
-                div.dataset.unit = p.unit || '';
-                div.innerHTML = '<div>' + (p.name || '') + '</div>' + (p.spec ? '<div class="product-picker-item-spec">' + p.spec + '</div>' : '');
-                div.addEventListener('click', function () {
-                    if (!currentPoRowTarget) return;
-                    const nameInput = currentPoRowTarget.querySelector('.po-name');
-                    const specInput = currentPoRowTarget.querySelector('.po-spec');
-                    const unitSelect = currentPoRowTarget.querySelector('.po-unit');
-                    if (nameInput) nameInput.value = p.name;
-                    if (specInput) specInput.value = p.spec || '';
-                    if (unitSelect && p.unit) {
-                        const opt = Array.from(unitSelect.options).find(o => o.value === p.unit);
-                        if (opt) unitSelect.value = p.unit;
-                    }
-                    closeProductPicker();
-                });
+                const globalIdx = productPickerProducts.indexOf(p);
+                const checked = productPickerSelectedIdx.has(globalIdx);
+                div.innerHTML =
+                    '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
+                    '<input type="checkbox" class="product-picker-checkbox" data-idx="' + globalIdx + '" ' + (checked ? 'checked' : '') + '>' +
+                    '<div>' + (p.name || '') + (p.spec ? '<div class="product-picker-item-spec">' + p.spec + '</div>' : '') + '</div>' +
+                    '</label>';
                 productPickerListEl.appendChild(div);
             });
         }
@@ -1891,6 +1876,7 @@
             const row = rowOrInput && rowOrInput.closest ? rowOrInput.closest('tr') : (rowOrInput && rowOrInput.tagName === 'TR' ? rowOrInput : null);
             if (!row || !row.querySelector('.po-name')) return;
             currentPoRowTarget = row;
+            productPickerSelectedIdx.clear();
             productPickerCurrentCategory = '全部';
             productPickerCategoriesEl.querySelectorAll('.product-picker-cat-item').forEach(function (el) {
                 el.classList.toggle('active', el.dataset.category === '全部');
@@ -1900,6 +1886,7 @@
         }
         function closeProductPicker() {
             currentPoRowTarget = null;
+            productPickerSelectedIdx.clear();
             productPickerOverlay.classList.remove('show');
         }
         if (productPickerOverlay) {
@@ -1907,6 +1894,8 @@
             productPickerOverlay.addEventListener('click', function (e) {
                 if (e.target === productPickerOverlay) closeProductPicker();
             });
+            const cancelBtn = document.getElementById('productPickerCancelBtn');
+            if (cancelBtn) cancelBtn.addEventListener('click', closeProductPicker);
         }
         if (productPickerCategoriesEl) {
             productPickerCategoriesEl.addEventListener('click', function (e) {
@@ -1922,6 +1911,64 @@
         poDetailBody.addEventListener('click', function (e) {
             if (e.target.classList.contains('po-name')) openProductPicker(e.target);
         });
+
+        // 勾选/取消勾选商品
+        productPickerListEl.addEventListener('change', function (e) {
+            const cb = e.target.closest('.product-picker-checkbox');
+            if (!cb) return;
+            const idx = parseInt(cb.dataset.idx, 10);
+            if (Number.isNaN(idx)) return;
+            if (cb.checked) {
+                productPickerSelectedIdx.add(idx);
+            } else {
+                productPickerSelectedIdx.delete(idx);
+            }
+        });
+
+        // 确认选择：多选商品 -> 自动新增明细行
+        const productPickerConfirmBtn = document.getElementById('productPickerConfirmBtn');
+        if (productPickerConfirmBtn) {
+            productPickerConfirmBtn.addEventListener('click', function () {
+                if (!productPickerSelectedIdx.size) {
+                    alert('请至少选择一个商品');
+                    return;
+                }
+                let first = true;
+                productPickerSelectedIdx.forEach(function (idx) {
+                    const p = productPickerProducts[idx];
+                    if (!p) return;
+                    if (first && currentPoRowTarget) {
+                        const nameInput = currentPoRowTarget.querySelector('.po-name');
+                        const specInput = currentPoRowTarget.querySelector('.po-spec');
+                        const unitSelect = currentPoRowTarget.querySelector('.po-unit');
+                        if (nameInput) nameInput.value = p.name;
+                        if (specInput) specInput.value = p.spec || '';
+                        if (unitSelect && p.unit) {
+                            const opt = Array.from(unitSelect.options).find(o => o.value === p.unit);
+                            if (opt) unitSelect.value = p.unit;
+                        }
+                        first = false;
+                    } else {
+                        addPoDetailRow();
+                        const rows = poDetailBody.querySelectorAll('tr');
+                        const tr = rows[rows.length - 1];
+                        if (tr) {
+                            const nameInput = tr.querySelector('.po-name');
+                            const specInput = tr.querySelector('.po-spec');
+                            const unitSelect = tr.querySelector('.po-unit');
+                            if (nameInput) nameInput.value = p.name;
+                            if (specInput) specInput.value = p.spec || '';
+                            if (unitSelect && p.unit) {
+                                const opt = Array.from(unitSelect.options).find(o => o.value === p.unit);
+                                if (opt) unitSelect.value = p.unit;
+                            }
+                        }
+                    }
+                });
+                updatePoTotals();
+                closeProductPicker();
+            });
+        }
 
         function addPoDetailRow() {
             const tr = document.createElement('tr');

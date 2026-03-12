@@ -1218,6 +1218,7 @@
             const item = returns.find(r => r.id === id);
             const status = item ? item.status : '';
             let html = '<div class="action-menu-item" data-action="view">查看详情</div>';
+            if (status === '待提交') html += '<div class="action-menu-item" data-action="edit">编辑退货单</div>';
             if (status === '待提交') html += '<div class="action-menu-item" data-action="submitAudit">提交审核</div>';
             if (status === '审核中') html += '<div class="action-menu-item" data-action="audit">审核</div>';
             if (status === '待退货') html += '<div class="action-menu-item" data-action="doReturn">执行退货</div>';
@@ -1326,6 +1327,7 @@
             hideActionMenu();
             if (!id) return;
             if (action === 'view') openOrderDetail(id);
+            if (action === 'edit') openReturnModal(id);
             if (action === 'submitAudit') submitForAudit(id);
             if (action === 'audit') auditOrder(id);
             if (action === 'doReturn') doReturn(id);
@@ -1504,28 +1506,99 @@
         const returnModalEl = document.getElementById('returnModalOverlay');
         const rtDetailBody = document.getElementById('rtDetailBody');
         const rtProductList = ['蒙顶山茶', '雅安花椒油', '雅安蜂蜜', '熊猫周边玩偶', '雅安腊肉', '雅安特产礼盒'];
+        let editingReturnId = null;
 
-        function openReturnModal() {
+        function openReturnModal(editId) {
+            const titleEl = returnModalEl.querySelector('.modal-head h3');
             const today = new Date().toISOString().slice(0, 10);
-            document.getElementById('rtOrderId').value = '';
-            document.getElementById('rtDate').value = today;
-            document.getElementById('rtPartner').value = '';
-            document.getElementById('rtProject').value = '';
-            document.getElementById('rtStaff').value = '';
-            document.getElementById('rtReason').value = '';
-            document.getElementById('rtRemark').value = '';
-            document.getElementById('rtPayable').value = '';
-            document.getElementById('rtStatus').value = '待审核';
-            document.getElementById('rtAttachment').value = '';
-            rtDetailBody.innerHTML = '';
-            addRtDetailRow();
-            addRtDetailRow();
-            updateRtTotals();
+            editingReturnId = null;
+
+            if (editId) {
+                // 编辑模式：根据已有退货单填充
+                const item = returns.find(r => r.id === editId);
+                const details = getDetailsById(editId);
+                if (!item) return;
+                if (titleEl) titleEl.textContent = '编辑退货单';
+
+                document.getElementById('rtOrderId').value = item.id;
+                document.getElementById('rtDate').value = item.date || today;
+                document.getElementById('rtPartner').value = item.partner || '';
+                document.getElementById('rtProject').value = item.project && item.project !== '-' ? item.project : '';
+                document.getElementById('rtStaff').value = item.staff || '';
+                // 备注里可能包含原因，这里不做拆分，只原样回填
+                document.getElementById('rtReason').value = '';
+                document.getElementById('rtRemark').value = item.remark || '';
+                document.getElementById('rtPayable').value = (item.payable != null ? item.payable : '').toString();
+                document.getElementById('rtStatus').value = item.status || '待审核';
+                document.getElementById('rtAttachment').value = item.attachment || '';
+
+                rtDetailBody.innerHTML = '';
+                if (details && details.length) {
+                    details.forEach(function (d) {
+                        const tr = document.createElement('tr');
+                        const qty = Number(d.qty) || 0;
+                        const price = Number(d.price) || 0;
+                        tr.innerHTML = `
+                            <td><input type="text" class="rt-name" placeholder="商品名称" list="rtProductList" value="${d.name || ''}"></td>
+                            <td><input type="text" class="rt-spec" placeholder="规格" value="${d.spec || ''}"></td>
+                            <td>
+                                <select class="rt-unit">
+                                    <option value="个"${(d.unit || '') === '个' ? ' selected' : ''}>个</option>
+                                    <option value="盒"${(d.unit || '') === '盒' ? ' selected' : ''}>盒</option>
+                                    <option value="袋"${(d.unit || '') === '袋' ? ' selected' : ''}>袋</option>
+                                    <option value="瓶"${(d.unit || '') === '瓶' ? ' selected' : ''}>瓶</option>
+                                    <option value="包"${(d.unit || '') === '包' ? ' selected' : ''}>包</option>
+                                    <option value="套"${(d.unit || '') === '套' ? ' selected' : ''}>套</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="rt-qty col-num" min="0" step="0.01" value="${qty.toFixed(2)}"></td>
+                            <td><input type="number" class="rt-price col-price" min="0" step="0.01" value="${price.toFixed(2)}"></td>
+                            <td class="col-amount rt-amount">${(qty * price).toFixed(2)}</td>
+                            <td class="col-action"><button type="button" class="btn-text danger rt-remove-row">删除</button></td>
+                        `;
+                        rtDetailBody.appendChild(tr);
+                    });
+                } else {
+                    rtDetailBody.innerHTML = '';
+                    addRtDetailRow();
+                }
+                // 绑定行内事件
+                rtDetailBody.querySelectorAll('tr').forEach(function (tr) {
+                    tr.querySelector('.rt-qty').addEventListener('input', updateRtRowAmount);
+                    tr.querySelector('.rt-price').addEventListener('input', updateRtRowAmount);
+                    tr.querySelector('.rt-remove-row').addEventListener('click', function () {
+                        if (rtDetailBody.querySelectorAll('tr').length <= 1) return;
+                        tr.remove();
+                        updateRtTotals();
+                    });
+                });
+
+                editingReturnId = editId;
+                updateRtTotals();
+            } else {
+                // 新增模式
+                if (titleEl) titleEl.textContent = '新增退货单';
+                document.getElementById('rtOrderId').value = '';
+                document.getElementById('rtDate').value = today;
+                document.getElementById('rtPartner').value = '';
+                document.getElementById('rtProject').value = '';
+                document.getElementById('rtStaff').value = '';
+                document.getElementById('rtReason').value = '';
+                document.getElementById('rtRemark').value = '';
+                document.getElementById('rtPayable').value = '';
+                document.getElementById('rtStatus').value = '待审核';
+                document.getElementById('rtAttachment').value = '';
+                rtDetailBody.innerHTML = '';
+                addRtDetailRow();
+                addRtDetailRow();
+                updateRtTotals();
+            }
             returnModalEl.classList.add('show');
         }
 
         function closeReturnModal() {
             returnModalEl.classList.remove('show');
+            editingReturnId = null;
         }
 
         function addRtDetailRow() {
@@ -1619,26 +1692,54 @@
             }
             var payable = parseFloat(document.getElementById('rtPayable').value);
             if (isNaN(payable)) payable = -totalAmount;
-            var newId = orderId || ('TH' + date.replace(/-/g, '') + String(returns.length + 1).padStart(3, '0'));
-            var now = new Date();
-            var recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
-            returns.unshift({
-                id: newId,
-                date: date,
-                partner: partner,
-                project: document.getElementById('rtProject').value.trim() || '-',
-                staff: document.getElementById('rtStaff').value || '',
-                remark: document.getElementById('rtRemark').value.trim() || document.getElementById('rtReason').value.trim() || '',
-                qty: totalQty,
-                amount: totalAmount,
-                payable: payable,
-                status: document.getElementById('rtStatus').value,
-                attachment: document.getElementById('rtAttachment').value.trim() || '',
-                recorder: '系统管理员',
-                recordTime: recordTime
-            });
-            returnDetailsMap[newId] = rows;
+
+            // 编辑模式：更新原有记录
+            if (editingReturnId) {
+                var idx = returns.findIndex(function (r) { return r.id === editingReturnId; });
+                if (idx > -1) {
+                    var now = new Date();
+                    var recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+                    returns[idx] = {
+                        ...returns[idx],
+                        id: editingReturnId,
+                        date: date,
+                        partner: partner,
+                        project: document.getElementById('rtProject').value.trim() || '-',
+                        staff: document.getElementById('rtStaff').value || '',
+                        remark: document.getElementById('rtRemark').value.trim() || document.getElementById('rtReason').value.trim() || '',
+                        qty: totalQty,
+                        amount: totalAmount,
+                        payable: payable,
+                        status: document.getElementById('rtStatus').value,
+                        attachment: document.getElementById('rtAttachment').value.trim() || '',
+                        recordTime: recordTime
+                    };
+                    returnDetailsMap[editingReturnId] = rows;
+                }
+            } else {
+                // 新增模式：生成新单号并插入
+                var newId = orderId || ('TH' + date.replace(/-/g, '') + String(returns.length + 1).padStart(3, '0'));
+                var now = new Date();
+                var recordTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds(), 10).padStart(2, '0');
+                returns.unshift({
+                    id: newId,
+                    date: date,
+                    partner: partner,
+                    project: document.getElementById('rtProject').value.trim() || '-',
+                    staff: document.getElementById('rtStaff').value || '',
+                    remark: document.getElementById('rtRemark').value.trim() || document.getElementById('rtReason').value.trim() || '',
+                    qty: totalQty,
+                    amount: totalAmount,
+                    payable: payable,
+                    status: document.getElementById('rtStatus').value,
+                    attachment: document.getElementById('rtAttachment').value.trim() || '',
+                    recorder: '系统管理员',
+                    recordTime: recordTime
+                });
+                returnDetailsMap[newId] = rows;
+            }
             filteredReturns = [...returns];
+            saveReturnsToStorage();
             renderTable();
             closeReturnModal();
         });

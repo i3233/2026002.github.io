@@ -249,7 +249,15 @@
             });
 
             document.getElementById('paramConfirmBtn').addEventListener('click', function () {
-                alert('确定（示例：可在此保存参数数据）');
+                var chooseTotal = parseInt(document.getElementById('chooseTotal').value, 10) || 1;
+                var chooseCount = parseInt(document.getElementById('chooseCount').value, 10) || 1;
+                try {
+                    localStorage.setItem('shangchaoParamTemplate', JSON.stringify({
+                        chooseTotal: Math.max(1, chooseTotal),
+                        chooseCount: Math.max(1, Math.min(chooseCount, chooseTotal))
+                    }));
+                } catch (e) {}
+                alert('参数模板已保存，套餐列表的默认必选将与此联动。');
             });
 
             tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
@@ -263,6 +271,15 @@
             tbody.querySelectorAll('.setting-cell').forEach(function (cell) {
                 bindSettingControls(cell);
             });
+
+            var saved = null;
+            try { saved = JSON.parse(localStorage.getItem('shangchaoParamTemplate') || 'null'); } catch (e) {}
+            if (saved) {
+                var ct = document.getElementById('chooseTotal');
+                var cc = document.getElementById('chooseCount');
+                if (ct) ct.value = saved.chooseTotal || 1;
+                if (cc) cc.value = saved.chooseCount || 1;
+            }
         })();
     </script>
 </body>

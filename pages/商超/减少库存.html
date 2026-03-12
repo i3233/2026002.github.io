@@ -34,12 +34,95 @@
         .form-group label { display: block; margin-bottom: var(--spacing-xs); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
         .form-group input, .form-group select { width: 100%; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); }
         .more-search-actions { display: flex; justify-content: flex-end; gap: var(--spacing-sm); margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-neutral-200); }
-        .photo-view-link { color: var(--color-primary); cursor: pointer; }
+
+        .inventory-photo-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            background-color: var(--color-neutral-100);
+        }
+
         .photo-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
         .photo-modal-overlay.show { display: flex; }
         .photo-modal-box { background: #fff; border-radius: var(--radius-lg); padding: var(--spacing-lg); max-width: 90vw; max-height: 90vh; overflow: auto; text-align: center; }
         .photo-modal-box img { max-width: 100%; max-height: 70vh; }
         .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
+
+        /* 详情弹窗 */
+        .detail-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-modal-overlay.show { display: flex; }
+        .detail-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 720px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .detail-modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .detail-modal-title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+        }
+        .detail-modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .detail-modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .detail-section-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--spacing-xs) var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+        .detail-item-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+        .detail-item-value {
+            font-size: var(--font-size-sm);
+        }
+        .serial-list-box {
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: var(--font-size-xs);
+        }
     </style>
 </head>
 <body>
@@ -116,6 +199,7 @@
                             <th>原因/备注</th>
                             <th>操作人</th>
                             <th>录入时间</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -129,12 +213,26 @@
             <button type="button" class="btn btn-outline" id="photoModalClose" style="margin-top:12px;">关闭</button>
         </div>
     </div>
+
+    <!-- 详情弹窗 -->
+    <div class="detail-modal-overlay" id="decreaseDetailModal">
+        <div class="detail-modal">
+            <div class="detail-modal-header">
+                <h3 class="detail-modal-title" id="decreaseDetailTitle">减少库存详情</h3>
+                <button type="button" class="btn btn-outline" id="decreaseDetailCloseBtn">关闭</button>
+            </div>
+            <div class="detail-modal-body" id="decreaseDetailContent"></div>
+            <div class="detail-modal-footer">
+                <button type="button" class="btn btn-primary" id="decreaseDetailOkBtn">我知道了</button>
+            </div>
+        </div>
+    </div>
     <script>
         const warehouses = [{ id: 'WH001', name: '总店' }, { id: 'WH002', name: '分店A' }, { id: 'WH003', name: '分店B' }];
         let list = [
-            { id: 'JS20250116001', date: '2025-01-16', warehouseId: 'WH001', warehouseName: '总店', productName: 'p-6炒锅', spec: '32cm', zone: 'A区', shelf: 'A-02', photo: '', qty: 2, unit: '个', reason: '盘亏', operator: '张三', recordTime: '2025-01-16 11:00:00' },
-            { id: 'JS20250119001', date: '2025-01-19', warehouseId: 'WH001', warehouseName: '总店', productName: '雅安明信片', spec: '一套10张', zone: 'C区', shelf: 'C-02', photo: '', qty: 10, unit: '套', reason: '报损', operator: '李四', recordTime: '2025-01-19 15:20:00' },
-            { id: 'JS20250121001', date: '2025-01-21', warehouseId: 'WH002', warehouseName: '分店A', productName: '雅安腊肉', spec: '500g/包', zone: 'B区', shelf: 'B-03', photo: '', qty: 3, unit: '包', reason: '过期报废', operator: '王五', recordTime: '2025-01-21 09:30:00' }
+            { id: 'JS20250116001', date: '2025-01-16', warehouseId: 'WH001', warehouseName: '总店', productName: 'p-6炒锅', spec: '32cm', zone: 'A区', shelf: 'A-02', photo: '../../images/02.jpg', qty: 2, unit: '个', reason: '盘亏', operator: '张三', recordTime: '2025-01-16 11:00:00' },
+            { id: 'JS20250119001', date: '2025-01-19', warehouseId: 'WH001', warehouseName: '总店', productName: '雅安明信片', spec: '一套10张', zone: 'C区', shelf: 'C-02', photo: '../../images/03.jpg', qty: 10, unit: '套', reason: '报损', operator: '李四', recordTime: '2025-01-19 15:20:00' },
+            { id: 'JS20250121001', date: '2025-01-21', warehouseId: 'WH002', warehouseName: '分店A', productName: '雅安腊肉', spec: '500g/包', zone: 'B区', shelf: 'B-03', photo: '../../images/05.jpg', qty: 3, unit: '包', reason: '过期报废', operator: '王五', recordTime: '2025-01-21 09:30:00', serialNumbers: ['LR-0001','LR-0002','LR-0003'] }
         ];
         let filtered = [...list];
 
@@ -143,7 +241,10 @@
             tbody.innerHTML = '';
             filtered.forEach(item => {
                 const tr = document.createElement('tr');
-                var photoHtml = '<a href="#" class="photo-view-link" data-url="' + (item.photo || '').replace(/"/g, '&quot;') + '" data-name="' + (item.productName || '').replace(/"/g, '&quot;') + '">查看</a>';
+                const photoUrl = item.photo || '../../images/01.jpg';
+                const safeUrl = (photoUrl || '').replace(/"/g, '&quot;');
+                const safeName = (item.productName || '').replace(/"/g, '&quot;');
+                const photoHtml = '<img src="' + safeUrl + '" alt="照片" class="inventory-photo-thumb" data-url="' + safeUrl + '" data-name="' + safeName + '">';
                 tr.innerHTML = `
                     <td>${item.id}</td>
                     <td>${item.date}</td>
@@ -158,6 +259,7 @@
                     <td>${item.reason || '-'}</td>
                     <td>${item.operator}</td>
                     <td>${item.recordTime}</td>
+                    <td><a href="#" class="detail-link" data-id="${item.id}">查看详情</a></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -210,16 +312,125 @@
         document.getElementById('photoModalClose').addEventListener('click', function() { document.getElementById('photoModalOverlay').classList.remove('show'); });
         document.getElementById('photoModalOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
         document.body.addEventListener('click', function(e) {
-            var link = e.target.closest('.photo-view-link');
-            if (!link) return;
-            e.preventDefault();
-            var url = (link.dataset.url || '').trim();
-            var name = (link.dataset.name || '').replace(/&quot;/g, '"');
-            var content = document.getElementById('photoModalContent');
-            if (url) content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><img src="' + url.replace(/</g, '&lt;') + '" alt="照片" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'block\';"><div class="photo-placeholder" style="display:none;">暂无照片</div>';
-            else content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><div class="photo-placeholder">暂无照片</div>';
-            document.getElementById('photoModalOverlay').classList.add('show');
+            const img = e.target.closest('.inventory-photo-thumb');
+            if (img) {
+                const url = (img.dataset.url || img.src || '').trim();
+                const name = (img.dataset.name || '').replace(/&quot;/g, '"');
+                const content = document.getElementById('photoModalContent');
+                if (url) {
+                    content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><img src="' + url.replace(/</g, '&lt;') + '" alt="照片">';
+                } else {
+                    content.innerHTML = '<div style="margin-bottom:8px;font-weight:bold;">' + name + '</div><div class="photo-placeholder">暂无照片</div>';
+                }
+                document.getElementById('photoModalOverlay').classList.add('show');
+                return;
+            }
+            const detailLink = e.target.closest('.detail-link');
+            if (detailLink) {
+                e.preventDefault();
+                openDecreaseDetail(detailLink.dataset.id);
+            }
         });
+
+        function openDecreaseDetail(id) {
+            const item = list.find(x => x.id === id);
+            if (!item) return;
+            const modal = document.getElementById('decreaseDetailModal');
+            const titleEl = document.getElementById('decreaseDetailTitle');
+            const contentEl = document.getElementById('decreaseDetailContent');
+            if (!modal || !contentEl) return;
+
+            if (titleEl) titleEl.textContent = '减少库存详情 - ' + (item.productName || '');
+
+            const baseHtml = `
+                <div class="detail-section-title">基础信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">单号</div>
+                        <div class="detail-item-value">${item.id}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">日期</div>
+                        <div class="detail-item-value">${item.date}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">门店</div>
+                        <div class="detail-item-value">${item.warehouseName}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">操作人</div>
+                        <div class="detail-item-value">${item.operator}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">录入时间</div>
+                        <div class="detail-item-value">${item.recordTime}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">原因/备注</div>
+                        <div class="detail-item-value">${item.reason || '-'}</div>
+                    </div>
+                </div>
+            `;
+
+            const productHtml = `
+                <div class="detail-section-title">商品信息</div>
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">商品名称</div>
+                        <div class="detail-item-value">${item.productName}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">规格</div>
+                        <div class="detail-item-value">${item.spec}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">货区/货架</div>
+                        <div class="detail-item-value">${(item.zone || '-') + ' / ' + (item.shelf || '-')}</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">减少数量</div>
+                        <div class="detail-item-value">${item.qty} ${item.unit}</div>
+                    </div>
+                </div>
+            `;
+
+            const serials = item.serialNumbers;
+            let serialHtml = '';
+            if (Array.isArray(serials) && serials.length) {
+                const rows = serials.map((s, idx) => `<div>${idx + 1}. ${s}</div>`).join('');
+                serialHtml = `
+                    <div class="detail-section-title">序列号明细（与本次减少数量对应）</div>
+                    <div class="serial-list-box">${rows}</div>
+                    <div style="margin-top:4px;font-size:var(--font-size-xs);color:var(--color-text-secondary);">
+                        注：示例数据，实际系统可按批次和报损原因维护对应序列号。
+                    </div>
+                `;
+            } else {
+                serialHtml = `
+                    <div class="detail-section-title">序列号明细</div>
+                    <div class="serial-list-box">当前记录未维护序列号信息。</div>
+                `;
+            }
+
+            contentEl.innerHTML = baseHtml + productHtml + serialHtml;
+            modal.classList.add('show');
+        }
+
+        (function () {
+            const modal = document.getElementById('decreaseDetailModal');
+            const closeBtn = document.getElementById('decreaseDetailCloseBtn');
+            const okBtn = document.getElementById('decreaseDetailOkBtn');
+            function closeDetail() {
+                if (modal) modal.classList.remove('show');
+            }
+            if (closeBtn) closeBtn.addEventListener('click', closeDetail);
+            if (okBtn) okBtn.addEventListener('click', closeDetail);
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeDetail();
+                });
+            }
+        })();
         filterData();
     </script>
 </body>

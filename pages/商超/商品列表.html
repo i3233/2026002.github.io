@@ -1215,9 +1215,11 @@
                 if (currentTab === 'offline' && product.status !== 'offline') return false;
                 if (currentTab === 'soldout' && product.status !== 'soldout') return false;
 
-                // 分类筛选：通过左侧分类菜单
-                if (currentCategory && currentCategory !== '全部' && product.category !== currentCategory) {
-                    return false;
+                // 分类筛选：支持一级名称或完整路径（二三级为路径如「雅安好景 / 蒙顶山茶系列」）
+                if (currentCategory && currentCategory !== '全部') {
+                    var catMatch = product.category === currentCategory ||
+                        (currentCategory.indexOf(' / ') >= 0 && product.category === currentCategory.split(' / ')[0]);
+                    if (!catMatch) return false;
                 }
 
                 // 搜索筛选
