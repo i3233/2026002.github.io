@@ -591,6 +591,24 @@
             <div class="setting-item">
                 <div class="setting-item-left">
                     <div class="setting-item-label">
+                        统计时间规则
+                        <span class="help-icon" title="用于控制订单跨天营业时的统计口径，例如营业到凌晨仍算前一日">?</span>
+                    </div>
+                    <div class="setting-item-desc">
+                        选择自然日或跨天统计规则，适用于营业时间延伸到 24:00 之后的门店
+                    </div>
+                </div>
+                <div class="setting-item-right">
+                    <select class="form-select form-input--medium" id="statisticsTimeRule">
+                        <option value="natural" selected>自然日（00:00-24:00）</option>
+                        <option value="crossDay">跨天（营业结束时间为统计截止）</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item-left">
+                    <div class="setting-item-label">
                         自动生成统计报表
                         <span class="help-icon" title="是否自动生成订单统计报表">?</span>
                     </div>
@@ -644,6 +662,7 @@
                 
                 // 订单统计设置
                 statisticsPeriod: document.getElementById('statisticsPeriod').value,
+                statisticsTimeRule: document.getElementById('statisticsTimeRule').value,
                 autoGenerateReport: document.getElementById('autoGenerateReport').checked
             };
 
@@ -682,6 +701,7 @@
             document.getElementById('notifyOnCancel').checked = true;
             
             document.getElementById('statisticsPeriod').value = 'daily';
+            document.getElementById('statisticsTimeRule').value = 'natural';
             document.getElementById('autoGenerateReport').checked = false;
 
             alert('设置已重置为默认值');
