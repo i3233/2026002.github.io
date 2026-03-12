@@ -188,10 +188,29 @@
         .level2-sidebar-item-parent.expanded + .level2-sidebar-submenu {
             display: block;
         }
+        /* 嵌套子菜单（二级、三级分类） */
+        .level2-sidebar-subitem-expandable {
+            list-style: none;
+            margin: 0;
+        }
+        .level2-sidebar-subitem-expandable .level2-sidebar-item-parent-nested {
+            padding: 6px 10px;
+            font-size: var(--font-size-sm);
+            margin-bottom: 0;
+        }
+        .level2-sidebar-subitem-expandable .level2-sidebar-submenu {
+            padding-left: var(--spacing-md);
+            margin-top: 2px;
+            margin-bottom: 4px;
+        }
+        .level2-sidebar-submenu .level2-sidebar-submenu {
+            border-left-color: var(--color-neutral-200);
+        }
         .level2-sidebar-subitem {
             margin-bottom: 2px;
         }
-        .level2-sidebar-subitem a {
+        .level2-sidebar-subitem a,
+        .level2-sidebar-subitem-expandable a {
             display: block;
             padding: 6px 10px;
             font-size: var(--font-size-sm);
@@ -200,11 +219,13 @@
             text-decoration: none;
             transition: all var(--transition-base) var(--ease-in-out);
         }
-        .level2-sidebar-subitem a:hover {
+        .level2-sidebar-subitem a:hover,
+        .level2-sidebar-subitem-expandable a:hover {
             background-color: var(--color-neutral-50);
             color: var(--color-primary);
         }
-        .level2-sidebar-subitem a.active {
+        .level2-sidebar-subitem a.active,
+        .level2-sidebar-subitem-expandable a.active {
             background-color: rgba(44, 131, 235, 0.1);
             color: var(--color-primary);
             font-weight: var(--font-weight-medium);
@@ -377,6 +398,7 @@
     </div>
 
     <script src="js/index.js"></script>
+    <script src="js/商超分类数据.js"></script>
     <script>
         // 模块图标映射
         const moduleIcons = {
@@ -530,7 +552,7 @@
             }
         }
 
-        // 商超-商品列表下的分类子菜单（与商品列表页内分类一致）
+        // 商超-商品列表下的分类子菜单（三级分类树，与商品分类页一致）
         var productListCategory = '全部';
 
         // 更新二级菜单和内容
@@ -553,7 +575,6 @@
                 var isShangchaoProduct = (module.module === '商超' && item.title === '商品');
                 var isShangchaoInventory = (module.module === '商超' && item.title === '库存');
                 var productListPath = isShangchaoProduct && item.children[0] ? item.children[0].path : null;
-                var categoryNames = ['全部', '雅安好物', '雅安好景', '文创产品'];
                 var inventoryCategoryNames = ['全部', '厨房用品', '日用品', '食品', '饮料', '其他'];
                 var inventoryQueryCategory = '全部';
                 var inventoryQueryPath = isShangchaoInventory && item.children[0] ? item.children[0].path : null;
@@ -615,7 +636,7 @@
                     } else if (isShangchaoProduct && childIndex === 0 && child.title === '商品列表') {
                         var parentWrap = document.createElement('div');
                         var parentBtn = document.createElement('div');
-                        parentBtn.className = 'level2-sidebar-item-parent expanded';
+                        parentBtn.className = 'level2-sidebar-item-parent';
                         parentBtn.innerHTML = '<span class="level2-sidebar-item-parent-text">商品列表</span><svg class="level2-sidebar-arrow" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12l4-4-4-4"/></svg>';
                         parentBtn.addEventListener('click', function(e) {
                             e.preventDefault();
@@ -625,25 +646,74 @@
 
                         var submenu = document.createElement('ul');
                         submenu.className = 'level2-sidebar-submenu';
-                        categoryNames.forEach(function(cat) {
+                        var liAll = document.createElement('li');
+                        liAll.className = 'level2-sidebar-subitem';
+                        var aAll = document.createElement('a');
+                        aAll.href = '#';
+                        aAll.textContent = '全部';
+                        if (productListCategory === '全部') aAll.classList.add('active');
+                        aAll.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            productListCategory = '全部';
+                            document.querySelectorAll('.level2-sidebar-subitem a, .level2-sidebar-subitem-expandable a').forEach(function(link) { link.classList.remove('active'); });
+                            this.classList.add('active');
+                            loadModulePage(productListPath, '商品列表');
+                        });
+                        liAll.appendChild(aAll);
+                        submenu.appendChild(liAll);
+                        var productCategoryTree = typeof buildCategoryTree === 'function' ? buildCategoryTree() : [];
+                        function renderCategoryNode(node, path) {
+                            var filterVal = path ? path + ' / ' + node.name : node.name;
+                            var hasChildren = node.children && node.children.length > 0;
                             var li = document.createElement('li');
-                            li.className = 'level2-sidebar-subitem';
-                            var a = document.createElement('a');
-                            a.href = '#';
-                            a.textContent = cat;
-                            if (cat === productListCategory) a.classList.add('active');
-                            a.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                productListCategory = cat;
-                                document.querySelectorAll('.level2-sidebar-subitem a').forEach(function(link) {
-                                    link.classList.remove('active');
+                            li.className = hasChildren ? 'level2-sidebar-subitem-expandable' : 'level2-sidebar-subitem';
+                            if (hasChildren) {
+                                var expandRow = document.createElement('div');
+                                expandRow.className = 'level2-sidebar-item-parent level2-sidebar-item-parent-nested';
+                                expandRow.innerHTML = '<svg class="level2-sidebar-arrow" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;cursor:pointer"><path d="M6 12l4-4-4-4"/></svg>';
+                                expandRow.addEventListener('click', function(e) {
+                                    if (e.target.tagName === 'A' || (e.target.closest && e.target.closest('a'))) return;
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    this.classList.toggle('expanded');
                                 });
-                                this.classList.add('active');
-                                var url = productListPath + (cat === '全部' ? '' : '?category=' + encodeURIComponent(cat));
-                                loadModulePage(url, '商品列表');
-                            });
-                            li.appendChild(a);
-                            submenu.appendChild(li);
+                                var nameLink = document.createElement('a');
+                                nameLink.href = '#';
+                                nameLink.textContent = node.name;
+                                nameLink.style.flex = '1';
+                                nameLink.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    productListCategory = filterVal;
+                                    document.querySelectorAll('.level2-sidebar-subitem a, .level2-sidebar-subitem-expandable a').forEach(function(link) { link.classList.remove('active'); });
+                                    this.classList.add('active');
+                                    loadModulePage(productListPath + '?category=' + encodeURIComponent(filterVal), '商品列表');
+                                });
+                                if (productListCategory === filterVal) nameLink.classList.add('active');
+                                expandRow.appendChild(nameLink);
+                                var childUl = document.createElement('ul');
+                                childUl.className = 'level2-sidebar-submenu';
+                                node.children.forEach(function(ch) { childUl.appendChild(renderCategoryNode(ch, filterVal)); });
+                                li.appendChild(expandRow);
+                                li.appendChild(childUl);
+                            } else {
+                                var a = document.createElement('a');
+                                a.href = '#';
+                                a.textContent = node.name;
+                                if (productListCategory === filterVal) a.classList.add('active');
+                                a.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    productListCategory = filterVal;
+                                    document.querySelectorAll('.level2-sidebar-subitem a, .level2-sidebar-subitem-expandable a').forEach(function(link) { link.classList.remove('active'); });
+                                    this.classList.add('active');
+                                    loadModulePage(productListPath + '?category=' + encodeURIComponent(filterVal), '商品列表');
+                                });
+                                li.appendChild(a);
+                            }
+                            return li;
+                        }
+                        productCategoryTree.forEach(function(node) {
+                            submenu.appendChild(renderCategoryNode(node, ''));
                         });
                         parentWrap.appendChild(submenu);
                         level2Sidebar.appendChild(parentWrap);
