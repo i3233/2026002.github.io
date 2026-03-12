@@ -1,16 +1,43 @@
 // 商超 - 商品分类页面交互逻辑
-// 分类与商超商品列表中的「分类筛选」保持一致：雅安好物、雅安好景、文创产品
+// 支持三级分类：parentId 为 null 为一级，指向一级为二级，指向二级为三级
+// 分类数据来源：商超分类数据.js（与商品列表左侧菜单共用）
 
-// 分类数据（与商超收银台、商品列表一致：雅安好景 7 件、雅安好物 3 件、文创产品 5 件）
-// 支持二级分类：通过 parentId 区分，null 为一级分类
-let categoryListData = [
+var _baseData = (typeof window !== 'undefined' && window.shangchaoCategoryData && window.shangchaoCategoryData.length) ? JSON.parse(JSON.stringify(window.shangchaoCategoryData)) : [
     { id: 1, name: '雅安好物', productCount: 3, sort: 1, status: 'enabled', parentId: null },
     { id: 2, name: '雅安好景', productCount: 7, sort: 2, status: 'enabled', parentId: null },
     { id: 3, name: '文创产品', productCount: 5, sort: 3, status: 'enabled', parentId: null },
-    // 示例二级分类（仅作为展示，可以后续通过界面新增）
     { id: 4, name: '绿营养蛋系列', productCount: 2, sort: 1, status: 'enabled', parentId: 1 },
-    { id: 5, name: '蒙顶山茶系列', productCount: 3, sort: 2, status: 'enabled', parentId: 2 }
+    { id: 5, name: '蒙顶山茶系列', productCount: 3, sort: 2, status: 'enabled', parentId: 2 },
+    { id: 6, name: '茶饮小类', productCount: 1, sort: 1, status: 'enabled', parentId: 5 }
 ];
+let categoryListData = _baseData;
+
+function syncCategoryDataToStorage() {
+    try {
+        localStorage.setItem('shangchaoCategoryData', JSON.stringify(categoryListData));
+        if (typeof window !== 'undefined') window.shangchaoCategoryData = categoryListData;
+    } catch (e) {}
+}
+
+// 获取分类层级：1=一级 2=二级 3=三级
+function getCategoryLevel(cat) {
+    if (!cat || !cat.parentId) return 1;
+    var parent = categoryListData.find(function (c) { return c.id === cat.parentId; });
+    if (!parent || !parent.parentId) return 2;
+    return 3;
+}
+
+// 获取分类完整路径（用于展示）
+function getCategoryPath(cat) {
+    if (!cat) return '';
+    var names = [cat.name];
+    var p = categoryListData.find(function (c) { return c.id === cat.parentId; });
+    while (p) {
+        names.unshift(p.name);
+        p = categoryListData.find(function (c) { return c.id === p.parentId; });
+    }
+    return names.join(' / ');
+}
 
 // 筛选条件
 let searchKeyword = '';
@@ -99,15 +126,18 @@ function initEventListeners() {
         });
     }
 
-    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    var pageSizeSelect = document.getElementById('pageSizeSelect');
     if (pageSizeSelect) {
         pageSizeSelect.addEventListener('change', function() {
-            pagination.pageSize = parseInt(this.value);
+            pagination.pageSize = parseInt(this.value, 10);
             pagination.currentPage = 1;
             renderCategoryTable();
             updatePagination();
         });
     }
+
+    var batchDeleteBtn = document.getElementById('batchDeleteBtn');
+    if (batchDeleteBtn) batchDeleteBtn.addEventListener('click', batchDeleteCategories);
 }
 
 // 渲染分类表格（支持二级分类）
@@ -122,13 +152,16 @@ function renderCategoryTable() {
         );
     }
 
-    // 排序：先按 parentId（一级在前），再按 sort，再按 id
-    filteredCategories = filteredCategories.slice().sort((a, b) => {
-        const pa = a.parentId || 0;
-        const pb = b.parentId || 0;
-        if (pa !== pb) return pa - pb;
-        if (a.sort !== b.sort) return a.sort - b.sort;
-        return a.id - b.id;
+    // 排序：按层级树形排序（一级 > 其子二级 > 其子三级，再按 sort）
+    function getSortKey(c) {
+        var p1 = !c.parentId ? c : categoryListData.find(function (x) { return x.id === c.parentId; });
+        if (p1 && p1.parentId) p1 = categoryListData.find(function (x) { return x.id === p1.parentId; }) || p1;
+        var p1Id = p1 ? (typeof p1 === 'object' ? p1.id : p1) : 0;
+        var p2Id = c.parentId || 0;
+        return (p1Id * 10000 + p2Id) * 1000 + (c.sort || 0) * 10 + c.id;
+    }
+    filteredCategories = filteredCategories.slice().sort(function (a, b) {
+        return getSortKey(a) - getSortKey(b);
     });
 
     pagination.total = filteredCategories.length;
@@ -147,37 +180,29 @@ function renderCategoryTable() {
         return;
     }
 
-    tableBody.innerHTML = pagedCategories.map(category => {
-        const isSelected = selectedCategories.includes(category.id);
-        const statusClass = category.status === 'enabled'
+    tableBody.innerHTML = pagedCategories.map(function (category) {
+        var isSelected = selectedCategories.indexOf(category.id) >= 0;
+        var statusClass = category.status === 'enabled'
             ? 'category-list-status-badge-enabled'
             : 'category-list-status-badge-disabled';
-        const statusText = category.status === 'enabled' ? '已启用' : '已禁用';
-        const isChild = !!category.parentId;
-        const nameClass = 'category-list-category-name' + (isChild ? ' category-list-category-name--child' : '');
+        var statusText = category.status === 'enabled' ? '已启用' : '已禁用';
+        var level = getCategoryLevel(category);
+        var nameClass = 'category-list-category-name category-list-category-name--level' + level;
+        var displayText = level === 1 ? category.name : getCategoryPath(category);
+        var canAddChild = level < 3;
+        var childBtn = canAddChild ? '<button class="category-list-action-btn category-list-action-btn-edit" onclick="openChildCategoryModal(' + category.id + ')">新建子分类</button>' : '';
 
-        return `
-            <tr>
-                <td>
-                    <label class="category-list-checkbox-label">
-                        <input type="checkbox" class="category-checkbox" value="${category.id}" ${isSelected ? 'checked' : ''} onchange="toggleCategorySelection(${category.id})">
-                    </label>
-                </td>
-                <td><span class="${nameClass}">${category.name}</span></td>
-                <td>
-                    <a href="#" class="category-list-product-count" onclick="viewCategoryProducts(${category.id}); return false;">${category.productCount}</a>
-                </td>
-                <td><span class="category-list-sort-order">${category.sort}</span></td>
-                <td><span class="category-list-status-badge ${statusClass}">${statusText}</span></td>
-                <td>
-                    <div class="category-list-action-buttons">
-                        <button class="category-list-action-btn category-list-action-btn-edit" onclick="editCategory(${category.id})">编辑</button>
-                        ${!category.parentId ? `<button class="category-list-action-btn category-list-action-btn-edit" onclick="openChildCategoryModal(${category.id})">新建子分类</button>` : ''}
-                        <button class="category-list-action-btn category-list-action-btn-delete" onclick="deleteCategory(${category.id})">删除</button>
-                    </div>
-                </td>
-            </tr>
-        `;
+        return '<tr data-level="' + level + '">' +
+            '<td><label class="category-list-checkbox-label"><input type="checkbox" class="category-checkbox" value="' + category.id + '" ' + (isSelected ? 'checked' : '') + ' onchange="toggleCategorySelection(' + category.id + ')"></label></td>' +
+            '<td><div class="' + nameClass + '"><span class="category-list-name-text">' + displayText + '</span></div></td>' +
+            '<td><a href="#" class="category-list-product-count" onclick="viewCategoryProducts(' + category.id + '); return false;">' + category.productCount + '</a></td>' +
+            '<td><span class="category-list-sort-order">' + category.sort + '</span></td>' +
+            '<td><span class="category-list-status-badge ' + statusClass + '">' + statusText + '</span></td>' +
+            '<td><div class="category-list-action-buttons">' +
+            '<button class="category-list-action-btn category-list-action-btn-edit" onclick="editCategory(' + category.id + ')">编辑</button>' +
+            childBtn +
+            '<button class="category-list-action-btn category-list-action-btn-delete" onclick="deleteCategory(' + category.id + ')">删除</button>' +
+            '</div></td></tr>';
     }).join('');
 }
 
@@ -234,24 +259,55 @@ function goToPage(page) {
 }
 
 function toggleSelectAll(checked) {
-    document.querySelectorAll('.category-checkbox').forEach(cb => {
+    document.querySelectorAll('.category-checkbox').forEach(function (cb) {
         cb.checked = checked;
-        const categoryId = parseInt(cb.value);
+        var categoryId = parseInt(cb.value, 10);
         if (checked) {
-            if (!selectedCategories.includes(categoryId)) selectedCategories.push(categoryId);
+            if (selectedCategories.indexOf(categoryId) < 0) selectedCategories.push(categoryId);
         } else {
-            selectedCategories = selectedCategories.filter(id => id !== categoryId);
+            selectedCategories = selectedCategories.filter(function (id) { return id !== categoryId; });
         }
     });
+    updateBatchDeleteVisibility();
+}
+
+function batchDeleteCategories() {
+    if (selectedCategories.length === 0) return;
+    var hasChildren = selectedCategories.some(function (id) {
+        return categoryListData.some(function (c) { return c.parentId === id; });
+    });
+    if (hasChildren) {
+        alert('所选分类中包含有子分类的项，请先删除子分类');
+        return;
+    }
+    if (!confirm('确定要删除选中的 ' + selectedCategories.length + ' 个分类吗？')) return;
+    selectedCategories.forEach(function (id) {
+        var idx = categoryListData.findIndex(function (c) { return c.id === id; });
+        if (idx > -1) categoryListData.splice(idx, 1);
+    });
+    selectedCategories = [];
+    renderCategoryTable();
+    updatePagination();
+    updateBatchDeleteVisibility();
+    document.getElementById('selectAllCheckbox').checked = false;
+    syncCategoryDataToStorage();
+    alert('已删除');
 }
 
 function toggleCategorySelection(categoryId) {
-    const index = selectedCategories.indexOf(categoryId);
+    var index = selectedCategories.indexOf(categoryId);
     if (index > -1) selectedCategories.splice(index, 1);
     else selectedCategories.push(categoryId);
-    const checkboxes = document.querySelectorAll('.category-checkbox');
-    const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
-    document.getElementById('selectAllCheckbox').checked = allChecked;
+    var checkboxes = document.querySelectorAll('.category-checkbox');
+    var allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(function (cb) { return cb.checked; });
+    var selectAll = document.getElementById('selectAllCheckbox');
+    if (selectAll) selectAll.checked = allChecked;
+    updateBatchDeleteVisibility();
+}
+
+function updateBatchDeleteVisibility() {
+    var btn = document.getElementById('batchDeleteBtn');
+    if (btn) btn.style.display = selectedCategories.length > 0 ? 'inline-flex' : 'none';
 }
 
 function viewCategoryProducts(categoryId) {
@@ -259,20 +315,40 @@ function viewCategoryProducts(categoryId) {
     alert('查看分类商品功能待实现');
 }
 
+var currentEditCategoryId = null;
+
 function editCategory(categoryId) {
-    console.log('编辑分类:', categoryId);
-    alert('编辑分类功能待实现');
+    var category = categoryListData.find(function (c) { return c.id === categoryId; });
+    if (!category) return;
+    currentEditCategoryId = categoryId;
+    currentParentCategoryId = category.parentId;
+    document.getElementById('categoryNameInput').value = category.name;
+    document.getElementById('categorySortInput').value = category.sort || 1;
+    document.getElementById('categoryEnableSwitch').checked = category.status === 'enabled';
+    var statusToggle = document.getElementById('categoryStatusToggle');
+    if (statusToggle) {
+        statusToggle.classList.toggle('active', category.status === 'enabled');
+        statusToggle.querySelector('.product-list-status-toggle-text').textContent = category.status === 'enabled' ? '启用' : '禁用';
+    }
+    document.getElementById('createCategoryModal').querySelector('.product-list-modal-title').textContent = '编辑分类';
+    showCreateCategoryModal();
 }
 
 function deleteCategory(categoryId) {
-    const category = categoryListData.find(c => c.id === categoryId);
+    var category = categoryListData.find(function (c) { return c.id === categoryId; });
     if (!category) return;
-    if (confirm(`确定要删除分类"${category.name}"吗？`)) {
-        const index = categoryListData.findIndex(c => c.id === categoryId);
+    var children = categoryListData.filter(function (c) { return c.parentId === categoryId; });
+    if (children.length > 0) {
+        alert('该分类下有子分类，请先删除子分类');
+        return;
+    }
+    if (confirm('确定要删除分类"' + getCategoryPath(category) + '"吗？')) {
+        var index = categoryListData.findIndex(function (c) { return c.id === categoryId; });
         if (index > -1) {
             categoryListData.splice(index, 1);
             renderCategoryTable();
             updatePagination();
+            syncCategoryDataToStorage();
             alert('分类已删除');
         }
     }
@@ -280,34 +356,54 @@ function deleteCategory(categoryId) {
 
 // ========== 新建分类弹窗 ==========
 
+// 填充上级分类下拉：可选父级为一级、二级分类，编辑时排除自身及子孙
+function populateParentCategorySelect() {
+    var sel = document.getElementById('parentCategorySelect');
+    if (!sel) return;
+    var excludeIds = []; // 编辑时排除自身及所有子孙
+    if (currentEditCategoryId) {
+        excludeIds.push(currentEditCategoryId);
+        var collectDescendants = function (pid) {
+            categoryListData.forEach(function (c) {
+                if (c.parentId === pid) {
+                    excludeIds.push(c.id);
+                    collectDescendants(c.id);
+                }
+            });
+        };
+        collectDescendants(currentEditCategoryId);
+    }
+    var opts = ['<option value="">无（一级分类）</option>'];
+    categoryListData.forEach(function (c) {
+        if (excludeIds.indexOf(c.id) >= 0) return;
+        var lev = getCategoryLevel(c);
+        if (lev >= 3) return; // 只能选一级、二级作为父级
+        var label = lev === 1 ? '一级：' + c.name : getCategoryPath(c);
+        opts.push('<option value="' + c.id + '">' + label + '</option>');
+    });
+    sel.innerHTML = opts.join('');
+    sel.value = currentParentCategoryId ? String(currentParentCategoryId) : '';
+    sel.disabled = false;
+}
+
 function showCreateCategoryModal() {
-    const modal = document.getElementById('createCategoryModal');
+    var modal = document.getElementById('createCategoryModal');
     if (modal) {
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        resetCreateCategoryForm();
+        if (!currentEditCategoryId) resetCreateCategoryForm();
         renderTimeSchedule();
-
-        // 根据 currentParentCategoryId 更新上级分类展示
-        const parentDisplay = document.getElementById('parentCategoryDisplay');
-        if (parentDisplay) {
-            if (currentParentCategoryId) {
-                const parent = categoryListData.find(c => c.id === currentParentCategoryId);
-                parentDisplay.textContent = parent
-                    ? `上级分类：${parent.name}（将创建为二级分类）`
-                    : '上级分类：未知（ID ' + currentParentCategoryId + '）';
-            } else {
-                parentDisplay.textContent = '当前为一级分类';
-            }
-        }
+        populateParentCategorySelect();
     }
 }
 
 function closeCreateCategoryModal() {
-    const modal = document.getElementById('createCategoryModal');
+    var modal = document.getElementById('createCategoryModal');
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        currentEditCategoryId = null;
+        modal.querySelector('.product-list-modal-title').textContent = '新建分类';
     }
 }
 
@@ -493,23 +589,43 @@ function saveCategory() {
         }
     }
 
-    const newCategory = {
+    var parentSel = document.getElementById('parentCategorySelect');
+    var parentIdVal = (parentSel && parentSel.value) ? parseInt(parentSel.value, 10) : null;
+
+    if (currentEditCategoryId) {
+        var existing = categoryListData.find(function (c) { return c.id === currentEditCategoryId; });
+        if (existing) {
+            existing.name = name;
+            existing.sort = sort;
+            existing.status = enabled ? 'enabled' : 'disabled';
+            existing.parentId = parentIdVal;
+            renderCategoryTable();
+            updatePagination();
+            closeCreateCategoryModal();
+            syncCategoryDataToStorage();
+            alert('分类"' + name + '"已更新');
+        }
+        return;
+    }
+
+    var newCategory = {
         id: Date.now(),
         name: name,
         sort: sort,
         status: enabled ? 'enabled' : 'disabled',
         productCount: 0,
         channels: channels,
-        requiredCategory: document.getElementById('requiredCategorySwitch').checked,
+        requiredCategory: document.getElementById('requiredCategorySwitch') ? document.getElementById('requiredCategorySwitch').checked : false,
         timeSchedule: timeSchedule,
-        parentId: currentParentCategoryId || null
+        parentId: parentIdVal
     };
 
     categoryListData.push(newCategory);
     renderCategoryTable();
     updatePagination();
     closeCreateCategoryModal();
-    alert(`分类"${name}"创建成功！`);
+    syncCategoryDataToStorage();
+    alert('分类"' + name + '"创建成功');
 }
 
 // 打开“新建子分类”弹窗
@@ -530,3 +646,4 @@ window.removeTimeSlot = removeTimeSlot;
 window.updateTimeItemDisplay = updateTimeItemDisplay;
 window.saveCategory = saveCategory;
 window.openChildCategoryModal = openChildCategoryModal;
+window.closeCreateCategoryModal = closeCreateCategoryModal;

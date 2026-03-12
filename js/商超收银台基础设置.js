@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function bindEvents() {
     document.getElementById('copyLinkBtn').addEventListener('click', copyEntryLink);
+    document.getElementById('copyAppLinkBtn').addEventListener('click', copyAppLink);
     document.getElementById('enterPosBtn').addEventListener('click', enterPos);
     document.getElementById('saveBtn').addEventListener('click', saveSettings);
     document.getElementById('resetBtn').addEventListener('click', resetSettings);
@@ -42,6 +43,27 @@ function copyEntryLink() {
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(input.value).then(function() {
                 alert('链接已复制到剪贴板');
+            }).catch(function() {
+                alert('复制失败，请手动复制');
+            });
+        } else {
+            alert('复制失败，请手动复制');
+        }
+    }
+}
+
+function copyAppLink() {
+    const input = document.getElementById('appDownloadUrl');
+    if (!input) return;
+    input.select();
+    input.setSelectionRange(0, 99999);
+    try {
+        document.execCommand('copy');
+        alert('APP 下载链接已复制到剪贴板');
+    } catch (err) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(input.value).then(function() {
+                alert('APP 下载链接已复制到剪贴板');
             }).catch(function() {
                 alert('复制失败，请手动复制');
             });
@@ -139,6 +161,12 @@ function loadSettings() {
         resetBgDisplay();
     }
 
+    // APP 下载链接
+    var appUrlInput = document.getElementById('appDownloadUrl');
+    if (appUrlInput) {
+        appUrlInput.value = settings.appDownloadUrl || 'https://xcxsc.scssrh.com/app/download';
+    }
+
     const categories = settings.categories || ['雅安好物', '雅安好景', '文创产品'];
     const tagsEl = document.getElementById('categoryTags');
     tagsEl.innerHTML = '';
@@ -191,7 +219,8 @@ function saveSettings() {
         copyrightLink: document.getElementById('copyrightLink').value.trim(),
         logoData: getLogoData(),
         bgData: getBgData(),
-        categories: categories
+        categories: categories,
+        appDownloadUrl: document.getElementById('appDownloadUrl').value.trim()
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));

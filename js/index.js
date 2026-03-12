@@ -41,7 +41,7 @@ const menuData = [
             {
                 title: "报表",
                 children: [
-                    { title: "当日结存单", path: "pages/商超/当日结存单.html" },
+                    { title: "当日结存", path: "pages/商超/当日结存单.html" },
                     { title: "历史结存", path: "pages/商超/历史结存.html" },
                     { title: "业绩明细", path: "pages/商超/业绩明细.html" },
                     { title: "交班记录", path: "pages/商超/交班记录.html" }
@@ -141,9 +141,9 @@ const menuData = [
                 ]
             },
             {
-                title: "报表",
-                children: [
-                    { title: "当日结存单", path: "pages/餐饮/当日结存单.html" },
+        title: "报表",
+        children: [
+            { title: "当日结存", path: "pages/餐饮/当日结存单.html" },
                     { title: "进销存汇总", path: "pages/餐饮/进销存汇总.html" },
                     { title: "历史结存", path: "pages/餐饮/历史结存.html" }
                 ]
