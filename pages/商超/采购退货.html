@@ -791,6 +791,7 @@
                                 <option value="">全部</option>
                                 <option value="待提交">待提交</option>
                                 <option value="审核中">审核中</option>
+                                <option value="待财务审核">待财务审核</option>
                                 <option value="待退货">待退货</option>
                                 <option value="已完成">已完成</option>
                             </select>
@@ -866,7 +867,7 @@
         <!-- 操作菜单 -->
         <div class="action-menu" id="actionMenu">
             <div class="action-menu-item" data-action="view">查看详情</div>
-            <div class="action-menu-item" data-action="audit">审核</div>
+            <div class="action-menu-item" data-action="audit">提交财务审核</div>
             <div class="action-menu-item" data-action="print">打印退货单</div>
             <div class="action-menu-item danger" data-action="delete">删除</div>
         </div>
@@ -1257,7 +1258,7 @@
             let html = '<div class="action-menu-item" data-action="view">查看详情</div>';
             if (status === '待提交') html += '<div class="action-menu-item" data-action="edit">编辑退货单</div>';
             if (status === '待提交') html += '<div class="action-menu-item" data-action="submitAudit">提交审核</div>';
-            if (status === '审核中') html += '<div class="action-menu-item" data-action="audit">审核</div>';
+            if (status === '审核中') html += '<div class="action-menu-item" data-action="audit">提交财务审核</div>';
             if (status === '待退货') html += '<div class="action-menu-item" data-action="doReturn">执行退货</div>';
             html += '<div class="action-menu-item" data-action="print">打印退货单</div>';
             html += '<div class="action-menu-item danger" data-action="delete">删除</div>';
@@ -1280,13 +1281,13 @@
         function auditOrder(id) {
             const item = returns.find(r => r.id === id);
             if (!item) return;
-            const choice = prompt('审核退货单：' + id + '\n1. 通过（进入待退货）\n2. 退回（待提交）\n\n请输入序号：', '1');
-            if (choice === null) return;
-            if (choice === '1') item.status = '待退货';
-            if (choice === '2') item.status = '待提交';
+            if (item.status !== '审核中') return;
+            if (!confirm('确定将该退货单提交财务审核？')) return;
+            item.status = '待财务审核';
             saveReturnsToStorage();
             filteredReturns = [...returns];
             renderTable();
+            alert('已提交财务审核，请等待财务处理。');
         }
         let doReturnCurrentId = null;
         const doReturnModalOverlay = document.getElementById('doReturnModalOverlay');

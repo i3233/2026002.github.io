@@ -552,14 +552,15 @@
             text-align: center;
         }
 
-        .combo-required-enable-wrap {
+        .combo-item-required-wrap {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            margin-left: 6px;
+            gap: 2px;
+            margin-right: 6px;
             white-space: nowrap;
             cursor: pointer;
             user-select: none;
+            font-size: var(--font-size-sm);
         }
 
         .combo-required-setting.disabled-required .combo-total-input,
@@ -1367,7 +1368,7 @@
                         total: pkg.combo1.total || 2,
                         required: pkg.combo1.required != null ? pkg.combo1.required : 1,
                         requiredEnabled: pkg.combo1.requiredEnabled !== false,
-                        items: pkg.combo1.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 }))
+                        items: pkg.combo1.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: i.required === true }))
                     });
                 }
                 if (pkg.combo2 && pkg.combo2.items) {
@@ -1377,7 +1378,7 @@
                         total: pkg.combo2.total || 8,
                         required: pkg.combo2.required != null ? pkg.combo2.required : 6,
                         requiredEnabled: pkg.combo2.requiredEnabled !== false,
-                        items: pkg.combo2.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 }))
+                        items: pkg.combo2.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: i.required === true }))
                     });
                 }
                 if (!packageCombos.length && pkg.items && pkg.items.length) {
@@ -1473,12 +1474,10 @@
                 block.dataset.comboIndex = idx;
                 var total = Math.max(1, combo.total || 2);
                 var required = Math.min(combo.required || 1, total);
-                var requiredEnabled = combo.requiredEnabled !== false;
                 block.innerHTML = '<div class="combo-block-header">' +
                     '<input type="text" class="combo-block-title-input" placeholder="组合标题" value="' + (combo.title || '') + '">' +
-                    '<span class="combo-required-setting' + (requiredEnabled ? '' : ' disabled-required') + '">必选：<input type="number" class="combo-total-input" min="1" value="' + total + '" title="本组合需勾选几个商品">选' +
+                    '<span class="combo-required-setting">必选：<input type="number" class="combo-total-input" min="1" value="' + total + '" title="本组合需勾选几个商品">选' +
                     '<input type="number" class="combo-required-input" min="1" max="' + total + '" value="' + required + '" title="顾客下单时从中选几个">' +
-                    '<label class="combo-required-enable-wrap"><input type="checkbox" class="combo-required-enable-cb" ' + (requiredEnabled ? ' checked' : '') + '> 启用必选</label>' +
                     '</span>' +
                     '<button type="button" class="btn-add-product" data-combo-index="' + idx + '">+ 添加商品</button>' +
                     (packageCombos.length > 1 ? '<button type="button" class="btn-remove-combo" data-combo-index="' + idx + '">删除组合</button>' : '') +
@@ -1495,7 +1494,7 @@
                     div.dataset.productId = item.productId;
                     div.dataset.comboIndex = idx;
                     div.innerHTML = '<div class="package-selected-main"><img src="' + (item.image || '../../images/01.jpg') + '" alt="" onerror="this.src=\'../../images/01.jpg\'"><div><div class="package-selected-name">' + item.name + '</div><div class="package-selected-sub">单价：¥' + (item.price ? item.price.toFixed(2) : '0.00') + '</div></div></div>' +
-                        '<div class="package-selected-qty"><span>数量</span><input type="number" min="1" class="selected-qty-input" data-product-id="' + item.productId + '" data-combo-index="' + idx + '" value="' + (item.quantity || 1) + '"><span class="package-selected-remove" data-product-id="' + item.productId + '" data-combo-index="' + idx + '">移除</span></div>';
+                        '<div class="package-selected-qty"><label class="combo-item-required-wrap"><input type="checkbox" class="combo-item-required-cb" data-product-id="' + item.productId + '" data-combo-index="' + idx + '"' + (item.required ? ' checked' : '') + '> 必选</label><span>数量</span><input type="number" min="1" class="selected-qty-input" data-product-id="' + item.productId + '" data-combo-index="' + idx + '" value="' + (item.quantity || 1) + '"><span class="package-selected-remove" data-product-id="' + item.productId + '" data-combo-index="' + idx + '">移除</span></div>';
                     listEl.appendChild(div);
                 });
                 tipsEl.style.display = combo.items.length ? 'none' : 'block';
@@ -1511,24 +1510,6 @@
                 block.querySelector('.combo-required-input').addEventListener('input', function () {
                     combo.required = Math.min(Math.max(1, parseInt(this.value, 10) || 1), combo.total || 999);
                 });
-                var requiredSettingSpan = block.querySelector('.combo-required-setting');
-                var requiredEnableCb = block.querySelector('.combo-required-enable-cb');
-                if (requiredEnableCb) {
-                    requiredEnableCb.addEventListener('change', function () {
-                        combo.requiredEnabled = this.checked;
-                        if (requiredSettingSpan) {
-                            requiredSettingSpan.classList.toggle('disabled-required', !this.checked);
-                            var totalInput = block.querySelector('.combo-total-input');
-                            var requiredInput = block.querySelector('.combo-required-input');
-                            if (totalInput) totalInput.disabled = !this.checked;
-                            if (requiredInput) requiredInput.disabled = !this.checked;
-                        }
-                    });
-                    var totalInput = block.querySelector('.combo-total-input');
-                    var requiredInput = block.querySelector('.combo-required-input');
-                    if (totalInput) totalInput.disabled = !requiredEnableCb.checked;
-                    if (requiredInput) requiredInput.disabled = !requiredEnableCb.checked;
-                }
                 block.querySelector('.combo-block-title-input').addEventListener('input', function () { combo.title = this.value; });
 
                 block.querySelector('.btn-add-product').addEventListener('click', function () {
@@ -1562,7 +1543,7 @@
                     var pid = parseInt(cb.dataset.id, 10);
                     if (combo.items.some(function (i) { return i.productId === pid; })) return;
                     var p = products.find(function (x) { return x.id === pid; });
-                    if (p) combo.items.push({ productId: p.id, name: p.name, image: p.image, price: p.price, quantity: 1 });
+                    if (p) combo.items.push({ productId: p.id, name: p.name, image: p.image, price: p.price, quantity: 1, required: false });
                 });
                 document.querySelectorAll('.select-product-checkbox').forEach(function (cb) { cb.checked = false; });
                 addingToComboIndex = -1;
@@ -1603,6 +1584,18 @@
                 if (combo) {
                     var item = combo.items.find(function (i) { return i.productId === pid; });
                     if (item) { item.quantity = qty; updatePriceSummary(); }
+                }
+            }
+        });
+
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('combo-item-required-cb')) {
+                var pid = parseInt(e.target.dataset.productId, 10);
+                var idx = parseInt(e.target.dataset.comboIndex, 10);
+                var combo = packageCombos[idx];
+                if (combo) {
+                    var item = combo.items.find(function (i) { return i.productId === pid; });
+                    if (item) item.required = e.target.checked;
                 }
             }
         });
@@ -1707,7 +1700,7 @@
                 var addTime = new Date().toISOString().slice(0, 10);
                 var combosData = packageCombos.map(function (c) {
                     return { title: c.title, total: c.total, required: c.required, requiredEnabled: c.requiredEnabled !== false, items: c.items.map(function (i) {
-                        return { productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 };
+                        return { productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: !!i.required };
                     })};
                 });
 

@@ -683,7 +683,7 @@
                 <button class="btn btn-outline" id="batchAuditBtn">
                     <span class="btn-icon-text">
                         <span class="btn-icon-text-symbol">✓</span>
-                        <span>批量审核</span>
+                        <span>批量提交财务审核</span>
                     </span>
                 </button>
                 <button class="btn btn-outline" id="batchPrintBtn">
@@ -721,12 +721,13 @@
             </div>
         </div>
 
-        <!-- 订单状态 Tab：全部、待付款、待提交、审核中、待出库、已完成 -->
+        <!-- 订单状态 Tab：全部、待付款、待提交、审核中、待财务审核、待出库、已完成 -->
         <div class="order-tabs">
             <button class="order-tab-btn active" data-status="all">全部</button>
             <button class="order-tab-btn" data-status="pendingPayment">待付款</button>
             <button class="order-tab-btn" data-status="pendingSubmit">待提交</button>
             <button class="order-tab-btn" data-status="pendingAudit">审核中</button>
+            <button class="order-tab-btn" data-status="pendingFinanceAudit">待财务审核</button>
             <button class="order-tab-btn" data-status="pendingOutbound">待出库</button>
             <button class="order-tab-btn" data-status="completed">已完成</button>
         </div>
@@ -1480,6 +1481,7 @@
                     if (currentStatus === 'pendingPayment') return order.status === 'pendingPayment';
                     if (currentStatus === 'pendingSubmit') return order.status === 'pendingSubmit';
                     if (currentStatus === 'pendingAudit') return order.status === 'pendingAudit';
+                    if (currentStatus === 'pendingFinanceAudit') return order.status === 'pendingFinanceAudit';
                     if (currentStatus === 'pendingOutbound') return order.status === 'pendingOutbound';
                     if (currentStatus === 'completed') return order.status === 'completed';
                     return false;
@@ -1593,6 +1595,7 @@
                 'pendingPayment': '待付款',
                 'pendingSubmit': '待提交',
                 'pendingAudit': '审核中',
+                'pendingFinanceAudit': '待财务审核',
                 'pendingPrint': '待打印',
                 'picking': '拣货中',
                 'pendingOutbound': '待出库',
@@ -1621,7 +1624,7 @@
                 buttons += `<button class="btn-link submit-audit-btn" data-id="${order.id}">提交审核</button>`;
             }
             if (order.status === 'pendingAudit') {
-                buttons += `<button class="btn-link audit-btn" data-id="${order.id}">审核</button>`;
+                buttons += `<button class="btn-link audit-btn" data-id="${order.id}">提交财务审核</button>`;
             }
             if (order.status === 'pendingPrint' || order.status === 'picking' || order.status === 'pendingOutbound') {
                 if (!order.printTime) {
@@ -1752,27 +1755,14 @@
             });
         }
 
-        // 审核订单
+        // 提交财务审核
         function auditOrder(orderId) {
-            if (!confirm('确定要审核通过该订单吗？审核通过后可以打印拣货单。')) {
-                return;
-            }
-
             const order = wholesaleOrders.find(o => o.id === orderId);
-            if (order) {
-                order.auditStatus = 'approved';
-                order.auditTime = new Date().toLocaleString('zh-CN');
-                
-                // 根据支付方式更新状态
-                if (order.payType === '赊账') {
-                    order.status = 'pendingPrint'; // 赊账需要审核后打印
-                } else {
-                    order.status = 'pendingPrint'; // 实付款也需要打印
-                }
-                
-                filterOrders();
-                alert('订单审核通过！可以打印拣货单了。');
-            }
+            if (!order || order.status !== 'pendingAudit') return;
+            if (!confirm('确定将该订单提交财务审核？')) return;
+            order.status = 'pendingFinanceAudit';
+            filterOrders();
+            alert('已提交财务审核，请等待财务处理。');
         }
 
         // 打印拣货单
@@ -1850,11 +1840,11 @@
             if (e.target === paycodeModal) closePaycodeModal();
         });
 
-        // 批量审核
+        // 批量提交财务审核
         function batchAudit() {
             const ids = getSelectedIds();
             if (ids.length === 0) {
-                alert('请先选择要审核的订单');
+                alert('请先选择要提交财务审核的订单');
                 return;
             }
 
@@ -1864,17 +1854,22 @@
             });
 
             if (pendingAuditIds.length === 0) {
-                alert('所选订单中没有待审核的订单');
+                alert('所选订单中没有处于「审核中」的订单');
                 return;
             }
 
-            if (!confirm(`确定要批量审核通过 ${pendingAuditIds.length} 个订单吗？`)) {
+            if (!confirm(`确定将 ${pendingAuditIds.length} 个订单提交财务审核吗？`)) {
                 return;
             }
 
             pendingAuditIds.forEach(orderId => {
-                auditOrder(orderId);
+                const order = wholesaleOrders.find(o => o.id === orderId);
+                if (order && order.status === 'pendingAudit') {
+                    order.status = 'pendingFinanceAudit';
+                }
             });
+            filterOrders();
+            alert('已提交财务审核，请等待财务处理。');
         }
 
         // 批量打印

@@ -109,6 +109,34 @@
             justify-content: flex-end;
             gap: var(--spacing-md);
         }
+        .order-basic-info {
+            margin-bottom: var(--spacing-lg);
+        }
+        .order-basic-info .section-title {
+            margin-bottom: var(--spacing-sm);
+        }
+        .order-info-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+        }
+        .order-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .order-info-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+        .order-info-value {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
     </style>
 </head>
 <body>
@@ -121,6 +149,35 @@
         </div>
 
         <div class="products-section" id="productsSection" style="display: none;">
+            <div class="order-basic-info" id="orderBasicInfo">
+                <h2 class="section-title">订单信息</h2>
+                <div class="order-info-card">
+                    <div class="order-info-item">
+                        <span class="order-info-label">订单单号</span>
+                        <span class="order-info-value" id="orderIdDisplay">-</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">订单日期</span>
+                        <span class="order-info-value" id="orderDateDisplay">-</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">往来单位</span>
+                        <span class="order-info-value" id="orderPartnerDisplay">-</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">项目</span>
+                        <span class="order-info-value" id="orderProjectDisplay">-</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">订单金额</span>
+                        <span class="order-info-value" id="orderAmountDisplay">-</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">应付余额</span>
+                        <span class="order-info-value" id="orderPayableDisplay">-</span>
+                    </div>
+                </div>
+            </div>
             <h2 class="section-title">商品明细</h2>
             <div class="table-container">
                 <table>
@@ -215,6 +272,20 @@
             return purchaseOrders.find(o => String(o.id) === id) || null;
         }
 
+        function fillOrderBasicInfo(order) {
+            if (!order) return;
+            const set = (id, text) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text != null && text !== '' ? text : '-';
+            };
+            set('orderIdDisplay', order.id);
+            set('orderDateDisplay', order.date);
+            set('orderPartnerDisplay', order.partner);
+            set('orderProjectDisplay', order.project || '');
+            set('orderAmountDisplay', order.amount != null ? '¥' + Number(order.amount).toFixed(2) : '-');
+            set('orderPayableDisplay', order.payable != null ? '¥' + Number(order.payable).toFixed(2) : '-');
+        }
+
         // 原型演示：未找到订单时生成虚拟订单，保证页面正常展示
         function buildVirtualOrder(orderId) {
             const id = String(orderId).trim() || 'JH-DEMO';
@@ -246,6 +317,7 @@
                 }
             }
             selectedOrder = order;
+            fillOrderBasicInfo(order);
 
             const nowStr = new Date().toLocaleString('zh-CN', {
                 year: 'numeric',
