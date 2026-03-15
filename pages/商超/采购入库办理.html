@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>采购入库 - 办理入库</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <style>
+        .purchase-storage-page {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutral-50);
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+        .page-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0;
+        }
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .products-section,
+        .payable-section,
+        .action-section {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: var(--color-neutral-50);
+        }
+        th, td {
+            padding: var(--spacing-md);
+            text-align: left;
+            font-size: var(--font-size-sm);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+        th {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+        }
+        tbody tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .payable-info {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            gap: var(--spacing-lg);
+        }
+        .payable-label {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            text-align: right;
+        }
+        .payable-change {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+            text-align: right;
+        }
+        .payable-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+        .action-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+    </style>
+</head>
+<body>
+    <div class="purchase-storage-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">采购入库</h1>
+                <div class="page-subtitle">请核对下方商品明细与应付金额，确认后完成本次入库。</div>
+            </div>
+        </div>
+
+        <div class="products-section" id="productsSection" style="display: none;">
+            <h2 class="section-title">商品明细</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>商品名称</th>
+                            <th>规格</th>
+                            <th>单位</th>
+                            <th>分类</th>
+                            <th class="text-right">订单数量</th>
+                            <th class="text-right">单价</th>
+                            <th class="text-right">金额</th>
+                            <th class="text-right">入库数量</th>
+                            <th class="text-right">入库单价</th>
+                            <th class="text-right">入库金额</th>
+                            <th>条码</th>
+                            <th>货区</th>
+                            <th>货架</th>
+                            <th>照片</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody"></tbody>
+                    <tfoot>
+                        <tr style="background-color: var(--color-neutral-50); font-weight: var(--font-weight-medium);">
+                            <td colspan="5" class="text-right">合计：</td>
+                            <td class="text-right" id="totalOrderQty">0.00</td>
+                            <td colspan="2"></td>
+                            <td class="text-right" id="totalStorageQty">0.00</td>
+                            <td colspan="6"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="payable-section" id="payableSection" style="display: none;">
+            <h2 class="section-title">应付金额</h2>
+            <div class="payable-info">
+                <div>
+                    <div class="payable-label">应付金额</div>
+                    <div class="payable-change" id="payableChange">入库后将增加应付金额</div>
+                </div>
+                <div class="payable-value" id="payableValue">¥0.00</div>
+            </div>
+        </div>
+
+        <div class="action-section" id="actionSection" style="display: none;">
+            <button class="btn btn-outline" id="resetBtn">重置</button>
+            <button class="btn btn-primary" id="submitAuditBtn">确认入库</button>
+        </div>
+    </div>
+
+    <script>
+        // 与采购订单页保持一致的示例采购订单数据
+        const purchaseOrders = [
+            {
+                id: 'JH20250826001',
+                date: '2025-08-26',
+                partner: '雅安本地供应商A',
+                project: '雅安好物进货',
+                amount: 1800.20,
+                payable: 800.00,
+                products: [
+                    { id: 1, name: '蒙顶山茶叶', spec: '500g/盒', unit: '盒', category: '雅安好景', qty: 20, price: 45.00, barcode: '6901234567890' },
+                    { id: 2, name: '雅安花椒', spec: '250g/袋', unit: '袋', category: '雅安好物', qty: 30, price: 28.00, barcode: '6901234567891' },
+                    { id: 3, name: '雅安腊肉', spec: '500g/包', unit: '包', category: '雅安好物', qty: 15, price: 38.00, barcode: '' }
+                ]
+            },
+            {
+                id: 'JH20250826002',
+                date: '2025-08-26',
+                partner: '成都批发商B',
+                project: '旅游周边补货',
+                amount: 1200.00,
+                payable: 560.00,
+                products: [
+                    { id: 4, name: '熊猫玩偶', spec: '20cm', unit: '个', category: '文创产品', qty: 50, price: 15.00, barcode: '6901234567892' },
+                    { id: 5, name: '雅安明信片', spec: '一套10张', unit: '套', category: '文创产品', qty: 30, price: 12.00, barcode: '6901234567893' }
+                ]
+            }
+        ];
+
+        let selectedOrder = null;
+        let storageItems = [];
+        let auditStatus = 'none';
+
+        function findOrderById(orderId) {
+            if (!orderId) return null;
+            const id = String(orderId).trim();
+            return purchaseOrders.find(o => String(o.id) === id) || null;
+        }
+
+        // 原型演示：未找到订单时生成虚拟订单，保证页面正常展示
+        function buildVirtualOrder(orderId) {
+            const id = String(orderId).trim() || 'JH-DEMO';
+            return {
+                id: id,
+                date: new Date().toISOString().slice(0, 10),
+                partner: '演示供应商',
+                project: '原型演示入库',
+                amount: 1680.00,
+                payable: 1200.00,
+                products: [
+                    { id: 101, name: '演示商品A', spec: '规格示例', unit: '盒', category: '雅安好物', qty: 20, price: 45.00, barcode: '6900000000001' },
+                    { id: 102, name: '演示商品B', spec: '250g/袋', unit: '袋', category: '雅安好景', qty: 30, price: 28.00, barcode: '6900000000002' },
+                    { id: 103, name: '演示商品C', spec: '500g/包', unit: '包', category: '文创产品', qty: 10, price: 36.00, barcode: '6900000000003' }
+                ]
+            };
+        }
+
+        function selectOrderById(orderId) {
+            let order = findOrderById(orderId);
+            if (!order && orderId) {
+                order = buildVirtualOrder(orderId);
+            }
+            if (!order) {
+                if (purchaseOrders.length) {
+                    order = purchaseOrders[0];
+                } else {
+                    order = buildVirtualOrder('JH-DEMO');
+                }
+            }
+            selectedOrder = order;
+
+            const nowStr = new Date().toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            storageItems = order.products.map(p => ({
+                ...p,
+                category: p.category || '未分类',
+                storageQty: p.qty,
+                storageUnitPrice: p.price,
+                storageAmount: p.qty * p.price,
+                zone: '',
+                shelf: '',
+                photo: '',
+                remark: '',
+                addTime: nowStr
+            }));
+
+            renderProductsTable();
+            document.getElementById('productsSection').style.display = 'block';
+            document.getElementById('payableSection').style.display = 'block';
+            document.getElementById('actionSection').style.display = 'flex';
+            updatePayable();
+        }
+
+        function renderProductsTable() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+
+            let totalOrderQty = 0;
+            let totalStorageQty = 0;
+
+            storageItems.forEach((item, index) => {
+                totalOrderQty += item.qty;
+                totalStorageQty += item.storageQty || 0;
+                const storageUnitPrice = item.storageUnitPrice != null ? item.storageUnitPrice : item.price;
+                const storageAmt = (item.storageQty || 0) * storageUnitPrice;
+
+                const row = document.createElement('tr');
+                row.dataset.productId = item.id;
+                row.dataset.index = index;
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.spec || '-'}</td>
+                    <td>${item.unit || '-'}</td>
+                    <td>${item.category || '未分类'}</td>
+                    <td class="text-right">${item.qty.toFixed(2)}</td>
+                    <td class="text-right">¥${item.price.toFixed(2)}</td>
+                    <td class="text-right">¥${(item.qty * item.price).toFixed(2)}</td>
+                    <td class="text-right">
+                        <input type="number" class="form-input storage-qty-input" data-index="${index}" value="${item.storageQty.toFixed(2)}" min="0" max="${item.qty}" step="0.01" style="width:90px;text-align:right;padding:var(--spacing-xs) var(--spacing-sm);border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);">
+                    </td>
+                    <td class="text-right">
+                        <input type="number" class="storage-unit-price-input" data-index="${index}" value="${storageUnitPrice.toFixed(2)}" min="0" step="0.01" style="width:80px;text-align:right;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);">
+                    </td>
+                    <td class="text-right storage-amount-cell">¥${storageAmt.toFixed(2)}</td>
+                    <td><input type="text" class="barcode-input" data-index="${index}" value="${item.barcode || ''}" placeholder="条码" style="width:100px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="zone-input" data-index="${index}" value="${item.zone || ''}" placeholder="货区" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="shelf-input" data-index="${index}" value="${item.shelf || ''}" placeholder="货架" style="width:70px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="photo-input" data-index="${index}" value="${item.photo || ''}" placeholder="照片" style="width:60px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                    <td><input type="text" class="remark-input" data-index="${index}" value="${item.remark || ''}" placeholder="备注" style="width:80px;padding:4px 6px;border:1px solid var(--color-neutral-300);border-radius:4px;font-size:var(--font-size-sm);"></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('totalOrderQty').textContent = totalOrderQty.toFixed(2);
+            document.getElementById('totalStorageQty').textContent = totalStorageQty.toFixed(2);
+
+            bindStorageQtyInputs();
+            bindStorageExtraInputs();
+        }
+
+        function bindStorageExtraInputs() {
+            const tbody = document.getElementById('productsTableBody');
+            if (!tbody) return;
+            tbody.querySelectorAll('.storage-unit-price-input').forEach(function (input) {
+                const idx = parseInt(input.dataset.index, 10);
+                input.addEventListener('input', function () {
+                    const v = parseFloat(this.value) || 0;
+                    storageItems[idx].storageUnitPrice = v;
+                    storageItems[idx].storageAmount = (storageItems[idx].storageQty || 0) * v;
+                    const row = this.closest('tr');
+                    const amountCell = row.querySelector('.storage-amount-cell');
+                    if (amountCell) amountCell.textContent = '¥' + storageItems[idx].storageAmount.toFixed(2);
+                    updatePayable();
+                });
+            });
+            tbody.querySelectorAll('.barcode-input').forEach(function (input) {
+                const idx = parseInt(input.dataset.index, 10);
+                storageItems[idx].barcode = input.value;
+                input.addEventListener('input', function () {
+                    storageItems[parseInt(this.dataset.index, 10)].barcode = this.value;
+                });
+            });
+            tbody.querySelectorAll('.zone-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].zone = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].zone = this.value; });
+            });
+            tbody.querySelectorAll('.shelf-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].shelf = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].shelf = this.value; });
+            });
+            tbody.querySelectorAll('.photo-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].photo = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].photo = this.value; });
+            });
+            tbody.querySelectorAll('.remark-input').forEach(function (input) {
+                storageItems[parseInt(input.dataset.index, 10)].remark = input.value;
+                input.addEventListener('input', function () { storageItems[parseInt(this.dataset.index, 10)].remark = this.value; });
+            });
+        }
+
+        function bindStorageQtyInputs() {
+            document.querySelectorAll('.storage-qty-input').forEach(input => {
+                input.addEventListener('input', function () {
+                    const index = parseInt(this.dataset.index, 10);
+                    let qty = parseFloat(this.value) || 0;
+                    const maxQty = storageItems[index].qty;
+                    if (qty > maxQty) {
+                        this.value = maxQty.toFixed(2);
+                        qty = maxQty;
+                    } else if (qty < 0) {
+                        this.value = '0.00';
+                        qty = 0;
+                    }
+                    storageItems[index].storageQty = qty;
+                    storageItems[index].storageAmount = qty * (storageItems[index].storageUnitPrice != null ? storageItems[index].storageUnitPrice : storageItems[index].price);
+                    const row = this.closest('tr');
+                    const amountCell = row ? row.querySelector('.storage-amount-cell') : null;
+                    if (amountCell) amountCell.textContent = '¥' + storageItems[index].storageAmount.toFixed(2);
+                    updateTotals();
+                    updatePayable();
+                });
+            });
+        }
+
+        function updateTotals() {
+            let totalStorageQty = 0;
+            storageItems.forEach(item => {
+                totalStorageQty += item.storageQty || 0;
+            });
+            document.getElementById('totalStorageQty').textContent = totalStorageQty.toFixed(2);
+        }
+
+        function updatePayable() {
+            if (!selectedOrder) return;
+            let totalAmount = 0;
+            storageItems.forEach(item => {
+                const unitPrice = item.storageUnitPrice != null ? item.storageUnitPrice : item.price;
+                totalAmount += (item.storageQty || 0) * unitPrice;
+            });
+            const payableThisStorage = totalAmount;
+            document.getElementById('payableValue').textContent = `¥${payableThisStorage.toFixed(2)}`;
+            if (payableThisStorage > 0) {
+                document.getElementById('payableChange').textContent = `入库后将增加应付金额 ¥${payableThisStorage.toFixed(2)}`;
+                document.getElementById('payableChange').style.color = 'var(--color-error)';
+            } else {
+                document.getElementById('payableChange').textContent = '应付金额无变化';
+                document.getElementById('payableChange').style.color = 'var(--color-text-secondary)';
+            }
+        }
+
+        function submitAudit() {
+            if (!selectedOrder) {
+                alert('请先选择采购订单');
+                return;
+            }
+            const hasStorageQty = storageItems.some(item => item.storageQty > 0);
+            if (!hasStorageQty) {
+                alert('请至少录入一个商品的入库数量');
+                return;
+            }
+            if (!confirm('确定要确认入库吗？确认后将视为入库完成，并增加应付与库存。')) {
+                return;
+            }
+            auditStatus = 'approved';
+            updateAuditStatus();
+            updatePayable();
+            alert('入库成功，应付金额已更新。');
+        }
+
+        function updateAuditStatus() {
+            const submitBtn = document.getElementById('submitAuditBtn');
+            if (!submitBtn) return;
+            if (auditStatus === 'approved') {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '已入库完成';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '确认入库';
+            }
+        }
+
+        function resetForm() {
+            if (!confirm('确定要重置吗？所有已录入的数据将丢失。')) return;
+            if (!selectedOrder) return;
+            const id = selectedOrder.id;
+            selectedOrder = null;
+            storageItems = [];
+            auditStatus = 'none';
+            document.getElementById('productsSection').style.display = 'none';
+            document.getElementById('payableSection').style.display = 'none';
+            document.getElementById('actionSection').style.display = 'none';
+            updateAuditStatus();
+            if (id) selectOrderById(id);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', resetForm);
+        document.getElementById('submitAuditBtn').addEventListener('click', submitAudit);
+
+        (function initFromQuery() {
+            updateAuditStatus();
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const orderId = params.get('orderId');
+                if (orderId) {
+                    selectOrderById(orderId);
+                } else if (purchaseOrders.length) {
+                    selectOrderById(purchaseOrders[0].id);
+                }
+            } catch (e) {
+                if (purchaseOrders.length) {
+                    selectOrderById(purchaseOrders[0].id);
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
+

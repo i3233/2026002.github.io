@@ -1371,7 +1371,8 @@
                     }
                 });
                 renderProducts();
-            }, { once: true });
+                if (selectedCountEl) selectedCountEl.textContent = currentRuleProducts.length;
+            });
 
             document.getElementById('printerGoodsCategoryAll').addEventListener('change', function () {
                 var checked = this.checked;

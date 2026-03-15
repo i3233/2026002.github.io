@@ -260,6 +260,42 @@
             color: var(--color-error);
         }
 
+        /* 订单详情侧滑抽屉（与零售管理一致） */
+        .order-detail-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            max-width: 95vw;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform var(--transition-base) var(--ease-in-out);
+            z-index: var(--z-index-modal);
+            display: flex;
+            flex-direction: column;
+        }
+        .order-detail-drawer.show {
+            transform: translateX(0);
+        }
+        .order-detail-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .order-detail-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
+        .order-detail-body { padding: var(--spacing-md) var(--spacing-lg); overflow-y: auto; flex: 1; }
+        .order-detail-section { margin-bottom: var(--spacing-lg); }
+        .order-detail-section-title { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs); }
+        .order-detail-kv { display: flex; justify-content: space-between; font-size: var(--font-size-sm); padding: 2px 0; }
+        .order-detail-kv-label { color: var(--color-text-secondary); }
+        .order-detail-kv-value { color: var(--color-text-primary); }
+        .order-detail-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); text-align: right; }
+        .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
+
         /* 收款码弹窗 */
         .paycode-modal-overlay {
             position: fixed;
@@ -685,9 +721,10 @@
             </div>
         </div>
 
-        <!-- 订单状态 Tab：全部、待提交、审核中、待出库、已完成 -->
+        <!-- 订单状态 Tab：全部、待付款、待提交、审核中、待出库、已完成 -->
         <div class="order-tabs">
             <button class="order-tab-btn active" data-status="all">全部</button>
+            <button class="order-tab-btn" data-status="pendingPayment">待付款</button>
             <button class="order-tab-btn" data-status="pendingSubmit">待提交</button>
             <button class="order-tab-btn" data-status="pendingAudit">审核中</button>
             <button class="order-tab-btn" data-status="pendingOutbound">待出库</button>
@@ -752,6 +789,21 @@
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            <!-- 订单详情侧滑抽屉 -->
+            <div class="order-detail-drawer" id="orderDetailDrawer">
+                <div class="order-detail-header">
+                    <div>
+                        <div class="order-detail-title">订单详情</div>
+                        <div class="page-subtitle" id="orderDetailSubtitle">订单号：-</div>
+                    </div>
+                    <button class="btn btn-outline" type="button" id="orderDetailCloseBtn">关闭</button>
+                </div>
+                <div class="order-detail-body" id="orderDetailBody"></div>
+                <div class="order-detail-footer">
+                    <button class="btn btn-primary" type="button" id="orderDetailConfirmBtn">我知道了</button>
+                </div>
             </div>
 
             <!-- 底部工具栏 -->
@@ -1085,7 +1137,12 @@
                 pickingStatus: 'completed',
                 outboundStatus: 'completed',
                 completedTime: '2025-08-28 11:00:00'
-            }
+            },
+            { id: 'PF20250829001', orderTime: '2025-08-29 09:00:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '德阳批发商E', contact: '刘经理', mobile: '13800000005', qty: 60, amount: 6200.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250829002', orderTime: '2025-08-29 10:15:00', source: 'manual', sourceText: '部门代下单', partner: '眉山批发商F', contact: '陈总', mobile: '13800000006', qty: 45, amount: 4580.00, paid: 0.00, payType: '现金', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250829003', orderTime: '2025-08-29 11:30:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '资阳批发商G', contact: '杨老板', mobile: '13800000007', qty: 28, amount: 2890.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250829004', orderTime: '2025-08-29 14:00:00', source: 'online-credit', sourceText: '商家自助(赊账)', partner: '遂宁批发商H', contact: '吴经理', mobile: '13800000008', qty: 38, amount: 3800.00, paid: 0.00, payType: '赊账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250829005', orderTime: '2025-08-29 15:45:00', source: 'manual', sourceText: '部门代下单', partner: '内江批发商I', contact: '郑总', mobile: '13800000009', qty: 52, amount: 5350.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null }
         ];
 
         // 当前状态
@@ -1417,9 +1474,10 @@
         function filterOrders() {
             filteredOrders = [...wholesaleOrders];
 
-            // 按状态筛选：全部、待提交、审核中、待出库、已完成
+            // 按状态筛选：全部、待付款、待提交、审核中、待出库、已完成
             if (currentStatus !== 'all') {
                 filteredOrders = filteredOrders.filter(order => {
+                    if (currentStatus === 'pendingPayment') return order.status === 'pendingPayment';
                     if (currentStatus === 'pendingSubmit') return order.status === 'pendingSubmit';
                     if (currentStatus === 'pendingAudit') return order.status === 'pendingAudit';
                     if (currentStatus === 'pendingOutbound') return order.status === 'pendingOutbound';
@@ -1518,6 +1576,7 @@
         // 获取状态样式类
         function getStatusClass(status) {
             const statusMap = {
+                'pendingPayment': 'status-pill--warning',
                 'pendingSubmit': 'status-pill--primary',
                 'pendingAudit': 'status-pill--warning',
                 'pendingPrint': 'status-pill--primary',
@@ -1531,6 +1590,7 @@
         // 获取状态文本
         function getStatusText(status) {
             const statusMap = {
+                'pendingPayment': '待付款',
                 'pendingSubmit': '待提交',
                 'pendingAudit': '审核中',
                 'pendingPrint': '待打印',
@@ -1551,9 +1611,12 @@
             return sourceMap[source] || 'manual';
         }
 
-        // 获取操作按钮
+        // 获取操作按钮（收款码对应待付款状态）
         function getActionButtons(order) {
             let buttons = '';
+            if (order.status === 'pendingPayment') {
+                buttons += `<button class="btn-link paycode-btn" data-id="${order.id}">收款码</button>`;
+            }
             if (order.status === 'pendingSubmit') {
                 buttons += `<button class="btn-link submit-audit-btn" data-id="${order.id}">提交审核</button>`;
             }
@@ -1567,9 +1630,6 @@
             }
             if (order.status === 'pendingOutbound') {
                 buttons += `<button class="btn-link outbound-btn" data-id="${order.id}">出库</button>`;
-            }
-            if (order.status === 'completed') {
-                buttons += `<button class="btn-link paycode-btn" data-id="${order.id}">收款码</button>`;
             }
             return buttons;
         }
@@ -1585,14 +1645,56 @@
             document.getElementById('totalPaidCell').textContent = totalPaid.toFixed(2);
         }
 
+        // 打开订单详情侧滑抽屉（与零售管理一致）
+        function openOrderDetail(id) {
+            const drawer = document.getElementById('orderDetailDrawer');
+            const body = document.getElementById('orderDetailBody');
+            const subtitle = document.getElementById('orderDetailSubtitle');
+            if (!drawer || !body || !subtitle) return;
+            const order = wholesaleOrders.find(o => o.id === id);
+            if (!order) return;
+            subtitle.textContent = '订单号：' + order.id;
+            body.innerHTML = `
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">基本信息</div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">下单时间</span><span class="order-detail-kv-value">${order.orderTime}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">订单来源</span><span class="order-detail-kv-value">${order.sourceText || order.source || '-'}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">订单状态</span><span class="order-detail-kv-value">${getStatusText(order.status)}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">支付方式</span><span class="order-detail-kv-value">${order.payType || '-'}</span></div>
+                </div>
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">往来信息</div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">往来单位/商家</span><span class="order-detail-kv-value">${order.partner}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">联系人</span><span class="order-detail-kv-value">${order.contact || '-'}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">手机号</span><span class="order-detail-kv-value">${order.mobile || '-'}</span></div>
+                </div>
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">金额信息</div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">商品数量</span><span class="order-detail-kv-value">${order.qty}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">订单金额</span><span class="order-detail-kv-value">¥${(order.amount != null ? order.amount : 0).toFixed(2)}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">实付金额</span><span class="order-detail-kv-value">¥${(order.paid != null ? order.paid : 0).toFixed(2)}</span></div>
+                </div>
+            `;
+            drawer.classList.add('show');
+        }
+        function closeOrderDetailDrawer() {
+            const drawer = document.getElementById('orderDetailDrawer');
+            if (drawer) drawer.classList.remove('show');
+        }
+        (function initOrderDetailDrawer() {
+            const closeBtn = document.getElementById('orderDetailCloseBtn');
+            const confirmBtn = document.getElementById('orderDetailConfirmBtn');
+            if (closeBtn) closeBtn.addEventListener('click', closeOrderDetailDrawer);
+            if (confirmBtn) confirmBtn.addEventListener('click', closeOrderDetailDrawer);
+        })();
+
         // 绑定表格事件
         function bindTableEvents() {
-            // 查看订单
+            // 查看订单 -> 侧滑抽屉
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const orderId = this.dataset.id;
-                    const order = wholesaleOrders.find(o => o.id === orderId);
-                    alert(`订单详情（示例）\n订单号：${order.id}\n往来单位：${order.partner}\n金额：¥${order.amount.toFixed(2)}\n状态：${getStatusText(order.status)}`);
+                    openOrderDetail(orderId);
                 });
             });
 
@@ -1641,12 +1743,11 @@
                 });
             });
 
-            // 订单号点击
+            // 订单号点击 -> 侧滑抽屉
             document.querySelectorAll('.order-link').forEach(link => {
                 link.addEventListener('click', function() {
                     const orderId = this.dataset.id;
-                    const order = wholesaleOrders.find(o => o.id === orderId);
-                    alert(`订单详情（示例）\n订单号：${order.id}\n往来单位：${order.partner}\n金额：¥${order.amount.toFixed(2)}\n状态：${getStatusText(order.status)}`);
+                    openOrderDetail(orderId);
                 });
             });
         }

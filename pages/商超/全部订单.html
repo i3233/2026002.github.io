@@ -347,6 +347,33 @@
             color: #ff8c42;
         }
 
+        /* 退款流程弹窗 */
+        .refund-workflow-modal .refund-workflow-order-info {
+            padding: var(--spacing-md);
+            background: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+        .refund-workflow-modal .refund-workflow-order-info .refund-amount { font-weight: var(--font-weight-medium); color: var(--color-primary); }
+        .refund-workflow-steps { margin-bottom: var(--spacing-lg); }
+        .refund-workflow-step { display: flex; align-items: flex-start; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; font-size: var(--font-size-sm); }
+        .refund-workflow-step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--color-neutral-200); color: var(--color-text-secondary); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .refund-workflow-step-num.done { background: var(--color-success); color: #fff; }
+        .refund-workflow-step-num.current { background: var(--color-primary); color: #fff; }
+        .refund-workflow-step-num.rejected { background: var(--color-error); color: #fff; }
+        .refund-workflow-step-text { flex: 1; }
+        .refund-workflow-step-time { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 2px; }
+        .refund-workflow-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid var(--color-neutral-200); }
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1100; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { margin: 0; font-size: var(--font-size-lg); }
+        .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--color-text-secondary); padding: 0 4px; }
+        .modal-close:hover { color: var(--color-text-primary); }
+        .modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+
         .btn-link {
             color: var(--color-primary);
             background-color: transparent;
@@ -605,6 +632,21 @@
                 </table>
             </div>
 
+            <!-- 退款流程弹窗（申请 → 上级审批 → 执行退款） -->
+            <div class="modal-overlay" id="refundWorkflowModalOverlay">
+                <div class="modal refund-workflow-modal" style="max-width: 520px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">退款流程</h3>
+                        <button type="button" class="modal-close" id="refundWorkflowModalClose">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="refund-workflow-order-info" id="refundWorkflowOrderInfo"></div>
+                        <div class="refund-workflow-steps" id="refundWorkflowSteps"></div>
+                        <div class="refund-workflow-actions" id="refundWorkflowActions"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 订单详情侧滑面板 -->
             <div class="order-detail-drawer" id="orderDetailDrawer">
                 <div class="order-detail-header">
@@ -792,7 +834,13 @@
                 payType: '刷卡',
                 status: '已完成',
                 afterSale: '退款处理中',
-                type: 'refund'
+                type: 'refund',
+                refundWorkflow: 'none',
+                refundApplyTime: null,
+                refundApproveTime: null,
+                refundApproveBy: null,
+                refundRejectReason: null,
+                refundDoneTime: null
             },
             {
                 id: 'XS20250828004',
@@ -837,9 +885,27 @@
                 payType: '微信支付',
                 status: '已完成',
                 afterSale: '部分退款',
-                type: 'refund'
+                type: 'refund',
+                refundWorkflow: 'none',
+                refundApplyTime: null,
+                refundApproveTime: null,
+                refundApproveBy: null,
+                refundRejectReason: null,
+                refundDoneTime: null
             }
         ];
+
+        // 为有售后状态的订单补齐退款流程字段
+        orders.forEach(function (o) {
+            if (o.afterSale && o.afterSale !== '无' && o.refundWorkflow === undefined) {
+                o.refundWorkflow = 'none';
+                o.refundApplyTime = null;
+                o.refundApproveTime = null;
+                o.refundApproveBy = null;
+                o.refundRejectReason = null;
+                o.refundDoneTime = null;
+            }
+        });
 
         let filteredOrders = [...orders];
         let currentType = 'all';
@@ -859,7 +925,7 @@
                             : 'status-pill status-pill--warning';
 
                 const afterSaleClass =
-                    item.afterSale === '无'
+                    item.afterSale === '无' || item.afterSale === '已退款'
                         ? 'status-pill status-pill--success'
                         : 'status-pill status-pill--primary';
 
@@ -1070,6 +1136,142 @@
             alert('已模拟删除 ' + ids.length + ' 条记录（示例）。');
         });
 
+        // ========== 退款流程弹窗（申请 → 上级审批 → 执行退款） ==========
+        const refundWorkflowModalOverlay = document.getElementById('refundWorkflowModalOverlay');
+        let refundWorkflowOrderId = null;
+
+        function openRefundWorkflowModal(id) {
+            const order = orders.find(function (o) { return o.id === id; });
+            if (!order || !order.afterSale || order.afterSale === '无') return;
+            refundWorkflowOrderId = id;
+            renderRefundWorkflowContent();
+            if (refundWorkflowModalOverlay) refundWorkflowModalOverlay.classList.add('show');
+        }
+        function closeRefundWorkflowModal() {
+            refundWorkflowOrderId = null;
+            if (refundWorkflowModalOverlay) refundWorkflowModalOverlay.classList.remove('show');
+        }
+        function renderRefundWorkflowContent() {
+            const order = orders.find(function (o) { return o.id === refundWorkflowOrderId; });
+            if (!order) return;
+            const w = order.refundWorkflow || 'none';
+            const infoEl = document.getElementById('refundWorkflowOrderInfo');
+            const stepsEl = document.getElementById('refundWorkflowSteps');
+            const actionsEl = document.getElementById('refundWorkflowActions');
+            if (!infoEl || !stepsEl || !actionsEl) return;
+
+            infoEl.innerHTML = '订单号：<strong>' + order.id + '</strong> &nbsp;|&nbsp; 实收：<span class="refund-amount">¥' + (order.paid != null ? Number(order.paid).toFixed(2) : '0.00') + '</span> &nbsp;|&nbsp; 售后状态：' + (order.afterSale || '无');
+
+            var step1Class = w !== 'none' ? 'done' : 'current';
+            var step2Class = w === 'approved' || w === 'done' ? 'done' : w === 'rejected' ? 'rejected' : w === 'applied' ? 'current' : '';
+            var step3Class = w === 'done' ? 'done' : w === 'approved' ? 'current' : '';
+
+            stepsEl.innerHTML =
+                '<div class="refund-workflow-step">' +
+                '<span class="refund-workflow-step-num ' + step1Class + '">1</span>' +
+                '<div class="refund-workflow-step-text">用户申请退款' +
+                (order.refundApplyTime ? '<div class="refund-workflow-step-time">申请时间：' + order.refundApplyTime + '</div>' : '') +
+                '</div></div>' +
+                '<div class="refund-workflow-step">' +
+                '<span class="refund-workflow-step-num ' + step2Class + '">2</span>' +
+                '<div class="refund-workflow-step-text">上级审批' +
+                (order.refundApproveTime ? '<div class="refund-workflow-step-time">' + (order.refundWorkflow === 'rejected' ? '已驳回' + (order.refundRejectReason ? '：' + order.refundRejectReason : '') : '已通过，审批人：' + (order.refundApproveBy || '上级')) + '，时间：' + order.refundApproveTime + '</div>' : w === 'applied' ? '<div class="refund-workflow-step-time">待上级审批</div>' : '') +
+                '</div></div>' +
+                '<div class="refund-workflow-step">' +
+                '<span class="refund-workflow-step-num ' + step3Class + '">3</span>' +
+                '<div class="refund-workflow-step-text">执行退款/付款' +
+                (order.refundDoneTime ? '<div class="refund-workflow-step-time">完成时间：' + order.refundDoneTime + '</div>' : w === 'approved' ? '<div class="refund-workflow-step-time">审批通过后可在此执行退款</div>' : '') +
+                '</div></div>';
+
+            actionsEl.innerHTML = '';
+            if (w === 'none' || w === 'rejected') {
+                var btnApply = document.createElement('button');
+                btnApply.type = 'button';
+                btnApply.className = 'btn btn-primary';
+                btnApply.textContent = '申请退款（向上级申请）';
+                btnApply.onclick = function () { doRefundApply(refundWorkflowOrderId); };
+                actionsEl.appendChild(btnApply);
+            }
+            if (w === 'applied') {
+                var btnApprove = document.createElement('button');
+                btnApprove.type = 'button';
+                btnApprove.className = 'btn btn-primary';
+                btnApprove.textContent = '模拟上级通过';
+                btnApprove.onclick = function () { doRefundApprove(refundWorkflowOrderId, true); };
+                actionsEl.appendChild(btnApprove);
+                var btnReject = document.createElement('button');
+                btnReject.type = 'button';
+                btnReject.className = 'btn btn-outline';
+                btnReject.style.color = 'var(--color-error)';
+                btnReject.textContent = '模拟上级驳回';
+                btnReject.onclick = function () { doRefundApprove(refundWorkflowOrderId, false); };
+                actionsEl.appendChild(btnReject);
+            }
+            if (w === 'approved') {
+                var btnExecute = document.createElement('button');
+                btnExecute.type = 'button';
+                btnExecute.className = 'btn btn-primary';
+                btnExecute.textContent = '执行退款/付款';
+                btnExecute.onclick = function () { doRefundExecute(refundWorkflowOrderId); };
+                actionsEl.appendChild(btnExecute);
+            }
+            if (w === 'done') {
+                var doneTip = document.createElement('span');
+                doneTip.className = 'text-secondary';
+                doneTip.style.fontSize = 'var(--font-size-sm)';
+                doneTip.textContent = '退款已完成。';
+                actionsEl.appendChild(doneTip);
+            }
+        }
+
+        function doRefundApply(id) {
+            const order = orders.find(function (o) { return o.id === id; });
+            if (!order || (order.refundWorkflow && order.refundWorkflow !== 'none' && order.refundWorkflow !== 'rejected')) return;
+            order.refundWorkflow = 'applied';
+            order.refundApplyTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            renderRefundWorkflowContent();
+            renderTable();
+            alert('已提交退款申请，等待上级审批。');
+        }
+        function doRefundApprove(id, approved) {
+            const order = orders.find(function (o) { return o.id === id; });
+            if (!order || order.refundWorkflow !== 'applied') return;
+            if (approved) {
+                order.refundWorkflow = 'approved';
+                order.refundApproveTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                order.refundApproveBy = '上级审批人（模拟）';
+                order.refundRejectReason = null;
+                renderRefundWorkflowContent();
+                renderTable();
+                alert('上级已通过退款申请，请执行退款/付款操作。');
+            } else {
+                var reason = prompt('请输入驳回原因（选填）：', '');
+                order.refundWorkflow = 'rejected';
+                order.refundApproveTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                order.refundApproveBy = null;
+                order.refundRejectReason = reason || '不同意退款';
+                renderRefundWorkflowContent();
+                renderTable();
+                alert('上级已驳回退款申请。');
+            }
+        }
+        function doRefundExecute(id) {
+            const order = orders.find(function (o) { return o.id === id; });
+            if (!order || order.refundWorkflow !== 'approved') return;
+            if (!confirm('确认执行退款？将按订单实收金额 ¥' + (order.paid != null ? Number(order.paid).toFixed(2) : '0.00') + ' 原路退回。')) return;
+            order.refundWorkflow = 'done';
+            order.refundDoneTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            order.afterSale = '已退款';
+            renderRefundWorkflowContent();
+            renderTable();
+            alert('退款已完成。');
+        }
+
+        if (refundWorkflowModalOverlay) {
+            document.getElementById('refundWorkflowModalClose').addEventListener('click', closeRefundWorkflowModal);
+            refundWorkflowModalOverlay.addEventListener('click', function (e) { if (e.target === refundWorkflowModalOverlay) closeRefundWorkflowModal(); });
+        }
+
         // 单号 / 状态 / 售后 / 查看 按钮交互（示意 + 详情侧滑）
         document.addEventListener('click', function (e) {
             const orderLink = e.target.closest('.order-link');
@@ -1089,7 +1291,12 @@
 
             if (afterSaleLink) {
                 const id = afterSaleLink.dataset.id;
-                alert('售后状态处理（示例）\\n订单号：' + id);
+                const order = orders.find(function (o) { return o.id === id; });
+                if (order && order.afterSale && order.afterSale !== '无') {
+                    openRefundWorkflowModal(id);
+                } else {
+                    alert('售后状态处理（示例）\\n订单号：' + id);
+                }
             }
 
             if (viewBtn) {

@@ -472,6 +472,7 @@
                         </div>
                     </div>
                     <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px;">
+                        <button type="button" class="btn btn-outline" id="applyReturnSaveDraft">存为草稿</button>
                         <button type="button" class="btn btn-outline" id="applyReturnCancel">取消</button>
                         <button type="button" class="btn btn-primary" id="applyReturnConfirm">确认申请</button>
                     </div>
@@ -866,6 +867,55 @@
             } catch (e) {
                 console.error(e);
                 alert('保存退货单失败：' + (e.message || '未知错误'));
+            }
+        });
+
+        document.getElementById('applyReturnSaveDraft').addEventListener('click', function () {
+            var reason = (document.getElementById('applyReturnReason').value || '').trim() || '草稿（待完善）';
+            var remark = (document.getElementById('applyReturnRemark').value || '').trim();
+            var order = applyReturnCurrentOrder;
+            if (!order) {
+                closeApplyReturnModal();
+                return;
+            }
+            try {
+                var list = JSON.parse(localStorage.getItem(PURCHASE_RETURN_LIST_KEY) || '[]');
+                var detailsMap = JSON.parse(localStorage.getItem(PURCHASE_RETURN_DETAILS_KEY) || '{}');
+                var today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                var sameDay = list.filter(function (r) { return r.id && r.id.indexOf('TH' + today) === 0; });
+                var seq = sameDay.length + 1;
+                var returnId = 'TH' + today + String(seq).padStart(3, '0');
+
+                var chosenItems = applyReturnItems.filter(function (i) { return i.checked && (Number(i.returnQty) || 0) > 0; });
+                var totalQty = chosenItems.length ? chosenItems.reduce(function (sum, p) { return sum + (Number(p.returnQty) || 0); }, 0) : 0;
+                var amount = chosenItems.length ? chosenItems.reduce(function (sum, p) { return sum + (Number(p.returnQty) || 0) * (Number(p.price) || 0); }, 0) : 0;
+                var row = {
+                    id: returnId,
+                    date: order.date || new Date().toISOString().slice(0, 10),
+                    partner: order.partner,
+                    project: order.project || '',
+                    staff: '',
+                    remark: reason + (remark ? '\n' + remark : ''),
+                    qty: totalQty,
+                    amount: amount,
+                    payable: -amount,
+                    status: '待提交',
+                    attachment: '',
+                    recorder: '当前用户',
+                    recordTime: new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                    sourceOrderId: order.id
+                };
+                list.push(row);
+                detailsMap[returnId] = chosenItems.length ? chosenItems.map(function (p) {
+                    return { name: p.name, spec: p.spec || '', unit: p.unit || '', qty: Number(p.returnQty) || 0, price: Number(p.price) || 0 };
+                }) : [];
+                localStorage.setItem(PURCHASE_RETURN_LIST_KEY, JSON.stringify(list));
+                localStorage.setItem(PURCHASE_RETURN_DETAILS_KEY, JSON.stringify(detailsMap));
+                closeApplyReturnModal();
+                alert('已存为草稿，可在采购退货页面继续编辑。');
+            } catch (e) {
+                console.error(e);
+                alert('存为草稿失败：' + (e.message || '未知错误'));
             }
         });
 

@@ -546,10 +546,26 @@
             color: var(--color-text-secondary);
         }
 
-        .combo-required-setting input {
+        .combo-required-setting input[type="number"] {
             width: 40px;
             padding: 4px 6px;
             text-align: center;
+        }
+
+        .combo-required-enable-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 6px;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .combo-required-setting.disabled-required .combo-total-input,
+        .combo-required-setting.disabled-required .combo-required-input {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .btn-add-product {
@@ -1348,8 +1364,9 @@
                     packageCombos.push({
                         id: comboIdCounter++,
                         title: pkg.combo1.title || '组合一',
-                        total: 2,
-                        required: 1,
+                        total: pkg.combo1.total || 2,
+                        required: pkg.combo1.required != null ? pkg.combo1.required : 1,
+                        requiredEnabled: pkg.combo1.requiredEnabled !== false,
                         items: pkg.combo1.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 }))
                     });
                 }
@@ -1357,16 +1374,17 @@
                     packageCombos.push({
                         id: comboIdCounter++,
                         title: pkg.combo2.title || '组合二',
-                        total: 8,
-                        required: 6,
+                        total: pkg.combo2.total || 8,
+                        required: pkg.combo2.required != null ? pkg.combo2.required : 6,
+                        requiredEnabled: pkg.combo2.requiredEnabled !== false,
                         items: pkg.combo2.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 }))
                     });
                 }
                 if (!packageCombos.length && pkg.items && pkg.items.length) {
                     var half = Math.ceil(pkg.items.length / 2);
                     packageCombos = [
-                        { id: comboIdCounter++, title: '组合一', total: 2, required: 1, items: pkg.items.slice(0, half) },
-                        { id: comboIdCounter++, title: '组合二', total: 8, required: 6, items: pkg.items.slice(half) }
+                        { id: comboIdCounter++, title: '组合一', total: 2, required: 1, requiredEnabled: true, items: pkg.items.slice(0, half) },
+                        { id: comboIdCounter++, title: '组合二', total: 8, required: 6, requiredEnabled: true, items: pkg.items.slice(half) }
                     ];
                 }
             } else {
@@ -1374,7 +1392,7 @@
                 packageNameInput.value = '';
                 packagePriceInput.value = '';
                 var def = getParamTemplateDefault();
-                packageCombos = [{ id: comboIdCounter++, title: '组合一', total: def.total, required: def.required, items: [] }];
+                packageCombos = [{ id: comboIdCounter++, title: '组合一', total: def.total, required: def.required, requiredEnabled: true, items: [] }];
             }
             productSearchInput.value = '';
             renderCombosBlocks();
@@ -1455,10 +1473,12 @@
                 block.dataset.comboIndex = idx;
                 var total = Math.max(1, combo.total || 2);
                 var required = Math.min(combo.required || 1, total);
+                var requiredEnabled = combo.requiredEnabled !== false;
                 block.innerHTML = '<div class="combo-block-header">' +
                     '<input type="text" class="combo-block-title-input" placeholder="组合标题" value="' + (combo.title || '') + '">' +
-                    '<span class="combo-required-setting">必选：<input type="number" class="combo-total-input" min="1" value="' + total + '" title="本组合需勾选几个商品">选' +
+                    '<span class="combo-required-setting' + (requiredEnabled ? '' : ' disabled-required') + '">必选：<input type="number" class="combo-total-input" min="1" value="' + total + '" title="本组合需勾选几个商品">选' +
                     '<input type="number" class="combo-required-input" min="1" max="' + total + '" value="' + required + '" title="顾客下单时从中选几个">' +
+                    '<label class="combo-required-enable-wrap"><input type="checkbox" class="combo-required-enable-cb" ' + (requiredEnabled ? ' checked' : '') + '> 启用必选</label>' +
                     '</span>' +
                     '<button type="button" class="btn-add-product" data-combo-index="' + idx + '">+ 添加商品</button>' +
                     (packageCombos.length > 1 ? '<button type="button" class="btn-remove-combo" data-combo-index="' + idx + '">删除组合</button>' : '') +
@@ -1491,6 +1511,24 @@
                 block.querySelector('.combo-required-input').addEventListener('input', function () {
                     combo.required = Math.min(Math.max(1, parseInt(this.value, 10) || 1), combo.total || 999);
                 });
+                var requiredSettingSpan = block.querySelector('.combo-required-setting');
+                var requiredEnableCb = block.querySelector('.combo-required-enable-cb');
+                if (requiredEnableCb) {
+                    requiredEnableCb.addEventListener('change', function () {
+                        combo.requiredEnabled = this.checked;
+                        if (requiredSettingSpan) {
+                            requiredSettingSpan.classList.toggle('disabled-required', !this.checked);
+                            var totalInput = block.querySelector('.combo-total-input');
+                            var requiredInput = block.querySelector('.combo-required-input');
+                            if (totalInput) totalInput.disabled = !this.checked;
+                            if (requiredInput) requiredInput.disabled = !this.checked;
+                        }
+                    });
+                    var totalInput = block.querySelector('.combo-total-input');
+                    var requiredInput = block.querySelector('.combo-required-input');
+                    if (totalInput) totalInput.disabled = !requiredEnableCb.checked;
+                    if (requiredInput) requiredInput.disabled = !requiredEnableCb.checked;
+                }
                 block.querySelector('.combo-block-title-input').addEventListener('input', function () { combo.title = this.value; });
 
                 block.querySelector('.btn-add-product').addEventListener('click', function () {
@@ -1511,7 +1549,7 @@
         if (addComboBtn) {
             addComboBtn.addEventListener('click', function () {
                 var def = getParamTemplateDefault();
-                packageCombos.push({ id: comboIdCounter++, title: '组合' + (packageCombos.length + 1), total: def.total, required: def.required, items: [] });
+                packageCombos.push({ id: comboIdCounter++, title: '组合' + (packageCombos.length + 1), total: def.total, required: def.required, requiredEnabled: true, items: [] });
                 renderCombosBlocks();
             });
         }
@@ -1650,8 +1688,9 @@
                     }
                     var total = Math.max(1, combo.total || 1);
                     var required = Math.min(combo.required || 1, total);
-                    if (combo.items.length !== total) {
-                        alert('组合「' + title + '」需勾选 ' + total + ' 个商品（' + total + '选' + required + '），当前已选 ' + combo.items.length + ' 个。');
+                    var requiredEnabled = combo.requiredEnabled !== false;
+                    if (requiredEnabled && combo.items.length !== total) {
+                        alert('组合「' + title + '」已启用必选，需勾选 ' + total + ' 个商品（' + total + '选' + required + '），当前已选 ' + combo.items.length + ' 个。');
                         return;
                     }
                     combo.items.forEach(function (it) { allItems.push(it); });
@@ -1667,7 +1706,7 @@
                 price = parseFloat(price.toFixed(2));
                 var addTime = new Date().toISOString().slice(0, 10);
                 var combosData = packageCombos.map(function (c) {
-                    return { title: c.title, total: c.total, required: c.required, items: c.items.map(function (i) {
+                    return { title: c.title, total: c.total, required: c.required, requiredEnabled: c.requiredEnabled !== false, items: c.items.map(function (i) {
                         return { productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1 };
                     })};
                 });

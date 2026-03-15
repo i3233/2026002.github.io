@@ -419,7 +419,7 @@
         <!-- 页面标题 -->
         <div class="page-header">
             <div>
-                <h1 class="page-title">当日结存单</h1>
+                <h1 class="page-title">当日结存</h1>
                 <div class="page-subtitle">查看当日商品的进存销情况和结存信息</div>
             </div>
         </div>
@@ -429,13 +429,6 @@
             <div class="filter-item">
                 <label>日期：</label>
                 <input type="date" id="statementDate" value="">
-            </div>
-            <div class="filter-item">
-                <label>仓库：</label>
-                <select id="warehouseSelect">
-                    <option value="">全部仓库</option>
-                    <!-- 选项由JS动态生成 -->
-                </select>
             </div>
             <div class="filter-item">
                 <label>分类：</label>
@@ -867,15 +860,6 @@
             // 设置默认日期为今天
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('statementDate').value = today;
-
-            // 初始化仓库选择器
-            const warehouseSelect = document.getElementById('warehouseSelect');
-            warehouses.forEach(warehouse => {
-                const option = document.createElement('option');
-                option.value = warehouse.id;
-                option.textContent = warehouse.name;
-                warehouseSelect.appendChild(option);
-            });
 
             // 初始化分类选择器
             const categorySelect = document.getElementById('categorySelect');

@@ -838,6 +838,31 @@
             </div>
         </div>
 
+        <!-- 执行退货确认弹窗 -->
+        <div class="modal-overlay" id="doReturnModalOverlay">
+            <div class="modal" style="max-width: 560px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">执行退货确认</h3>
+                    <button type="button" class="modal-close" id="doReturnModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="do-return-confirm-section" id="doReturnConfirmContent">
+                        <!-- JS 填充：退货单摘要、确认说明 -->
+                    </div>
+                    <div class="do-return-barcode-section" style="margin-top: var(--spacing-lg);">
+                        <div class="modal-section-title">条码</div>
+                        <p class="do-return-barcode-desc" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 8px;">请扫描或录入退货商品条码，用于确认实物与单据一致。</p>
+                        <input type="text" id="doReturnBarcodeInput" class="toolbar-search-input" placeholder="扫描条码或手动输入" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md);">
+                        <div id="doReturnBarcodeList" class="do-return-barcode-list" style="margin-top: 8px; font-size: var(--font-size-sm); color: var(--color-text-secondary);"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="doReturnModalCancel">取消</button>
+                    <button type="button" class="btn btn-primary" id="doReturnModalConfirm">确认执行退货</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 操作菜单 -->
         <div class="action-menu" id="actionMenu">
             <div class="action-menu-item" data-action="view">查看详情</div>
@@ -851,19 +876,22 @@
         const PURCHASE_RETURN_LIST_KEY = 'purchaseReturnList';
         const PURCHASE_RETURN_DETAILS_KEY = 'purchaseReturnDetails';
 
-        // 退货列表与明细（静态示例 + 从采购入库写入的 localStorage 合并，状态：待提交/审核中/待退货/已完成）
-        let returns = [
+        // 默认演示数据（含一条 待退货，便于测试“执行退货”）
+        const DEFAULT_RETURNS = [
             { id: 'TH20250826001', date: '2025-08-26', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 5.00, amount: 30.00, payable: -30.00, status: '待提交', attachment: '', recorder: '系统管理员', recordTime: '2025-08-26 09:30:00' },
             { id: 'TH20250826002', date: '2025-08-26', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 4.00, amount: 24.00, payable: -24.00, status: '审核中', attachment: '', recorder: '系统管理员', recordTime: '2025-08-26 11:15:21' },
             { id: 'TH20250827001', date: '2025-08-27', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 3.00, amount: 18.00, payable: -18.00, status: '待退货', attachment: '', recorder: '系统管理员', recordTime: '2025-08-27 10:02:13' },
             { id: 'TH20250828001', date: '2025-08-28', partner: '天蓝商行', project: '餐厅', staff: '', remark: '', qty: 5.00, amount: 34.00, payable: -34.00, status: '已完成', attachment: '', recorder: '系统管理员', recordTime: '2025-08-28 16:40:55' }
         ];
-        let returnDetailsMap = {
-            'TH20250826001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00 }],
-            'TH20250826002': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00 }],
-            'TH20250827001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 3, price: 6.00 }],
-            'TH20250828001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 5, price: 6.80 }]
+        const DEFAULT_RETURN_DETAILS_MAP = {
+            'TH20250826001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00, barcode: '6901234500011' }],
+            'TH20250826002': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 2, price: 6.00, barcode: '6901234500011' }],
+            'TH20250827001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 3, price: 6.00, barcode: '6901234500011' }],
+            'TH20250828001': [{ name: '雅安腊肉', spec: '500g/包', unit: '包', qty: 5, price: 6.80, barcode: '6901234500012' }]
         };
+
+        let returns = DEFAULT_RETURNS.map(r => ({ ...r }));
+        let returnDetailsMap = JSON.parse(JSON.stringify(DEFAULT_RETURN_DETAILS_MAP));
 
         function loadReturnsFromStorage() {
             try {
@@ -904,7 +932,16 @@
             }
         }
 
-        loadReturnsFromStorage();
+        // 重置为默认演示状态（清缓存，保证至少有一条 待退货 可测“执行退货”）
+        function resetReturnsToDefault() {
+            try {
+                localStorage.removeItem(PURCHASE_RETURN_LIST_KEY);
+                localStorage.removeItem(PURCHASE_RETURN_DETAILS_KEY);
+            } catch (e) {}
+            returns = DEFAULT_RETURNS.map(r => ({ ...r }));
+            returnDetailsMap = JSON.parse(JSON.stringify(DEFAULT_RETURN_DETAILS_MAP));
+        }
+        resetReturnsToDefault();
 
         let filteredReturns = [...returns];
         let sortColumn = null;
@@ -1251,14 +1288,81 @@
             filteredReturns = [...returns];
             renderTable();
         }
-        function doReturn(id) {
+        let doReturnCurrentId = null;
+        const doReturnModalOverlay = document.getElementById('doReturnModalOverlay');
+        const doReturnConfirmContent = document.getElementById('doReturnConfirmContent');
+        const doReturnBarcodeInput = document.getElementById('doReturnBarcodeInput');
+        const doReturnBarcodeList = document.getElementById('doReturnBarcodeList');
+
+        function openDoReturnModal(id) {
             const item = returns.find(r => r.id === id);
-            if (!item) return;
-            if (item.status !== '待退货') return;
+            if (!item || item.status !== '待退货') return;
+            doReturnCurrentId = id;
+            const details = getDetailsById(id) || [];
+            const rows = details.length ? details.map((d, i) =>
+                `<tr><td>${i + 1}</td><td>${d.name}</td><td>${d.spec || '-'}</td><td>${d.unit || '-'}</td><td class="text-right">${Number(d.qty || 0).toFixed(2)}</td><td class="text-right">¥${Number(d.price || 0).toFixed(2)}</td><td class="text-right">¥${(Number(d.qty || 0) * Number(d.price || 0)).toFixed(2)}</td><td>${(d.barcode || '-')}</td></tr>`
+            ).join('') : '<tr><td colspan="8">暂无明细</td></tr>';
+            doReturnConfirmContent.innerHTML = `
+                <div class="modal-section-title">退货确认</div>
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 12px;">请核对以下退货单信息，扫描或录入条码后点击「确认执行退货」完成操作。执行后该单将标记为已完成。</p>
+                <div style="margin-bottom: 12px;">
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: var(--font-size-sm);">
+                        <span class="text-secondary">退货单号</span><span>${item.id}</span>
+                        <span class="text-secondary">日期</span><span>${item.date}</span>
+                        <span class="text-secondary">往来单位</span><span>${item.partner}</span>
+                        <span class="text-secondary">退货数量</span><span>${item.qty.toFixed(2)}</span>
+                        <span class="text-secondary">退货金额</span><span>¥${item.amount.toFixed(2)}</span>
+                    </div>
+                </div>
+                <div class="table-container" style="margin-top: 8px;">
+                    <table class="detail-table" style="font-size: var(--font-size-sm);">
+                        <thead><tr><th>序号</th><th>商品</th><th>规格</th><th>单位</th><th class="text-right">数量</th><th class="text-right">单价</th><th class="text-right">金额</th><th>条码</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+            if (doReturnBarcodeInput) doReturnBarcodeInput.value = '';
+            if (doReturnBarcodeList) doReturnBarcodeList.textContent = '已扫描条码将显示在此处';
+            doReturnModalOverlay.classList.add('show');
+        }
+        function closeDoReturnModal() {
+            doReturnCurrentId = null;
+            doReturnModalOverlay.classList.remove('show');
+        }
+        function confirmDoReturn() {
+            const id = doReturnCurrentId;
+            closeDoReturnModal();
+            if (!id) return;
+            const item = returns.find(r => r.id === id);
+            if (!item || item.status !== '待退货') return;
             item.status = '已完成';
             saveReturnsToStorage();
             filteredReturns = [...returns];
             renderTable();
+            alert('执行退货完成，该单已标记为已完成。');
+        }
+        if (doReturnModalOverlay) {
+            document.getElementById('doReturnModalClose').addEventListener('click', closeDoReturnModal);
+            document.getElementById('doReturnModalCancel').addEventListener('click', closeDoReturnModal);
+            document.getElementById('doReturnModalConfirm').addEventListener('click', confirmDoReturn);
+            doReturnModalOverlay.addEventListener('click', function (e) { if (e.target === doReturnModalOverlay) closeDoReturnModal(); });
+        }
+        if (doReturnBarcodeInput) {
+            doReturnBarcodeInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    const barcode = (this.value || '').trim();
+                    if (barcode && doReturnBarcodeList) {
+                        const line = document.createElement('div');
+                        line.textContent = '已录入：' + barcode;
+                        doReturnBarcodeList.appendChild(line);
+                        this.value = '';
+                    }
+                }
+            });
+        }
+
+        function doReturn(id) {
+            openDoReturnModal(id);
         }
         function printVouchers(ids) {
             const list = returns.filter(r => ids.includes(r.id));
