@@ -6,6 +6,28 @@
     <title>会员 - 餐饮收银台</title>
     <link rel="stylesheet" href="../../../css/Main.css">
     <link rel="stylesheet" href="../../../css/收银台子页面.css">
+    <style>
+        .member-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .member-modal-overlay.show { display: flex; }
+        .member-modal { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 90%; max-width: 440px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .member-modal-header { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200); display: flex; align-items: center; justify-content: space-between; }
+        .member-modal-title { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); }
+        .member-modal-body { padding: var(--spacing-lg); overflow-y: auto; }
+        .member-form-row { margin-bottom: var(--spacing-md); }
+        .member-form-row label { display: block; font-size: var(--font-size-sm); color: var(--color-text-primary); margin-bottom: var(--spacing-xs); }
+        .member-form-row label .required { color: var(--color-error); }
+        .member-form-row input, .member-form-row select, .member-form-row textarea { width: 100%; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); box-sizing: border-box; }
+        .member-form-row textarea { min-height: 72px; resize: vertical; }
+        .member-form-row input:focus, .member-form-row select:focus, .member-form-row textarea:focus { outline: none; border-color: var(--color-primary); }
+        .member-modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
+        .member-info-bar { display: flex; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-md); padding: var(--spacing-sm) 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .member-info-bar span { color: var(--color-text-primary); }
+        .member-detail-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .member-detail-table th, .member-detail-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--color-neutral-200); }
+        .member-detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+        .member-detail-empty { text-align: center; color: var(--color-text-secondary); padding: var(--spacing-xl); }
+        .member-detail-table .text-right { text-align: right; }
+    </style>
 </head>
 <body class="cashier-sub-body">
     <div class="cashier-sub-container">
@@ -14,6 +36,7 @@
             <div class="cashier-sub-filter">
                 <input type="text" id="memberSearch" placeholder="手机号/姓名/卡号" style="width:200px;">
                 <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="memberSearchBtn">查询</button>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="memberAddBtn">新增会员</button>
                 <button type="button" class="cashier-sub-btn" id="memberRechargeBtn">充值</button>
             </div>
             <div class="cashier-sub-card" style="padding:0; margin:0;">
@@ -34,29 +57,283 @@
             </div>
         </div>
     </div>
+
+    <!-- 新增会员弹窗 -->
+    <div class="member-modal-overlay" id="memberAddModal">
+        <div class="member-modal">
+            <div class="member-modal-header">
+                <h3 class="member-modal-title">新增会员</h3>
+                <button type="button" class="cashier-sub-btn" id="memberAddModalClose" aria-label="关闭">×</button>
+            </div>
+            <div class="member-modal-body">
+                <div class="member-form-row">
+                    <label>姓名 <span class="required">*</span></label>
+                    <input type="text" id="addMemberName" placeholder="请输入会员姓名" maxlength="20">
+                </div>
+                <div class="member-form-row">
+                    <label>手机号 <span class="required">*</span></label>
+                    <input type="tel" id="addMemberPhone" placeholder="请输入11位手机号" maxlength="11">
+                </div>
+                <div class="member-form-row">
+                    <label>会员等级</label>
+                    <select id="addMemberLevel">
+                        <option value="普通">普通</option>
+                        <option value="银卡">银卡</option>
+                        <option value="金卡">金卡</option>
+                    </select>
+                </div>
+                <div class="member-form-row">
+                    <label>初始余额（元）</label>
+                    <input type="number" id="addMemberBalance" placeholder="0" min="0" step="0.01" value="0">
+                </div>
+                <div class="member-form-row">
+                    <label>备注</label>
+                    <textarea id="addMemberRemark" placeholder="选填"></textarea>
+                </div>
+            </div>
+            <div class="member-modal-footer">
+                <button type="button" class="cashier-sub-btn" id="memberAddCancelBtn">取消</button>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="memberAddSaveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值弹窗 -->
+    <div class="member-modal-overlay" id="memberRechargeModal">
+        <div class="member-modal">
+            <div class="member-modal-header">
+                <h3 class="member-modal-title">会员充值</h3>
+                <button type="button" class="cashier-sub-btn" id="memberRechargeModalClose" aria-label="关闭">×</button>
+            </div>
+            <div class="member-modal-body">
+                <div class="member-info-bar" id="rechargeMemberInfo"></div>
+                <div class="member-form-row">
+                    <label>充值金额（元） <span class="required">*</span></label>
+                    <input type="number" id="rechargeAmount" placeholder="请输入金额" min="0.01" step="0.01" value="">
+                </div>
+                <div class="member-form-row">
+                    <label>支付方式</label>
+                    <select id="rechargePayMethod">
+                        <option value="微信">微信</option>
+                        <option value="支付宝">支付宝</option>
+                        <option value="现金">现金</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="member-form-row">
+                    <label>备注</label>
+                    <input type="text" id="rechargeRemark" placeholder="选填">
+                </div>
+            </div>
+            <div class="member-modal-footer">
+                <button type="button" class="cashier-sub-btn" id="memberRechargeCancelBtn">取消</button>
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="memberRechargeConfirmBtn">确认充值</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 明细弹窗 -->
+    <div class="member-modal-overlay" id="memberDetailModal">
+        <div class="member-modal" style="max-width: 560px;">
+            <div class="member-modal-header">
+                <h3 class="member-modal-title">会员明细</h3>
+                <button type="button" class="cashier-sub-btn" id="memberDetailModalClose" aria-label="关闭">×</button>
+            </div>
+            <div class="member-modal-body">
+                <div class="member-info-bar" id="detailMemberInfo"></div>
+                <div class="member-form-row" style="margin-bottom: 0;">
+                    <label>收支明细</label>
+                    <div class="table-wrapper" style="max-height: 280px; overflow-y: auto;">
+                        <table class="member-detail-table">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>类型</th>
+                                    <th class="text-right">金额/积分</th>
+                                    <th class="text-right">余额</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberDetailTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="member-detail-empty" id="memberDetailEmpty" style="display:none;">暂无明细记录</div>
+                </div>
+            </div>
+            <div class="member-modal-footer">
+                <button type="button" class="cashier-sub-btn cashier-sub-btn-primary" id="memberDetailCloseBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function () {
             var members = [
-                { cardNo: 'M10001', name: '张先生', phone: '138****8001', balance: 520.00, points: 1200 },
-                { cardNo: 'M10002', name: '李女士', phone: '139****8002', balance: 88.50, points: 360 },
-                { cardNo: 'M10003', name: '王先生', phone: '137****8003', balance: 0, points: 80 }
+                { cardNo: 'M10001', name: '张先生', phone: '138****8001', balance: 520.00, points: 1200, level: '普通', records: [
+                    { type: '充值', amount: 200, balanceAfter: 520, time: '2025-03-01 10:20', payMethod: '微信', remark: '' },
+                    { type: '充值', amount: 320, balanceAfter: 320, time: '2025-02-15 14:00', payMethod: '支付宝', remark: '' }
+                ]},
+                { cardNo: 'M10002', name: '李女士', phone: '139****8002', balance: 88.50, points: 360, level: '银卡', records: [
+                    { type: '充值', amount: 100, balanceAfter: 88.5, time: '2025-03-05 09:30', payMethod: '现金', remark: '' }
+                ]},
+                { cardNo: 'M10003', name: '王先生', phone: '137****8003', balance: 0, points: 80, level: '普通', records: [] }
             ];
             var kw = '';
             function render() {
                 var list = !kw ? members : members.filter(function (m) {
-                    return (m.phone || '').indexOf(kw) >= 0 || (m.name || '').indexOf(kw) >= 0 || (m.cardNo || '').indexOf(kw) >= 0;
+                    return (m.phone || '').indexOf(kw) >= 0 || (m.phoneFull || '').indexOf(kw) >= 0 || (m.name || '').indexOf(kw) >= 0 || (m.cardNo || '').indexOf(kw) >= 0;
                 });
                 var tbody = document.getElementById('memberTableBody');
                 var empty = document.getElementById('memberEmpty');
                 if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
                 empty.style.display = 'none';
                 tbody.innerHTML = list.map(function (m) {
-                    return '<tr><td>' + (m.cardNo || '') + '</td><td>' + (m.name || '') + '</td><td>' + (m.phone || '') + '</td><td>¥' + (m.balance || 0).toFixed(2) + '</td><td>' + (m.points || 0) + '</td><td><button type="button" class="cashier-sub-btn" data-card="' + (m.cardNo || '') + '">充值</button> <button type="button" class="cashier-sub-btn" data-card="' + (m.cardNo || '') + '">明细</button></td></tr>';
+                    return '<tr><td>' + (m.cardNo || '') + '</td><td>' + (m.name || '') + '</td><td>' + (m.phone || '') + '</td><td>¥' + (m.balance != null ? Number(m.balance).toFixed(2) : '0.00') + '</td><td>' + (m.points || 0) + '</td><td><button type="button" class="cashier-sub-btn member-recharge-btn" data-card="' + (m.cardNo || '') + '">充值</button> <button type="button" class="cashier-sub-btn member-detail-btn" data-card="' + (m.cardNo || '') + '">明细</button></td></tr>';
                 }).join('');
+            }
+            function getMemberByCard(cardNo) {
+                return members.filter(function (m) { return (m.cardNo || '') === cardNo; })[0];
             }
             document.getElementById('memberSearch').addEventListener('input', function () { kw = this.value.trim(); });
             document.getElementById('memberSearchBtn').addEventListener('click', function () { render(); });
-            document.getElementById('memberRechargeBtn').addEventListener('click', function () { alert('会员充值（选择会员后操作）'); });
+            document.getElementById('memberRechargeBtn').addEventListener('click', function () { alert('请点击表格中某会员行的「充值」按钮进行充值'); });
+
+            var rechargeModal = document.getElementById('memberRechargeModal');
+            var rechargeMemberInfo = document.getElementById('rechargeMemberInfo');
+            var rechargeAmount = document.getElementById('rechargeAmount');
+            var rechargePayMethod = document.getElementById('rechargePayMethod');
+            var rechargeRemark = document.getElementById('rechargeRemark');
+            var currentRechargeCard = '';
+            function openRechargeModal(cardNo) {
+                var member = getMemberByCard(cardNo);
+                if (!member) return;
+                currentRechargeCard = cardNo;
+                rechargeMemberInfo.innerHTML = '卡号：<span>' + (member.cardNo || '') + '</span> 姓名：<span>' + (member.name || '') + '</span> 当前余额：<span>¥' + (member.balance != null ? Number(member.balance).toFixed(2) : '0.00') + '</span>';
+                rechargeAmount.value = '';
+                rechargePayMethod.value = '微信';
+                rechargeRemark.value = '';
+                rechargeModal.classList.add('show');
+                rechargeAmount.focus();
+            }
+            function closeRechargeModal() {
+                rechargeModal.classList.remove('show');
+                currentRechargeCard = '';
+            }
+            document.getElementById('memberRechargeModalClose').addEventListener('click', closeRechargeModal);
+            document.getElementById('memberRechargeCancelBtn').addEventListener('click', closeRechargeModal);
+            rechargeModal.addEventListener('click', function (e) { if (e.target === rechargeModal) closeRechargeModal(); });
+            document.getElementById('memberRechargeConfirmBtn').addEventListener('click', function () {
+                var amount = parseFloat(rechargeAmount.value);
+                if (isNaN(amount) || amount < 0.01) { alert('请输入有效充值金额（至少 0.01 元）'); rechargeAmount.focus(); return; }
+                var member = getMemberByCard(currentRechargeCard);
+                if (!member) { closeRechargeModal(); return; }
+                member.balance = (member.balance || 0) + amount;
+                if (!member.records) member.records = [];
+                var now = new Date();
+                var timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                member.records.unshift({
+                    type: '充值',
+                    amount: amount,
+                    balanceAfter: member.balance,
+                    time: timeStr,
+                    payMethod: rechargePayMethod.value || '微信',
+                    remark: (rechargeRemark.value || '').trim()
+                });
+                closeRechargeModal();
+                render();
+                alert('充值成功，当前余额：¥' + (member.balance || 0).toFixed(2));
+            });
+
+            var detailModal = document.getElementById('memberDetailModal');
+            var detailMemberInfo = document.getElementById('detailMemberInfo');
+            var memberDetailTableBody = document.getElementById('memberDetailTableBody');
+            var memberDetailEmpty = document.getElementById('memberDetailEmpty');
+            function openDetailModal(cardNo) {
+                var member = getMemberByCard(cardNo);
+                if (!member) return;
+                detailMemberInfo.innerHTML = '卡号：<span>' + (member.cardNo || '') + '</span> 姓名：<span>' + (member.name || '') + '</span> 手机：<span>' + (member.phone || '') + '</span> 余额：<span>¥' + (member.balance != null ? Number(member.balance).toFixed(2) : '0.00') + '</span> 积分：<span>' + (member.points || 0) + '</span>';
+                var records = member.records || [];
+                if (records.length === 0) {
+                    memberDetailTableBody.innerHTML = '';
+                    memberDetailEmpty.style.display = 'block';
+                } else {
+                    memberDetailEmpty.style.display = 'none';
+                    memberDetailTableBody.innerHTML = records.map(function (r) {
+                        var amt = r.type === '充值' ? '+' + (r.amount != null ? Number(r.amount).toFixed(2) : '0.00') : (r.amount != null ? '-' + Number(r.amount).toFixed(2) : '0.00');
+                        return '<tr><td>' + (r.time || '') + '</td><td>' + (r.type || '') + '</td><td class="text-right">' + amt + '</td><td class="text-right">' + (r.balanceAfter != null ? Number(r.balanceAfter).toFixed(2) : '-') + '</td><td>' + (r.remark || (r.payMethod || '')) + '</td></tr>';
+                    }).join('');
+                }
+                detailModal.classList.add('show');
+            }
+            function closeDetailModal() {
+                detailModal.classList.remove('show');
+            }
+            document.getElementById('memberDetailModalClose').addEventListener('click', closeDetailModal);
+            document.getElementById('memberDetailCloseBtn').addEventListener('click', closeDetailModal);
+            detailModal.addEventListener('click', function (e) { if (e.target === detailModal) closeDetailModal(); });
+
+            document.body.addEventListener('click', function (e) {
+                var rb = e.target.closest('.member-recharge-btn');
+                var db = e.target.closest('.member-detail-btn');
+                if (rb && rb.dataset.card) { e.preventDefault(); openRechargeModal(rb.dataset.card); }
+                if (db && db.dataset.card) { e.preventDefault(); openDetailModal(db.dataset.card); }
+            });
+
+            var addModal = document.getElementById('memberAddModal');
+            var addName = document.getElementById('addMemberName');
+            var addPhone = document.getElementById('addMemberPhone');
+            var addLevel = document.getElementById('addMemberLevel');
+            var addBalance = document.getElementById('addMemberBalance');
+            var addRemark = document.getElementById('addMemberRemark');
+            function openMemberAddModal() {
+                addName.value = '';
+                addPhone.value = '';
+                addLevel.value = '普通';
+                addBalance.value = '0';
+                addRemark.value = '';
+                addModal.classList.add('show');
+                addName.focus();
+            }
+            function closeMemberAddModal() {
+                addModal.classList.remove('show');
+            }
+            document.getElementById('memberAddBtn').addEventListener('click', openMemberAddModal);
+            document.getElementById('memberAddModalClose').addEventListener('click', closeMemberAddModal);
+            document.getElementById('memberAddCancelBtn').addEventListener('click', closeMemberAddModal);
+            addModal.addEventListener('click', function (e) { if (e.target === addModal) closeMemberAddModal(); });
+            document.getElementById('memberAddSaveBtn').addEventListener('click', function () {
+                var name = (addName.value || '').trim();
+                var phone = (addPhone.value || '').trim().replace(/\s/g, '');
+                if (!name) { alert('请输入会员姓名'); addName.focus(); return; }
+                if (!phone) { alert('请输入手机号'); addPhone.focus(); return; }
+                if (!/^\d{11}$/.test(phone)) { alert('手机号请输入11位数字'); addPhone.focus(); return; }
+                var exist = members.some(function (m) { return (m.phoneFull || (m.phone || '').replace(/\*/g, '')) === phone; });
+                if (exist) { alert('该手机号已存在，请勿重复添加'); addPhone.focus(); return; }
+                var balance = parseFloat(addBalance.value);
+                if (isNaN(balance) || balance < 0) balance = 0;
+                var nextNo = 10001;
+                members.forEach(function (m) {
+                    var n = parseInt((m.cardNo || '').replace(/\D/g, ''), 10);
+                    if (!isNaN(n) && n >= nextNo) nextNo = n + 1;
+                });
+                var cardNo = 'M' + nextNo;
+                var displayPhone = phone.length >= 7 ? phone.slice(0, 3) + '****' + phone.slice(-4) : phone;
+                members.push({
+                    cardNo: cardNo,
+                    name: name,
+                    phone: displayPhone,
+                    phoneFull: phone,
+                    balance: balance,
+                    points: 0,
+                    level: addLevel.value || '普通',
+                    remark: (addRemark.value || '').trim(),
+                    records: []
+                });
+                closeMemberAddModal();
+                render();
+                alert('会员添加成功，卡号：' + cardNo);
+            });
+
             render();
         })();
     </script>

@@ -242,6 +242,35 @@
         .checkout-bill-row { display: flex; justify-content: space-between; font-size: var(--font-size-sm); }
         .checkout-bill-value { font-weight: var(--font-weight-medium); }
         .checkout-remain-bar { margin-top: auto; padding: var(--spacing-md) var(--spacing-lg); background: var(--color-neutral-200); border-radius: var(--radius-md); text-align: center; font-size: var(--font-size-base); font-weight: var(--font-weight-medium); flex-shrink: 0; }
+
+        /* 中间竖向菜单：方形按钮、大字、四字两行，方便触控 */
+        #tableOrderOverlay .order-middle-panel {
+            width: 96px;
+        }
+        #tableOrderOverlay .order-number-actions {
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+        }
+        #tableOrderOverlay .order-action-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            min-height: 0;
+            padding: 6px 4px;
+            font-size: 16px;
+            font-weight: var(--font-weight-medium);
+            line-height: 1.4;
+            text-align: center;
+            white-space: normal;
+            word-break: normal;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        #tableOrderOverlay .order-scroll-btn {
+            padding: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+        }
     </style>
 </head>
 <body class="table-mgmt-body">
@@ -327,32 +356,21 @@
                             <button type="button" class="order-btn order-btn-outline" id="tableOrderBackBtn">← 返回桌位</button>
                         </div>
                     </div>
-                    <!-- 点单列表为空时显示的按钮 -->
+                    <!-- 点单列表为空时显示的按钮（不显示清空、整单打折\减免、整单打折） -->
                     <div class="order-number-actions order-number-actions-empty" id="tableOrderActionsEmpty">
-                        <button type="button" class="order-action-btn" id="tableOrderClearBtn">清空</button>
                         <button type="button" class="order-action-btn">取单</button>
-                        <button type="button" class="order-action-btn">整单打折\减免</button>
                         <button type="button" class="order-action-btn">整单备注</button>
                     </div>
-                    <!-- 点单列表有内容时显示的按钮 -->
+                    <!-- 点单列表有内容时显示的按钮（已去掉计数器、整单打折/减免、整单备注、团购券先核销、移除商品） -->
                     <div class="order-number-actions order-number-actions-has-items hidden" id="tableOrderActionsHasItems">
-                        <div class="order-qty-row">
-                            <button type="button" class="order-qty-btn" id="tableOrderQtyMinus">-</button>
-                            <span class="order-qty-value" id="tableOrderQtyValue">1</span>
-                            <button type="button" class="order-qty-btn" id="tableOrderQtyPlus">+</button>
-                        </div>
                         <button type="button" class="order-action-btn" id="tableOrderClearBtn2">清空</button>
                         <button type="button" class="order-action-btn">修改商品</button>
                         <button type="button" class="order-action-btn">商品备注</button>
                         <button type="button" class="order-action-btn">打包</button>
                         <button type="button" class="order-action-btn">挂单</button>
                         <button type="button" class="order-action-btn">取单</button>
-                        <button type="button" class="order-action-btn">整单打折/减免</button>
                         <button type="button" class="order-action-btn">打折减免</button>
-                        <button type="button" class="order-action-btn">整单备注</button>
                         <button type="button" class="order-action-btn">赠菜</button>
-                        <button type="button" class="order-action-btn">团购券先核销</button>
-                        <button type="button" class="order-action-btn">移除商品</button>
                     </div>
                     <div class="order-number-footer">
                         <button type="button" class="order-scroll-btn" id="tableOrderScrollUp">向上滑</button>
@@ -362,15 +380,15 @@
             </div>
             <main class="order-right-panel">
                 <!-- 商品展示区（点单时显示） -->
-                <div class="order-product-view" id="tableOrderProductView">
+                <div class="order-product-view order-view-medium" id="tableOrderProductView">
                     <div class="order-product-toolbar">
                         <div class="order-search-section">
                             <input type="text" class="order-search-input" id="tableOrderSearch" placeholder="🔍 商品名称">
                         </div>
                         <div class="order-toolbar-buttons">
-                            <button type="button" class="order-tool-btn" title="大图">大</button>
-                            <button type="button" class="order-tool-btn" title="中图">中</button>
-                            <button type="button" class="order-tool-btn" title="小图">小</button>
+                            <button type="button" class="order-tool-btn" title="大图" data-view="large" id="tableOrderViewLarge">大</button>
+                            <button type="button" class="order-tool-btn active" title="中图" data-view="medium" id="tableOrderViewMedium">中</button>
+                            <button type="button" class="order-tool-btn" title="小图" data-view="small" id="tableOrderViewSmall">小</button>
                         </div>
                     </div>
                     <div class="order-category-tabs">
@@ -754,7 +772,8 @@
                     saveTableOrderToStorage();
                 }
             }
-            document.getElementById('tableOrderClearBtn').addEventListener('click', doClearTableOrder);
+            var clearBtn = document.getElementById('tableOrderClearBtn');
+            if (clearBtn) clearBtn.addEventListener('click', doClearTableOrder);
             var clearBtn2 = document.getElementById('tableOrderClearBtn2');
             if (clearBtn2) clearBtn2.addEventListener('click', doClearTableOrder);
             var qtyMinus = document.getElementById('tableOrderQtyMinus');
@@ -812,6 +831,18 @@
                     tableOrderCategory = this.dataset.category || 'all';
                     tableOrderRenderProducts();
                 });
+            });
+            function setTableOrderProductViewMode(mode) {
+                var pv = document.getElementById('tableOrderProductView');
+                if (!pv) return;
+                pv.classList.remove('order-view-large', 'order-view-medium', 'order-view-small');
+                pv.classList.add('order-view-' + (mode || 'medium'));
+                document.querySelectorAll('.order-toolbar-buttons .order-tool-btn[data-view]').forEach(function (btn) {
+                    btn.classList.toggle('active', btn.dataset.view === (mode || 'medium'));
+                });
+            }
+            [document.getElementById('tableOrderViewLarge'), document.getElementById('tableOrderViewMedium'), document.getElementById('tableOrderViewSmall')].forEach(function (btn) {
+                if (btn) btn.addEventListener('click', function () { setTableOrderProductViewMode(this.dataset.view); });
             });
             function createTableOrderModal(content) {
                 var container = document.getElementById('tableOrderModalContainer');

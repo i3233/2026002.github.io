@@ -33,15 +33,25 @@
         .order-mgmt-card-pay { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-danger); }
         .order-mgmt-card-row { display: flex; justify-content: space-between; align-items: flex-start; }
         .order-mgmt-card-action { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--color-primary); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .order-mgmt-right { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff; overflow: hidden; }
+        .order-mgmt-right { flex: 1; display: flex; min-width: 0; background: #fff; overflow: hidden; }
+        .order-detail-main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
         .order-detail-inner { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+        .order-detail-side { flex: 1; min-width: 0; background: var(--color-neutral-50); border-left: 1px solid var(--color-neutral-200); padding: var(--spacing-lg); overflow-y: auto; }
+        .order-detail-side-title { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); margin: 0 0 var(--spacing-md); color: var(--color-text-primary); }
+        .order-detail-side-item { font-size: var(--font-size-sm); margin-bottom: var(--spacing-sm); }
+        .order-detail-side-item .label { color: var(--color-text-secondary); }
+        .order-detail-side-item .value { color: var(--color-text-primary); }
+        .order-detail-side-copy-wrap { display: flex; align-items: center; gap: var(--spacing-xs); flex-wrap: wrap; }
+        .order-detail-copy { padding: 2px 8px; font-size: var(--font-size-xs); border-radius: var(--radius-sm); background: var(--color-primary); color: #fff; border: none; cursor: pointer; }
+        .order-detail-side-placeholder { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+        .order-detail-side-log-link { display: block; margin-bottom: var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-primary); cursor: pointer; background: none; border: none; padding: 0; text-align: right; }
+        .order-detail-side-log-link:hover { text-decoration: underline; }
         .order-detail-header { margin-bottom: var(--spacing-lg); }
         .order-detail-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0 0 var(--spacing-sm); }
         .order-detail-meta { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 4px; }
         .order-detail-meta a { color: var(--color-primary); margin-left: var(--spacing-md); }
         .order-detail-row { display: flex; flex-wrap: wrap; gap: var(--spacing-lg) var(--spacing-xl); margin-bottom: var(--spacing-md); font-size: var(--font-size-sm); }
         .order-detail-label { color: var(--color-text-secondary); }
-        .order-detail-copy { padding: 2px 8px; font-size: var(--font-size-xs); border-radius: var(--radius-sm); background: var(--color-primary); color: #fff; border: none; cursor: pointer; margin-left: 8px; }
         .order-detail-section { margin-bottom: var(--spacing-lg); }
         .order-detail-section-title { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); margin: 0 0 var(--spacing-sm); }
         .order-detail-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
@@ -67,7 +77,6 @@
         <div class="order-mgmt-type-tabs">
             <button type="button" class="order-mgmt-type-tab active" data-type="all">全部</button>
             <button type="button" class="order-mgmt-type-tab" data-type="cashier">收银台</button>
-            <button type="button" class="order-mgmt-fetch" id="btnVerifyOrder" style="margin-left:auto;">核销订单</button>
         </div>
         <div class="order-mgmt-filter-row">
             <span class="order-mgmt-date" id="orderDateRange">下单: 2026-03-08 00:00 - 2026-03-08 23:59</span>
@@ -82,17 +91,24 @@
             <!-- 订单卡片由 JS 渲染 -->
         </div>
         <div class="order-mgmt-right">
-            <div class="order-detail-inner" id="orderDetailArea">
-                <!-- 选中订单详情由 JS 渲染 -->
-                <div class="order-detail-placeholder" id="orderDetailPlaceholder" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-secondary);">请从左侧选择订单</div>
-            </div>
-            <div class="order-mgmt-footer">
-                <button type="button" class="order-footer-btn green" id="btnPrint">打印小票</button>
-                <div class="order-footer-right">
-                    <button type="button" class="order-footer-btn" id="btnCancel">退单</button>
-                    <button type="button" class="order-footer-btn" id="btnRefund">退款</button>
-                    <button type="button" class="order-footer-btn" id="btnNote">备注</button>
+            <div class="order-detail-main">
+                <div class="order-detail-inner">
+                    <div class="order-detail-placeholder" id="orderDetailPlaceholder" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-secondary);">请从左侧选择订单</div>
+                    <div id="orderDetailArea" style="display:none;"></div>
                 </div>
+                <div class="order-mgmt-footer">
+                    <button type="button" class="order-footer-btn green" id="btnPrint">打印小票</button>
+                    <div class="order-footer-right">
+                        <button type="button" class="order-footer-btn" id="btnCancel">退单</button>
+                        <button type="button" class="order-footer-btn" id="btnRefund">退款</button>
+                        <button type="button" class="order-footer-btn" id="btnNote">备注</button>
+                    </div>
+                </div>
+            </div>
+            <div class="order-detail-side" id="orderDetailSide">
+                <span role="button" class="order-detail-side-log-link" id="btnOrderLog" tabindex="0">操作日志</span>
+                <div class="order-detail-side-placeholder" id="orderDetailSidePlaceholder">请从左侧选择订单</div>
+                <div id="orderDetailSideContent" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -166,13 +182,36 @@
             function renderDetail() {
                 var o = orders.filter(function (x) { return x.id === selectedOrderId; })[0];
                 var placeholder = document.getElementById('orderDetailPlaceholder');
+                var area = document.getElementById('orderDetailArea');
+                var sidePlaceholder = document.getElementById('orderDetailSidePlaceholder');
+                var sideContent = document.getElementById('orderDetailSideContent');
                 if (!o) {
                     if (placeholder) placeholder.style.display = 'flex';
-                    document.getElementById('orderDetailArea').innerHTML = '';
-                    document.getElementById('orderDetailArea').appendChild(placeholder);
+                    if (area) area.style.display = 'none';
+                    if (sidePlaceholder) sidePlaceholder.style.display = 'block';
+                    if (sideContent) { sideContent.style.display = 'none'; sideContent.innerHTML = ''; }
                     return;
                 }
                 if (placeholder) placeholder.style.display = 'none';
+                if (area) area.style.display = 'block';
+                if (sidePlaceholder) sidePlaceholder.style.display = 'none';
+                if (sideContent) {
+                    sideContent.style.display = 'block';
+                    sideContent.innerHTML =
+                        '<h3 class="order-detail-side-title">订单信息</h3>' +
+                        '<div class="order-detail-side-item">原单号: <span class="value">' + (o.id || '') + '</span></div>' +
+                        '<div class="order-detail-side-item">订单类型: <span class="value">' + (o.orderType || '收银订单') + '</span></div>' +
+                        '<div class="order-detail-side-item">订单编号: <span class="order-detail-side-copy-wrap"><span class="value">' + (o.orderSn || '') + '</span> <button type="button" class="order-detail-copy" data-sn="' + (o.orderSn || '') + '">复制</button></span></div>' +
+                        '<div class="order-detail-side-item">下单时间: <span class="value">' + (o.orderTime || '') + '</span></div>' +
+                        '<div class="order-detail-side-item">下单门店: <span class="value">' + (o.storeName || '') + '</span></div>';
+                    sideContent.querySelectorAll('.order-detail-copy').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var sn = this.dataset.sn || '';
+                            if (navigator.clipboard) navigator.clipboard.writeText(sn);
+                            alert('已复制订单编号');
+                        });
+                    });
+                }
                 var itemsHtml = (o.items || []).map(function (it) {
                     return '<tr><td>' + (it.name || '') + '</td><td class="text-right">x' + (it.qty || 1) + '</td><td class="text-right">¥' + (it.price || 0).toFixed(2) + '</td></tr>';
                 }).join('');
@@ -180,10 +219,7 @@
                 var discount = o.discount || 0;
                 var payAmount = o.payAmount != null ? o.payAmount : total - discount;
                 var html = '<div class="order-detail-header">' +
-                    '<div class="order-detail-meta">原单号: ' + o.id + ' &nbsp; 订单类型: ' + (o.orderType || '') + ' &nbsp; 订单编号: ' + (o.orderSn || '') + '<button type="button" class="order-detail-copy" data-sn="' + (o.orderSn || '') + '">复制</button></div>' +
-                    '<div class="order-detail-meta">下单时间: ' + (o.orderTime || '') + '</div>' +
-                    '<div class="order-detail-meta">下单门店: ' + (o.storeName || '') + '</div>' +
-                    '<div class="order-detail-row"><span class="order-detail-label">客户:</span> ' + (o.customer || '') + ' &nbsp; <span class="order-detail-label">收银员:</span> ' + (o.cashier || '') + ' &nbsp; <span class="order-detail-label">支付金额:</span> <span style="color:var(--color-danger);font-weight:bold;">¥' + payAmount.toFixed(2) + '</span></div>' +
+                    '<div class="order-detail-row"><span class="order-detail-label">客户:</span> ' + (o.customer || '-') + ' &nbsp; <span class="order-detail-label">收银员:</span> ' + (o.cashier || '') + ' &nbsp; <span class="order-detail-label">支付金额:</span> <span style="color:var(--color-danger);font-weight:bold;">¥' + payAmount.toFixed(2) + '</span></div>' +
                     '</div>' +
                     '<div class="order-detail-section"><h3 class="order-detail-section-title">商品</h3>' +
                     '<table class="order-detail-table"><thead><tr><th>商品</th><th class="text-right">数量</th><th class="text-right">单价</th></tr></thead><tbody>' + itemsHtml + '</tbody></table></div>' +
@@ -193,13 +229,7 @@
                     '<div class="order-detail-payrow"><span>' + (o.payMethod || '现金支付') + '</span><span>¥' + payAmount.toFixed(2) + '</span></div>' +
                     '<div class="order-detail-payrow total"><span>订单支付金额</span><span>¥' + payAmount.toFixed(2) + '</span></div></div>' +
                     '<div class="order-detail-section"><div class="order-detail-meta">用户备注: 无</div><div class="order-detail-meta">商家备注: 无</div></div>';
-                var area = document.getElementById('orderDetailArea');
-                var ph = document.getElementById('orderDetailPlaceholder');
-                area.innerHTML = html;
-                if (ph && ph.parentNode) ph.parentNode.removeChild(ph);
-                area.querySelectorAll('.order-detail-copy').forEach(function (btn) {
-                    btn.addEventListener('click', function () { navigator.clipboard && navigator.clipboard.writeText(this.dataset.sn || ''); alert('已复制订单编号'); });
-                });
+                if (area) area.innerHTML = html;
             }
 
             document.querySelectorAll('.order-mgmt-type-tab').forEach(function (t) {
@@ -212,7 +242,7 @@
             });
             document.getElementById('orderRefresh').addEventListener('click', function () { renderList(); renderDetail(); });
             document.getElementById('btnFetchOrder').addEventListener('click', function () { alert('取单'); });
-            document.getElementById('btnVerifyOrder').addEventListener('click', function () { alert('核销订单'); });
+            document.getElementById('btnOrderLog').addEventListener('click', function () { alert('操作日志'); });
             document.getElementById('btnPrint').addEventListener('click', function () { alert('打印小票'); });
             document.getElementById('btnCancel').addEventListener('click', function () { alert('退单'); });
             document.getElementById('btnRefund').addEventListener('click', function () { alert('退款'); });
