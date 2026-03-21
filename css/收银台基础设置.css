@@ -13,28 +13,6 @@
     padding: var(--spacing-lg);
 }
 
-/* 页面标题 */
-.pos-settings-header {
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background-color: #ffffff;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-}
-
-.pos-settings-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    margin: 0;
-}
-
-.pos-settings-subtitle {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    margin-top: var(--spacing-xs);
-}
-
 /* 设置卡片 */
 .pos-settings-card {
     background-color: #ffffff;

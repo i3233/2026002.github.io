@@ -508,6 +508,48 @@ h6 { font-size: var(--font-size-base); }
     font-weight: var(--font-weight-medium);
 }
 
+/* 三级子菜单（如 销售 → 零售管理 → 全部），默认收起 */
+.submenu-group {
+    margin-bottom: 2px;
+}
+.submenu-nest-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xs) var(--spacing-md);
+    padding-left: calc(var(--spacing-md) * 2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    user-select: none;
+}
+.submenu-nest-toggle:hover {
+    background-color: rgba(44, 131, 235, 0.05);
+    color: var(--color-primary);
+}
+.submenu-nest-toggle .menu-item-arrow {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform var(--transition-base) var(--ease-in-out);
+}
+.submenu-group.expanded .submenu-nest-toggle .menu-item-arrow {
+    transform: rotate(90deg);
+}
+.submenu-nested {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s var(--ease-in-out);
+    background-color: var(--color-neutral-50);
+}
+.submenu-group.expanded .submenu-nested {
+    max-height: 320px;
+}
+.submenu-item-deep {
+    padding-left: calc(var(--spacing-md) * 2.5);
+}
+
 /* ========== 右侧内容区 ========== */
 .main-content {
     flex: 1;

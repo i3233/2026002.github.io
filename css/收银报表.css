@@ -15,30 +15,11 @@
     padding: var(--spacing-lg);
 }
 
-/* ========== 页面标题和操作栏 ========== */
-.report-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--spacing-lg);
-}
-
-.report-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    margin: 0;
-}
-
-.report-actions {
-    display: flex;
-    gap: var(--spacing-sm);
-}
-
-/* ========== 筛选和搜索区 ========== */
+/* ========== 筛选和搜索区（左侧条件，右侧打印/导出） ========== */
 .report-filters {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--spacing-md);
     padding: var(--spacing-md) var(--spacing-lg);
     background-color: #ffffff;
@@ -46,6 +27,23 @@
     box-shadow: var(--shadow-card);
     margin-bottom: var(--spacing-lg);
     flex-wrap: wrap;
+}
+
+.report-filters-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+}
+
+.report-filters-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 .report-filter-group {
