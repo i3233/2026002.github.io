@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收银台登录</title>
+    <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银台登录.css">
+</head>
+<body class="pos-login-page">
+    <div class="pos-login-wrap">
+        <div class="pos-login-card">
+            <div class="pos-login-card-header">
+                <h1>收银台登录</h1>
+                <p class="pos-login-sub">请选择登录方式（演示环境，无需真实校验）</p>
+                <span class="pos-login-type-tag" id="posLoginTypeTag">餐饮收银台</span>
+            </div>
+
+            <div class="pos-login-tabs" role="tablist">
+                <button type="button" class="pos-login-tab active" data-tab="scan" role="tab">扫码登录</button>
+                <button type="button" class="pos-login-tab" data-tab="pwd" role="tab">密码登录</button>
+                <button type="button" class="pos-login-tab" data-tab="sms" role="tab">短信验证</button>
+            </div>
+
+            <div class="pos-login-panels">
+                <div class="pos-login-panel active" data-panel="scan" role="tabpanel">
+                    <div class="pos-login-scan-box">
+                        <div class="pos-login-qr" aria-hidden="true"></div>
+                        <p class="pos-login-scan-tip">请使用收银机 APP 或企业微信扫描上方二维码完成授权登录</p>
+                    </div>
+                </div>
+
+                <div class="pos-login-panel" data-panel="pwd" role="tabpanel">
+                    <div class="pos-login-field">
+                        <label for="loginAccount">收银员账号 / 工号</label>
+                        <input type="text" id="loginAccount" placeholder="请输入账号或工号" autocomplete="username">
+                    </div>
+                    <div class="pos-login-field">
+                        <label for="loginPassword">登录密码</label>
+                        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+                    </div>
+                </div>
+
+                <div class="pos-login-panel" data-panel="sms" role="tabpanel">
+                    <div class="pos-login-field">
+                        <label for="loginPhone">手机号</label>
+                        <input type="tel" id="loginPhone" placeholder="11 位手机号" autocomplete="tel">
+                    </div>
+                    <div class="pos-login-field-row">
+                        <div class="pos-login-field">
+                            <label for="loginSmsCode">短信验证码</label>
+                            <input type="text" id="loginSmsCode" placeholder="验证码" maxlength="6" autocomplete="one-time-code">
+                        </div>
+                        <button type="button" class="pos-login-btn-sms" id="btnSmsCode">获取验证码</button>
+                    </div>
+                </div>
+
+                <button type="button" class="pos-login-btn-primary" id="btnLogin">登 录</button>
+                <p class="pos-login-hint">演示说明：任意填写或不填均可直接点击「登录」进入收银台主界面。</p>
+            </div>
+        </div>
+    </div>
+    <script src="../../js/收银台登录.js"></script>
+</body>
+</html>
