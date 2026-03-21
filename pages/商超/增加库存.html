@@ -7,10 +7,8 @@
     <link rel="stylesheet" href="../../css/Main.css">
     <style>
         .stock-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
-        .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
         .toolbar-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); }
+        .toolbar-left { display: flex; align-items: center; gap: var(--spacing-sm); flex-shrink: 0; }
         .toolbar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); }
         .toolbar-search-input { flex: 1; min-width: 220px; max-width: 400px; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); }
         .toolbar-right { display: flex; align-items: center; gap: var(--spacing-sm); }
@@ -127,21 +125,16 @@
 </head>
 <body>
     <div class="stock-page">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">增加库存</h1>
-                <div class="page-subtitle">凭空增加的库存记录，如盘盈、手工补录、赠送入库等</div>
-            </div>
-        </div>
-
         <div class="toolbar-card">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="addBtn">+ 新增增加单</button>
+            </div>
             <div class="toolbar-center">
                 <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：单号、商品名称、原因、操作人">
                 <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
             </div>
             <div class="toolbar-right">
                 <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
-                <button class="btn btn-primary" id="addBtn">+ 新增增加单</button>
                 <button class="btn btn-outline" id="exportBtn">导出</button>
                 <button class="btn btn-outline" id="printBtn">打印</button>
             </div>

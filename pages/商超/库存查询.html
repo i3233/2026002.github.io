@@ -11,31 +11,6 @@
             background-color: var(--color-neutral-50);
         }
 
-        /* 页面标题 */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-            padding: var(--spacing-lg);
-            background-color: #ffffff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin: 0;
-        }
-
-        .page-subtitle {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            margin-top: var(--spacing-xs);
-        }
-
         /* 主搜索条（与采购退货等一致：主搜索 + 更多搜索展开） */
         .toolbar-card {
             background-color: #ffffff;
@@ -425,12 +400,6 @@
         }
 
         @media (max-width: 1200px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: var(--spacing-xs);
-            }
-
             .bottom-toolbar {
                 flex-direction: column;
                 align-items: flex-start;
@@ -462,14 +431,6 @@
 </head>
 <body>
     <div class="inventory-query-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">库存查询</h1>
-                <div class="page-subtitle">查询和管理商品库存信息</div>
-            </div>
-        </div>
-
         <!-- 主搜索条 + 更多搜索 -->
         <div class="toolbar-card">
             <div class="toolbar-center">

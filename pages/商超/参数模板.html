@@ -49,10 +49,6 @@
             min-width: 220px;
             white-space: nowrap;
         }
-        .spec-table .col-delete {
-            width: 48px;
-            text-align: center;
-        }
         .setting-cell {
             display: flex;
             align-items: center;
@@ -85,31 +81,6 @@
             border-radius: 4px;
             font-size: var(--font-size-sm);
         }
-        .spec-add-row {
-            margin-top: var(--spacing-sm);
-        }
-        .spec-add-row .btn-link {
-            color: var(--color-primary);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            padding: 0;
-        }
-        .spec-add-row .btn-link:hover {
-            text-decoration: underline;
-        }
-        .btn-delete {
-            background: none;
-            border: none;
-            color: var(--color-error);
-            cursor: pointer;
-            padding: 4px;
-            line-height: 1;
-        }
-        .btn-delete:hover {
-            opacity: 0.8;
-        }
         .card-foot {
             margin-top: var(--spacing-lg);
             display: flex;
@@ -138,6 +109,51 @@
             outline: none;
             border-color: var(--color-primary);
         }
+
+        /* 已保存参数模板列表（名称样式对齐商品标签 tag-pill） */
+        .param-saved-list {
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+        .param-saved-empty {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin: var(--spacing-sm) 0 0 0;
+        }
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+        .tag-pill--primary {
+            background-color: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+        }
+        .tag-pill--danger {
+            background-color: rgba(220, 53, 69, 0.08);
+            color: var(--color-error);
+        }
+        .tag-pill--success {
+            background-color: rgba(40, 167, 69, 0.08);
+            color: var(--color-success);
+        }
+        .tag-preview-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            flex-shrink: 0;
+        }
+        .param-saved-setting {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            max-width: 280px;
+        }
     </style>
 </head>
 <body>
@@ -158,7 +174,6 @@
                         <th>加价</th>
                         <th>成本</th>
                         <th class="col-setting">设定</th>
-                        <th class="col-delete">操作</th>
                     </tr>
                 </thead>
                 <tbody id="paramTableBody">
@@ -167,36 +182,27 @@
                         <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
                         <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
                         <td class="col-setting"><div class="setting-cell"><label><input type="checkbox" class="setting-required" checked> 必选</label><label><input type="checkbox" class="setting-limited"> 限量</label><span class="setting-limit-wrap"><input type="number" class="setting-limit-input" min="1" value="1"> 份</span></div></td>
-                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
-                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td class="col-setting"><div class="setting-cell"><label><input type="checkbox" class="setting-required" checked> 必选</label><label><input type="checkbox" class="setting-limited"> 限量</label><span class="setting-limit-wrap"><input type="number" class="setting-limit-input" min="1" value="1"> 份</span></div></td>
-                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
-                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td class="col-setting"><div class="setting-cell"><label><input type="checkbox" class="setting-required" checked> 必选</label><label><input type="checkbox" class="setting-limited"> 限量</label><span class="setting-limit-wrap"><input type="number" class="setting-limit-input" min="1" value="1"> 份</span></div></td>
-                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
-                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td class="col-setting"><div class="setting-cell"><label><input type="checkbox" class="setting-required" checked> 必选</label><label><input type="checkbox" class="setting-limited"> 限量</label><span class="setting-limit-wrap"><input type="number" class="setting-limit-input" min="1" value="1"> 份</span></div></td>
-                        <td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>
                     </tr>
                 </tbody>
             </table>
-            <div class="spec-add-row">
-                <button type="button" class="btn-link" id="paramAddRowBtn">+ 添加</button>
-            </div>
             <div class="card-foot">
                 <button type="button" class="btn btn-primary" id="paramConfirmBtn">确定</button>
+            </div>
+
+            <div class="param-saved-list" id="paramSavedListSection">
+                <h2 class="card-title">已设定参数模板</h2>
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>规格名称</th>
+                            <th>加价</th>
+                            <th>成本</th>
+                            <th>设定</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paramSavedListBody"></tbody>
+                </table>
+                <p class="param-saved-empty" id="paramSavedEmpty" style="display: none;">暂无已保存的参数模板，在上方填写一行后点击「确定」将追加到此处列表。</p>
             </div>
         </div>
     </div>
@@ -204,13 +210,129 @@
     <script>
         (function () {
             var tbody = document.getElementById('paramTableBody');
-            var rowIndex = 4;
+            var savedListBody = document.getElementById('paramSavedListBody');
+            var savedEmptyEl = document.getElementById('paramSavedEmpty');
+            var TEMPLATES_LIST_KEY = 'shangchaoParamTemplatesSaved';
 
-            function getSettingCellHtml(name) {
-                return '<td class="col-setting"><div class="setting-cell">' +
-                    '<label><input type="checkbox" class="setting-required" checked> 必选</label>' +
-                    '<label><input type="checkbox" class="setting-limited"> 限量</label>' +
-                    '<span class="setting-limit-wrap"><input type="number" class="setting-limit-input" min="1" value="1"> 份</span></div></td>';
+            // 与商超「商品标签」名称一致；加价/成本/设定为示例
+            var DEFAULT_PARAM_TEMPLATES = [
+                { name: '新品', price: 2.00, cost: 0.80, required: true, limited: false, limitQty: 1 },
+                { name: '热销', price: 5.50, cost: 1.20, required: true, limited: true, limitQty: 3 },
+                { name: '自营', price: 3.00, cost: 0.60, required: false, limited: false, limitQty: 1 },
+                { name: '限时抢购', price: 8.00, cost: 2.50, required: true, limited: true, limitQty: 2 },
+                { name: '产地直供', price: 4.20, cost: 1.00, required: true, limited: false, limitQty: 1 },
+                { name: '推荐', price: 2.80, cost: 0.50, required: true, limited: false, limitQty: 1 },
+                { name: '爆款', price: 6.00, cost: 1.80, required: true, limited: true, limitQty: 5 },
+                { name: '包邮', price: 0, cost: 0, required: false, limited: false, limitQty: 1 },
+                { name: '会员专享', price: 10.00, cost: 3.20, required: true, limited: false, limitQty: 1 },
+                { name: '限时', price: 7.50, cost: 2.00, required: true, limited: true, limitQty: 1 },
+                { name: '雅安特产', price: 4.50, cost: 1.10, required: true, limited: false, limitQty: 1 },
+                { name: '精选', price: 3.60, cost: 0.90, required: false, limited: true, limitQty: 4 }
+            ];
+
+            function escapeHtml(s) {
+                if (s == null) return '';
+                var d = document.createElement('div');
+                d.textContent = s;
+                return d.innerHTML;
+            }
+
+            function formatSettingText(row) {
+                var parts = [];
+                parts.push(row.required !== false ? '必选' : '非必选');
+                if (row.limited) {
+                    parts.push('限量' + (parseInt(row.limitQty, 10) || 1) + '份');
+                }
+                return parts.join('，');
+            }
+
+            function getSavedParamTemplatesData() {
+                var raw = localStorage.getItem(TEMPLATES_LIST_KEY);
+                if (raw === null || raw === '' || raw === '[]') {
+                    try {
+                        localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(DEFAULT_PARAM_TEMPLATES));
+                    } catch (e) {}
+                    return DEFAULT_PARAM_TEMPLATES.slice();
+                }
+                try {
+                    var parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                        try {
+                            localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(DEFAULT_PARAM_TEMPLATES));
+                        } catch (e2) {}
+                        return DEFAULT_PARAM_TEMPLATES.slice();
+                    }
+                    return parsed;
+                } catch (e) {
+                    try {
+                        localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(DEFAULT_PARAM_TEMPLATES));
+                    } catch (e2) {}
+                    return DEFAULT_PARAM_TEMPLATES.slice();
+                }
+            }
+
+            function renderSavedParamList() {
+                if (!savedListBody) return;
+                var data = getSavedParamTemplatesData();
+                if (!Array.isArray(data)) data = [];
+                savedListBody.innerHTML = '';
+                var pillClasses = ['tag-pill tag-pill--primary', 'tag-pill tag-pill--danger', 'tag-pill tag-pill--success'];
+                data.forEach(function (row, i) {
+                    var tr = document.createElement('tr');
+                    var pc = pillClasses[i % pillClasses.length];
+                    tr.innerHTML =
+                        '<td><span class="' + pc + '"><span class="tag-preview-dot"></span><span>' + escapeHtml(row.name) + '</span></span></td>' +
+                        '<td>¥' + (Number(row.price) || 0).toFixed(2) + '</td>' +
+                        '<td>¥' + (Number(row.cost) || 0).toFixed(2) + '</td>' +
+                        '<td class="param-saved-setting">' + escapeHtml(formatSettingText(row)) + '</td>';
+                    savedListBody.appendChild(tr);
+                });
+                if (savedEmptyEl) {
+                    savedEmptyEl.style.display = data.length ? 'none' : 'block';
+                }
+            }
+
+            function collectOneRowFromForm() {
+                var tr = tbody.querySelector('tr');
+                if (!tr) return null;
+                var nameEl = tr.querySelector('.spec-name');
+                var priceEl = tr.querySelector('.spec-price');
+                var costEl = tr.querySelector('.spec-cost');
+                var reqEl = tr.querySelector('.setting-required');
+                var limEl = tr.querySelector('.setting-limited');
+                var limInput = tr.querySelector('.setting-limit-input');
+                var name = nameEl ? nameEl.value.trim() : '';
+                if (!name) return null;
+                return {
+                    name: name,
+                    price: parseFloat(priceEl && priceEl.value) || 0,
+                    cost: parseFloat(costEl && costEl.value) || 0,
+                    required: !!(reqEl && reqEl.checked),
+                    limited: !!(limEl && limEl.checked),
+                    limitQty: Math.max(1, parseInt(limInput && limInput.value, 10) || 1)
+                };
+            }
+
+            function clearFormRow() {
+                var tr = tbody.querySelector('tr');
+                if (!tr) return;
+                var nameEl = tr.querySelector('.spec-name');
+                var priceEl = tr.querySelector('.spec-price');
+                var costEl = tr.querySelector('.spec-cost');
+                var reqEl = tr.querySelector('.setting-required');
+                var limEl = tr.querySelector('.setting-limited');
+                var limInput = tr.querySelector('.setting-limit-input');
+                if (nameEl) nameEl.value = '';
+                if (priceEl) priceEl.value = '0';
+                if (costEl) costEl.value = '0';
+                if (reqEl) reqEl.checked = true;
+                if (limEl) limEl.checked = false;
+                if (limInput) limInput.value = '1';
+                var cell = tr.querySelector('.setting-cell');
+                if (cell) {
+                    var lw = cell.querySelector('.setting-limit-wrap');
+                    if (lw) lw.classList.remove('visible');
+                }
             }
 
             function bindSettingControls(cell) {
@@ -228,26 +350,6 @@
                 updateLimitVisibility();
             }
 
-            function createRow() {
-                var name = 'param_setting_' + (rowIndex++);
-                var tr = document.createElement('tr');
-                tr.innerHTML = '<td><input type="text" class="spec-name" placeholder="规格名称"></td>' +
-                    '<td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
-                    '<td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
-                    getSettingCellHtml(name) +
-                    '<td class="col-delete"><button type="button" class="btn-delete" title="删除">🗑</button></td>';
-                bindSettingControls(tr.querySelector('.setting-cell'));
-                tr.querySelector('.btn-delete').addEventListener('click', function () {
-                    if (tbody.querySelectorAll('tr').length <= 1) return;
-                    tr.remove();
-                });
-                return tr;
-            }
-
-            document.getElementById('paramAddRowBtn').addEventListener('click', function () {
-                tbody.appendChild(createRow());
-            });
-
             document.getElementById('paramConfirmBtn').addEventListener('click', function () {
                 var chooseTotal = parseInt(document.getElementById('chooseTotal').value, 10) || 1;
                 var chooseCount = parseInt(document.getElementById('chooseCount').value, 10) || 1;
@@ -257,15 +359,19 @@
                         chooseCount: Math.max(1, Math.min(chooseCount, chooseTotal))
                     }));
                 } catch (e) {}
-                alert('参数模板已保存，套餐列表的默认必选将与此联动。');
-            });
-
-            tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var row = this.closest('tr');
-                    if (tbody.querySelectorAll('tr').length <= 1) return;
-                    row.remove();
-                });
+                var row = collectOneRowFromForm();
+                if (!row) {
+                    alert('请填写规格名称');
+                    return;
+                }
+                var data = getSavedParamTemplatesData();
+                if (!Array.isArray(data)) data = [];
+                data.push(row);
+                try {
+                    localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(data));
+                } catch (e) {}
+                renderSavedParamList();
+                clearFormRow();
             });
 
             tbody.querySelectorAll('.setting-cell').forEach(function (cell) {
@@ -280,6 +386,8 @@
                 if (ct) ct.value = saved.chooseTotal || 1;
                 if (cc) cc.value = saved.chooseCount || 1;
             }
+
+            renderSavedParamList();
         })();
     </script>
 </body>

@@ -309,14 +309,6 @@
 </head>
 <body>
     <div class="purchase-storage-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">采购入库</h1>
-                <div class="page-subtitle">上方为入库订单列表，点击某条后在下方展示该计划的商品明细并办理入库</div>
-            </div>
-        </div>
-
         <!-- 入库订单列表（内容为采购计划列表） -->
         <div class="order-select-section">
             <h2 class="section-title" style="margin-top: 0;">入库订单列表</h2>
@@ -474,7 +466,7 @@
                     <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px;">
                         <button type="button" class="btn btn-outline" id="applyReturnSaveDraft">存为草稿</button>
                         <button type="button" class="btn btn-outline" id="applyReturnCancel">取消</button>
-                        <button type="button" class="btn btn-primary" id="applyReturnConfirm">确认申请</button>
+                        <button type="button" class="btn btn-primary" id="applyReturnConfirm">提交审核</button>
                     </div>
                 </div>
             </div>
@@ -861,7 +853,7 @@
                 localStorage.setItem(PURCHASE_RETURN_LIST_KEY, JSON.stringify(list));
                 localStorage.setItem(PURCHASE_RETURN_DETAILS_KEY, JSON.stringify(detailsMap));
                 closeApplyReturnModal();
-                if (confirm('已提交退货申请，请到采购退货页面查看。是否立即前往采购退货？')) {
+                if (confirm('已提交审核，请到采购退货页面查看。是否立即前往采购退货？')) {
                     window.location.href = '采购退货.html';
                 }
             } catch (e) {

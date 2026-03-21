@@ -74,6 +74,42 @@
             font-size: 14px;
         }
 
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .export-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            min-width: 140px;
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-neutral-200);
+            padding: 4px 0;
+            z-index: 100;
+            display: none;
+        }
+        .export-dropdown-menu.show {
+            display: block;
+        }
+        .export-dropdown-item {
+            width: 100%;
+            padding: 8px 14px;
+            border: none;
+            background-color: transparent;
+            text-align: left;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            transition: background-color var(--transition-base) var(--ease-in-out);
+        }
+        .export-dropdown-item:hover {
+            background-color: var(--color-neutral-100);
+        }
+
         /* 统计卡片 */
         .summary-row {
             display: flex;
@@ -258,6 +294,35 @@
         .status-pill--error {
             background-color: rgba(220, 53, 69, 0.1);
             color: var(--color-error);
+        }
+
+        /* 与零售「全部订单」订单状态列一致：无底色，仅文字色 */
+        .order-status-cell .status-pill {
+            background: transparent !important;
+            padding: 0;
+        }
+
+        .pending-sub-type {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            background: rgba(194, 65, 12, 0.1);
+            color: #9a3412;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .text-secondary {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .op-type-cell {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            max-width: 140px;
+            white-space: normal;
+            line-height: 1.4;
         }
 
         /* 订单详情侧滑抽屉（与零售管理一致） */
@@ -494,6 +559,114 @@
             color: var(--color-primary);
         }
 
+        /* 往来单位选择器（三列：身份标签、分类、单位列表，与采购订单一致） */
+        .partner-picker-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .partner-picker-overlay.show { display: flex; }
+        .partner-picker-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 920px;
+            max-height: 78vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .partner-picker-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .partner-picker-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .partner-picker-body {
+            display: flex;
+            flex: 1;
+            min-height: 340px;
+            overflow: hidden;
+        }
+        .partner-picker-col {
+            flex-shrink: 0;
+            width: 128px;
+            border-right: 1px solid var(--color-neutral-200);
+            display: flex;
+            flex-direction: column;
+            background: var(--color-neutral-50);
+        }
+        .partner-picker-col-title {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-secondary);
+            border-bottom: 1px solid var(--color-neutral-200);
+            background: var(--color-neutral-100);
+        }
+        .partner-picker-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+        }
+        .partner-picker-nav-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            margin-bottom: 2px;
+        }
+        .partner-picker-nav-item:hover {
+            background: #fff;
+            color: var(--color-text-primary);
+        }
+        .partner-picker-nav-item.active {
+            background: rgba(44, 131, 235, 0.12);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .partner-picker-table-wrap {
+            flex: 1;
+            overflow: auto;
+            padding: var(--spacing-sm);
+        }
+        .partner-picker-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .partner-picker-table th, .partner-picker-table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+        .partner-picker-table th {
+            background: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .partner-picker-table .text-right { text-align: right; }
+        .partner-picker-table tbody tr { cursor: pointer; }
+        .partner-picker-table tbody tr:hover { background: var(--color-neutral-50); }
+        .partner-picker-table tbody tr.partner-picker-row-selected {
+            background: rgba(44, 131, 235, 0.1);
+            outline: 1px solid var(--color-primary);
+        }
+        .partner-field-wrap input[readonly] {
+            cursor: pointer;
+            background: #fff;
+        }
+
         /* 模态框样式 */
         .modal-overlay {
             display: none;
@@ -680,24 +853,18 @@
                         <span>新增订单</span>
                     </span>
                 </button>
-                <button class="btn btn-outline" id="batchAuditBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">✓</span>
-                        <span>批量提交财务审核</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline" id="batchPrintBtn">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">🖨</span>
-                        <span>批量打印</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出</span>
-                    </span>
-                </button>
+                <div class="export-dropdown">
+                    <button type="button" class="btn btn-outline" id="toolbarExportBtn" aria-expanded="false" aria-haspopup="true">
+                        <span class="btn-icon-text">
+                            <span class="btn-icon-text-symbol">↑</span>
+                            <span>导出</span>
+                        </span>
+                    </button>
+                    <div class="export-dropdown-menu" id="exportDropdownMenu" role="menu">
+                        <button type="button" class="export-dropdown-item" data-export="current" role="menuitem">导出当前</button>
+                        <button type="button" class="export-dropdown-item" data-export="all" role="menuitem">导出全部</button>
+                    </div>
+                </div>
             </div>
 
             <!-- 中间搜索区 -->
@@ -774,6 +941,9 @@
                             <th class="text-right">实付金额</th>
                             <th>支付方式</th>
                             <th>订单状态</th>
+                            <th>子类型</th>
+                            <th>售后状态</th>
+                            <th>操作类型</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -786,7 +956,7 @@
                             <td class="text-right" id="totalQtyCell">0</td>
                             <td class="text-right" id="totalAmountCell">0.00</td>
                             <td class="text-right" id="totalPaidCell">0.00</td>
-                            <td colspan="3"></td>
+                            <td colspan="6"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -870,10 +1040,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">往来单位 *</label>
-                    <select class="form-select" id="partnerSelect">
-                        <option value="">请选择往来单位</option>
-                        <!-- 选项由JS动态生成 -->
-                    </select>
+                    <div class="partner-field-wrap" style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" class="form-input" id="wholesalePartnerDisplay" readonly placeholder="请选择往来单位" style="flex:1;">
+                        <input type="hidden" id="wholesalePartnerId" value="">
+                        <button type="button" class="btn btn-outline" id="wholesalePartnerBrowseBtn">选择</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">联系人</label>
@@ -889,14 +1060,6 @@
                         <option value="credit">赊账</option>
                         <option value="cash">现金</option>
                         <option value="transfer">转账</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">订单来源</label>
-                    <select class="form-select" id="orderSourceSelect">
-                        <option value="manual" selected>部门代下单</option>
-                        <option value="online-paid">商家自助(实付)</option>
-                        <option value="online-credit">商家自助(赊账)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -953,7 +1116,8 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" id="cancelAddOrderBtn">取消</button>
                 <button class="btn btn-outline" id="saveDraftBtn">保存草稿</button>
-                <button class="btn btn-primary" id="submitAuditBtn">提交审核</button>
+                <!-- 赊账：提交审核；现金/转账：确认下单 -->
+                <button class="btn btn-primary" id="primaryOrderActionBtn" type="button">提交审核</button>
             </div>
         </div>
     </div>
@@ -992,6 +1156,52 @@
         </div>
     </div>
 
+    <!-- 选择往来单位（三列：身份标签、分类、单位列表） -->
+    <div class="partner-picker-overlay" id="wholesalePartnerPickerOverlay">
+        <div class="partner-picker-modal">
+            <div class="partner-picker-head">
+                <h3>选择往来单位</h3>
+                <button type="button" class="btn btn-outline" id="wholesalePartnerPickerClose">× 关闭</button>
+            </div>
+            <div class="partner-picker-body">
+                <aside class="partner-picker-col">
+                    <div class="partner-picker-col-title">身份标签</div>
+                    <div class="partner-picker-nav" id="wholesalePartnerIdentityNav">
+                        <div class="partner-picker-nav-item active" data-identity="all">全部</div>
+                        <div class="partner-picker-nav-item" data-identity="both">客户\供应商</div>
+                        <div class="partner-picker-nav-item" data-identity="customer">客户</div>
+                        <div class="partner-picker-nav-item" data-identity="supplier">供应商</div>
+                    </div>
+                </aside>
+                <aside class="partner-picker-col">
+                    <div class="partner-picker-col-title">分类</div>
+                    <div class="partner-picker-nav" id="wholesalePartnerCategoryNav">
+                        <div class="partner-picker-nav-item active" data-category="all">全部</div>
+                        <div class="partner-picker-nav-item" data-category="personal">个人</div>
+                        <div class="partner-picker-nav-item" data-category="org">单位</div>
+                    </div>
+                </aside>
+                <div class="partner-picker-table-wrap">
+                    <table class="partner-picker-table">
+                        <thead>
+                            <tr>
+                                <th style="width:56px;">序号</th>
+                                <th>名称</th>
+                                <th class="text-right" style="width:110px;">应收余额</th>
+                                <th class="text-right" style="width:110px;">应付余额</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wholesalePartnerPickerTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-foot" style="border-top: 1px solid var(--color-neutral-200); padding: var(--spacing-sm) var(--spacing-md); display:flex; justify-content:flex-end; gap: var(--spacing-sm);">
+                <button type="button" class="btn btn-outline" id="wholesalePartnerPickerCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="wholesalePartnerPickerConfirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 模拟打印机数据
         const printers = [
@@ -1000,12 +1210,14 @@
             { id: 'PR003', name: '3号打印机', model: 'Epson LQ', connection: 'USB', status: 'offline' }
         ];
 
-        // 模拟往来单位数据
+        // 模拟往来单位（含三栏筛选字段：identity / category / 应收应付）
         const partners = [
-            { id: 'PT001', name: '雅安批发商A', contact: '张老板', mobile: '13800000001' },
-            { id: 'PT002', name: '成都批发商B', contact: '李经理', mobile: '13800000002' },
-            { id: 'PT003', name: '乐山批发商C', contact: '王总', mobile: '13800000003' },
-            { id: 'PT004', name: '绵阳批发商D', contact: '赵经理', mobile: '13800000004' }
+            { id: 'PT001', name: '雅安批发商A', contact: '张老板', mobile: '13800000001', identity: 'customer', category: 'org', receivable: 3200.5, payable: 0 },
+            { id: 'PT002', name: '成都批发商B', contact: '李经理', mobile: '13800000002', identity: 'customer', category: 'org', receivable: 5800, payable: 200 },
+            { id: 'PT003', name: '乐山批发商C', contact: '王总', mobile: '13800000003', identity: 'both', category: 'org', receivable: 1000, payable: 4500 },
+            { id: 'PT004', name: '绵阳批发商D', contact: '赵经理', mobile: '13800000004', identity: 'customer', category: 'org', receivable: 0, payable: 0 },
+            { id: 'PT005', name: '张三（个人客户）', contact: '张三', mobile: '13911112222', identity: 'customer', category: 'personal', receivable: 500, payable: 0 },
+            { id: 'PT006', name: '川农供货合作社', contact: '周主任', mobile: '13933334444', identity: 'supplier', category: 'org', receivable: 0, payable: 12800 }
         ];
 
         // 模拟可选商品数据（用于商品选择列表）
@@ -1077,7 +1289,9 @@
                 printTime: null,
                 pickingStatus: 'pending',
                 outboundStatus: 'pending',
-                completedTime: null
+                completedTime: null,
+                afterSale: '退货申请中',
+                pendingSubType: '退货退款'
             },
             {
                 id: 'PF20250827001',
@@ -1117,7 +1331,8 @@
                 printTime: '2025-08-27 14:21:00',
                 pickingStatus: 'completed',
                 outboundStatus: 'pending',
-                completedTime: null
+                completedTime: null,
+                afterSale: '仅退款处理中'
             },
             {
                 id: 'PF20250828001',
@@ -1150,8 +1365,23 @@
         let currentPrinter = null;
         let filteredOrders = [...wholesaleOrders];
         let currentStatus = 'all';
+        /** 左侧菜单入口视图：与 URL ?wholesaleView= 同步；点页内 Tab 后清空 */
+        let wholesaleMenuView = null;
         let sortColumn = null;
         let sortDirection = 'asc';
+
+        (function initWholesaleViewFromUrl() {
+            try {
+                var params = new URLSearchParams(window.location.search || '');
+                var v = params.get('wholesaleView');
+                if (v === 'salesOrder') wholesaleMenuView = 'salesOrder';
+                else if (v === 'outbound') wholesaleMenuView = 'outbound';
+                else if (v === 'refund') wholesaleMenuView = 'refund';
+                else wholesaleMenuView = null;
+            } catch (e) {
+                wholesaleMenuView = null;
+            }
+        })();
 
         // 初始化打印机选择器（打印机配置区块已移除，此处仅保留空实现避免报错）
         function initPrinterSelect() {
@@ -1218,18 +1448,144 @@
             alert(`测试打印（示例）\n打印机：${currentPrinter.name}\n正在打印测试页...`);
         }
 
-        // 初始化往来单位选择器
-        function initPartnerSelect() {
-            const select = document.getElementById('partnerSelect');
-            select.innerHTML = '<option value="">请选择往来单位</option>';
-            partners.forEach(partner => {
-                const option = document.createElement('option');
-                option.value = partner.id;
-                option.textContent = partner.name;
-                option.dataset.partner = JSON.stringify(partner);
-                select.appendChild(option);
+        // ---------- 往来单位三栏选择器（与采购订单一致） ----------
+        const wholesalePartnerPickerOverlay = document.getElementById('wholesalePartnerPickerOverlay');
+        const wholesalePartnerPickerTableBody = document.getElementById('wholesalePartnerPickerTableBody');
+        const wholesalePartnerIdentityNav = document.getElementById('wholesalePartnerIdentityNav');
+        const wholesalePartnerCategoryNav = document.getElementById('wholesalePartnerCategoryNav');
+        let wholesalePartnerPickerCurrentIdentity = 'all';
+        let wholesalePartnerPickerCurrentCategory = 'all';
+        let wholesalePartnerPickerFiltered = [];
+        let wholesalePartnerPickerSelectedIndex = -1;
+
+        function getWholesaleFilteredPartners() {
+            return partners.filter(function (p) {
+                var id = wholesalePartnerPickerCurrentIdentity;
+                var cat = wholesalePartnerPickerCurrentCategory;
+                if (id !== 'all') {
+                    if (id === 'both' && p.identity !== 'both') return false;
+                    if (id === 'customer' && p.identity !== 'customer' && p.identity !== 'both') return false;
+                    if (id === 'supplier' && p.identity !== 'supplier' && p.identity !== 'both') return false;
+                }
+                if (cat !== 'all') {
+                    if (cat === 'personal' && p.category !== 'personal') return false;
+                    if (cat === 'org' && p.category !== 'org') return false;
+                }
+                return true;
             });
         }
+
+        function renderWholesalePartnerPickerTable() {
+            wholesalePartnerPickerFiltered = getWholesaleFilteredPartners();
+            wholesalePartnerPickerSelectedIndex = -1;
+            if (!wholesalePartnerPickerTableBody) return;
+            wholesalePartnerPickerTableBody.innerHTML = '';
+            wholesalePartnerPickerFiltered.forEach(function (p, idx) {
+                var tr = document.createElement('tr');
+                tr.className = 'partner-picker-row';
+                tr.dataset.index = String(idx);
+                tr.innerHTML =
+                    '<td>' + (idx + 1) + '</td>' +
+                    '<td>' + (p.name || '') + '</td>' +
+                    '<td class="text-right">¥' + (Number(p.receivable) || 0).toFixed(2) + '</td>' +
+                    '<td class="text-right">¥' + (Number(p.payable) || 0).toFixed(2) + '</td>';
+                wholesalePartnerPickerTableBody.appendChild(tr);
+            });
+        }
+
+        function openWholesalePartnerPicker() {
+            wholesalePartnerPickerCurrentIdentity = 'all';
+            wholesalePartnerPickerCurrentCategory = 'all';
+            if (wholesalePartnerIdentityNav) {
+                wholesalePartnerIdentityNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.identity === 'all');
+                });
+            }
+            if (wholesalePartnerCategoryNav) {
+                wholesalePartnerCategoryNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === 'all');
+                });
+            }
+            renderWholesalePartnerPickerTable();
+            if (wholesalePartnerPickerOverlay) wholesalePartnerPickerOverlay.classList.add('show');
+        }
+
+        function closeWholesalePartnerPicker() {
+            wholesalePartnerPickerSelectedIndex = -1;
+            if (wholesalePartnerPickerOverlay) wholesalePartnerPickerOverlay.classList.remove('show');
+        }
+
+        function applyWholesalePartnerPickerSelection() {
+            if (wholesalePartnerPickerSelectedIndex < 0 || wholesalePartnerPickerSelectedIndex >= wholesalePartnerPickerFiltered.length) {
+                alert('请先选择一行往来单位');
+                return;
+            }
+            var p = wholesalePartnerPickerFiltered[wholesalePartnerPickerSelectedIndex];
+            var hid = document.getElementById('wholesalePartnerId');
+            var disp = document.getElementById('wholesalePartnerDisplay');
+            if (hid) hid.value = p.id || '';
+            if (disp) disp.value = p.name || '';
+            var cn = document.getElementById('contactNameInput');
+            var cm = document.getElementById('contactMobileInput');
+            if (cn) cn.value = p.contact || '';
+            if (cm) cm.value = p.mobile || '';
+            closeWholesalePartnerPicker();
+        }
+
+        if (wholesalePartnerPickerOverlay) {
+            document.getElementById('wholesalePartnerPickerClose').addEventListener('click', closeWholesalePartnerPicker);
+            wholesalePartnerPickerOverlay.addEventListener('click', function (e) {
+                if (e.target === wholesalePartnerPickerOverlay) closeWholesalePartnerPicker();
+            });
+            document.getElementById('wholesalePartnerPickerCancelBtn').addEventListener('click', closeWholesalePartnerPicker);
+            document.getElementById('wholesalePartnerPickerConfirmBtn').addEventListener('click', applyWholesalePartnerPickerSelection);
+        }
+        if (wholesalePartnerIdentityNav) {
+            wholesalePartnerIdentityNav.addEventListener('click', function (e) {
+                var item = e.target.closest('.partner-picker-nav-item');
+                if (!item) return;
+                wholesalePartnerPickerCurrentIdentity = item.dataset.identity || 'all';
+                wholesalePartnerIdentityNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.identity === wholesalePartnerPickerCurrentIdentity);
+                });
+                renderWholesalePartnerPickerTable();
+            });
+        }
+        if (wholesalePartnerCategoryNav) {
+            wholesalePartnerCategoryNav.addEventListener('click', function (e) {
+                var item = e.target.closest('.partner-picker-nav-item');
+                if (!item) return;
+                wholesalePartnerPickerCurrentCategory = item.dataset.category || 'all';
+                wholesalePartnerCategoryNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === wholesalePartnerPickerCurrentCategory);
+                });
+                renderWholesalePartnerPickerTable();
+            });
+        }
+        if (wholesalePartnerPickerTableBody) {
+            wholesalePartnerPickerTableBody.addEventListener('click', function (e) {
+                var tr = e.target.closest('.partner-picker-row');
+                if (!tr) return;
+                var idx = parseInt(tr.dataset.index, 10);
+                if (Number.isNaN(idx)) return;
+                wholesalePartnerPickerSelectedIndex = idx;
+                wholesalePartnerPickerTableBody.querySelectorAll('.partner-picker-row').forEach(function (row) {
+                    row.classList.toggle('partner-picker-row-selected', row === tr);
+                });
+            });
+            wholesalePartnerPickerTableBody.addEventListener('dblclick', function (e) {
+                var tr = e.target.closest('.partner-picker-row');
+                if (!tr) return;
+                var idx = parseInt(tr.dataset.index, 10);
+                if (Number.isNaN(idx)) return;
+                wholesalePartnerPickerSelectedIndex = idx;
+                applyWholesalePartnerPickerSelection();
+            });
+        }
+        var wholesalePartnerBrowseBtn = document.getElementById('wholesalePartnerBrowseBtn');
+        var wholesalePartnerDisplayEl = document.getElementById('wholesalePartnerDisplay');
+        if (wholesalePartnerBrowseBtn) wholesalePartnerBrowseBtn.addEventListener('click', openWholesalePartnerPicker);
+        if (wholesalePartnerDisplayEl) wholesalePartnerDisplayEl.addEventListener('click', openWholesalePartnerPicker);
 
         // 新增订单 - 商品明细行管理
         const orderProductBody = document.getElementById('orderProductBody');
@@ -1367,19 +1723,34 @@
         // 新增订单
         function addOrder() {
             document.getElementById('addOrderModal').classList.add('show');
+            updateAddOrderPrimaryButton();
             // 默认添加一行商品明细，方便直接录入
             if (orderProductBody && orderProductBody.querySelectorAll('tr').length === 0) {
                 addOrderProductRow();
             }
         }
 
-        // 从新增订单弹窗创建订单：targetStatus 为 pendingSubmit（保存草稿）或 pendingAudit（提交审核）
+        /** 根据支付方式切换主按钮：赊账=提交审核，其它=确认下单 */
+        function updateAddOrderPrimaryButton() {
+            var paySel = document.getElementById('payTypeSelect');
+            var btn = document.getElementById('primaryOrderActionBtn');
+            if (!paySel || !btn) return;
+            if (paySel.value === 'credit') {
+                btn.textContent = '提交审核';
+                btn.dataset.action = 'audit';
+            } else {
+                btn.textContent = '确认下单';
+                btn.dataset.action = 'confirm';
+            }
+        }
+
+        // 从新增订单弹窗创建订单：pendingSubmit 草稿 / pendingAudit 赊账审核 / pendingPayment 现金转账确认
         function createOrderFromModal(targetStatus) {
-            const partnerId = document.getElementById('partnerSelect').value;
+            const partnerId = document.getElementById('wholesalePartnerId').value;
             const payType = document.getElementById('payTypeSelect').value;
             const contactName = document.getElementById('contactNameInput').value;
             const contactMobile = document.getElementById('contactMobileInput').value;
-            const orderSource = document.getElementById('orderSourceSelect').value || 'manual';
+            const orderSource = 'manual';
             let totalQty = parseInt(document.getElementById('totalQtyInput').value, 10) || 0;
             let totalAmount = parseFloat(document.getElementById('totalAmountInput').value) || 0;
             const paidAmount = parseFloat(document.getElementById('paidAmountInput').value) || 0;
@@ -1390,8 +1761,11 @@
                 return;
             }
 
-            const partnerOption = document.getElementById('partnerSelect').options[document.getElementById('partnerSelect').selectedIndex];
-            const partner = JSON.parse(partnerOption.dataset.partner);
+            const partner = partners.find(function (x) { return x.id === partnerId; });
+            if (!partner) {
+                alert('往来单位数据异常，请重新选择');
+                return;
+            }
 
             const products = [];
             if (orderProductBody) {
@@ -1411,9 +1785,7 @@
                 totalAmount = products.reduce((s, p) => s + p.qty * p.price, 0);
             }
 
-            let sourceText = '部门代下单';
-            if (orderSource === 'online-paid') sourceText = '商家自助(实付)';
-            if (orderSource === 'online-credit') sourceText = '商家自助(赊账)';
+            const sourceText = '部门代下单';
 
             const newOrder = {
                 id: 'PF' + new Date().getTime(),
@@ -1428,7 +1800,7 @@
                 paid: paidAmount,
                 payType: payType === 'credit' ? '赊账' : payType === 'cash' ? '现金' : '转账',
                 status: targetStatus,
-                auditStatus: 'pending',
+                auditStatus: targetStatus === 'pendingPayment' ? null : 'pending',
                 auditTime: null,
                 printTime: null,
                 pickingStatus: 'pending',
@@ -1443,19 +1815,23 @@
             closeAddOrderModal();
             if (targetStatus === 'pendingSubmit') {
                 alert('已保存草稿，可在列表中继续编辑或提交审核。');
-            } else {
+            } else if (targetStatus === 'pendingAudit') {
                 alert('已提交审核，请等待财务审核。');
+            } else if (targetStatus === 'pendingPayment') {
+                alert('订单已确认。');
             }
         }
 
         // 关闭新增订单模态框
         function closeAddOrderModal() {
             document.getElementById('addOrderModal').classList.remove('show');
-            document.getElementById('partnerSelect').value = '';
+            var wId = document.getElementById('wholesalePartnerId');
+            var wDisp = document.getElementById('wholesalePartnerDisplay');
+            if (wId) wId.value = '';
+            if (wDisp) wDisp.value = '';
             document.getElementById('contactNameInput').value = '';
             document.getElementById('contactMobileInput').value = '';
             document.getElementById('payTypeSelect').value = 'credit';
-            document.getElementById('orderSourceSelect').value = 'manual';
             document.getElementById('totalQtyInput').value = '';
             document.getElementById('totalAmountInput').value = '';
             document.getElementById('paidAmountInput').value = '';
@@ -1471,9 +1847,24 @@
             if (amountSpan) amountSpan.textContent = '¥0.00';
         }
 
+        function orderHasAfterSale(order) {
+            return order.afterSale && order.afterSale !== '无';
+        }
+
         // 筛选订单
         function filterOrders() {
             filteredOrders = [...wholesaleOrders];
+
+            // 左侧「批发管理」子菜单入口：销售开单 / 销售出库 / 退货售后
+            if (wholesaleMenuView === 'salesOrder') {
+                const salesOrderStatuses = ['pendingSubmit', 'pendingPayment', 'pendingAudit', 'pendingFinanceAudit'];
+                filteredOrders = filteredOrders.filter(o => salesOrderStatuses.indexOf(o.status) !== -1);
+            } else if (wholesaleMenuView === 'outbound') {
+                const outboundStatuses = ['pendingPrint', 'picking', 'pendingOutbound'];
+                filteredOrders = filteredOrders.filter(o => outboundStatuses.indexOf(o.status) !== -1);
+            } else if (wholesaleMenuView === 'refund') {
+                filteredOrders = filteredOrders.filter(o => orderHasAfterSale(o));
+            }
 
             // 按状态筛选：全部、待付款、待提交、审核中、待出库、已完成
             if (currentStatus !== 'all') {
@@ -1530,14 +1921,17 @@
             tbody.innerHTML = '';
 
             if (filteredOrders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无订单数据</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-secondary);">暂无订单数据</td></tr>';
                 updateTotals();
                 return;
             }
 
             filteredOrders.forEach(order => {
-                const statusClass = getStatusClass(order.status);
+                const statusPillClass = getWholesaleOrderStatusPillClass(order.status);
                 const sourceClass = getSourceClass(order.source);
+                const subTypeHtml = formatWholesaleSubTypeCell(order);
+                const afterSaleHtml = formatWholesaleAfterSaleCell(order);
+                const opTypeText = getWholesaleOperationTypeLabel(order);
 
                 const tr = document.createElement('tr');
                 tr.dataset.id = order.id;
@@ -1559,9 +1953,12 @@
                     <td class="text-right">${order.amount.toFixed(2)}</td>
                     <td class="text-right">${order.paid.toFixed(2)}</td>
                     <td>${order.payType}</td>
-                    <td>
-                        <span class="status-pill ${statusClass}">${getStatusText(order.status)}</span>
+                    <td class="order-status-cell">
+                        <span class="${statusPillClass} status-link" data-id="${order.id}">${getStatusText(order.status)}</span>
                     </td>
+                    <td>${subTypeHtml}</td>
+                    <td>${afterSaleHtml}</td>
+                    <td class="op-type-cell">${opTypeText}</td>
                     <td>
                         <button class="btn-link view-btn" data-id="${order.id}">查看</button>
                         ${getActionButtons(order)}
@@ -1575,18 +1972,59 @@
             bindTableEvents();
         }
 
-        // 获取状态样式类
-        function getStatusClass(status) {
-            const statusMap = {
-                'pendingPayment': 'status-pill--warning',
-                'pendingSubmit': 'status-pill--primary',
-                'pendingAudit': 'status-pill--warning',
-                'pendingPrint': 'status-pill--primary',
-                'picking': 'status-pill--primary',
-                'pendingOutbound': 'status-pill--warning',
-                'completed': 'status-pill--success'
-            };
-            return statusMap[status] || 'status-pill--primary';
+        /** 订单状态 pill（与零售「全部订单」getOrderStatusPillClass 规则对齐） */
+        function getWholesaleOrderStatusPillClass(status) {
+            if (status === 'completed') return 'status-pill status-pill--success';
+            if (status === 'pendingPayment') return 'status-pill status-pill--warning';
+            if (status === 'pendingAudit') return 'status-pill status-pill--warning';
+            if (status === 'pendingFinanceAudit') return 'status-pill status-pill--primary';
+            if (status === 'pendingSubmit' || status === 'pendingPrint' || status === 'picking' || status === 'pendingOutbound') {
+                return 'status-pill status-pill--primary';
+            }
+            return 'status-pill status-pill--primary';
+        }
+
+        /** 子类型（与零售「待处理」子类展示方式一致，无则 —） */
+        function formatWholesaleSubTypeCell(order) {
+            if (order.pendingSubType) {
+                return '<span class="pending-sub-type">' + escapeHtml(order.pendingSubType) + '</span>';
+            }
+            return '<span class="text-secondary">—</span>';
+        }
+
+        /** 售后状态（与零售「售后状态」列 pill 样式一致） */
+        function formatWholesaleAfterSaleCell(order) {
+            const a = (order.afterSale != null && order.afterSale !== '') ? String(order.afterSale) : '无';
+            if (a === '无' || a === '已退款') {
+                return '<span class="status-pill status-pill--success">' + escapeHtml(a) + '</span>';
+            }
+            return '<span class="status-pill status-pill--primary">' + escapeHtml(a) + '</span>';
+        }
+
+        function escapeHtml(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        /** 操作类型：当前可执行的主流程说明（与列表内快捷按钮对应） */
+        function getWholesaleOperationTypeLabel(order) {
+            const s = order.status;
+            if (s === 'completed') return '—';
+            const parts = [];
+            if (s === 'pendingPayment') parts.push('收款码');
+            if (s === 'pendingSubmit') parts.push('提交审核');
+            if (s === 'pendingAudit') parts.push('提交财务审核');
+            if (s === 'pendingFinanceAudit') parts.push('财务审核');
+            if (s === 'pendingPrint' || s === 'picking') parts.push('打印拣货');
+            if (s === 'pendingOutbound') {
+                if (!order.printTime) parts.push('打印拣货');
+                parts.push('出库');
+            }
+            return parts.length ? parts.join('、') : '—';
         }
 
         // 获取状态文本
@@ -1753,6 +2191,15 @@
                     openOrderDetail(orderId);
                 });
             });
+
+            // 订单状态点击（与零售「全部订单」一致，示意）
+            document.querySelectorAll('#orderTableBody .status-link').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const orderId = this.dataset.id;
+                    alert('订单状态（示例）\n订单号：' + orderId);
+                });
+            });
         }
 
         // 提交财务审核
@@ -1840,69 +2287,77 @@
             if (e.target === paycodeModal) closePaycodeModal();
         });
 
-        // 批量提交财务审核
-        function batchAudit() {
-            const ids = getSelectedIds();
-            if (ids.length === 0) {
-                alert('请先选择要提交财务审核的订单');
-                return;
+        // 导出：下拉（导出当前 = 当前筛选列表，导出全部 = 全部批发订单）
+        (function initToolbarExportDropdown() {
+            const toggleBtn = document.getElementById('toolbarExportBtn');
+            const menu = document.getElementById('exportDropdownMenu');
+            if (!toggleBtn || !menu) return;
+            function closeMenu() {
+                menu.classList.remove('show');
+                toggleBtn.setAttribute('aria-expanded', 'false');
             }
-
-            const pendingAuditIds = ids.filter(id => {
-                const order = wholesaleOrders.find(o => o.id === id);
-                return order && order.status === 'pendingAudit';
+            toggleBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const open = menu.classList.toggle('show');
+                toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
             });
+            menu.addEventListener('click', function (e) { e.stopPropagation(); });
+            document.addEventListener('click', closeMenu);
 
-            if (pendingAuditIds.length === 0) {
-                alert('所选订单中没有处于「审核中」的订单');
-                return;
+            function escapeCsvCell(v) {
+                const s = String(v ?? '');
+                if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+                return s;
             }
-
-            if (!confirm(`确定将 ${pendingAuditIds.length} 个订单提交财务审核吗？`)) {
-                return;
+            function exportWholesaleCsv(list, filename) {
+                const headers = ['订单号', '下单时间', '订单来源', '往来单位', '联系人', '手机号', '商品数量', '订单金额', '实收金额', '支付方式', '订单状态'];
+                const lines = [headers.join(',')].concat(list.map(function (o) {
+                    return [
+                        o.id,
+                        o.orderTime,
+                        o.sourceText || o.source || '',
+                        o.partner,
+                        o.contact,
+                        o.mobile,
+                        o.qty,
+                        o.amount,
+                        o.paid,
+                        o.payType,
+                        getStatusText(o.status)
+                    ].map(escapeCsvCell).join(',');
+                }));
+                const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
             }
-
-            pendingAuditIds.forEach(orderId => {
-                const order = wholesaleOrders.find(o => o.id === orderId);
-                if (order && order.status === 'pendingAudit') {
-                    order.status = 'pendingFinanceAudit';
-                }
+            menu.querySelectorAll('.export-dropdown-item').forEach(function (item) {
+                item.addEventListener('click', function () {
+                    closeMenu();
+                    const mode = item.dataset.export;
+                    const day = new Date().toISOString().slice(0, 10);
+                    if (mode === 'current') {
+                        if (!filteredOrders.length) {
+                            alert('当前没有可导出的订单。');
+                            return;
+                        }
+                        exportWholesaleCsv(filteredOrders, '批发订单_导出当前_' + day + '.csv');
+                        alert('已导出当前列表共 ' + filteredOrders.length + ' 条（CSV）。');
+                    } else if (mode === 'all') {
+                        if (!wholesaleOrders.length) {
+                            alert('没有可导出的订单。');
+                            return;
+                        }
+                        exportWholesaleCsv(wholesaleOrders, '批发订单_导出全部_' + day + '.csv');
+                        alert('已导出全部共 ' + wholesaleOrders.length + ' 条（不含列表筛选，CSV）。');
+                    }
+                });
             });
-            filterOrders();
-            alert('已提交财务审核，请等待财务处理。');
-        }
-
-        // 批量打印
-        function batchPrint() {
-            const ids = getSelectedIds();
-            if (ids.length === 0) {
-                alert('请先选择要打印的订单');
-                return;
-            }
-
-            if (!currentPrinter) {
-                alert('请先绑定打印机');
-                return;
-            }
-
-            const printableIds = ids.filter(id => {
-                const order = wholesaleOrders.find(o => o.id === id);
-                return order && (order.status === 'pendingPrint' || order.status === 'picking' || order.status === 'pendingOutbound') && order.auditStatus === 'approved';
-            });
-
-            if (printableIds.length === 0) {
-                alert('所选订单中没有可以打印的订单（需要已审核通过）');
-                return;
-            }
-
-            if (!confirm(`确定要批量打印 ${printableIds.length} 个订单的拣货单吗？`)) {
-                return;
-            }
-
-            printableIds.forEach(orderId => {
-                printPickingList(orderId);
-            });
-        }
+        })();
 
         // 全选/反选
         function getSelectedIds() {
@@ -1936,11 +2391,17 @@
         if (testPrintBtn) testPrintBtn.addEventListener('click', testPrint);
         document.getElementById('addOrderBtn').addEventListener('click', addOrder);
         document.getElementById('saveDraftBtn').addEventListener('click', function () { createOrderFromModal('pendingSubmit'); });
-        document.getElementById('submitAuditBtn').addEventListener('click', function () { createOrderFromModal('pendingAudit'); });
+        document.getElementById('primaryOrderActionBtn').addEventListener('click', function () {
+            var action = this.dataset.action || 'audit';
+            if (action === 'confirm') {
+                createOrderFromModal('pendingPayment');
+            } else {
+                createOrderFromModal('pendingAudit');
+            }
+        });
+        document.getElementById('payTypeSelect').addEventListener('change', updateAddOrderPrimaryButton);
         document.getElementById('cancelAddOrderBtn').addEventListener('click', closeAddOrderModal);
         document.getElementById('closeAddOrderModal').addEventListener('click', closeAddOrderModal);
-        document.getElementById('batchAuditBtn').addEventListener('click', batchAudit);
-        document.getElementById('batchPrintBtn').addEventListener('click', batchPrint);
         document.getElementById('quickSearchBtn').addEventListener('click', filterOrders);
         document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -1948,11 +2409,12 @@
             }
         });
 
-        // Tab切换
+        // Tab切换（与左侧菜单 wholesaleView 互斥：点 Tab 后按页内状态筛选）
         document.querySelectorAll('.order-tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.order-tab-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
+                wholesaleMenuView = null;
                 currentStatus = this.dataset.status || 'all';
                 filterOrders();
             });
@@ -1984,16 +2446,6 @@
             alert('更多搜索（示例）：这里可以展开高级筛选条件，如下单时间、订单状态、支付方式等。');
         });
 
-        // 往来单位选择变化时自动填充联系人信息
-        document.getElementById('partnerSelect').addEventListener('change', function() {
-            const option = this.options[this.selectedIndex];
-            if (option.value && option.dataset.partner) {
-                const partner = JSON.parse(option.dataset.partner);
-                document.getElementById('contactNameInput').value = partner.contact;
-                document.getElementById('contactMobileInput').value = partner.mobile;
-            }
-        });
-
         // 商品明细与选择列表事件
         document.getElementById('addOrderProductRowBtn').addEventListener('click', function () {
             addOrderProductRow();
@@ -2017,7 +2469,6 @@
 
         // 初始化
         initPrinterSelect();
-        initPartnerSelect();
         filterOrders();
     </script>
 </body>

@@ -24,11 +24,107 @@
             box-shadow: var(--shadow-card);
         }
 
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
+        .page-header-stacked {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+        }
+        .page-header-toolbar-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: var(--spacing-md);
+            width: 100%;
+        }
+        .page-header-toolbar-row .header-actions {
+            justify-self: start;
+            flex-wrap: wrap;
+        }
+        .page-header-toolbar-row .tabs-nav.tabs-nav-inline {
+            justify-self: center;
+            grid-column: 2;
+        }
+        .header-toolbar-right {
+            justify-self: end;
+            grid-column: 3;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+        .header-quick-search {
+            width: 390px;
+            max-width: 100%;
+            flex-shrink: 0;
+        }
+        .header-quick-search input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base) var(--ease-in-out);
+            box-sizing: border-box;
+        }
+        .header-quick-search input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+        .more-search-panel {
+            display: none;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+        .more-search-panel.is-open {
+            display: block;
+        }
+        .more-search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            align-items: end;
+        }
+        .more-search-field label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
             color: var(--color-text-primary);
-            margin: 0;
+        }
+        .more-search-field input,
+        .more-search-field select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            box-sizing: border-box;
+        }
+        .more-search-field input:focus,
+        .more-search-field select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-input-focus);
+        }
+        .more-search-field-span2 {
+            grid-column: span 2;
+        }
+        .more-search-date-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+        .more-search-date-range input[type="date"] {
+            flex: 1;
+            min-width: 140px;
+        }
+        @media (max-width: 720px) {
+            .more-search-field-span2 {
+                grid-column: span 1;
+            }
         }
 
         .header-actions {
@@ -45,6 +141,12 @@
             background-color: #ffffff;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
+        }
+        .tabs-nav-inline {
+            margin-bottom: 0;
+            padding: 0;
+            box-shadow: none;
+            background: transparent;
         }
 
         .tab-nav-item {
@@ -117,56 +219,6 @@
         }
         .export-dropdown-item:hover {
             background-color: var(--color-neutral-100);
-        }
-
-        /* 筛选区域（简化版：时间 + 搜索） */
-        .filter-section {
-            padding: var(--spacing-lg);
-            background-color: #ffffff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .filter-row {
-            display: flex;
-            gap: var(--spacing-md);
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-
-        .filter-item {
-            flex: 1;
-            min-width: 220px;
-        }
-
-        .filter-item label {
-            display: block;
-            margin-bottom: var(--spacing-xs);
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            color: var(--color-text-primary);
-        }
-
-        .filter-item input {
-            width: 100%;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-base);
-            transition: all var(--transition-base) var(--ease-in-out);
-        }
-
-        .filter-item input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: var(--shadow-input-focus);
-        }
-
-        .date-range {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
         }
 
         /* 批量操作区域 */
@@ -436,7 +488,7 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             padding: var(--spacing-lg);
-            min-width: 800px;
+            min-width: 920px;
             max-width: 95%;
             max-height: 90vh;
             overflow-y: auto;
@@ -496,9 +548,26 @@
             gap: var(--spacing-lg);
             min-height: 320px;
         }
+        /* 选品打开时仅显示商品选择，隐藏右侧套餐名称/组合/价格等 */
+        .package-edit-layout.picker-open .package-edit-right {
+            display: none !important;
+        }
+        .package-edit-layout.picker-open .package-edit-left {
+            flex: 1 1 100%;
+            max-width: 100%;
+            min-width: 0;
+            border-right: none;
+            padding-right: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .package-edit-layout.picker-open .package-edit-left.hidden {
+            display: none !important;
+        }
 
         .package-edit-left {
-            flex: 3;
+            flex: 4;
+            min-width: 380px;
             border-right: 1px solid var(--color-neutral-200);
             padding-right: var(--spacing-md);
             display: flex;
@@ -550,17 +619,6 @@
             width: 40px;
             padding: 4px 6px;
             text-align: center;
-        }
-
-        .combo-item-required-wrap {
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-            margin-right: 6px;
-            white-space: nowrap;
-            cursor: pointer;
-            user-select: none;
-            font-size: var(--font-size-sm);
         }
 
         .combo-required-setting.disabled-required .combo-total-input,
@@ -723,19 +781,47 @@
             color: var(--color-text-secondary);
         }
 
-        .package-selected-qty {
+        .package-selected-qty,
+        .package-selected-actions {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            gap: var(--spacing-xs);
+            gap: var(--spacing-sm);
         }
 
-        .package-selected-qty input {
-            width: 60px;
+        .combo-item-flag-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--font-size-xs);
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            color: var(--color-text-primary);
+        }
+
+        .combo-item-qty-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .package-selected-qty input,
+        .package-selected-actions .selected-qty-input {
+            width: 56px;
             padding: 2px 4px;
             text-align: center;
             border-radius: var(--radius-sm);
             border: 1px solid var(--color-neutral-300);
             font-size: var(--font-size-xs);
+        }
+
+        .selected-qty-input:disabled {
+            opacity: 0.55;
+            background: var(--color-neutral-100);
+            cursor: not-allowed;
         }
 
         .package-selected-remove {
@@ -768,23 +854,113 @@
             color: var(--color-success);
         }
 
-        /* 简化版商品选择表格（弹窗左侧） */
-        .select-table-wrapper {
-            border-radius: var(--radius-md);
+        /* 选商品：左类型 + 右商品列表 */
+        .product-picker-body {
+            display: flex;
+            min-height: 280px;
+            max-height: 380px;
             border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
             overflow: hidden;
+            background: #fff;
         }
-
-        .select-table-wrapper table {
+        .picker-category-list {
+            width: 136px;
+            flex-shrink: 0;
+            background: var(--color-neutral-50);
+            border-right: 1px solid var(--color-neutral-200);
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+        }
+        .picker-category-item {
+            display: block;
             width: 100%;
-            border-collapse: collapse;
+            padding: 8px 10px;
+            margin-bottom: 2px;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: none;
+            text-align: left;
+            background: transparent;
+            transition: background-color var(--transition-base) var(--ease-in-out);
         }
-
-        .select-table-wrapper th,
-        .select-table-wrapper td {
-            padding: var(--spacing-xs) var(--spacing-sm);
+        .picker-category-item:hover {
+            background: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+        .picker-category-item.active {
+            background: rgba(44, 131, 235, 0.12);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .picker-product-panel {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .picker-product-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+        }
+        .picker-product-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--color-neutral-100);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            margin-bottom: 2px;
+        }
+        .picker-product-row:hover {
+            background: var(--color-neutral-50);
+        }
+        .picker-product-row:last-child {
+            border-bottom: none;
+        }
+        .picker-product-row input[type="checkbox"] {
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .picker-product-row img {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--color-neutral-200);
+            flex-shrink: 0;
+        }
+        .picker-product-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .picker-product-name {
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-medium);
+            line-height: 1.3;
+        }
+        .picker-product-sub {
             font-size: var(--font-size-xs);
-            border-bottom: 1px solid var(--color-neutral-200);
+            color: var(--color-text-secondary);
+            margin-top: 2px;
+        }
+        .picker-product-price {
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            font-weight: var(--font-weight-medium);
+        }
+        .picker-product-empty {
+            padding: var(--spacing-lg);
+            text-align: center;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
         }
 
         .select-filter-row {
@@ -807,14 +983,6 @@
             box-shadow: var(--shadow-input-focus);
         }
 
-        .select-product-name {
-            cursor: pointer;
-        }
-
-        .select-product-name:hover {
-            color: var(--color-primary);
-        }
-
         .package-combo-list {
             min-height: 60px;
         }
@@ -831,15 +999,33 @@
             color: var(--color-text-secondary);
         }
 
+        @media (max-width: 900px) {
+            .page-header-toolbar-row {
+                grid-template-columns: 1fr;
+                justify-items: stretch;
+            }
+            .page-header-toolbar-row .tabs-nav.tabs-nav-inline {
+                grid-column: 1;
+                justify-self: center;
+                order: -1;
+            }
+            .page-header-toolbar-row .header-actions {
+                justify-self: start;
+                justify-content: flex-start;
+            }
+            .header-toolbar-right {
+                grid-column: 1;
+                justify-self: stretch;
+                justify-content: flex-start;
+            }
+            .header-quick-search {
+                flex: 1;
+                min-width: 200px;
+                max-width: 390px;
+            }
+        }
+
         @media (max-width: 1200px) {
-            .filter-row {
-                flex-direction: column;
-            }
-
-            .filter-item {
-                width: 100%;
-            }
-
             .package-edit-layout {
                 flex-direction: column;
             }
@@ -855,45 +1041,84 @@
 </head>
 <body>
     <div class="package-list-page">
-        <!-- 页面头部 -->
-        <div class="page-header">
-            <h1 class="page-title">套餐列表</h1>
-            <div class="header-actions">
-                <button class="btn btn-primary" id="createPackageBtn">新建套餐</button>
-                <button class="btn btn-outline" id="batchImportBtn">批量导入</button>
-                <div class="export-dropdown">
-                    <button class="btn btn-primary" id="exportBtn">套餐导出</button>
-                    <div class="export-dropdown-menu" id="exportMenu">
-                        <button class="export-dropdown-item" data-export-type="all">全部导出</button>
-                        <button class="export-dropdown-item" data-export-type="selected">选中导出</button>
+        <!-- 顶栏：左操作 | 中 Tab | 右搜索 + 更多搜索 -->
+        <div class="page-header page-header-stacked">
+            <div class="page-header-toolbar-row">
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="createPackageBtn">新建套餐</button>
+                    <button class="btn btn-outline" id="batchImportBtn">批量导入</button>
+                    <div class="export-dropdown">
+                        <button class="btn btn-primary" id="exportBtn">套餐导出</button>
+                        <div class="export-dropdown-menu" id="exportMenu">
+                            <button class="export-dropdown-item" data-export-type="all">全部导出</button>
+                            <button class="export-dropdown-item" data-export-type="selected">选中导出</button>
+                        </div>
                     </div>
+                    <button class="btn btn-primary">更新销量</button>
                 </div>
-                <button class="btn btn-primary">更新销量</button>
+                <div class="tabs-nav tabs-nav-inline">
+                    <button class="tab-nav-item active" data-tab="all">全部</button>
+                    <button class="tab-nav-item" data-tab="selling">销售中</button>
+                    <button class="tab-nav-item" data-tab="offline">下架中</button>
+                    <button class="tab-nav-item" data-tab="soldout">售罄</button>
+                </div>
+                <div class="header-toolbar-right">
+                    <div class="header-quick-search">
+                        <input type="text" id="searchInput" placeholder="支持输入套餐ID或名称搜索" autocomplete="off">
+                    </div>
+                    <button type="button" class="btn btn-outline" id="toggleMoreSearchBtn" aria-expanded="false" aria-controls="moreSearchPanel">更多搜索</button>
+                </div>
             </div>
-        </div>
-
-        <!-- Tab标签导航 -->
-        <div class="tabs-nav">
-            <button class="tab-nav-item active" data-tab="all">全部</button>
-            <button class="tab-nav-item" data-tab="selling">销售中</button>
-            <button class="tab-nav-item" data-tab="offline">下架中</button>
-            <button class="tab-nav-item" data-tab="soldout">售罄</button>
-        </div>
-
-        <!-- 筛选区域 -->
-        <div class="filter-section">
-            <div class="filter-row">
-                <div class="filter-item">
-                    <label>添加时间</label>
-                    <div class="date-range">
-                        <input type="date" id="startDate" value="2025-01-01">
-                        <span>至</span>
-                        <input type="date" id="endDate" value="2025-12-31">
+            <div id="moreSearchPanel" class="more-search-panel" aria-hidden="true">
+                <div class="more-search-grid">
+                    <div class="more-search-field more-search-field-span2">
+                        <label>添加时间</label>
+                        <div class="more-search-date-range">
+                            <input type="date" id="startDate" value="2025-01-01">
+                            <span>至</span>
+                            <input type="date" id="endDate" value="2025-12-31">
+                        </div>
                     </div>
-                </div>
-                <div class="filter-item">
-                    <label>搜索套餐</label>
-                    <input type="text" id="searchInput" placeholder="支持输入套餐ID或名称搜索">
+                    <div class="more-search-field">
+                        <label for="moreSearchPkgId">套餐ID</label>
+                        <input type="text" id="moreSearchPkgId" placeholder="支持模糊匹配" autocomplete="off">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchPkgName">套餐名称</label>
+                        <input type="text" id="moreSearchPkgName" placeholder="名称关键字" autocomplete="off">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchPriceMin">套餐价格 ≥</label>
+                        <input type="number" id="moreSearchPriceMin" placeholder="元" step="0.01" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchPriceMax">套餐价格 ≤</label>
+                        <input type="number" id="moreSearchPriceMax" placeholder="元" step="0.01" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchOriginMin">原价合计 ≥</label>
+                        <input type="number" id="moreSearchOriginMin" placeholder="元" step="0.01" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchOriginMax">原价合计 ≤</label>
+                        <input type="number" id="moreSearchOriginMax" placeholder="元" step="0.01" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchSaveMin">节省金额 ≥</label>
+                        <input type="number" id="moreSearchSaveMin" placeholder="元" step="0.01" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchSaveMax">节省金额 ≤</label>
+                        <input type="number" id="moreSearchSaveMax" placeholder="元" step="0.01" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchItemMin">商品数量 ≥</label>
+                        <input type="number" id="moreSearchItemMin" placeholder="件" step="1" min="0">
+                    </div>
+                    <div class="more-search-field">
+                        <label for="moreSearchItemMax">商品数量 ≤</label>
+                        <input type="number" id="moreSearchItemMax" placeholder="件" step="1" min="0">
+                    </div>
                 </div>
             </div>
         </div>
@@ -956,29 +1181,22 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="package-edit-layout">
-                        <!-- 左侧：选择商品（默认隐藏，点击「添加商品」时显示） -->
+                    <div class="package-edit-layout" id="packageEditLayout">
+                        <!-- 左侧：选择商品（默认隐藏，点击「添加商品」展开，此时仅显示本区域） -->
                         <section class="package-edit-left hidden" id="packageEditLeftPanel">
-                            <div style="flex:1;">
+                            <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                                 <button type="button" class="btn btn-outline product-panel-close" id="productPanelClose">关闭</button>
                                 <div class="section-title-sm">选择商品</div>
-                                <div class="section-desc-sm">勾选要加入当前组合的商品，点击「确认添加」完成。</div>
+                                <div class="section-desc-sm">左侧选类型，右侧勾选商品；勾选后加入当前组合。点「关闭」返回套餐编辑。</div>
                                 <div class="select-filter-row">
-                                    <input type="text" id="productSearchInput" placeholder="输入商品名称或ID搜索">
+                                    <input type="text" id="productSearchInput" placeholder="搜索商品名称或ID" autocomplete="off">
                                 </div>
-                                <div class="select-table-wrapper">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 32px; text-align: center;">选</th>
-                                                <th>商品</th>
-                                                <th>售价</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="selectProductTableBody"></tbody>
-                                    </table>
+                                <div class="product-picker-body">
+                                    <aside class="picker-category-list" id="pickerCategoryList" role="tablist" aria-label="商品类型"></aside>
+                                    <div class="picker-product-panel">
+                                        <div class="picker-product-list" id="pickerProductList"></div>
+                                    </div>
                                 </div>
-                                <button type="button" class="btn btn-primary" id="confirmAddProductsBtn" style="margin-top: 8px;">确认添加</button>
                             </div>
                         </section>
 
@@ -1000,7 +1218,7 @@
 
                             <div>
                                 <div class="section-title-sm">套餐内组合</div>
-                                <div class="section-desc-sm" style="margin-bottom: 8px;">可为每个组合设置标题、必选规则（几选几，与参数模板联动），点击「添加商品」从商品列表中选择。</div>
+                                <div class="section-desc-sm" style="margin-bottom: 8px;">可为每个组合设置标题、必选规则（几选几，与参数模板联动），点击「添加商品」按类型勾选商品。</div>
                                 <div id="packageCombosContainer"></div>
                                 <button type="button" class="add-combo-btn" id="addComboBtn">+ 添加组合</button>
                             </div>
@@ -1030,18 +1248,18 @@
     </div>
 
     <script>
-        // 商品数据（来自商超商品列表，至少 10 个以满足组合一2个+组合二8个）
+        // 商品数据（与商超商品列表对齐，含分类供选品左侧「商品类型」）
         const products = [
-            { id: 1, name: '雅安特产绿营养蛋', image: '../../images/01.jpg', price: 20.00 },
-            { id: 2, name: '土司农家散养蛋', image: '../../images/02.jpg', price: 18.00 },
-            { id: 5, name: '蒙顶山茶', image: '../../images/05.jpg', price: 49.00 },
-            { id: 7, name: '花椒油', image: '../../images/01.jpg', price: 15.00 },
-            { id: 13, name: '雅安蜂蜜', image: '../../images/01.jpg', price: 38.00 },
-            { id: 14, name: '雅安黑茶', image: '../../images/02.jpg', price: 88.00 },
-            { id: 15, name: '雅安菌菇干货', image: '../../images/03.jpg', price: 45.00 },
-            { id: 8, name: '熊猫周边玩偶', image: '../../images/02.jpg', price: 28.00 },
-            { id: 6, name: '雅鱼鲜礼盒', image: '../../images/06.jpg', price: 68.00 },
-            { id: 12, name: '精品礼盒装', image: '../../images/06.jpg', price: 268.00 }
+            { id: 1, name: '雅安特产绿营养蛋', category: '雅安好景', image: '../../images/01.jpg', price: 20.00 },
+            { id: 2, name: '土司农家散养蛋', category: '雅安好景', image: '../../images/02.jpg', price: 18.00 },
+            { id: 5, name: '蒙顶山茶', category: '雅安好景', image: '../../images/05.jpg', price: 49.00 },
+            { id: 7, name: '花椒油', category: '雅安好景', image: '../../images/01.jpg', price: 15.00 },
+            { id: 6, name: '雅鱼鲜礼盒', category: '雅安好景', image: '../../images/06.jpg', price: 68.00 },
+            { id: 13, name: '雅安蜂蜜', category: '雅安好物', image: '../../images/01.jpg', price: 38.00 },
+            { id: 14, name: '雅安黑茶', category: '雅安好物', image: '../../images/02.jpg', price: 88.00 },
+            { id: 15, name: '雅安菌菇干货', category: '雅安好物', image: '../../images/03.jpg', price: 45.00 },
+            { id: 8, name: '熊猫周边玩偶', category: '文创产品', image: '../../images/02.jpg', price: 28.00 },
+            { id: 12, name: '精品礼盒装', category: '文创产品', image: '../../images/06.jpg', price: 268.00 }
         ];
 
         // 套餐数据（与商超商品列表中的商品名称/ID 对应）
@@ -1087,6 +1305,7 @@
         let packageCombos = [];
         let comboIdCounter = 1;
         let addingToComboIndex = -1; // 当前正在为哪个组合添加商品
+        let pickerSelectedCategory = '全部'; // 选品面板左侧当前类型
         const packageTableBody = document.getElementById('packageTableBody');
 
         // 从参数模板读取默认几选几
@@ -1194,11 +1413,27 @@
             });
         });
 
+        function getPackageItemCount(pkg) {
+            return pkg.items ? pkg.items.reduce(function (sum, item) { return sum + (item.quantity || 0); }, 0) : 0;
+        }
+
         // 筛选 + 排序
         function filterPackages() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const searchEl = document.getElementById('searchInput');
+            const search = (searchEl && searchEl.value || '').trim().toLowerCase();
+
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+            const moreId = (document.getElementById('moreSearchPkgId').value || '').trim();
+            const moreName = (document.getElementById('moreSearchPkgName').value || '').trim().toLowerCase();
+            const priceMin = parseFloat(document.getElementById('moreSearchPriceMin').value);
+            const priceMax = parseFloat(document.getElementById('moreSearchPriceMax').value);
+            const originMin = parseFloat(document.getElementById('moreSearchOriginMin').value);
+            const originMax = parseFloat(document.getElementById('moreSearchOriginMax').value);
+            const saveMin = parseFloat(document.getElementById('moreSearchSaveMin').value);
+            const saveMax = parseFloat(document.getElementById('moreSearchSaveMax').value);
+            const itemMin = parseInt(document.getElementById('moreSearchItemMin').value, 10);
+            const itemMax = parseInt(document.getElementById('moreSearchItemMax').value, 10);
 
             filteredPackages = packages.filter(pkg => {
                 // Tab状态
@@ -1206,18 +1441,32 @@
                 if (currentTab === 'offline' && pkg.status !== 'offline') return false;
                 if (currentTab === 'soldout' && pkg.status !== 'soldout') return false;
 
-                // 搜索
+                // 顶栏快捷搜索：套餐ID、名称
                 if (search) {
-                    const searchLower = search.toLowerCase();
-                    if (!pkg.id.toString().includes(searchLower) &&
-                        !pkg.name.toLowerCase().includes(searchLower)) {
+                    if (!String(pkg.id).includes(search) && !pkg.name.toLowerCase().includes(search)) {
                         return false;
                     }
                 }
 
-                // 日期
+                // 更多搜索：添加时间
                 if (startDate && pkg.addTime < startDate) return false;
                 if (endDate && pkg.addTime > endDate) return false;
+
+                if (moreId && !String(pkg.id).includes(moreId)) return false;
+                if (moreName && !pkg.name.toLowerCase().includes(moreName)) return false;
+
+                if (!isNaN(priceMin) && pkg.price < priceMin) return false;
+                if (!isNaN(priceMax) && pkg.price > priceMax) return false;
+                if (!isNaN(originMin) && pkg.originPrice < originMin) return false;
+                if (!isNaN(originMax) && pkg.originPrice > originMax) return false;
+
+                var saveAmt = pkg.originPrice - pkg.price;
+                if (!isNaN(saveMin) && saveAmt < saveMin) return false;
+                if (!isNaN(saveMax) && saveAmt > saveMax) return false;
+
+                var ic = getPackageItemCount(pkg);
+                if (!isNaN(itemMin) && ic < itemMin) return false;
+                if (!isNaN(itemMax) && ic > itemMax) return false;
 
                 return true;
             });
@@ -1282,10 +1531,25 @@
             document.getElementById('selectedCount').textContent = count;
         }
 
-        // 搜索和日期变化
-        document.getElementById('startDate').addEventListener('change', filterPackages);
-        document.getElementById('endDate').addEventListener('change', filterPackages);
+        (function () {
+            var toggleMoreSearchBtn = document.getElementById('toggleMoreSearchBtn');
+            var moreSearchPanel = document.getElementById('moreSearchPanel');
+            if (toggleMoreSearchBtn && moreSearchPanel) {
+                toggleMoreSearchBtn.addEventListener('click', function () {
+                    var open = moreSearchPanel.classList.toggle('is-open');
+                    moreSearchPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+                    toggleMoreSearchBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    toggleMoreSearchBtn.textContent = open ? '收起搜索' : '更多搜索';
+                });
+            }
+        })();
+
         document.getElementById('searchInput').addEventListener('input', filterPackages);
+        var moreSearchPanelEl = document.getElementById('moreSearchPanel');
+        if (moreSearchPanelEl) {
+            moreSearchPanelEl.addEventListener('input', filterPackages);
+            moreSearchPanelEl.addEventListener('change', filterPackages);
+        }
 
         // 批量操作（示例：仅修改本地状态）
         function getSelectedPackageIds() {
@@ -1339,12 +1603,23 @@
         const packageNameInput = document.getElementById('packageNameInput');
         const packagePriceInput = document.getElementById('packagePriceInput');
         const productSearchInput = document.getElementById('productSearchInput');
-        const selectProductTableBody = document.getElementById('selectProductTableBody');
+        const pickerCategoryList = document.getElementById('pickerCategoryList');
+        const pickerProductList = document.getElementById('pickerProductList');
         const packageCombosContainer = document.getElementById('packageCombosContainer');
         const addComboBtn = document.getElementById('addComboBtn');
+        const packageEditLayout = document.getElementById('packageEditLayout');
         const packageEditLeftPanel = document.getElementById('packageEditLeftPanel');
         const productPanelClose = document.getElementById('productPanelClose');
-        const confirmAddProductsBtn = document.getElementById('confirmAddProductsBtn');
+
+        function setProductPickerOpen(isOpen) {
+            if (packageEditLayout) packageEditLayout.classList.toggle('picker-open', !!isOpen);
+            if (packageModalConfirm) {
+                if (!packageModalConfirm.dataset.defaultLabel) {
+                    packageModalConfirm.dataset.defaultLabel = (packageModalConfirm.textContent || '').trim() || '保存套餐';
+                }
+                packageModalConfirm.textContent = isOpen ? '完成选品' : packageModalConfirm.dataset.defaultLabel;
+            }
+        }
         const originPriceText = document.getElementById('originPriceText');
         const packagePriceText = document.getElementById('packagePriceText');
         const saveAmountText = document.getElementById('saveAmountText');
@@ -1353,6 +1628,7 @@
         function openPackageModal(isEdit = false, pkg = null) {
             editingPackageId = isEdit && pkg ? pkg.id : null;
             addingToComboIndex = -1;
+            setProductPickerOpen(false);
             if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden');
 
             if (isEdit && pkg) {
@@ -1368,7 +1644,7 @@
                         total: pkg.combo1.total || 2,
                         required: pkg.combo1.required != null ? pkg.combo1.required : 1,
                         requiredEnabled: pkg.combo1.requiredEnabled !== false,
-                        items: pkg.combo1.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: i.required === true }))
+                        items: pkg.combo1.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: i.required === true, limited: i.limited !== false }))
                     });
                 }
                 if (pkg.combo2 && pkg.combo2.items) {
@@ -1378,14 +1654,25 @@
                         total: pkg.combo2.total || 8,
                         required: pkg.combo2.required != null ? pkg.combo2.required : 6,
                         requiredEnabled: pkg.combo2.requiredEnabled !== false,
-                        items: pkg.combo2.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: i.required === true }))
+                        items: pkg.combo2.items.map(i => ({ productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: i.required === true, limited: i.limited !== false }))
                     });
                 }
                 if (!packageCombos.length && pkg.items && pkg.items.length) {
                     var half = Math.ceil(pkg.items.length / 2);
+                    var normIt = function (it) {
+                        return {
+                            productId: it.productId,
+                            name: it.name,
+                            image: it.image,
+                            price: it.price,
+                            quantity: it.quantity || 1,
+                            required: !!it.required,
+                            limited: it.limited !== false
+                        };
+                    };
                     packageCombos = [
-                        { id: comboIdCounter++, title: '组合一', total: 2, required: 1, requiredEnabled: true, items: pkg.items.slice(0, half) },
-                        { id: comboIdCounter++, title: '组合二', total: 8, required: 6, requiredEnabled: true, items: pkg.items.slice(half) }
+                        { id: comboIdCounter++, title: '组合一', total: 2, required: 1, requiredEnabled: true, items: pkg.items.slice(0, half).map(normIt) },
+                        { id: comboIdCounter++, title: '组合二', total: 8, required: 6, requiredEnabled: true, items: pkg.items.slice(half).map(normIt) }
                     ];
                 }
             } else {
@@ -1395,9 +1682,8 @@
                 var def = getParamTemplateDefault();
                 packageCombos = [{ id: comboIdCounter++, title: '组合一', total: def.total, required: def.required, requiredEnabled: true, items: [] }];
             }
-            productSearchInput.value = '';
+            if (productSearchInput) productSearchInput.value = '';
             renderCombosBlocks();
-            renderSelectProductTable();
             updatePriceSummary();
             packageValidationText.style.display = 'none';
             packageValidationText.textContent = '';
@@ -1405,6 +1691,9 @@
         }
 
         function closePackageModal() {
+            addingToComboIndex = -1;
+            setProductPickerOpen(false);
+            if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden');
             packageModal.classList.remove('show');
         }
 
@@ -1493,8 +1782,14 @@
                     div.className = 'package-selected-item';
                     div.dataset.productId = item.productId;
                     div.dataset.comboIndex = idx;
+                    var limited = item.limited !== false;
                     div.innerHTML = '<div class="package-selected-main"><img src="' + (item.image || '../../images/01.jpg') + '" alt="" onerror="this.src=\'../../images/01.jpg\'"><div><div class="package-selected-name">' + item.name + '</div><div class="package-selected-sub">单价：¥' + (item.price ? item.price.toFixed(2) : '0.00') + '</div></div></div>' +
-                        '<div class="package-selected-qty"><label class="combo-item-required-wrap"><input type="checkbox" class="combo-item-required-cb" data-product-id="' + item.productId + '" data-combo-index="' + idx + '"' + (item.required ? ' checked' : '') + '> 必选</label><span>数量</span><input type="number" min="1" class="selected-qty-input" data-product-id="' + item.productId + '" data-combo-index="' + idx + '" value="' + (item.quantity || 1) + '"><span class="package-selected-remove" data-product-id="' + item.productId + '" data-combo-index="' + idx + '">移除</span></div>';
+                        '<div class="package-selected-actions">' +
+                        '<label class="combo-item-flag-wrap"><input type="checkbox" class="combo-item-required-cb" data-product-id="' + item.productId + '" data-combo-index="' + idx + '"' + (item.required ? ' checked' : '') + '> 必选</label>' +
+                        '<label class="combo-item-flag-wrap"><input type="checkbox" class="combo-item-limited-cb" data-product-id="' + item.productId + '" data-combo-index="' + idx + '"' + (limited ? ' checked' : '') + '> 限量</label>' +
+                        '<span class="combo-item-qty-wrap"><span>数量</span><input type="number" min="1" class="selected-qty-input" data-product-id="' + item.productId + '" data-combo-index="' + idx + '" value="' + (item.quantity || 1) + '"' + (limited ? '' : ' disabled') + '></span>' +
+                        '<span class="package-selected-remove" data-product-id="' + item.productId + '" data-combo-index="' + idx + '">移除</span>' +
+                        '</div>';
                     listEl.appendChild(div);
                 });
                 tipsEl.style.display = combo.items.length ? 'none' : 'block';
@@ -1514,8 +1809,11 @@
 
                 block.querySelector('.btn-add-product').addEventListener('click', function () {
                     addingToComboIndex = idx;
+                    pickerSelectedCategory = '全部';
+                    if (productSearchInput) productSearchInput.value = '';
+                    setProductPickerOpen(true);
                     if (packageEditLeftPanel) packageEditLeftPanel.classList.remove('hidden');
-                    renderSelectProductTable();
+                    renderProductPicker();
                 });
                 if (block.querySelector('.btn-remove-combo')) {
                     block.querySelector('.btn-remove-combo').addEventListener('click', function () {
@@ -1534,48 +1832,137 @@
                 renderCombosBlocks();
             });
         }
-        if (productPanelClose) productPanelClose.addEventListener('click', function () { if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden'); addingToComboIndex = -1; });
-        if (confirmAddProductsBtn) {
-            confirmAddProductsBtn.addEventListener('click', function () {
-                if (addingToComboIndex < 0 || addingToComboIndex >= packageCombos.length) return;
-                var combo = packageCombos[addingToComboIndex];
-                document.querySelectorAll('.select-product-checkbox:checked').forEach(function (cb) {
-                    var pid = parseInt(cb.dataset.id, 10);
-                    if (combo.items.some(function (i) { return i.productId === pid; })) return;
-                    var p = products.find(function (x) { return x.id === pid; });
-                    if (p) combo.items.push({ productId: p.id, name: p.name, image: p.image, price: p.price, quantity: 1, required: false });
-                });
-                document.querySelectorAll('.select-product-checkbox').forEach(function (cb) { cb.checked = false; });
+        if (productPanelClose) {
+            productPanelClose.addEventListener('click', function () {
                 addingToComboIndex = -1;
+                setProductPickerOpen(false);
                 if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden');
+            });
+        }
+
+        function getProductCategoryNames() {
+            var map = {};
+            products.forEach(function (p) {
+                var c = p.category || '未分类';
+                map[c] = true;
+            });
+            var sorted = Object.keys(map).sort();
+            return ['全部'].concat(sorted);
+        }
+
+        function renderPickerCategories() {
+            if (!pickerCategoryList) return;
+            pickerCategoryList.innerHTML = '';
+            getProductCategoryNames().forEach(function (cat) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'picker-category-item' + (cat === pickerSelectedCategory ? ' active' : '');
+                btn.setAttribute('role', 'tab');
+                btn.setAttribute('aria-selected', cat === pickerSelectedCategory ? 'true' : 'false');
+                btn.dataset.category = cat;
+                btn.textContent = cat;
+                pickerCategoryList.appendChild(btn);
+            });
+        }
+
+        function renderPickerProductList() {
+            if (!pickerProductList) return;
+            var combo = addingToComboIndex >= 0 && addingToComboIndex < packageCombos.length ? packageCombos[addingToComboIndex] : null;
+            var keyword = (productSearchInput && productSearchInput.value || '').trim().toLowerCase();
+            var inComboIds = combo ? combo.items.map(function (i) { return i.productId; }) : [];
+
+            pickerProductList.innerHTML = '';
+            var list = products.filter(function (p) {
+                var cat = p.category || '未分类';
+                if (pickerSelectedCategory !== '全部' && cat !== pickerSelectedCategory) return false;
+                if (keyword && !String(p.id).includes(keyword) && !p.name.toLowerCase().includes(keyword)) return false;
+                return true;
+            });
+
+            if (!list.length) {
+                var empty = document.createElement('div');
+                empty.className = 'picker-product-empty';
+                empty.textContent = pickerSelectedCategory === '全部' && !keyword ? '暂无商品' : '该类型下无匹配商品，可切换类型或调整搜索';
+                pickerProductList.appendChild(empty);
+                return;
+            }
+
+            list.forEach(function (p) {
+                var row = document.createElement('label');
+                row.className = 'picker-product-row';
+                var checked = inComboIds.indexOf(p.id) >= 0;
+                var cat = p.category || '未分类';
+                row.innerHTML =
+                    '<input type="checkbox" class="picker-product-cb" data-id="' + p.id + '"' + (checked ? ' checked' : '') + '>' +
+                    '<img src="' + (p.image || '../../images/01.jpg') + '" alt="" onerror="this.src=\'../../images/01.jpg\'">' +
+                    '<div class="picker-product-meta">' +
+                    '<div class="picker-product-name"></div>' +
+                    '<div class="picker-product-sub"></div>' +
+                    '</div>' +
+                    '<div class="picker-product-price">¥' + p.price.toFixed(2) + '</div>';
+                row.querySelector('.picker-product-name').textContent = p.name;
+                row.querySelector('.picker-product-sub').textContent = 'ID ' + p.id + ' · ' + cat;
+                pickerProductList.appendChild(row);
+            });
+        }
+
+        function renderProductPicker() {
+            renderPickerCategories();
+            renderPickerProductList();
+        }
+
+        if (pickerCategoryList) {
+            pickerCategoryList.addEventListener('click', function (e) {
+                var item = e.target.closest('.picker-category-item');
+                if (!item) return;
+                pickerSelectedCategory = item.dataset.category || '全部';
+                renderPickerCategories();
+                renderPickerProductList();
+            });
+        }
+
+        if (pickerProductList) {
+            pickerProductList.addEventListener('change', function (e) {
+                if (!e.target.classList.contains('picker-product-cb')) return;
+                if (addingToComboIndex < 0 || addingToComboIndex >= packageCombos.length) return;
+                var pid = parseInt(e.target.dataset.id, 10);
+                var checked = e.target.checked;
+                var combo = packageCombos[addingToComboIndex];
+                if (!combo) return;
+                if (checked) {
+                    if (!combo.items.some(function (i) { return i.productId === pid; })) {
+                        var p = products.find(function (x) { return x.id === pid; });
+                        if (p) {
+                            combo.items.push({
+                                productId: p.id,
+                                name: p.name,
+                                image: p.image,
+                                price: p.price,
+                                quantity: 1,
+                                required: false,
+                                limited: true
+                            });
+                        }
+                    }
+                } else {
+                    combo.items = combo.items.filter(function (i) { return i.productId !== pid; });
+                }
                 renderCombosBlocks();
                 updatePriceSummary();
             });
         }
 
-        function renderSelectProductTable() {
-            if (!selectProductTableBody) return;
-            var keyword = (productSearchInput && productSearchInput.value) ? productSearchInput.value.toLowerCase() : '';
-            var combo = addingToComboIndex >= 0 && addingToComboIndex < packageCombos.length ? packageCombos[addingToComboIndex] : null;
-            var existingIds = combo ? combo.items.map(function (i) { return i.productId; }) : [];
-            selectProductTableBody.innerHTML = '';
-            products.filter(function (p) {
-                if (keyword && !p.id.toString().includes(keyword) && !p.name.toLowerCase().includes(keyword)) return false;
-                return true;
-            }).forEach(function (p) {
-                var tr = document.createElement('tr');
-                var inCombo = existingIds.indexOf(p.id) >= 0;
-                tr.innerHTML = '<td style="text-align:center;"><input type="checkbox" class="select-product-checkbox" data-id="' + p.id + '"' + (inCombo ? ' checked disabled' : '') + '></td>' +
-                    '<td><span class="select-product-name" data-id="' + p.id + '">' + p.name + '</span></td>' +
-                    '<td>¥' + p.price.toFixed(2) + '</td>';
-                selectProductTableBody.appendChild(tr);
+        if (productSearchInput) {
+            productSearchInput.addEventListener('input', function () {
+                if (packageEditLeftPanel && !packageEditLeftPanel.classList.contains('hidden')) {
+                    renderPickerProductList();
+                }
             });
         }
 
-        productSearchInput.addEventListener('input', renderSelectProductTable);
-
         document.addEventListener('input', function (e) {
             if (e.target.classList.contains('selected-qty-input')) {
+                if (e.target.disabled) return;
                 var pid = parseInt(e.target.dataset.productId, 10);
                 var idx = parseInt(e.target.dataset.comboIndex, 10);
                 var qty = Math.max(1, parseInt(e.target.value, 10) || 1);
@@ -1598,6 +1985,27 @@
                     if (item) item.required = e.target.checked;
                 }
             }
+            if (e.target.classList.contains('combo-item-limited-cb')) {
+                var pid = parseInt(e.target.dataset.productId, 10);
+                var idx = parseInt(e.target.dataset.comboIndex, 10);
+                var combo = packageCombos[idx];
+                if (combo) {
+                    var item = combo.items.find(function (i) { return i.productId === pid; });
+                    if (item) {
+                        item.limited = e.target.checked;
+                        var row = e.target.closest('.package-selected-item');
+                        var qtyIn = row ? row.querySelector('.selected-qty-input') : null;
+                        if (qtyIn) {
+                            qtyIn.disabled = !item.limited;
+                            if (!item.limited) {
+                                item.quantity = 1;
+                                qtyIn.value = '1';
+                            }
+                        }
+                        updatePriceSummary();
+                    }
+                }
+            }
         });
 
         document.addEventListener('click', function (e) {
@@ -1609,12 +2017,10 @@
                     combo.items = combo.items.filter(function (i) { return i.productId !== pid; });
                     renderCombosBlocks();
                     updatePriceSummary();
+                    if (addingToComboIndex === idx && pickerProductList && packageEditLeftPanel && !packageEditLeftPanel.classList.contains('hidden')) {
+                        renderPickerProductList();
+                    }
                 }
-            }
-            if (e.target.classList.contains('select-product-name')) {
-                var row = e.target.closest('tr');
-                var cb = row ? row.querySelector('.select-product-checkbox') : null;
-                if (cb && !cb.disabled) { cb.checked = !cb.checked; }
             }
         });
 
@@ -1623,7 +2029,8 @@
             var total = 0;
             packageCombos.forEach(function (combo) {
                 (combo.items || []).forEach(function (item) {
-                    total += (item.price || 0) * (item.quantity || 1);
+                    var q = (item.limited !== false) ? (item.quantity || 1) : 1;
+                    total += (item.price || 0) * q;
                 });
             });
             return total;
@@ -1642,14 +2049,7 @@
             const saveAmount = Math.max(0, originPrice - packagePrice);
             saveAmountText.textContent = '¥' + saveAmount.toFixed(2);
 
-            // 校验提示
-            if (packagePrice <= 0) {
-                packageValidationText.style.display = 'block';
-                packageValidationText.textContent = '请设置大于 0 的套餐售价。';
-            } else if (originPrice > 0 && packagePrice > originPrice) {
-                packageValidationText.style.display = 'block';
-                packageValidationText.textContent = '套餐售价不应高于原价合计，请检查价格设置。';
-            } else {
+            if (packageValidationText) {
                 packageValidationText.style.display = 'none';
                 packageValidationText.textContent = '';
             }
@@ -1659,48 +2059,44 @@
 
         if (packageModalConfirm) {
             packageModalConfirm.addEventListener('click', function () {
+                if (packageEditLayout && packageEditLayout.classList.contains('picker-open')) {
+                    addingToComboIndex = -1;
+                    setProductPickerOpen(false);
+                    if (packageEditLeftPanel) packageEditLeftPanel.classList.add('hidden');
+                    return;
+                }
+
                 var name = packageNameInput.value.trim();
                 var price = parseFloat(packagePriceInput.value);
                 var originPrice = calculateOriginPrice();
                 var allItems = [];
 
                 if (!name) {
-                    alert('请填写套餐名称');
-                    return;
+                    name = '未命名套餐';
                 }
                 if (!packageCombos.length) {
-                    alert('请至少添加一个套餐内组合');
-                    return;
+                    packageCombos.push({ id: comboIdCounter++, title: '组合一', total: 2, required: 1, requiredEnabled: true, items: [] });
                 }
                 for (var i = 0; i < packageCombos.length; i++) {
                     var combo = packageCombos[i];
                     var title = (combo.title || '').trim();
                     if (!title) {
-                        alert('请填写第' + (i + 1) + '个组合的标题');
-                        return;
-                    }
-                    var total = Math.max(1, combo.total || 1);
-                    var required = Math.min(combo.required || 1, total);
-                    var requiredEnabled = combo.requiredEnabled !== false;
-                    if (requiredEnabled && combo.items.length !== total) {
-                        alert('组合「' + title + '」已启用必选，需勾选 ' + total + ' 个商品（' + total + '选' + required + '），当前已选 ' + combo.items.length + ' 个。');
-                        return;
+                        combo.title = '组合' + (i + 1);
                     }
                     combo.items.forEach(function (it) { allItems.push(it); });
                 }
                 if (isNaN(price) || price <= 0) {
-                    alert('请填写有效的套餐售价（大于 0）');
-                    return;
+                    price = originPrice;
                 }
-                if (originPrice > 0 && price > originPrice) {
-                    if (!confirm('套餐售价高于原价合计，是否仍然保存？')) return;
+                if (isNaN(price) || price < 0) {
+                    price = 0;
                 }
 
                 price = parseFloat(price.toFixed(2));
                 var addTime = new Date().toISOString().slice(0, 10);
                 var combosData = packageCombos.map(function (c) {
                     return { title: c.title, total: c.total, required: c.required, requiredEnabled: c.requiredEnabled !== false, items: c.items.map(function (i) {
-                        return { productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: !!i.required };
+                        return { productId: i.productId, name: i.name, image: i.image, price: i.price, quantity: i.quantity || 1, required: !!i.required, limited: i.limited !== false };
                     })};
                 });
 

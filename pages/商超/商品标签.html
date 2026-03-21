@@ -15,20 +15,13 @@
         /* 页面头部，对齐商品列表/套餐列表 */
         .page-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             margin-bottom: var(--spacing-lg);
             padding: var(--spacing-lg);
             background-color: #ffffff;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
-        }
-
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin: 0;
         }
 
         .header-actions {
@@ -517,9 +510,8 @@
 </head>
 <body>
     <div class="tag-page">
-        <!-- 页面头部 -->
+        <!-- 页面头部（原标题位仅保留「新增标签」） -->
         <div class="page-header">
-            <h1 class="page-title">商品标签</h1>
             <div class="header-actions">
                 <button class="btn btn-primary" id="addTagBtn">新增标签</button>
                 <!--<button class="btn btn-outline" id="tagGuideBtn">标签使用说明</button>-->

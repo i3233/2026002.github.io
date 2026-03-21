@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="../../css/Main.css">
     <style>
         .stock-check-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
-        .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
         .toolbar-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--spacing-md) var(--spacing-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); flex-wrap: wrap; }
         .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
         .toolbar-left label { margin-right: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
@@ -60,7 +57,6 @@
         .table-container th.sortable::after { content: '↕'; position: absolute; right: 6px; color: var(--color-neutral-400); font-size: 12px; }
         .table-container th.sortable.asc::after { content: '↑'; color: var(--color-primary); }
         .table-container th.sortable.desc::after { content: '↓'; color: var(--color-primary); }
-        .batch-actions-bar { padding: var(--spacing-sm) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); display: flex; gap: var(--spacing-sm); }
         .pagination-bar { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-sm); }
         .pagination-info-left { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
         .pagination-info-right { display: flex; align-items: center; gap: var(--spacing-md); }
@@ -74,6 +70,8 @@
         .status-pill-done { color: var(--color-success); }
         .btn-link { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: var(--font-size-sm); padding: 0; }
         .btn-link:hover { text-decoration: underline; }
+        .table-ops { white-space: nowrap; }
+        .table-ops .btn-link + .btn-link { margin-left: var(--spacing-sm); }
         .diff-plus { color: var(--color-success); }
         .diff-minus { color: var(--color-error); }
         .diff-zero { color: var(--color-text-secondary); }
@@ -193,9 +191,6 @@
         .new-check-detail-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
         .new-check-detail-table .text-right { text-align: right; }
         .new-check-detail-table .op-cell { width: 56px; }
-        .new-check-add-attach { display: inline-flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-primary); cursor: pointer; background: none; border: none; padding: 0; }
-        .new-check-add-attach:hover { text-decoration: underline; }
-        .new-check-add-attach::before { content: '+'; font-weight: bold; }
 
         /* 查看盘点信息弹窗 */
         .view-check-section-title { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm); }
@@ -205,21 +200,107 @@
         .view-check-products-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
         .view-check-products-table th, .view-check-products-table td { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-neutral-200); text-align: left; }
         .view-check-products-table th { background: var(--color-neutral-50); font-weight: var(--font-weight-medium); }
+
+        /* 新增盘点内：商品选择弹窗（左侧类型 + 右侧商品，与采购订单等页一致） */
+        #stockCheckProductPickerOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #stockCheckProductPickerOverlay.show { display: flex; }
+        .stock-check-product-picker-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 560px;
+            max-height: 70vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .stock-check-product-picker-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stock-check-product-picker-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .stock-check-product-picker-body {
+            display: flex;
+            flex: 1;
+            min-height: 320px;
+            overflow: hidden;
+        }
+        .stock-check-product-picker-categories {
+            width: 120px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--color-neutral-200);
+            padding: var(--spacing-sm);
+            overflow-y: auto;
+        }
+        .stock-check-product-picker-cat-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            margin-bottom: 2px;
+        }
+        .stock-check-product-picker-cat-item:hover {
+            background: var(--color-neutral-50);
+            color: var(--color-text-primary);
+        }
+        .stock-check-product-picker-cat-item.active {
+            background: rgba(44, 131, 235, 0.1);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .stock-check-product-picker-list-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-sm);
+        }
+        .stock-check-product-picker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stock-check-product-picker-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background var(--transition-base), border-color var(--transition-base);
+        }
+        .stock-check-product-picker-item:hover {
+            background: var(--color-neutral-50);
+            border-color: var(--color-neutral-200);
+        }
+        .stock-check-product-picker-item .stock-check-product-picker-item-spec {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: 2px;
+        }
+        .stock-check-product-picker-foot {
+            border-top: 1px solid var(--color-neutral-200);
+            padding: var(--spacing-sm) var(--spacing-md);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
     </style>
 </head>
 <body>
     <div class="stock-check-page">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">库存盘点</h1>
-                <div class="page-subtitle">查看商品系统数量、录入实际数量，自动计算盈亏数量与盈亏金额</div>
-            </div>
-        </div>
-
         <div class="toolbar-card">
             <div class="toolbar-left">
                 <button class="btn btn-primary" id="newCheckBtn">+ 新增盘点</button>
-                <input type="text" id="filterBatch" class="toolbar-filter-input" placeholder="批次">
                 <select id="filterStatus" class="toolbar-filter-select">
                     <option value="">全部状态</option>
                     <option value="pending">待盘点</option>
@@ -239,9 +320,6 @@
                         <tr>
                             <th class="checkbox-cell"><input type="checkbox" id="selectAll"></th>
                             <th class="sortable" id="thNo" data-sort="no">序号</th>
-                            <th>批次</th>
-                            <th>公司</th>
-                            <th>店铺</th>
                             <th>性质</th>
                             <th class="text-right">盘盈</th>
                             <th class="text-right">盘亏</th>
@@ -255,9 +333,6 @@
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
-            </div>
-            <div class="batch-actions-bar">
-                <button type="button" class="btn btn-outline" id="batchDeleteBtn">删除</button>
             </div>
             <div class="pagination-bar">
                 <div class="pagination-info-left">
@@ -328,7 +403,7 @@
                 </div>
             </div>
             <div class="detail-modal-footer" style="justify-content: flex-start;">
-                <button type="button" class="btn btn-primary" id="viewCheckExportBtn">导出盘点数据</button>
+                <button type="button" class="btn btn-primary" id="viewCheckExportBtn">下载盘点表</button>
             </div>
         </div>
     </div>
@@ -375,24 +450,17 @@
             </div>
             <div class="detail-modal-body">
                 <div class="new-check-form-row">
-                    <label class="new-check-label required">店铺:</label>
-                    <select id="newCheckWarehouse" class="new-check-control" style="max-width: 200px;">
-                        <option value="总店">总店</option>
-                        <option value="分店A">分店A</option>
-                        <option value="中心仓">中心仓</option>
-                        <option value="分店B">分店B</option>
-                    </select>
-                    <label class="new-check-label required" style="margin-left: var(--spacing-lg);">日期:</label>
+                    <label class="new-check-label required">日期:</label>
                     <input type="date" id="newCheckDate" class="new-check-control" style="max-width: 160px;">
                     <label class="new-check-label" style="margin-left: var(--spacing-lg);">盘点人:</label>
                     <input type="text" id="newCheckOperator" class="new-check-control" placeholder="选择盘点人" style="max-width: 160px;">
                 </div>
 
                 <div class="new-check-form-row">
-                    <label class="new-check-label required">选择盘点产品:</label>
+                    <label class="new-check-label required">生成盘点单:</label>
                 </div>
                 <div class="new-check-product-row">
-                    <input type="text" id="newCheckProductInput" class="new-check-control" placeholder="产品ID" style="max-width: 200px;">
+                    <button type="button" class="btn btn-primary" id="newCheckSelectProductBtn">选择商品</button>
                     <div class="new-check-toggle-wrap">
                         <span id="newCheckScanToggle" class="new-check-toggle" role="switch" aria-checked="false" title="使用扫码录入"></span>
                         <span>使用扫码录入</span>
@@ -419,16 +487,10 @@
                         </table>
                     </div>
                 </div>
-                <div class="new-check-form-row" style="margin-bottom: var(--spacing-sm);">
-                    <button type="button" class="btn btn-primary" id="newCheckImportBtn">批量导入</button>
-                </div>
 
                 <div class="new-check-form-row">
                     <label class="new-check-label">备注:</label>
                     <textarea id="newCheckRemark" class="new-check-control" rows="2" placeholder="选填"></textarea>
-                </div>
-                <div class="new-check-form-row">
-                    <button type="button" class="new-check-add-attach" id="newCheckAttachmentBtn">添加附件</button>
                 </div>
             </div>
             <div class="detail-modal-footer">
@@ -437,10 +499,34 @@
             </div>
         </div>
     </div>
-    <input type="file" id="importFileInput" accept=".csv" style="display: none;">
+
+    <!-- 商品选择弹窗（左侧类型、右侧商品，多选后确认加入盘点明细） -->
+    <div class="detail-modal-overlay" id="stockCheckProductPickerOverlay">
+        <div class="stock-check-product-picker-modal">
+            <div class="stock-check-product-picker-head">
+                <h3>选择商品</h3>
+                <button type="button" class="btn btn-outline" id="stockCheckProductPickerClose" aria-label="关闭">× 关闭</button>
+            </div>
+            <div class="stock-check-product-picker-body">
+                <aside class="stock-check-product-picker-categories" id="stockCheckProductPickerCategories">
+                    <div class="stock-check-product-picker-cat-item active" data-category="全部">全部</div>
+                    <div class="stock-check-product-picker-cat-item" data-category="雅安好物">雅安好物</div>
+                    <div class="stock-check-product-picker-cat-item" data-category="雅安好景">雅安好景</div>
+                    <div class="stock-check-product-picker-cat-item" data-category="文创产品">文创产品</div>
+                </aside>
+                <div class="stock-check-product-picker-list-wrap">
+                    <div class="stock-check-product-picker-list" id="stockCheckProductPickerList"></div>
+                </div>
+            </div>
+            <div class="stock-check-product-picker-foot">
+                <button type="button" class="btn btn-outline" id="stockCheckProductPickerCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="stockCheckProductPickerConfirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const warehouses = [{ id: 'WH001', name: '总店' }, { id: 'WH002', name: '分店A' }];
-        // 盘点单列表（与图示一致：序号、批次、公司、店铺、性质、盘盈、盘亏、操作人、备注、制单日期、单号、状态、操作）
+        // 盘点单列表：序号、性质、盘盈、盘亏、操作人、备注、制单日期、单号、状态、操作
         let checkBills = [
             { id: 'CK-10', no: 1, batch: '2024-03-01', company: '测试公司', warehouse: '中心仓', nature: '月度盘点', gain: 0, loss: '', operator: '', remark: '3月例行盘点', createDate: '2024-03-01 09:00', docNo: 'CK-10', status: 'pending' },
             { id: 'CK-11', no: 2, batch: '2024-03-05', company: '测试公司', warehouse: '总店', nature: '抽盘', gain: '', loss: '', operator: '李四', remark: '', createDate: '2024-03-05 14:20', docNo: 'CK-11', status: 'pending' },
@@ -465,12 +551,33 @@
             { productId: '503022', productName: '腩肉', unit: '斤', salesPrice: '0.00', purchasePrice: '30.00', systemQty: 1, actualQty: 1, diffQty: 0, remark: '' }
         ];
 
-        // 模拟盘点明细（盘点执行弹窗中展示）
-        let checkDetails = [
-            { productId: 'PRD001', productName: '隔热垫', spec: '30cm×30cm', category: '厨房用品', zone: 'A区', shelf: 'A-01', photo: '../../images/01.jpg', systemQty: 107, actualQty: 107, unit: '个', avgCost: 12.50 },
-            { productId: 'PRD002', productName: 'p-6炒锅', spec: '32cm', category: '厨房用品', zone: 'A区', shelf: 'A-02', photo: '../../images/02.jpg', systemQty: 2, actualQty: 2, unit: '个', avgCost: 158.00 },
-            { productId: 'PRD003', productName: '雅安茶叶', spec: '500g/盒', category: '食品', zone: 'B区', shelf: 'B-01', photo: '../../images/03.jpg', systemQty: 80, actualQty: 78, unit: '盒', avgCost: 45.00 }
-        ];
+        // 盘点执行弹窗用的默认明细（可按单持久化到 bill.details）
+        function cloneDefaultCheckDetails() {
+            return [
+                { productId: 'PRD001', productName: '隔热垫', spec: '30cm×30cm', category: '厨房用品', zone: 'A区', shelf: 'A-01', photo: '../../images/01.jpg', systemQty: 107, actualQty: 107, unit: '个', avgCost: 12.50 },
+                { productId: 'PRD002', productName: 'p-6炒锅', spec: '32cm', category: '厨房用品', zone: 'A区', shelf: 'A-02', photo: '../../images/02.jpg', systemQty: 2, actualQty: 2, unit: '个', avgCost: 158.00 },
+                { productId: 'PRD003', productName: '雅安茶叶', spec: '500g/盒', category: '食品', zone: 'B区', shelf: 'B-01', photo: '../../images/03.jpg', systemQty: 80, actualQty: 78, unit: '盒', avgCost: 45.00 }
+            ].map(function (r) { return Object.assign({}, r); });
+        }
+        let checkDetails = cloneDefaultCheckDetails();
+        /** 当前正在「盘点执行」弹窗中编辑的单据 id */
+        let currentDoCheckBillId = null;
+
+        /** 根据明细行汇总盘盈数量、盘亏数量（用于写入列表） */
+        function computeGainLossFromDetails(rows) {
+            var gainSum = 0;
+            var lossSum = 0;
+            rows.forEach(function (row) {
+                var d = getDiffQty(row);
+                if (d === null || isNaN(d)) return;
+                if (d > 0) gainSum += d;
+                else if (d < 0) lossSum += -d;
+            });
+            return {
+                gain: Math.round(gainSum * 100) / 100,
+                loss: Math.round(lossSum * 100) / 100
+            };
+        }
 
         function getDiffQty(row) {
             const actual = parseFloat(row.actualQty);
@@ -483,13 +590,11 @@
         }
 
         function filterList() {
-            const batch = (document.getElementById('filterBatch') && document.getElementById('filterBatch').value || '').trim().toLowerCase();
             const status = document.getElementById('filterStatus') && document.getElementById('filterStatus').value || '';
             const dateStart = document.getElementById('filterDateStart') && document.getElementById('filterDateStart').value || '';
             const dateEnd = document.getElementById('filterDateEnd') && document.getElementById('filterDateEnd').value || '';
             const operator = (document.getElementById('filterOperator') && document.getElementById('filterOperator').value || '').trim().toLowerCase();
             filteredCheckBills = checkBills.filter(function (b) {
-                if (batch && (b.batch || '').toLowerCase().indexOf(batch) < 0) return false;
                 if (status && b.status !== status) return false;
                 if (dateStart && (b.createDate || '').slice(0, 10) < dateStart) return false;
                 if (dateEnd && (b.createDate || '').slice(0, 10) > dateEnd) return false;
@@ -516,12 +621,11 @@
                 tr.dataset.id = b.id;
                 const statusText = b.status === 'done' ? '已盘点' : '待盘点';
                 const statusCls = b.status === 'done' ? 'status-pill-done' : 'status-pill-pending';
-                const opHtml = '<button type="button" class="btn-link view-check-btn" data-id="' + b.id + '">查看</button>';
+                const opHtml = '<span class="table-ops">' +
+                    '<button type="button" class="btn-link view-check-btn" data-id="' + b.id + '">查看</button>' +
+                    '<button type="button" class="btn-link do-check-btn" data-id="' + b.id + '">盘点</button></span>';
                 tr.innerHTML = '<td class="checkbox-cell"><input type="checkbox" class="row-checkbox" data-id="' + b.id + '"></td>' +
                     '<td>' + b.no + '</td>' +
-                    '<td>' + (b.batch || '-') + '</td>' +
-                    '<td>' + (b.company || '-') + '</td>' +
-                    '<td>' + (b.warehouse || '-') + '</td>' +
                     '<td>' + (b.nature || '-') + '</td>' +
                     '<td class="text-right">' + (b.gain !== undefined && b.gain !== '' ? b.gain : '-') + '</td>' +
                     '<td class="text-right">' + (b.loss !== undefined && b.loss !== '' ? b.loss : '-') + '</td>' +
@@ -571,11 +675,22 @@
         }
 
         function openDoCheckModal(billId) {
+            var bill = checkBills.filter(function (b) { return b.id === billId; })[0];
+            if (!bill) return;
+            currentDoCheckBillId = billId;
+            if (bill.details && bill.details.length > 0) {
+                checkDetails = JSON.parse(JSON.stringify(bill.details));
+            } else {
+                checkDetails = cloneDefaultCheckDetails();
+            }
+            var titleEl = document.querySelector('#doCheckModal .detail-modal-title');
+            if (titleEl) titleEl.textContent = '盘点执行 — ' + (bill.docNo || bill.id || '');
             var modal = document.getElementById('doCheckModal');
             if (modal) modal.classList.add('show');
             renderDoCheckDetails();
         }
         function closeDoCheckModal() {
+            currentDoCheckBillId = null;
             var modal = document.getElementById('doCheckModal');
             if (modal) modal.classList.remove('show');
         }
@@ -588,7 +703,6 @@
             var basicEl = document.getElementById('viewCheckBasicInfo');
             if (basicEl) {
                 basicEl.innerHTML = ''
-                    + '<div class="view-check-basic-item"><span class="label">公司:</span><span>' + (bill.company || '模拟仓库') + '</span></div>'
                     + '<div class="view-check-basic-item"><span class="label">日期:</span><span>' + dateStr + '</span></div>'
                     + '<div class="view-check-basic-item"><span class="label">盘点人:</span><span>' + (bill.operator || '') + '</span></div>'
                     + '<div class="view-check-basic-item"><span class="label">备注:</span><span>' + (bill.remark || '') + '</span></div>'
@@ -647,20 +761,10 @@
             listCurrentPage = 1;
             renderList();
         });
-        document.getElementById('batchDeleteBtn').addEventListener('click', function () {
-            var ids = [];
-            document.querySelectorAll('.row-checkbox:checked').forEach(function (cb) { ids.push(cb.dataset.id); });
-            if (!ids.length) { alert('请先勾选要删除的记录'); return; }
-            if (!confirm('确定删除所选 ' + ids.length + ' 条记录？')) return;
-            checkBills = checkBills.filter(function (b) { return ids.indexOf(b.id) < 0; });
-            renderList();
-        });
         // 新增盘点弹窗
         const newCheckModal = document.getElementById('newCheckModal');
         const newCheckDateInput = document.getElementById('newCheckDate');
-        const newCheckWarehouseSelect = document.getElementById('newCheckWarehouse');
         const newCheckOperatorInput = document.getElementById('newCheckOperator');
-        const newCheckProductInput = document.getElementById('newCheckProductInput');
         const newCheckScanToggle = document.getElementById('newCheckScanToggle');
         const newCheckRemarkInput = document.getElementById('newCheckRemark');
         const newCheckEmptyState = document.getElementById('newCheckEmptyState');
@@ -668,6 +772,94 @@
         const newCheckDetailBody = document.getElementById('newCheckDetailBody');
 
         let newCheckDetailItems = []; // 弹窗内盘点明细（商品、规格、单位、销售价、实际数量、盈亏数量、盈亏金额、备注）
+
+        // 商品选择器数据（左侧类型 + 右侧商品，与采购订单页一致）
+        const stockCheckPickerProducts = [
+            { name: '雅安特产绿营养蛋', category: '雅安好景', spec: '', unit: '盒', salesPrice: 12 },
+            { name: '土司农家散养蛋', category: '雅安好景', spec: '', unit: '盒', salesPrice: 10 },
+            { name: '有机山茶油', category: '雅安好景', spec: '', unit: '瓶', salesPrice: 68 },
+            { name: '腊味礼盒', category: '雅安好景', spec: '', unit: '盒', salesPrice: 128 },
+            { name: '蒙顶山茶', category: '雅安好景', spec: '500g/盒', unit: '盒', salesPrice: 88 },
+            { name: '雅鱼鲜礼盒', category: '雅安好景', spec: '', unit: '盒', salesPrice: 200 },
+            { name: '花椒油', category: '雅安好景', spec: '250g/瓶', unit: '瓶', salesPrice: 18 },
+            { name: '雅安蜂蜜', category: '雅安好物', spec: '500g/瓶', unit: '瓶', salesPrice: 45 },
+            { name: '雅安黑茶', category: '雅安好物', spec: '', unit: '盒', salesPrice: 60 },
+            { name: '雅安菌菇干货', category: '雅安好物', spec: '200g/袋', unit: '袋', salesPrice: 35 },
+            { name: '熊猫周边玩偶', category: '文创产品', spec: '20cm', unit: '个', salesPrice: 58 },
+            { name: '雅安风景明信片', category: '文创产品', spec: '一套10张', unit: '套', salesPrice: 15 },
+            { name: '茶具套装', category: '文创产品', spec: '', unit: '套', salesPrice: 199 },
+            { name: '手工茶饼', category: '文创产品', spec: '', unit: '盒', salesPrice: 80 },
+            { name: '精品礼盒装', category: '文创产品', spec: '1kg装', unit: '盒', salesPrice: 268 }
+        ];
+        let stockCheckPickerSelectedIdx = new Set();
+        let stockCheckPickerCurrentCategory = '全部';
+        const stockCheckProductPickerOverlay = document.getElementById('stockCheckProductPickerOverlay');
+        const stockCheckProductPickerListEl = document.getElementById('stockCheckProductPickerList');
+        const stockCheckProductPickerCategoriesEl = document.getElementById('stockCheckProductPickerCategories');
+
+        function renderStockCheckProductPickerList() {
+            if (!stockCheckProductPickerListEl) return;
+            var cat = stockCheckPickerCurrentCategory;
+            var list = cat === '全部'
+                ? stockCheckPickerProducts
+                : stockCheckPickerProducts.filter(function (p) { return p.category === cat; });
+            stockCheckProductPickerListEl.innerHTML = '';
+            list.forEach(function (p) {
+                var globalIdx = stockCheckPickerProducts.indexOf(p);
+                var div = document.createElement('div');
+                div.className = 'stock-check-product-picker-item';
+                var checked = stockCheckPickerSelectedIdx.has(globalIdx);
+                var specHtml = p.spec ? '<div class="stock-check-product-picker-item-spec">' + p.spec + '</div>' : '';
+                div.innerHTML =
+                    '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
+                    '<input type="checkbox" class="stock-check-product-picker-checkbox" data-idx="' + globalIdx + '" ' + (checked ? 'checked' : '') + '>' +
+                    '<div>' + (p.name || '') + specHtml + '</div>' +
+                    '</label>';
+                stockCheckProductPickerListEl.appendChild(div);
+            });
+        }
+        function openStockCheckProductPicker() {
+            stockCheckPickerSelectedIdx = new Set();
+            stockCheckPickerCurrentCategory = '全部';
+            if (stockCheckProductPickerCategoriesEl) {
+                stockCheckProductPickerCategoriesEl.querySelectorAll('.stock-check-product-picker-cat-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === '全部');
+                });
+            }
+            renderStockCheckProductPickerList();
+            if (stockCheckProductPickerOverlay) stockCheckProductPickerOverlay.classList.add('show');
+        }
+        function closeStockCheckProductPicker() {
+            stockCheckPickerSelectedIdx = new Set();
+            if (stockCheckProductPickerOverlay) stockCheckProductPickerOverlay.classList.remove('show');
+        }
+        function applyStockCheckProductPickerSelection() {
+            if (!stockCheckPickerSelectedIdx.size) {
+                alert('请至少选择一个商品');
+                return;
+            }
+            stockCheckPickerSelectedIdx.forEach(function (idx) {
+                var p = stockCheckPickerProducts[idx];
+                if (!p) return;
+                var exists = newCheckDetailItems.some(function (row) {
+                    return row._pickProductIdx === idx;
+                });
+                if (exists) return;
+                newCheckDetailItems.push({
+                    _pickProductIdx: idx,
+                    productId: 'SP-' + idx,
+                    productName: p.name,
+                    spec: p.spec || '',
+                    unit: p.unit || '个',
+                    salesPrice: p.salesPrice != null ? p.salesPrice : 0,
+                    systemQty: 0,
+                    actualQty: '',
+                    remark: ''
+                });
+            });
+            renderNewCheckDetailTable();
+            closeStockCheckProductPicker();
+        }
 
         function renderNewCheckDetailTable() {
             if (!newCheckDetailBody) return;
@@ -690,9 +882,7 @@
         function openNewCheckModal() {
             var today = new Date().toISOString().slice(0, 10);
             newCheckDateInput.value = today;
-            newCheckWarehouseSelect.value = '总店';
             if (newCheckOperatorInput) newCheckOperatorInput.value = '';
-            if (newCheckProductInput) newCheckProductInput.value = '';
             if (newCheckScanToggle) { newCheckScanToggle.classList.remove('on'); newCheckScanToggle.setAttribute('aria-checked', 'false'); }
             newCheckDetailItems = [];
             renderNewCheckDetailTable();
@@ -710,15 +900,43 @@
             if (e.target === newCheckModal) closeNewCheckModal();
         });
 
-        document.getElementById('newCheckImportBtn').addEventListener('click', function () {
-            document.getElementById('importFileInput').click();
-        });
-        document.getElementById('newCheckScanToggle').addEventListener('click', function () {
+        var newCheckSelectProductBtn = document.getElementById('newCheckSelectProductBtn');
+        if (newCheckSelectProductBtn) newCheckSelectProductBtn.addEventListener('click', openStockCheckProductPicker);
+        if (stockCheckProductPickerOverlay) {
+            document.getElementById('stockCheckProductPickerClose').addEventListener('click', closeStockCheckProductPicker);
+            var stockCheckProductPickerCancelBtn = document.getElementById('stockCheckProductPickerCancelBtn');
+            if (stockCheckProductPickerCancelBtn) stockCheckProductPickerCancelBtn.addEventListener('click', closeStockCheckProductPicker);
+            document.getElementById('stockCheckProductPickerConfirmBtn').addEventListener('click', applyStockCheckProductPickerSelection);
+            stockCheckProductPickerOverlay.addEventListener('click', function (e) {
+                if (e.target === stockCheckProductPickerOverlay) closeStockCheckProductPicker();
+            });
+        }
+        if (stockCheckProductPickerListEl) {
+            stockCheckProductPickerListEl.addEventListener('change', function (e) {
+                var cb = e.target.closest('.stock-check-product-picker-checkbox');
+                if (!cb) return;
+                var idx = parseInt(cb.dataset.idx, 10);
+                if (isNaN(idx)) return;
+                if (cb.checked) stockCheckPickerSelectedIdx.add(idx);
+                else stockCheckPickerSelectedIdx.delete(idx);
+            });
+        }
+        if (stockCheckProductPickerCategoriesEl) {
+            stockCheckProductPickerCategoriesEl.addEventListener('click', function (e) {
+                var cat = e.target.closest('.stock-check-product-picker-cat-item');
+                if (!cat) return;
+                stockCheckPickerCurrentCategory = cat.dataset.category || '全部';
+                stockCheckProductPickerCategoriesEl.querySelectorAll('.stock-check-product-picker-cat-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === stockCheckPickerCurrentCategory);
+                });
+                renderStockCheckProductPickerList();
+            });
+        }
+
+        var newCheckScanToggleEl = document.getElementById('newCheckScanToggle');
+        if (newCheckScanToggleEl) newCheckScanToggleEl.addEventListener('click', function () {
             this.classList.toggle('on');
             this.setAttribute('aria-checked', this.classList.contains('on'));
-        });
-        document.getElementById('newCheckAttachmentBtn').addEventListener('click', function () {
-            alert('添加附件（示例）：可上传图片或文档作为盘点依据。');
         });
         newCheckModal.addEventListener('click', function (e) {
             var t = e.target;
@@ -732,99 +950,6 @@
             }
         });
 
-        // 导入盘点单（CSV）：解析后填入新增盘点弹窗的明细表
-        document.getElementById('importFileInput').addEventListener('change', function() {
-            const file = this.files[0];
-            if (!file) return;
-            const name = (file.name || '').toLowerCase();
-            if (name.endsWith('.csv')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const text = (e.target.result || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-                        const lines = text.split('\n').filter(function(l) { return l.trim(); });
-                        if (lines.length < 2) {
-                            alert('文件至少需要表头一行和数据一行。');
-                            return;
-                        }
-                        const header = parseCsvLine(lines[0]);
-                        const col = function(row, name) {
-                            const i = header.indexOf(name);
-                            return i >= 0 ? (row[i] || '').trim() : '';
-                        };
-                        const rows = [];
-                        for (let i = 1; i < lines.length; i++) {
-                            const cells = parseCsvLine(lines[i]);
-                            const productId = col(cells, '商品ID') || col(cells, '商品id');
-                            const productName = col(cells, '商品名称') || col(cells, '商品名称') || '-';
-                            const spec = col(cells, '规格');
-                            const category = col(cells, '分类');
-                            const systemQty = parseFloat(col(cells, '系统数量')) || 0;
-                            const actualQty = parseFloat(col(cells, '实际数量')) || 0;
-                            const unit = col(cells, '单位') || '个';
-                            const avgCost = parseFloat(col(cells, '单价') || col(cells, '单价(元)')) || 0;
-                            if (!productId && !productName) continue;
-                            rows.push({
-                                productId: productId || 'IMP' + i,
-                                productName: productName || '-',
-                                spec: spec || '',
-                                category: category || '',
-                                systemQty: systemQty,
-                                actualQty: actualQty,
-                                unit: unit,
-                                avgCost: avgCost,
-                                remark: col(cells, '备注') || ''
-                            });
-                        }
-                        if (rows.length === 0) {
-                            alert('未解析到有效数据行。请确保表头包含：商品ID、商品名称、规格、分类、系统数量、实际数量、单位、单价。');
-                            return;
-                        }
-                        rows.forEach(function(r) {
-                            newCheckDetailItems.push({
-                                productId: r.productId,
-                                productName: r.productName,
-                                spec: r.spec,
-                                unit: r.unit || '个',
-                                salesPrice: r.avgCost,
-                                systemQty: r.systemQty,
-                                actualQty: r.actualQty,
-                                remark: r.remark || ''
-                            });
-                        });
-                        renderNewCheckDetailTable();
-                        alert('导入成功，共 ' + rows.length + ' 条盘点明细。');
-                    } catch (err) {
-                        alert('解析失败：' + (err.message || String(err)));
-                    }
-                };
-                reader.readAsText(file, 'UTF-8');
-            } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-                alert('当前仅支持 CSV 格式。请将 Excel 文件另存为“CSV (逗号分隔)”后重新导入。');
-            } else {
-                alert('请选择 .csv 文件（或 Excel 另存为 CSV）。');
-            }
-            this.value = '';
-        });
-        function parseCsvLine(line) {
-            const out = [];
-            let cur = '';
-            let inQuote = false;
-            for (let i = 0; i < line.length; i++) {
-                const c = line[i];
-                if (c === '"') {
-                    inQuote = !inQuote;
-                } else if ((c === ',' && !inQuote) || c === '\t') {
-                    out.push(cur);
-                    cur = '';
-                } else {
-                    cur += c;
-                }
-            }
-            out.push(cur);
-            return out.map(function(s) { return s.replace(/^"|"$/g, '').trim(); });
-        }
-
         document.getElementById('newCheckSaveBtn').addEventListener('click', function () {
             var nextNo = checkBills.length ? Math.max.apply(null, checkBills.map(function (b) { return b.no; })) + 1 : 1;
             var docNo = 'CK-' + (checkBills.length + 20);
@@ -832,7 +957,7 @@
             var batch = newCheckDateInput.value || d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             var operator = (newCheckOperatorInput && newCheckOperatorInput.value) ? newCheckOperatorInput.value.trim() : '';
             checkBills.unshift({
-                id: docNo, no: nextNo, batch: batch, company: '测试公司', warehouse: newCheckWarehouseSelect.value || '总店', nature: '',
+                id: docNo, no: nextNo, batch: batch, company: '测试公司', warehouse: '总店', nature: '',
                 gain: '', loss: '', operator: operator, remark: (newCheckRemarkInput && newCheckRemarkInput.value) ? newCheckRemarkInput.value.trim() : '', createDate: batch + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'), docNo: docNo, status: 'pending'
             });
             renderList();
@@ -846,9 +971,9 @@
         var printBtn = document.getElementById('printBtn');
         if (printBtn) printBtn.addEventListener('click', function() {
             if (checkBills.length === 0) { alert('没有数据可打印'); return; }
-            var cols = ['序号','批次','公司','店铺','性质','盘盈','盘亏','操作人','备注','制单日期','单号','状态'];
+            var cols = ['序号','性质','盘盈','盘亏','操作人','备注','制单日期','单号','状态'];
             var rows = checkBills.map(function(b) {
-                return [b.no, b.batch || '-', b.company || '-', b.warehouse || '-', b.nature || '-', b.gain !== undefined && b.gain !== '' ? b.gain : '-', b.loss !== undefined && b.loss !== '' ? b.loss : '-', b.operator || '-', b.remark || '-', b.createDate || '-', b.docNo || '-', b.status === 'done' ? '已盘点' : '待盘点'];
+                return [b.no, b.nature || '-', b.gain !== undefined && b.gain !== '' ? b.gain : '-', b.loss !== undefined && b.loss !== '' ? b.loss : '-', b.operator || '-', b.remark || '-', b.createDate || '-', b.docNo || '-', b.status === 'done' ? '已盘点' : '待盘点'];
             }).map(function(r) { return '<tr><td>' + r.join('</td><td>') + '</td></tr>'; }).join('');
             var win = window.open('', '_blank');
             win.document.write('<html><head><meta charset="utf-8"><title>库存盘点-打印</title><style>body{font-family:Microsoft YaHei,sans-serif;padding:16px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:6px;}</style></head><body><h3>库存盘点单列表</h3><p>共 ' + checkBills.length + ' 条</p><table><thead><tr><th>' + cols.join('</th><th>') + '</th></tr></thead><tbody>' + rows + '</tbody></table></body></html>');
@@ -862,9 +987,15 @@
         if (viewCheckModal) viewCheckModal.addEventListener('click', function(e) { if (e.target === this) closeViewCheckModal(); });
         var viewCheckExportBtn = document.getElementById('viewCheckExportBtn');
         if (viewCheckExportBtn) viewCheckExportBtn.addEventListener('click', function() {
-            alert('导出盘点数据（示例）：可导出当前查看的盘点单基本信息与产品明细。');
+            alert('下载盘点表（示例）：可下载当前查看的盘点单基本信息与产品明细。');
         });
         document.body.addEventListener('click', function(e) {
+            var doBtn = e.target.closest('.do-check-btn');
+            if (doBtn && doBtn.dataset.id) {
+                e.preventDefault();
+                openDoCheckModal(doBtn.dataset.id);
+                return;
+            }
             var btn = e.target.closest('.view-check-btn');
             if (btn && btn.dataset.id) {
                 e.preventDefault();
@@ -877,8 +1008,26 @@
         if (doCheckModal) doCheckModal.addEventListener('click', function(e) { if (e.target === this) closeDoCheckModal(); });
         var doCheckModalSave = document.getElementById('doCheckModalSave');
         if (doCheckModalSave) doCheckModalSave.addEventListener('click', function() {
-            alert('保存盘点（示例）：将当前实际数量与盈亏结果保存。');
+            if (!currentDoCheckBillId) {
+                closeDoCheckModal();
+                return;
+            }
+            var bill = checkBills.filter(function (b) { return b.id === currentDoCheckBillId; })[0];
+            if (!bill) {
+                closeDoCheckModal();
+                return;
+            }
+            bill.details = JSON.parse(JSON.stringify(checkDetails));
+            var gl = computeGainLossFromDetails(checkDetails);
+            bill.gain = gl.gain;
+            bill.loss = gl.loss;
+            bill.status = 'done';
+            if (!bill.nature || String(bill.nature).trim() === '' || bill.nature === '-') {
+                bill.nature = '盘点完成';
+            }
+            renderList();
             closeDoCheckModal();
+            alert('盘点已确认：已根据实盘数量生成盘盈数量 ' + bill.gain + '、盘亏数量 ' + bill.loss + '，单据状态为「已盘点」。');
         });
         var photoModalClose = document.getElementById('photoModalClose');
         if (photoModalClose) photoModalClose.addEventListener('click', function() { var o = document.getElementById('photoModalOverlay'); if (o) o.classList.remove('show'); });

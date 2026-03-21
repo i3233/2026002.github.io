@@ -33,24 +33,74 @@
         }
 
         .toolbar-left {
-            flex: 1.6;
+            flex: 0 0 auto;
             flex-wrap: wrap;
         }
 
         .toolbar-center {
             flex: 1;
             justify-content: center;
+            min-width: 0;
         }
 
         .toolbar-right {
-            flex: 1;
+            flex: 0 0 auto;
             justify-content: flex-end;
             flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        /* 与采购订单/商品列表一致的状态 Tab */
+        .toolbar-left .tabs-nav.tabs-nav-inline {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .toolbar-left .tab-nav-item {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            position: relative;
+            white-space: nowrap;
+        }
+        .toolbar-left .tab-nav-item:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+        .toolbar-left .tab-nav-item.active {
+            color: var(--color-primary);
+            background-color: rgba(44, 131, 235, 0.1);
+            font-weight: var(--font-weight-medium);
+        }
+        .toolbar-left .tab-nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: var(--color-primary);
+            border-radius: var(--radius-full);
         }
 
         .toolbar-search-input {
-            flex: 1;
-            min-width: 180px;
+            width: 280px;
+            max-width: 42vw;
+            min-width: 160px;
+            flex: 0 1 auto;
             padding: var(--spacing-sm) var(--spacing-md);
             border-radius: var(--radius-md);
             border: 1px solid var(--color-neutral-300);
@@ -344,9 +394,11 @@
             }
 
             .toolbar-left,
-            .toolbar-center,
-            .toolbar-right {
+            .toolbar-center {
                 justify-content: flex-start;
+            }
+            .toolbar-right {
+                justify-content: flex-end;
             }
 
             .page-header {
@@ -499,20 +551,17 @@
 </head>
 <body>
     <div class="purchase-return-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">采购退货</h1>
-                <div class="page-subtitle">退货管理系统列表页，用于管理和追踪退货/退款订单。</div>
-            </div>
-        </div>
-
         <!-- 顶部工具栏 -->
         <div class="toolbar-card">
-            <!-- 左侧（已去掉：新增、导入、导出详情、退货单、属性、汇总，与采购入库退货流程联动） -->
-            <div class="toolbar-left"></div>
+            <div class="toolbar-left">
+                <div class="tabs-nav tabs-nav-inline" id="statusFilterGroup" role="group" aria-label="退货单状态筛选">
+                    <button type="button" class="tab-nav-item" data-status="待提交">待提交</button>
+                    <button type="button" class="tab-nav-item" data-status="审核中">审核中</button>
+                    <button type="button" class="tab-nav-item" data-status="待退货">待退货</button>
+                    <button type="button" class="tab-nav-item" data-status="已完成">已完成</button>
+                </div>
+            </div>
 
-            <!-- 中间搜索区 -->
             <div class="toolbar-center">
                 <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：支持按单号、往来单位等关键字">
                 <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
@@ -864,13 +913,8 @@
             </div>
         </div>
 
-        <!-- 操作菜单 -->
-        <div class="action-menu" id="actionMenu">
-            <div class="action-menu-item" data-action="view">查看详情</div>
-            <div class="action-menu-item" data-action="audit">提交财务审核</div>
-            <div class="action-menu-item" data-action="print">打印退货单</div>
-            <div class="action-menu-item danger" data-action="delete">删除</div>
-        </div>
+        <!-- 操作菜单（内容由 openActionMenu 按状态动态生成） -->
+        <div class="action-menu" id="actionMenu"></div>
     </div>
 
     <script>
@@ -948,6 +992,8 @@
         let sortColumn = null;
         let sortDirection = 'asc';
         let viewMode = 'list';
+        /** 顶部状态筛选，空字符串表示不过滤 */
+        let listStatusFilter = '';
 
         function getDetailsById(id) {
             return returnDetailsMap[id] || [];
@@ -1030,21 +1076,43 @@
             });
         });
 
-        // 快捷搜索（前端模糊过滤）
-        function doQuickSearch() {
+        function matchesReturnKeyword(r, kw) {
+            if (!kw) return true;
+            return (
+                (r.id || '').toLowerCase().includes(kw) ||
+                (r.partner || '').toLowerCase().includes(kw) ||
+                (r.project || '').toLowerCase().includes(kw)
+            );
+        }
+
+        function applyCurrentSortToFiltered() {
+            if (!sortColumn) return;
+            const column = sortColumn;
+            filteredReturns.sort((a, b) => {
+                const aVal = a[column];
+                const bVal = b[column];
+                if (column === 'date' || column === 'recordTime') {
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    }
+                    return aVal < bVal ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+
+        function applyListFilters() {
             const kw = document.getElementById('quickSearchInput').value.trim().toLowerCase();
-            if (!kw) {
-                filteredReturns = [...returns];
-            } else {
-                filteredReturns = returns.filter(p => {
-                    return (
-                        p.id.toLowerCase().includes(kw) ||
-                        p.partner.toLowerCase().includes(kw) ||
-                        p.project.toLowerCase().includes(kw)
-                    );
-                });
-            }
+            filteredReturns = returns.filter(function (r) {
+                if (listStatusFilter && r.status !== listStatusFilter) return false;
+                return matchesReturnKeyword(r, kw);
+            });
+            applyCurrentSortToFiltered();
             renderTable();
+        }
+
+        function doQuickSearch() {
+            applyListFilters();
         }
 
         document.getElementById('quickSearchBtn').addEventListener('click', doQuickSearch);
@@ -1053,6 +1121,25 @@
                 doQuickSearch();
             }
         });
+
+        (function initStatusFilterButtons() {
+            const group = document.getElementById('statusFilterGroup');
+            if (!group) return;
+            group.addEventListener('click', function (e) {
+                const btn = e.target.closest('.tab-nav-item');
+                if (!btn) return;
+                const st = btn.dataset.status || '';
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    listStatusFilter = '';
+                } else {
+                    group.querySelectorAll('.tab-nav-item').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    listStatusFilter = st;
+                }
+                applyListFilters();
+            });
+        })();
 
         // 全选 / 反选
         const selectAll = document.getElementById('selectAll');
@@ -1135,8 +1222,7 @@
                 if (idx > -1) returns.splice(idx, 1);
                 delete returnDetailsMap[id];
             });
-            filteredReturns = [...returns];
-            renderTable();
+            applyListFilters();
             alert('已删除 ' + ids.length + ' 条记录。');
         });
 
@@ -1258,10 +1344,12 @@
             let html = '<div class="action-menu-item" data-action="view">查看详情</div>';
             if (status === '待提交') html += '<div class="action-menu-item" data-action="edit">编辑退货单</div>';
             if (status === '待提交') html += '<div class="action-menu-item" data-action="submitAudit">提交审核</div>';
-            if (status === '审核中') html += '<div class="action-menu-item" data-action="audit">提交财务审核</div>';
+            /* 审核中：不显示「提交财务审核」「删除」；财务审核可点击状态列 */
             if (status === '待退货') html += '<div class="action-menu-item" data-action="doReturn">执行退货</div>';
             html += '<div class="action-menu-item" data-action="print">打印退货单</div>';
-            html += '<div class="action-menu-item danger" data-action="delete">删除</div>';
+            if (status !== '审核中' && status !== '已完成') {
+                html += '<div class="action-menu-item danger" data-action="delete">删除</div>';
+            }
             actionMenu.innerHTML = html;
             const rect = anchorEl.getBoundingClientRect();
             actionMenu.style.left = rect.left + 'px';
@@ -1275,8 +1363,7 @@
             if (item.status !== '待提交') return;
             item.status = '审核中';
             saveReturnsToStorage();
-            filteredReturns = [...returns];
-            renderTable();
+            applyListFilters();
         }
         function auditOrder(id) {
             const item = returns.find(r => r.id === id);
@@ -1285,8 +1372,7 @@
             if (!confirm('确定将该退货单提交财务审核？')) return;
             item.status = '待财务审核';
             saveReturnsToStorage();
-            filteredReturns = [...returns];
-            renderTable();
+            applyListFilters();
             alert('已提交财务审核，请等待财务处理。');
         }
         let doReturnCurrentId = null;
@@ -1338,8 +1424,7 @@
             if (!item || item.status !== '待退货') return;
             item.status = '已完成';
             saveReturnsToStorage();
-            filteredReturns = [...returns];
-            renderTable();
+            applyListFilters();
             alert('执行退货完成，该单已标记为已完成。');
         }
         if (doReturnModalOverlay) {
@@ -1443,8 +1528,7 @@
                     returns.splice(idx, 1);
                     delete returnDetailsMap[id];
                     saveReturnsToStorage();
-                    filteredReturns = [...returns];
-                    renderTable();
+                    applyListFilters();
                 }
             }
         });
@@ -1474,6 +1558,14 @@
                 if (status && r.status !== status) return false;
                 return true;
             });
+            if (listStatusFilter) {
+                filteredReturns = filteredReturns.filter(function (r) { return r.status === listStatusFilter; });
+            }
+            const kwMore = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            if (kwMore) {
+                filteredReturns = filteredReturns.filter(function (r) { return matchesReturnKeyword(r, kwMore); });
+            }
+            applyCurrentSortToFiltered();
             renderTable();
             closeMoreSearch();
         });
@@ -1843,9 +1935,8 @@
                 });
                 returnDetailsMap[newId] = rows;
             }
-            filteredReturns = [...returns];
             saveReturnsToStorage();
-            renderTable();
+            applyListFilters();
             closeReturnModal();
         });
 
@@ -1855,7 +1946,7 @@
         document.body.appendChild(rtDatalist);
 
         // 初始化
-        renderTable();
+        applyListFilters();
     </script>
 </body>
 </html>

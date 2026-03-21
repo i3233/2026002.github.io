@@ -11,31 +11,6 @@
             background-color: var(--color-neutral-50);
         }
 
-        /* 页面标题 */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-            padding: var(--spacing-lg);
-            background-color: #ffffff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin: 0;
-        }
-
-        .page-subtitle {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            margin-top: var(--spacing-xs);
-        }
-
         /* 筛选工具栏 */
         .filter-toolbar {
             padding: var(--spacing-lg);
@@ -584,12 +559,6 @@
                 width: 100%;
             }
 
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: var(--spacing-xs);
-            }
-
             .bottom-toolbar {
                 flex-direction: column;
                 align-items: flex-start;
@@ -603,14 +572,6 @@
 </head>
 <body>
     <div class="history-statement-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">历史结存</h1>
-                <div class="page-subtitle">查看历史日期的商品进存销情况和结存信息</div>
-            </div>
-        </div>
-
         <!-- 筛选工具栏 -->
         <div class="filter-toolbar">
             <div class="filter-item filter-item--date-range">

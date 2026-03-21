@@ -3,20 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>基础设置 - 商超收银台</title>
+    <title>基础设置 - 收银</title>
     <link rel="stylesheet" href="../../css/Main.css">
     <link rel="stylesheet" href="../../css/收银台基础设置.css">
 </head>
 <body class="pos-settings-page">
     <div class="pos-settings-container">
-        <!-- 页面标题 -->
-        <div class="pos-settings-header">
-            <div>
-                <h1 class="pos-settings-title">基础设置</h1>
-                <div class="pos-settings-subtitle">配置商超收银台基础功能与入口</div>
-            </div>
-        </div>
-
         <!-- 基础设置 -->
         <div class="pos-settings-card">
             <div class="pos-settings-card-header">
@@ -25,22 +17,12 @@
             <div class="pos-settings-card-body">
                 <div class="pos-settings-item pos-settings-item-row">
                     <div class="pos-settings-item-left">
-                        <div class="pos-settings-label">入口</div>
+                        <div class="pos-settings-label">H5收银系统入口</div>
                         <div class="pos-settings-entry-row">
                             <input type="text" class="pos-settings-input pos-settings-input-readonly" id="entryUrl" readonly value="https://xcxsc.scssrh.com/web/index.php?r=plugin/teller/web/passport/login&mall_id=NTA=">
                             <button type="button" class="pos-settings-btn pos-settings-btn-outline" id="copyLinkBtn">复制链接</button>
                             <button type="button" class="pos-settings-btn pos-settings-btn-primary" id="enterPosBtn">进入收银台</button>
                         </div>
-                    </div>
-                </div>
-                <div class="pos-settings-item pos-settings-item-row">
-                    <div class="pos-settings-item-left">
-                        <div class="pos-settings-label">APP 下载</div>
-                        <div class="pos-settings-entry-row">
-                            <input type="text" class="pos-settings-input pos-settings-input-readonly" id="appDownloadUrl" readonly value="https://xcxsc.scssrh.com/app/download">
-                            <button type="button" class="pos-settings-btn pos-settings-btn-outline" id="copyAppLinkBtn">复制链接</button>
-                        </div>
-                        <div class="pos-settings-note">可将该链接生成二维码，张贴在门店供商家扫码下载安装APP。</div>
                     </div>
                 </div>
                 <div class="pos-settings-item">
@@ -105,6 +87,18 @@
                     <div class="pos-settings-item-right">
                         <label class="pos-settings-toggle">
                             <input type="checkbox" id="enableDistribution" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pos-settings-item">
+                    <div class="pos-settings-item-left">
+                        <div class="pos-settings-label">是否开启股东分红</div>
+                        <div class="pos-settings-note">注:必须在"插件中心=&gt;股东分红"中开启,才能使用</div>
+                    </div>
+                    <div class="pos-settings-item-right">
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="enableShareholderDividend" checked>
                             <span class="pos-settings-toggle-slider"></span>
                         </label>
                     </div>
@@ -342,6 +336,9 @@
                                 <label class="pos-settings-radio-label">
                                     <input type="radio" name="cashierCommissionType" value="amount" checked>按金额
                                 </label>
+                                <label class="pos-settings-radio-label">
+                                    <input type="radio" name="cashierCommissionType" value="profit">按利润
+                                </label>
                             </div>
                         </div>
                         <div class="pos-settings-item-right pos-settings-commission-input-wrap">
@@ -371,6 +368,9 @@
                                 </label>
                                 <label class="pos-settings-radio-label">
                                     <input type="radio" name="salespersonCommissionType" value="amount" checked>按金额
+                                </label>
+                                <label class="pos-settings-radio-label">
+                                    <input type="radio" name="salespersonCommissionType" value="profit">按利润
                                 </label>
                             </div>
                         </div>

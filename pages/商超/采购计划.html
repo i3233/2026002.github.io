@@ -231,6 +231,110 @@
                 align-items: stretch;
             }
         }
+        /* 往来单位选择器（与采购订单页一致） */
+        .partner-picker-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1080;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .partner-picker-overlay.show { display: flex; }
+        .partner-picker-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 920px;
+            max-height: 78vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .partner-picker-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .partner-picker-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .partner-picker-body {
+            display: flex;
+            flex: 1;
+            min-height: 340px;
+            overflow: hidden;
+        }
+        .partner-picker-col {
+            flex-shrink: 0;
+            width: 128px;
+            border-right: 1px solid var(--color-neutral-200);
+            display: flex;
+            flex-direction: column;
+            background: var(--color-neutral-50);
+        }
+        .partner-picker-col-title {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-secondary);
+            border-bottom: 1px solid var(--color-neutral-200);
+            background: var(--color-neutral-100);
+        }
+        .partner-picker-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+        }
+        .partner-picker-nav-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            margin-bottom: 2px;
+        }
+        .partner-picker-nav-item:hover {
+            background: #fff;
+            color: var(--color-text-primary);
+        }
+        .partner-picker-nav-item.active {
+            background: rgba(44, 131, 235, 0.12);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .partner-picker-table-wrap {
+            flex: 1;
+            overflow: auto;
+            padding: var(--spacing-sm);
+        }
+        .partner-picker-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .partner-picker-table th, .partner-picker-table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+        .partner-picker-table th {
+            background: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .partner-picker-table .text-right { text-align: right; }
+        .partner-picker-table tbody tr { cursor: pointer; }
+        .partner-picker-table tbody tr:hover { background: var(--color-neutral-50); }
+        .partner-picker-table tbody tr.partner-picker-row-selected {
+            background: rgba(44, 131, 235, 0.1);
+            outline: 1px solid var(--color-primary);
+        }
+        .partner-field-wrap input[readonly] { cursor: pointer; background: #fff; }
     </style>
 </head>
 <body>
@@ -295,7 +399,11 @@
                     </div>
                     <div class="form-group">
                         <label class="required">往来单位</label>
-                        <input type="text" id="planPartnerInput" placeholder="供应商名称">
+                        <div class="partner-field-wrap" style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" id="planPartnerDisplay" readonly placeholder="请选择往来单位" style="flex:1;">
+                            <input type="hidden" id="planPartnerInput" value="">
+                            <button type="button" class="btn btn-outline" id="planPartnerBrowseBtn">选择</button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>项目</label>
@@ -390,6 +498,52 @@
         </div>
     </div>
 
+    <!-- 选择往来单位 -->
+    <div class="partner-picker-overlay" id="planPartnerPickerOverlay">
+        <div class="partner-picker-modal">
+            <div class="partner-picker-head">
+                <h3>选择往来单位</h3>
+                <button type="button" class="btn btn-outline" id="planPartnerPickerClose">× 关闭</button>
+            </div>
+            <div class="partner-picker-body">
+                <aside class="partner-picker-col">
+                    <div class="partner-picker-col-title">身份标签</div>
+                    <div class="partner-picker-nav" id="planPartnerIdentityNav">
+                        <div class="partner-picker-nav-item active" data-identity="all">全部</div>
+                        <div class="partner-picker-nav-item" data-identity="both">客户\供应商</div>
+                        <div class="partner-picker-nav-item" data-identity="customer">客户</div>
+                        <div class="partner-picker-nav-item" data-identity="supplier">供应商</div>
+                    </div>
+                </aside>
+                <aside class="partner-picker-col">
+                    <div class="partner-picker-col-title">分类</div>
+                    <div class="partner-picker-nav" id="planPartnerCategoryNav">
+                        <div class="partner-picker-nav-item active" data-category="all">全部</div>
+                        <div class="partner-picker-nav-item" data-category="personal">个人</div>
+                        <div class="partner-picker-nav-item" data-category="org">单位</div>
+                    </div>
+                </aside>
+                <div class="partner-picker-table-wrap">
+                    <table class="partner-picker-table">
+                        <thead>
+                            <tr>
+                                <th style="width:56px;">序号</th>
+                                <th>名称</th>
+                                <th class="text-right" style="width:110px;">应收余额</th>
+                                <th class="text-right" style="width:110px;">应付余额</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planPartnerPickerTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div style="border-top: 1px solid var(--color-neutral-200); padding: var(--spacing-md) var(--spacing-lg); display:flex; justify-content:flex-end; gap: var(--spacing-sm); flex-shrink:0;">
+                <button type="button" class="btn btn-outline" id="planPartnerPickerCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="planPartnerPickerConfirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 采购计划数据（支持与 localStorage 同步）
         const purchasePlans = [];
@@ -473,7 +627,8 @@
                 document.getElementById('planModalTitle').textContent = '编辑采购计划';
                 document.getElementById('planIdInput').value = plan.id;
                 document.getElementById('planDateInput').value = plan.date;
-                document.getElementById('planPartnerInput').value = plan.partner;
+                document.getElementById('planPartnerInput').value = plan.partner || '';
+                document.getElementById('planPartnerDisplay').value = plan.partner || '';
                 document.getElementById('planProjectInput').value = plan.project || '';
                 document.getElementById('planWarehouseInput').value = plan.warehouse || '总仓';
                 document.getElementById('planStaffInput').value = plan.staff || '';
@@ -489,6 +644,7 @@
                 document.getElementById('planIdInput').value = '';
                 document.getElementById('planDateInput').value = today;
                 document.getElementById('planPartnerInput').value = '';
+                document.getElementById('planPartnerDisplay').value = '';
                 document.getElementById('planProjectInput').value = '';
                 document.getElementById('planWarehouseInput').value = '总仓';
                 document.getElementById('planStaffInput').value = '';
@@ -505,6 +661,144 @@
         function closePlanModal() {
             planModalOverlay.classList.remove('show');
         }
+
+        // 往来单位选择器
+        const planPartnerPickerOverlay = document.getElementById('planPartnerPickerOverlay');
+        const planPartnerPickerTableBody = document.getElementById('planPartnerPickerTableBody');
+        const planPartnerIdentityNav = document.getElementById('planPartnerIdentityNav');
+        const planPartnerCategoryNav = document.getElementById('planPartnerCategoryNav');
+        const planPartnerPickerData = [
+            { id: 'p1', name: '雅安本地供应商A', identity: 'supplier', category: 'org', receivable: 1200.5, payable: 3500 },
+            { id: 'p2', name: '成都批发商B', identity: 'supplier', category: 'org', receivable: 800, payable: 12000 },
+            { id: 'p3', name: '雅安本地供应商C', identity: 'supplier', category: 'org', receivable: 0, payable: 2800 },
+            { id: 'p4', name: '茶叶供应商D', identity: 'supplier', category: 'org', receivable: 200, payable: 5600 },
+            { id: 'p5', name: '天蓝商行', identity: 'both', category: 'org', receivable: 3000, payable: 1500 },
+            { id: 'p6', name: '张三', identity: 'customer', category: 'personal', receivable: 200, payable: 0 },
+            { id: 'p7', name: '李四', identity: 'customer', category: 'personal', receivable: 500, payable: 0 },
+            { id: 'p8', name: 'XX有限公司', identity: 'customer', category: 'org', receivable: 10000, payable: 0 }
+        ];
+        let planPartnerPickerCurrentIdentity = 'all';
+        let planPartnerPickerCurrentCategory = 'all';
+        let planPartnerPickerFiltered = [];
+        let planPartnerPickerSelectedIndex = -1;
+
+        function getPlanFilteredPartners() {
+            return planPartnerPickerData.filter(function (p) {
+                var id = planPartnerPickerCurrentIdentity;
+                var cat = planPartnerPickerCurrentCategory;
+                if (id !== 'all') {
+                    if (id === 'both' && p.identity !== 'both') return false;
+                    if (id === 'customer' && p.identity !== 'customer' && p.identity !== 'both') return false;
+                    if (id === 'supplier' && p.identity !== 'supplier' && p.identity !== 'both') return false;
+                }
+                if (cat !== 'all') {
+                    if (cat === 'personal' && p.category !== 'personal') return false;
+                    if (cat === 'org' && p.category !== 'org') return false;
+                }
+                return true;
+            });
+        }
+        function renderPlanPartnerPickerTable() {
+            planPartnerPickerFiltered = getPlanFilteredPartners();
+            planPartnerPickerSelectedIndex = -1;
+            if (!planPartnerPickerTableBody) return;
+            planPartnerPickerTableBody.innerHTML = '';
+            planPartnerPickerFiltered.forEach(function (p, idx) {
+                var tr = document.createElement('tr');
+                tr.className = 'partner-picker-row';
+                tr.dataset.index = String(idx);
+                tr.innerHTML =
+                    '<td>' + (idx + 1) + '</td>' +
+                    '<td>' + (p.name || '') + '</td>' +
+                    '<td class="text-right">¥' + (Number(p.receivable) || 0).toFixed(2) + '</td>' +
+                    '<td class="text-right">¥' + (Number(p.payable) || 0).toFixed(2) + '</td>';
+                planPartnerPickerTableBody.appendChild(tr);
+            });
+        }
+        function openPlanPartnerPicker() {
+            planPartnerPickerCurrentIdentity = 'all';
+            planPartnerPickerCurrentCategory = 'all';
+            if (planPartnerIdentityNav) {
+                planPartnerIdentityNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.identity === 'all');
+                });
+            }
+            if (planPartnerCategoryNav) {
+                planPartnerCategoryNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === 'all');
+                });
+            }
+            renderPlanPartnerPickerTable();
+            if (planPartnerPickerOverlay) planPartnerPickerOverlay.classList.add('show');
+        }
+        function closePlanPartnerPicker() {
+            planPartnerPickerSelectedIndex = -1;
+            if (planPartnerPickerOverlay) planPartnerPickerOverlay.classList.remove('show');
+        }
+        function applyPlanPartnerPickerSelection() {
+            if (planPartnerPickerSelectedIndex < 0 || planPartnerPickerSelectedIndex >= planPartnerPickerFiltered.length) {
+                alert('请先选择一行往来单位');
+                return;
+            }
+            var p = planPartnerPickerFiltered[planPartnerPickerSelectedIndex];
+            var hidden = document.getElementById('planPartnerInput');
+            var display = document.getElementById('planPartnerDisplay');
+            if (hidden) hidden.value = p.name || '';
+            if (display) display.value = p.name || '';
+            closePlanPartnerPicker();
+        }
+        if (planPartnerPickerOverlay) {
+            document.getElementById('planPartnerPickerClose').addEventListener('click', closePlanPartnerPicker);
+            planPartnerPickerOverlay.addEventListener('click', function (e) {
+                if (e.target === planPartnerPickerOverlay) closePlanPartnerPicker();
+            });
+            document.getElementById('planPartnerPickerCancelBtn').addEventListener('click', closePlanPartnerPicker);
+            document.getElementById('planPartnerPickerConfirmBtn').addEventListener('click', applyPlanPartnerPickerSelection);
+        }
+        if (planPartnerIdentityNav) {
+            planPartnerIdentityNav.addEventListener('click', function (e) {
+                var item = e.target.closest('.partner-picker-nav-item');
+                if (!item) return;
+                planPartnerPickerCurrentIdentity = item.dataset.identity || 'all';
+                planPartnerIdentityNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.identity === planPartnerPickerCurrentIdentity);
+                });
+                renderPlanPartnerPickerTable();
+            });
+        }
+        if (planPartnerCategoryNav) {
+            planPartnerCategoryNav.addEventListener('click', function (e) {
+                var item = e.target.closest('.partner-picker-nav-item');
+                if (!item) return;
+                planPartnerPickerCurrentCategory = item.dataset.category || 'all';
+                planPartnerCategoryNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === planPartnerPickerCurrentCategory);
+                });
+                renderPlanPartnerPickerTable();
+            });
+        }
+        if (planPartnerPickerTableBody) {
+            planPartnerPickerTableBody.addEventListener('click', function (e) {
+                var tr = e.target.closest('.partner-picker-row');
+                if (!tr) return;
+                var idx = parseInt(tr.dataset.index, 10);
+                if (Number.isNaN(idx)) return;
+                planPartnerPickerSelectedIndex = idx;
+                planPartnerPickerTableBody.querySelectorAll('.partner-picker-row').forEach(function (row) {
+                    row.classList.toggle('partner-picker-row-selected', row === tr);
+                });
+            });
+            planPartnerPickerTableBody.addEventListener('dblclick', function (e) {
+                var tr = e.target.closest('.partner-picker-row');
+                if (!tr) return;
+                var idx = parseInt(tr.dataset.index, 10);
+                if (Number.isNaN(idx)) return;
+                planPartnerPickerSelectedIndex = idx;
+                applyPlanPartnerPickerSelection();
+            });
+        }
+        document.getElementById('planPartnerBrowseBtn').addEventListener('click', openPlanPartnerPicker);
+        document.getElementById('planPartnerDisplay').addEventListener('click', openPlanPartnerPicker);
 
         function addPlanDetailRow(item) {
             const tr = document.createElement('tr');

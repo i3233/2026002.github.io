@@ -33,24 +33,74 @@
         }
 
         .toolbar-left {
-            flex: 1.6;
+            flex: 0 0 auto;
             flex-wrap: wrap;
         }
 
         .toolbar-center {
             flex: 1;
             justify-content: center;
+            min-width: 0;
         }
 
         .toolbar-right {
-            flex: 1;
+            flex: 0 0 auto;
             justify-content: flex-end;
             flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        /* 与「商品列表」页商品状态 Tab 一致（.tabs-nav + .tabs-nav-inline + .tab-nav-item） */
+        .toolbar-center .tabs-nav.tabs-nav-inline {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .toolbar-center .tab-nav-item {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            position: relative;
+            white-space: nowrap;
+        }
+        .toolbar-center .tab-nav-item:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+        .toolbar-center .tab-nav-item.active {
+            color: var(--color-primary);
+            background-color: rgba(44, 131, 235, 0.1);
+            font-weight: var(--font-weight-medium);
+        }
+        .toolbar-center .tab-nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: var(--color-primary);
+            border-radius: var(--radius-full);
         }
 
         .toolbar-search-input {
-            flex: 1;
-            min-width: 180px;
+            width: 280px;
+            max-width: 42vw;
+            min-width: 160px;
+            flex: 0 1 auto;
             padding: var(--spacing-sm) var(--spacing-md);
             border-radius: var(--radius-md);
             border: 1px solid var(--color-neutral-300);
@@ -523,6 +573,118 @@
             margin-top: 2px;
         }
 
+        /* 往来单位选择器：身份标签 + 分类 + 单位列表 */
+        .partner-picker-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1080;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .partner-picker-overlay.show { display: flex; }
+        .partner-picker-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 92%;
+            max-width: 920px;
+            max-height: 78vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .partner-picker-head {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .partner-picker-head h3 { margin: 0; font-size: var(--font-size-lg); }
+        .partner-picker-body {
+            display: flex;
+            flex: 1;
+            min-height: 340px;
+            overflow: hidden;
+        }
+        .partner-picker-col {
+            flex-shrink: 0;
+            width: 128px;
+            border-right: 1px solid var(--color-neutral-200);
+            display: flex;
+            flex-direction: column;
+            background: var(--color-neutral-50);
+        }
+        .partner-picker-col-title {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-secondary);
+            border-bottom: 1px solid var(--color-neutral-200);
+            background: var(--color-neutral-100);
+        }
+        .partner-picker-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+        }
+        .partner-picker-nav-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            margin-bottom: 2px;
+        }
+        .partner-picker-nav-item:hover {
+            background: #fff;
+            color: var(--color-text-primary);
+        }
+        .partner-picker-nav-item.active {
+            background: rgba(44, 131, 235, 0.12);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .partner-picker-table-wrap {
+            flex: 1;
+            overflow: auto;
+            padding: var(--spacing-sm);
+        }
+        .partner-picker-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .partner-picker-table th, .partner-picker-table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-neutral-200);
+            text-align: left;
+        }
+        .partner-picker-table th {
+            background: var(--color-neutral-50);
+            font-weight: var(--font-weight-medium);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .partner-picker-table .text-right { text-align: right; }
+        .partner-picker-table tbody tr {
+            cursor: pointer;
+        }
+        .partner-picker-table tbody tr:hover {
+            background: var(--color-neutral-50);
+        }
+        .partner-picker-table tbody tr.partner-picker-row-selected {
+            background: rgba(44, 131, 235, 0.1);
+            outline: 1px solid var(--color-primary);
+        }
+        .partner-field-wrap input[readonly] {
+            cursor: pointer;
+            background: #fff;
+        }
+
         /* 通用弹窗（汇总/详情/更多搜索/属性） */
         .modal-overlay {
             position: fixed;
@@ -622,9 +784,11 @@
             }
 
             .toolbar-left,
-            .toolbar-center,
-            .toolbar-right {
+            .toolbar-center {
                 justify-content: flex-start;
+            }
+            .toolbar-right {
+                justify-content: flex-end;
             }
 
             .page-header {
@@ -642,14 +806,6 @@
 </head>
 <body>
     <div class="purchase-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">采购计划</h1>
-                <div class="page-subtitle">用于管理和追踪进货/采购计划的列表页面。</div>
-            </div>
-        </div>
-
         <!-- 顶部工具栏（仅保留新增） -->
         <div class="toolbar-card">
             <div class="toolbar-left">
@@ -661,10 +817,16 @@
                 </button>
             </div>
             <div class="toolbar-center">
+                <div class="tabs-nav tabs-nav-inline" id="statusFilterGroup" role="group" aria-label="订单状态筛选">
+                    <button type="button" class="tab-nav-item" data-status="待提交">待提交</button>
+                    <button type="button" class="tab-nav-item" data-status="审核中">审核中</button>
+                    <button type="button" class="tab-nav-item" data-status="待入库">待入库</button>
+                </div>
+            </div>
+            <div class="toolbar-right">
                 <input type="text" class="toolbar-search-input" id="quickSearchInput" placeholder="快捷搜索：支持按单号、往来单位等关键字">
                 <button class="btn btn-primary" id="quickSearchBtn">搜索</button>
             </div>
-            <div class="toolbar-right"></div>
         </div>
 
         <!-- 统计卡片 -->
@@ -784,14 +946,11 @@
                         </div>
                         <div class="form-group">
                             <label class="required">往来单位</label>
-                            <select id="poPartner">
-                                <option value="">请选择</option>
-                                <option value="雅安本地供应商A">雅安本地供应商A</option>
-                                <option value="成都批发商B">成都批发商B</option>
-                                <option value="雅安本地供应商C">雅安本地供应商C</option>
-                                <option value="茶叶供应商D">茶叶供应商D</option>
-                                <option value="天蓝商行">天蓝商行</option>
-                            </select>
+                            <div class="partner-field-wrap" style="display:flex;gap:8px;align-items:center;">
+                                <input type="text" id="poPartnerDisplay" readonly placeholder="请选择往来单位" style="flex:1;">
+                                <input type="hidden" id="poPartner" value="">
+                                <button type="button" class="btn btn-outline" id="poPartnerBrowseBtn">选择</button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>项目</label>
@@ -889,6 +1048,52 @@
                 <div class="modal-foot" style="border-top: 1px solid var(--color-neutral-200); padding: var(--spacing-sm) var(--spacing-md); display:flex; justify-content:flex-end; gap: var(--spacing-sm);">
                     <button type="button" class="btn btn-outline" id="productPickerCancelBtn">取消</button>
                     <button type="button" class="btn btn-primary" id="productPickerConfirmBtn">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 选择往来单位（三列：身份标签、分类、单位列表） -->
+        <div class="partner-picker-overlay" id="partnerPickerOverlay">
+            <div class="partner-picker-modal">
+                <div class="partner-picker-head">
+                    <h3>选择往来单位</h3>
+                    <button type="button" class="btn btn-outline" id="partnerPickerClose">× 关闭</button>
+                </div>
+                <div class="partner-picker-body">
+                    <aside class="partner-picker-col">
+                        <div class="partner-picker-col-title">身份标签</div>
+                        <div class="partner-picker-nav" id="partnerIdentityNav">
+                            <div class="partner-picker-nav-item active" data-identity="all">全部</div>
+                            <div class="partner-picker-nav-item" data-identity="both">客户\供应商</div>
+                            <div class="partner-picker-nav-item" data-identity="customer">客户</div>
+                            <div class="partner-picker-nav-item" data-identity="supplier">供应商</div>
+                        </div>
+                    </aside>
+                    <aside class="partner-picker-col">
+                        <div class="partner-picker-col-title">分类</div>
+                        <div class="partner-picker-nav" id="partnerCategoryNav">
+                            <div class="partner-picker-nav-item active" data-category="all">全部</div>
+                            <div class="partner-picker-nav-item" data-category="personal">个人</div>
+                            <div class="partner-picker-nav-item" data-category="org">单位</div>
+                        </div>
+                    </aside>
+                    <div class="partner-picker-table-wrap">
+                        <table class="partner-picker-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:56px;">序号</th>
+                                    <th>名称</th>
+                                    <th class="text-right" style="width:110px;">应收余额</th>
+                                    <th class="text-right" style="width:110px;">应付余额</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partnerPickerTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-foot" style="border-top: 1px solid var(--color-neutral-200); padding: var(--spacing-sm) var(--spacing-md); display:flex; justify-content:flex-end; gap: var(--spacing-sm);">
+                    <button type="button" class="btn btn-outline" id="partnerPickerCancelBtn">取消</button>
+                    <button type="button" class="btn btn-primary" id="partnerPickerConfirmBtn">确定</button>
                 </div>
             </div>
         </div>
@@ -1013,7 +1218,7 @@
         <div class="action-menu" id="actionMenu">
             <div class="action-menu-item" data-action="view">查看详情</div>
             <div class="action-menu-item" data-action="edit">编辑</div>
-            <div class="action-menu-item" data-action="audit">审核</div>
+            <div class="action-menu-item" data-action="audit">提交审核</div>
             <div class="action-menu-item" data-action="print">打印进货单</div>
             <div class="action-menu-item" data-action="storage">去入库</div>
             <div class="action-menu-item danger" data-action="delete">删除</div>
@@ -1089,6 +1294,8 @@
         let sortColumn = null;
         let sortDirection = 'asc';
         let viewMode = 'list'; // list | detail（当前仅用于切换按钮状态）
+        /** 顶部状态筛选：'' 表示不过滤 */
+        let listStatusFilter = '';
 
         // 明细数据（用于详情/导出详情/打印进货单）
         const purchaseDetailsMap = {
@@ -1228,22 +1435,41 @@
             });
         });
 
+        function matchesQuickKeyword(p, kw) {
+            if (!kw) return true;
+            return (
+                (p.id || '').toLowerCase().includes(kw) ||
+                (p.partner || '').toLowerCase().includes(kw) ||
+                (p.project || '').toLowerCase().includes(kw) ||
+                (p.staff || '').toLowerCase().includes(kw)
+            );
+        }
+
+        function applyCurrentSort() {
+            if (!sortColumn || sortColumn !== 'date') return;
+            filteredPurchases.sort((a, b) => {
+                if (sortDirection === 'asc') {
+                    return a.date > b.date ? 1 : -1;
+                }
+                return a.date < b.date ? 1 : -1;
+            });
+        }
+
+        /** 按状态筛选 + 快捷搜索关键字重建列表，并保留当前排序 */
+        function applyListFilters() {
+            const kw = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            let list = purchases.filter(function (p) {
+                if (listStatusFilter && p.status !== listStatusFilter) return false;
+                return matchesQuickKeyword(p, kw);
+            });
+            filteredPurchases = list;
+            applyCurrentSort();
+            renderTable();
+        }
+
         // 快捷搜索（仅前端模糊过滤示意）
         function doQuickSearch() {
-            const kw = document.getElementById('quickSearchInput').value.trim().toLowerCase();
-            if (!kw) {
-                filteredPurchases = [...purchases];
-            } else {
-                filteredPurchases = purchases.filter(p => {
-                    return (
-                        p.id.toLowerCase().includes(kw) ||
-                        p.partner.toLowerCase().includes(kw) ||
-                        p.project.toLowerCase().includes(kw) ||
-                        p.staff.toLowerCase().includes(kw)
-                    );
-                });
-            }
-            renderTable();
+            applyListFilters();
         }
 
         document.getElementById('quickSearchBtn').addEventListener('click', doQuickSearch);
@@ -1252,6 +1478,25 @@
                 doQuickSearch();
             }
         });
+
+        (function initStatusFilterButtons() {
+            var group = document.getElementById('statusFilterGroup');
+            if (!group) return;
+            group.addEventListener('click', function (e) {
+                var btn = e.target.closest('.tab-nav-item');
+                if (!btn) return;
+                var st = btn.dataset.status || '';
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    listStatusFilter = '';
+                } else {
+                    group.querySelectorAll('.tab-nav-item').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    listStatusFilter = st;
+                }
+                applyListFilters();
+            });
+        })();
 
         // 全选 / 反选
         const selectAll = document.getElementById('selectAll');
@@ -1329,8 +1574,7 @@
                 p.payable = Math.max(0, (Number(p.payable) || 0) - allocated);
                 if (p.payable === 0 && (p.status === '审核中' || p.status === '待入库')) p.status = '待入库';
             });
-            filteredPurchases = [...purchases];
-            renderTable();
+            applyListFilters();
             alert(`财务处理完成：本次付款 ¥${actualPay.toFixed(2)}（按比例分摊）。`);
         });
 
@@ -1348,8 +1592,7 @@
                 if (idx > -1) purchases.splice(idx, 1);
                 delete purchaseDetailsMap[id];
             });
-            filteredPurchases = [...purchases];
-            renderTable();
+            applyListFilters();
             alert('已删除 ' + ids.length + ' 条记录。');
         });
 
@@ -1502,6 +1745,23 @@
             const rect = anchorEl.getBoundingClientRect();
             actionMenu.style.left = rect.left + 'px';
             actionMenu.style.top = (rect.bottom + 6) + 'px';
+            var rowItem = menuId ? purchases.find(function (p) { return p.id === menuId; }) : null;
+            var isAuditing = rowItem && rowItem.status === '审核中';
+            var isPendingSubmit = rowItem && rowItem.status === '待提交';
+            var isPendingWarehouse = rowItem && rowItem.status === '待入库';
+            ['view', 'edit', 'audit', 'print', 'storage', 'delete'].forEach(function (action) {
+                var el = actionMenu.querySelector('.action-menu-item[data-action="' + action + '"]');
+                if (!el) return;
+                var hide = false;
+                if (action === 'edit' || action === 'audit') {
+                    hide = isAuditing || isPendingWarehouse;
+                } else if (action === 'storage') {
+                    hide = isAuditing || isPendingSubmit;
+                } else if (action === 'delete') {
+                    hide = isAuditing;
+                }
+                el.style.display = hide ? 'none' : '';
+            });
             actionMenu.classList.add('show');
         }
         function hideActionMenu() {
@@ -1526,7 +1786,7 @@
             if (choice === '1') item.status = '待入库';
             if (choice === '2') item.status = '待提交';
             if (choice === '3') item.status = '已关闭';
-            renderTable();
+            applyListFilters();
         }
         function deleteOrders(ids) {
             if (!ids.length) return;
@@ -1536,8 +1796,7 @@
                 if (idx > -1) purchases.splice(idx, 1);
                 delete purchaseDetailsMap[id];
             });
-            filteredPurchases = [...purchases];
-            renderTable();
+            applyListFilters();
         }
         function printVouchers(ids) {
             const list = purchases.filter(p => ids.includes(p.id));
@@ -1645,6 +1904,14 @@
                 if (status && p.status !== status) return false;
                 return true;
             });
+            if (listStatusFilter) {
+                filteredPurchases = filteredPurchases.filter(function (p) { return p.status === listStatusFilter; });
+            }
+            const kwMore = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            if (kwMore) {
+                filteredPurchases = filteredPurchases.filter(function (p) { return matchesQuickKeyword(p, kwMore); });
+            }
+            applyCurrentSort();
             renderTable();
             closeMoreSearch();
         });
@@ -1795,8 +2062,7 @@
                         });
                         added++;
                     }
-                    filteredPurchases = [...purchases];
-                    renderTable();
+                    applyListFilters();
                     alert(`导入完成：新增 ${added} 条。`);
                 } catch (err) {
                     console.error(err);
@@ -1898,6 +2164,8 @@
             document.getElementById('poOrderId').value = '';
             document.getElementById('poDate').value = today;
             document.getElementById('poPartner').value = '';
+            const poPartnerDisplay = document.getElementById('poPartnerDisplay');
+            if (poPartnerDisplay) poPartnerDisplay.value = '';
             document.getElementById('poProject').value = '';
             document.getElementById('poStaff').value = '';
             document.getElementById('poRemark').value = '';
@@ -1912,6 +2180,147 @@
         function closePurchaseOrderModal() {
             purchaseOrderModal.classList.remove('show');
         }
+
+        // ---------- 往来单位选择器（三列） ----------
+        const partnerPickerOverlay = document.getElementById('partnerPickerOverlay');
+        const partnerPickerTableBody = document.getElementById('partnerPickerTableBody');
+        const partnerIdentityNav = document.getElementById('partnerIdentityNav');
+        const partnerCategoryNav = document.getElementById('partnerCategoryNav');
+        const partnerPickerData = [
+            { id: 'p1', name: '雅安本地供应商A', identity: 'supplier', category: 'org', receivable: 1200.5, payable: 3500 },
+            { id: 'p2', name: '成都批发商B', identity: 'supplier', category: 'org', receivable: 800, payable: 12000 },
+            { id: 'p3', name: '雅安本地供应商C', identity: 'supplier', category: 'org', receivable: 0, payable: 2800 },
+            { id: 'p4', name: '茶叶供应商D', identity: 'supplier', category: 'org', receivable: 200, payable: 5600 },
+            { id: 'p5', name: '天蓝商行', identity: 'both', category: 'org', receivable: 3000, payable: 1500 },
+            { id: 'p6', name: '张三', identity: 'customer', category: 'personal', receivable: 200, payable: 0 },
+            { id: 'p7', name: '李四', identity: 'customer', category: 'personal', receivable: 500, payable: 0 },
+            { id: 'p8', name: 'XX有限公司', identity: 'customer', category: 'org', receivable: 10000, payable: 0 }
+        ];
+        let partnerPickerCurrentIdentity = 'all';
+        let partnerPickerCurrentCategory = 'all';
+        let partnerPickerFiltered = [];
+        let partnerPickerSelectedIndex = -1;
+
+        function getFilteredPartners() {
+            return partnerPickerData.filter(function (p) {
+                var id = partnerPickerCurrentIdentity;
+                var cat = partnerPickerCurrentCategory;
+                if (id !== 'all') {
+                    if (id === 'both' && p.identity !== 'both') return false;
+                    if (id === 'customer' && p.identity !== 'customer' && p.identity !== 'both') return false;
+                    if (id === 'supplier' && p.identity !== 'supplier' && p.identity !== 'both') return false;
+                }
+                if (cat !== 'all') {
+                    if (cat === 'personal' && p.category !== 'personal') return false;
+                    if (cat === 'org' && p.category !== 'org') return false;
+                }
+                return true;
+            });
+        }
+        function renderPartnerPickerTable() {
+            partnerPickerFiltered = getFilteredPartners();
+            partnerPickerSelectedIndex = -1;
+            if (!partnerPickerTableBody) return;
+            partnerPickerTableBody.innerHTML = '';
+            partnerPickerFiltered.forEach(function (p, idx) {
+                var tr = document.createElement('tr');
+                tr.className = 'partner-picker-row';
+                tr.dataset.index = String(idx);
+                tr.innerHTML =
+                    '<td>' + (idx + 1) + '</td>' +
+                    '<td>' + (p.name || '') + '</td>' +
+                    '<td class="text-right">¥' + (Number(p.receivable) || 0).toFixed(2) + '</td>' +
+                    '<td class="text-right">¥' + (Number(p.payable) || 0).toFixed(2) + '</td>';
+                partnerPickerTableBody.appendChild(tr);
+            });
+        }
+        function openPartnerPicker() {
+            partnerPickerCurrentIdentity = 'all';
+            partnerPickerCurrentCategory = 'all';
+            if (partnerIdentityNav) {
+                partnerIdentityNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.identity === 'all');
+                });
+            }
+            if (partnerCategoryNav) {
+                partnerCategoryNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === 'all');
+                });
+            }
+            renderPartnerPickerTable();
+            if (partnerPickerOverlay) partnerPickerOverlay.classList.add('show');
+        }
+        function closePartnerPicker() {
+            partnerPickerSelectedIndex = -1;
+            if (partnerPickerOverlay) partnerPickerOverlay.classList.remove('show');
+        }
+        function applyPartnerPickerSelection() {
+            if (partnerPickerSelectedIndex < 0 || partnerPickerSelectedIndex >= partnerPickerFiltered.length) {
+                alert('请先选择一行往来单位');
+                return;
+            }
+            var p = partnerPickerFiltered[partnerPickerSelectedIndex];
+            var hidden = document.getElementById('poPartner');
+            var display = document.getElementById('poPartnerDisplay');
+            if (hidden) hidden.value = p.name || '';
+            if (display) display.value = p.name || '';
+            closePartnerPicker();
+        }
+        if (partnerPickerOverlay) {
+            document.getElementById('partnerPickerClose').addEventListener('click', closePartnerPicker);
+            partnerPickerOverlay.addEventListener('click', function (e) {
+                if (e.target === partnerPickerOverlay) closePartnerPicker();
+            });
+            var partnerPickerCancelBtn = document.getElementById('partnerPickerCancelBtn');
+            if (partnerPickerCancelBtn) partnerPickerCancelBtn.addEventListener('click', closePartnerPicker);
+            document.getElementById('partnerPickerConfirmBtn').addEventListener('click', applyPartnerPickerSelection);
+        }
+        if (partnerIdentityNav) {
+            partnerIdentityNav.addEventListener('click', function (e) {
+                var item = e.target.closest('.partner-picker-nav-item');
+                if (!item) return;
+                partnerPickerCurrentIdentity = item.dataset.identity || 'all';
+                partnerIdentityNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.identity === partnerPickerCurrentIdentity);
+                });
+                renderPartnerPickerTable();
+            });
+        }
+        if (partnerCategoryNav) {
+            partnerCategoryNav.addEventListener('click', function (e) {
+                var item = e.target.closest('.partner-picker-nav-item');
+                if (!item) return;
+                partnerPickerCurrentCategory = item.dataset.category || 'all';
+                partnerCategoryNav.querySelectorAll('.partner-picker-nav-item').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.category === partnerPickerCurrentCategory);
+                });
+                renderPartnerPickerTable();
+            });
+        }
+        if (partnerPickerTableBody) {
+            partnerPickerTableBody.addEventListener('click', function (e) {
+                var tr = e.target.closest('.partner-picker-row');
+                if (!tr) return;
+                var idx = parseInt(tr.dataset.index, 10);
+                if (Number.isNaN(idx)) return;
+                partnerPickerSelectedIndex = idx;
+                partnerPickerTableBody.querySelectorAll('.partner-picker-row').forEach(function (row) {
+                    row.classList.toggle('partner-picker-row-selected', row === tr);
+                });
+            });
+            partnerPickerTableBody.addEventListener('dblclick', function (e) {
+                var tr = e.target.closest('.partner-picker-row');
+                if (!tr) return;
+                var idx = parseInt(tr.dataset.index, 10);
+                if (Number.isNaN(idx)) return;
+                partnerPickerSelectedIndex = idx;
+                applyPartnerPickerSelection();
+            });
+        }
+        var poPartnerBrowseBtn = document.getElementById('poPartnerBrowseBtn');
+        var poPartnerDisplayEl = document.getElementById('poPartnerDisplay');
+        if (poPartnerBrowseBtn) poPartnerBrowseBtn.addEventListener('click', openPartnerPicker);
+        if (poPartnerDisplayEl) poPartnerDisplayEl.addEventListener('click', openPartnerPicker);
 
         // ---------- 商品选择器 ----------
         function renderProductPickerList() {
@@ -2147,8 +2556,7 @@
                 recordTime: recordTime
             });
             purchaseDetailsMap[newId] = rows;
-            filteredPurchases = [...purchases];
-            renderTable();
+            applyListFilters();
             closePurchaseOrderModal();
             alert(submitAudit ? '已提交审核' : '已存为草稿');
         }
@@ -2161,8 +2569,7 @@
 
         // 初始化渲染：先合并来自“采购计划”的订单，再渲染
         loadPurchasesFromPlan();
-        filteredPurchases = [...purchases];
-        renderTable();
+        applyListFilters();
 
         // 顶部快捷入口：打开“采购计划”页面
         (function initPlanEntry() {

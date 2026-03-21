@@ -7,9 +7,8 @@
     <link rel="stylesheet" href="../../css/Main.css">
     <style>
         .performance-detail-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-        .page-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; }
         .filter-section { padding: var(--spacing-lg); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); margin-bottom: var(--spacing-lg); display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--spacing-md); }
+        .filter-export-wrap { margin-left: auto; }
         .filter-item { display: flex; align-items: center; gap: var(--spacing-sm); }
         .filter-item label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); white-space: nowrap; }
         .filter-item select, .filter-item input { padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300); border-radius: var(--radius-md); font-size: var(--font-size-base); min-width: 120px; }
@@ -49,11 +48,6 @@
 </head>
 <body>
     <div class="performance-detail-page">
-        <div class="page-header">
-            <h1 class="page-title">业绩明细</h1>
-            <button type="button" class="btn btn-primary" id="exportReportBtn">导出报表</button>
-        </div>
-
         <div class="filter-section">
             <div class="filter-item">
                 <label>所属门店/自提点</label>
@@ -72,17 +66,17 @@
                     <input type="date" id="dateEnd" title="结束日期">
                 </div>
             </div>
-            <div class="filter-item" id="filterCashierWrap">
-                <label>收银员</label>
-                <input type="text" id="filterCashier" placeholder="请输入收银员">
+            <div class="filter-item">
+                <label>人员</label>
+                <input type="text" id="filterPerson" placeholder="姓名或工号（随下方维度筛选）">
             </div>
-            <div class="filter-item" id="filterSalespersonWrap">
-                <label>导购员</label>
-                <input type="text" id="filterSalesperson" placeholder="请输入导购员">
-            </div>
-            <div class="filter-item" id="filterWaiterWrap">
-                <label>服务员</label>
-                <input type="text" id="filterWaiter" placeholder="请输入服务员">
+            <div class="filter-item">
+                <label>状态</label>
+                <select id="filterStatus">
+                    <option value="">全部</option>
+                    <option value="已完成">已完成</option>
+                    <option value="待核算">待核算</option>
+                </select>
             </div>
             <div class="filter-item">
                 <label>类型</label>
@@ -101,6 +95,9 @@
                     <option value="微信">微信</option>
                     <option value="支付宝">支付宝</option>
                 </select>
+            </div>
+            <div class="filter-item filter-export-wrap">
+                <button type="button" class="btn btn-primary" id="exportReportBtn">导出报表</button>
             </div>
         </div>
 
@@ -158,9 +155,9 @@
         let currentPage = 1;
         let pageSize = 10;
         var TAB_CONFIG = {
-            cashier: { roleLabel: '收银员', roleKey: 'cashier', commissionKey: 'cashierCommission', filterId: 'filterCashier' },
-            salesperson: { roleLabel: '导购员', roleKey: 'salesperson', commissionKey: 'salespersonCommission', filterId: 'filterSalesperson' },
-            waiter: { roleLabel: '服务员', roleKey: 'waiter', commissionKey: 'waiterCommission', filterId: 'filterWaiter' }
+            cashier: { roleLabel: '收银员', roleKey: 'cashier', commissionKey: 'cashierCommission', filterId: 'filterPerson' },
+            salesperson: { roleLabel: '导购员', roleKey: 'salesperson', commissionKey: 'salespersonCommission', filterId: 'filterPerson' },
+            waiter: { roleLabel: '服务员', roleKey: 'waiter', commissionKey: 'waiterCommission', filterId: 'filterPerson' }
         };
 
         function getFilteredList() {
@@ -170,12 +167,14 @@
             var dateEnd = document.getElementById('dateEnd').value;
             var type = document.getElementById('filterType').value;
             var payment = document.getElementById('filterPayment').value;
+            var statusSel = document.getElementById('filterStatus') && document.getElementById('filterStatus').value;
             var cfg = TAB_CONFIG[currentTab];
             var roleKeyword = (document.getElementById(cfg.filterId).value || '').trim().toLowerCase();
             if (store) data = data.filter(function(r) { return r.storeId === store; });
             if (dateStart) data = data.filter(function(r) { return (r.orderTime || '').slice(0, 10) >= dateStart; });
             if (dateEnd) data = data.filter(function(r) { return (r.orderTime || '').slice(0, 10) <= dateEnd; });
             if (roleKeyword) data = data.filter(function(r) { return ((r[cfg.roleKey] || '') + '').toLowerCase().includes(roleKeyword); });
+            if (statusSel) data = data.filter(function(r) { return (r.status || '') === statusSel; });
             if (type) data = data.filter(function(r) { return r.type === type; });
             if (payment) data = data.filter(function(r) { return r.payment === payment; });
             return data;
@@ -258,9 +257,8 @@
         document.getElementById('filterStore').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('dateStart').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('dateEnd').addEventListener('change', function() { currentPage = 1; render(); });
-        document.getElementById('filterCashier').addEventListener('input', function() { currentPage = 1; render(); });
-        document.getElementById('filterSalesperson').addEventListener('input', function() { currentPage = 1; render(); });
-        document.getElementById('filterWaiter').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterPerson').addEventListener('input', function() { currentPage = 1; render(); });
+        document.getElementById('filterStatus').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('filterType').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('filterPayment').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('exportReportBtn').addEventListener('click', function() {

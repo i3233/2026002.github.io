@@ -53,24 +53,110 @@
         }
 
         .toolbar-left {
-            flex: 1.6;
+            flex: 0 0 auto;
             flex-wrap: wrap;
         }
 
         .toolbar-center {
             flex: 1;
             justify-content: center;
+            min-width: 0;
         }
 
         .toolbar-right {
-            flex: 1;
+            flex: 0 0 auto;
             justify-content: flex-end;
             flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        /* 订单状态 Tab（与采购退货/商品列表一致） */
+        .toolbar-left .tabs-nav.tabs-nav-inline {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .toolbar-left .tab-nav-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base) var(--ease-in-out);
+            position: relative;
+            white-space: nowrap;
+        }
+        .toolbar-left .tab-nav-item:hover {
+            background-color: var(--color-neutral-100);
+            color: var(--color-text-primary);
+        }
+        .toolbar-left .tab-nav-item.active {
+            color: var(--color-primary);
+            background-color: rgba(44, 131, 235, 0.1);
+            font-weight: var(--font-weight-medium);
+        }
+        .toolbar-left .tab-nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: var(--color-primary);
+            border-radius: var(--radius-full);
+        }
+
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .export-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            min-width: 140px;
+            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-neutral-200);
+            padding: 4px 0;
+            z-index: var(--z-index-dropdown);
+            display: none;
+        }
+        .export-dropdown-menu.show {
+            display: block;
+        }
+        .export-dropdown-item {
+            width: 100%;
+            padding: 8px 14px;
+            border: none;
+            background-color: transparent;
+            text-align: left;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            transition: background-color var(--transition-base) var(--ease-in-out);
+        }
+        .export-dropdown-item:hover {
+            background-color: var(--color-neutral-100);
         }
 
         .toolbar-search-input {
-            flex: 1;
-            min-width: 220px;
+            width: 280px;
+            max-width: 42vw;
+            min-width: 160px;
+            flex: 0 1 auto;
             padding: var(--spacing-sm) var(--spacing-md);
             border-radius: var(--radius-md);
             border: 1px solid var(--color-neutral-300);
@@ -327,7 +413,46 @@
         .order-detail-footer {
             padding: var(--spacing-md) var(--spacing-lg);
             border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            align-items: stretch;
+        }
+        .order-detail-actions-bar {
+            display: none;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            justify-content: flex-start;
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 1px dashed var(--color-neutral-200);
+        }
+        .order-detail-actions-bar.show {
+            display: flex;
+        }
+        .order-detail-footer-confirm {
             text-align: right;
+        }
+        .order-detail-ship-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-neutral-50);
+            border-radius: var(--radius-md);
+        }
+        .delivery-photo-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-xs);
+        }
+        .delivery-photo-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-200);
+            background: var(--color-neutral-50);
         }
 
         .status-pill {
@@ -345,6 +470,20 @@
 
         .status-pill--warning {
             color: #ff8c42;
+        }
+
+        .status-pill--pending {
+            color: #c2410c;
+        }
+
+        .pending-sub-type {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            background: rgba(194, 65, 12, 0.1);
+            color: #9a3412;
+            font-weight: var(--font-weight-medium);
         }
 
         /* 退款流程弹窗 */
@@ -373,6 +512,79 @@
         .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--color-text-secondary); padding: 0 4px; }
         .modal-close:hover { color: var(--color-text-primary); }
         .modal-body { padding: var(--spacing-lg); overflow-y: auto; flex: 1; }
+
+        /* 发货弹窗 */
+        #shipModalOverlay { z-index: 1200; }
+        .ship-modal { max-width: 880px; width: 92vw; }
+        .ship-modal .modal-body { max-height: min(72vh, 640px); }
+        .ship-modal .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            flex-shrink: 0;
+        }
+        .ship-modal-section { margin-bottom: var(--spacing-md); }
+        .ship-modal-section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            color: #fff;
+            background: linear-gradient(90deg, #ff8c42, #ff6b35);
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+        .ship-items-table th,
+        .ship-items-table td { white-space: normal; vertical-align: middle; }
+        .ship-items-table .ship-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            background: var(--color-neutral-100);
+        }
+        .ship-qty-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .ship-qty-input {
+            width: 56px;
+            padding: 4px 6px;
+            font-size: var(--font-size-sm);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-sm);
+        }
+        .ship-qty-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .ship-qty-edit {
+            color: var(--color-primary);
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .ship-qty-edit:hover { opacity: 0.85; }
+        .ship-logistics-row .form-label { margin-bottom: var(--spacing-sm); }
+        .ship-radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md) var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+        .ship-radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .ship-form-required { color: var(--color-error); margin-right: 2px; }
 
         .btn-link {
             color: var(--color-primary);
@@ -487,9 +699,11 @@
             }
 
             .toolbar-left,
-            .toolbar-center,
-            .toolbar-right {
+            .toolbar-center {
                 justify-content: flex-start;
+            }
+            .toolbar-right {
+                justify-content: flex-end;
             }
 
             .page-header {
@@ -509,38 +723,15 @@
     <div class="order-page">
         <!-- 顶部工具栏（右侧内容区不显示“全部订单”标题，线上订单/收银台订单在下方切页切换） -->
         <div class="toolbar-card">
-            <!-- 左侧按钮组：以销售为主（去掉新增订单） -->
             <div class="toolbar-left">
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">↑</span>
-                        <span>导出详情</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">⊕</span>
-                        <span>销售单</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">≡</span>
-                        <span>属性</span>
-                    </span>
-                </button>
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">●</span>
-                        <span>汇总</span>
-                    </span>
-                </button>
+                <div class="tabs-nav tabs-nav-inline" id="orderStatusFilterGroup" role="group" aria-label="订单状态筛选">
+                    <button type="button" class="tab-nav-item" data-status="待付款">待付款</button>
+                    <button type="button" class="tab-nav-item" data-status="待发货">待发货</button>
+                    <button type="button" class="tab-nav-item" data-status="待收货">待收货</button>
+                    <button type="button" class="tab-nav-item" data-status="待评价">待评价</button>
+                    <button type="button" class="tab-nav-item" data-status="待处理">待处理</button>
+                    <button type="button" class="tab-nav-item" data-status="已完成">已完成</button>
+                </div>
             </div>
 
             <!-- 中间搜索区 -->
@@ -552,14 +743,19 @@
             <!-- 右侧功能 -->
             <div class="toolbar-right">
                 <button class="btn btn-outline" id="moreSearchBtn">更多搜索</button>
-                <button class="btn btn-outline">
-                    <span class="btn-icon-text">
-                        <span class="btn-icon-text-symbol">⊙</span>
-                        <span>统计</span>
-                    </span>
-                </button>
+                <div class="export-dropdown">
+                    <button type="button" class="btn btn-outline" id="toolbarExportBtn" aria-expanded="false" aria-haspopup="true">
+                        <span class="btn-icon-text">
+                            <span class="btn-icon-text-symbol">↑</span>
+                            <span>导出</span>
+                        </span>
+                    </button>
+                    <div class="export-dropdown-menu" id="exportDropdownMenu" role="menu">
+                        <button type="button" class="export-dropdown-item" data-export="current" role="menuitem">导出当前</button>
+                        <button type="button" class="export-dropdown-item" data-export="all" role="menuitem">导出全部</button>
+                    </div>
+                </div>
                 <button class="btn btn-outline" title="切换为列表视图">列表</button>
-                <button class="btn btn-outline" title="切换为详情视图">详情</button>
             </div>
         </div>
 
@@ -588,7 +784,7 @@
             <div class="summary-card">
                 <div class="summary-label">订单数量</div>
                 <div class="summary-value summary-value-red">
-                    <span id="summaryOrderCount">12</span>
+                    <span id="summaryOrderCount">15</span>
                 </div>
             </div>
         </div>
@@ -613,6 +809,7 @@
                             <th class="text-right">实收金额</th>
                             <th>支付方式</th>
                             <th>订单状态</th>
+                            <th>子类型</th>
                             <th>售后状态</th>
                             <th>操作</th>
                         </tr>
@@ -626,7 +823,7 @@
                             <td class="text-right" id="totalQtyCell">32</td>
                             <td class="text-right" id="totalAmountCell">18235.60</td>
                             <td class="text-right" id="totalPaidCell">17500.00</td>
-                            <td colspan="3"></td>
+                            <td colspan="5"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -647,6 +844,78 @@
                 </div>
             </div>
 
+            <!-- 发货弹窗（点击「发货」后打开） -->
+            <div class="modal-overlay" id="shipModalOverlay" aria-hidden="true">
+                <div class="modal ship-modal" role="dialog" aria-labelledby="shipModalTitle" aria-modal="true">
+                    <div class="modal-header">
+                        <h3 class="modal-title" id="shipModalTitle">发货</h3>
+                        <button type="button" class="modal-close" id="shipModalCloseBtn" aria-label="关闭">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="ship-modal-section">
+                            <div class="ship-modal-section-tag">选择发货商品（默认全选）</div>
+                            <div class="table-wrapper" style="max-height: 280px; overflow: auto; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md);">
+                                <table class="ship-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="checkbox-cell" style="width:48px;">
+                                                <input type="checkbox" id="shipSelectAll" checked title="全选">
+                                            </th>
+                                            <th style="width:64px;">图片</th>
+                                            <th>名称</th>
+                                            <th style="width:88px;">商品总数</th>
+                                            <th style="width:140px;">可发货数量</th>
+                                            <th style="width:120px;">规格</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="shipItemsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="ship-modal-section">
+                            <div class="ship-modal-section-tag">物流信息</div>
+                            <div class="form-group ship-logistics-row">
+                                <span class="form-label">物流选择</span>
+                                <div class="ship-radio-group">
+                                    <label><input type="radio" name="shipLogistics" value="express" checked> 快递配送</label>
+                                    <label><input type="radio" name="shipLogistics" value="none"> 无需物流</label>
+                                    <label><input type="radio" name="shipLogistics" value="ewaybill"> 电子面单</label>
+                                </div>
+                            </div>
+                            <div id="shipExpressFields">
+                                <div class="form-group">
+                                    <label class="form-label" for="shipCompany"><span class="ship-form-required">*</span>快递公司</label>
+                                    <select id="shipCompany" class="form-input">
+                                        <option value="">请选择快递公司</option>
+                                        <option value="sf">顺丰速运</option>
+                                        <option value="yt">圆通速递</option>
+                                        <option value="zt">中通快递</option>
+                                        <option value="yd">韵达快递</option>
+                                        <option value="jd">京东物流</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="shipPostcode">收件人邮编</label>
+                                    <input type="number" id="shipPostcode" class="form-input" placeholder="请输入收件人邮编" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="shipTracking"><span class="ship-form-required">*</span>快递单号</label>
+                                    <input type="text" id="shipTracking" class="form-input" placeholder="请输入快递单号" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="shipMerchantMsg">商家留言</label>
+                                    <textarea id="shipMerchantMsg" class="form-input" rows="3" placeholder="请输入商家留言" style="resize: vertical; min-height: 72px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" id="shipModalCancelBtn">取消</button>
+                        <button type="button" class="btn btn-primary" id="shipModalConfirmBtn">确定</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 订单详情侧滑面板 -->
             <div class="order-detail-drawer" id="orderDetailDrawer">
                 <div class="order-detail-header">
@@ -660,7 +929,23 @@
                     <!-- 详情内容由 JS 渲染 -->
                 </div>
                 <div class="order-detail-footer">
-                    <button class="btn btn-primary" type="button" id="orderDetailConfirmBtn">我知道了</button>
+                    <input type="file" id="deliveryPhotoInput" accept="image/*" multiple style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;" aria-hidden="true" tabindex="-1">
+                    <div id="orderDetailActionsShip" class="order-detail-actions-bar" aria-hidden="true">
+                        <button type="button" class="btn btn-primary" id="btnShipOrder">发货</button>
+                        <button type="button" class="btn btn-outline" id="btnPrintReceipt">打印小票</button>
+                        <button type="button" class="btn btn-outline" id="btnPrintShipNote">打印发货单</button>
+                    </div>
+                    <div id="orderDetailActionsReceive" class="order-detail-actions-bar" aria-hidden="true">
+                        <button type="button" class="btn btn-primary" id="btnDeliveryPhoto">送达照片</button>
+                        <button type="button" class="btn btn-outline" id="btnVerifyOrder">核销订单</button>
+                    </div>
+                    <div id="orderDetailActionsPending" class="order-detail-actions-bar" aria-hidden="true">
+                        <button type="button" class="btn btn-primary" id="btnPendingAgree">同意</button>
+                        <button type="button" class="btn btn-outline" id="btnPendingReject">拒绝</button>
+                    </div>
+                    <div class="order-detail-footer-confirm">
+                        <button class="btn btn-primary" type="button" id="orderDetailConfirmBtn">我知道了</button>
+                    </div>
                 </div>
             </div>
 
@@ -727,7 +1012,7 @@
                 amount: 188.00,
                 paid: 188.00,
                 payType: '微信支付',
-                status: '已发货',
+                status: '待收货',
                 afterSale: '无',
                 type: 'online'
             },
@@ -759,7 +1044,16 @@
                 payType: '微信支付',
                 status: '待发货',
                 afterSale: '无',
-                type: 'online'
+                type: 'online',
+                lineItems: [
+                    {
+                        id: 'li-md001',
+                        name: '蒙顶山风景区',
+                        image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=96&h=96&fit=crop',
+                        totalQty: 1,
+                        spec: '规格:默认'
+                    }
+                ]
             },
             {
                 id: 'XS20250827002',
@@ -787,7 +1081,7 @@
                 amount: 128.00,
                 paid: 0.00,
                 payType: '货到付款',
-                status: '待支付',
+                status: '待付款',
                 afterSale: '无',
                 type: 'online'
             },
@@ -802,7 +1096,7 @@
                 amount: 258.00,
                 paid: 258.00,
                 payType: '微信支付',
-                status: '已完成',
+                status: '待评价',
                 afterSale: '无',
                 type: 'online'
             },
@@ -853,7 +1147,7 @@
                 amount: 88.00,
                 paid: 88.00,
                 payType: '微信支付',
-                status: '已发货',
+                status: '待收货',
                 afterSale: '无',
                 type: 'online'
             },
@@ -892,6 +1186,54 @@
                 refundApproveBy: null,
                 refundRejectReason: null,
                 refundDoneTime: null
+            },
+            {
+                id: 'XS20250829001',
+                orderTime: '2025-08-29 09:00:00',
+                member: '用户甲',
+                receiver: '用户甲',
+                mobile: '13900000001',
+                channel: '小程序',
+                qty: 1,
+                amount: 59.00,
+                paid: 59.00,
+                payType: '微信支付',
+                status: '待处理',
+                pendingSubType: '仅退款',
+                afterSale: '退款申请中',
+                type: 'online'
+            },
+            {
+                id: 'XS20250829002',
+                orderTime: '2025-08-29 10:15:22',
+                member: '用户乙',
+                receiver: '用户乙',
+                mobile: '13900000002',
+                channel: '小程序',
+                qty: 2,
+                amount: 199.00,
+                paid: 199.00,
+                payType: '微信支付',
+                status: '待处理',
+                pendingSubType: '退货退款',
+                afterSale: '退货申请中',
+                type: 'online'
+            },
+            {
+                id: 'XS20250829003',
+                orderTime: '2025-08-29 11:40:08',
+                member: '用户丙',
+                receiver: '用户丙',
+                mobile: '13900000003',
+                channel: '公众号',
+                qty: 1,
+                amount: 399.00,
+                paid: 399.00,
+                payType: '微信支付',
+                status: '待处理',
+                pendingSubType: '换货',
+                afterSale: '换货申请中',
+                type: 'online'
             }
         ];
 
@@ -911,18 +1253,38 @@
         let currentType = 'all';
         let sortColumn = null;
         let sortDirection = 'asc';
+        /** 顶部订单状态筛选，空表示不过滤 */
+        let listStatusFilter = '';
 
         const tbody = document.getElementById('orderTableBody');
+
+        function getOrderStatusPillClass(status) {
+            const s = status || '';
+            if (s === '已完成') return 'status-pill status-pill--success';
+            if (s === '待付款' || s === '待支付') return 'status-pill status-pill--warning';
+            if (s === '待处理') return 'status-pill status-pill--pending';
+            if (s === '待发货' || s === '待收货' || s === '已发货' || s === '待评价') return 'status-pill status-pill--primary';
+            return 'status-pill status-pill--warning';
+        }
+
+        function matchesOrderStatusTab(actual, tab) {
+            if (!tab) return true;
+            const s = actual || '';
+            if (tab === '待付款') return s === '待付款' || s === '待支付';
+            if (tab === '待收货') return s === '待收货' || s === '已发货';
+            if (tab === '待处理') return s === '待处理';
+            return s === tab;
+        }
+
+        function formatOrderPendingSubType(order) {
+            if (order && order.status === '待处理' && order.pendingSubType) return order.pendingSubType;
+            return '';
+        }
 
         function renderTable() {
             tbody.innerHTML = '';
             filteredOrders.forEach(item => {
-                const statusClass =
-                    item.status === '已完成'
-                        ? 'status-pill status-pill--success'
-                        : item.status === '已发货'
-                            ? 'status-pill status-pill--primary'
-                            : 'status-pill status-pill--warning';
+                const statusClass = getOrderStatusPillClass(item.status);
 
                 const afterSaleClass =
                     item.afterSale === '无' || item.afterSale === '已退款'
@@ -950,6 +1312,7 @@
                     <td>
                         <span class="${statusClass} status-link" data-id="${item.id}">${item.status}</span>
                     </td>
+                    <td>${formatOrderPendingSubType(item) ? `<span class="pending-sub-type">${formatOrderPendingSubType(item)}</span>` : '<span class="text-secondary">—</span>'}</td>
                     <td>
                         <span class="${afterSaleClass} aftersale-link" data-id="${item.id}">${item.afterSale}</span>
                     </td>
@@ -962,20 +1325,17 @@
             updateSelectedInfo();
         }
 
-        // 过滤：按订单类型 Tab
+        // 过滤：订单类型 Tab + 状态 Tab + 关键字
         function filterByType() {
-            if (currentType === 'all') {
-                filteredOrders = [...orders];
-            } else {
-                filteredOrders = orders.filter(o => o.type === currentType);
-            }
             applySearchOnly();
         }
 
-        // 快捷搜索（保持现有类型筛选）
         function applySearchOnly() {
             const kw = document.getElementById('quickSearchInput').value.trim().toLowerCase();
             let base = currentType === 'all' ? [...orders] : orders.filter(o => o.type === currentType);
+            if (listStatusFilter) {
+                base = base.filter(o => matchesOrderStatusTab(o.status, listStatusFilter));
+            }
             if (kw) {
                 base = base.filter(o => {
                     return (
@@ -1015,6 +1375,91 @@
                 filterByType();
             });
         });
+
+        (function initOrderStatusFilterTabs() {
+            const group = document.getElementById('orderStatusFilterGroup');
+            if (!group) return;
+            group.addEventListener('click', function (e) {
+                const btn = e.target.closest('.tab-nav-item');
+                if (!btn) return;
+                const st = btn.dataset.status || '';
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    listStatusFilter = '';
+                } else {
+                    group.querySelectorAll('.tab-nav-item').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    listStatusFilter = st;
+                }
+                applySearchOnly();
+            });
+        })();
+
+        // 导出：下拉菜单
+        (function initToolbarExportDropdown() {
+            const toggleBtn = document.getElementById('toolbarExportBtn');
+            const menu = document.getElementById('exportDropdownMenu');
+            if (!toggleBtn || !menu) return;
+            function closeMenu() {
+                menu.classList.remove('show');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+            toggleBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const open = menu.classList.toggle('show');
+                toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            menu.addEventListener('click', function (e) { e.stopPropagation(); });
+            document.addEventListener('click', closeMenu);
+
+            function escapeCsvCell(v) {
+                const s = String(v ?? '');
+                if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+                return s;
+            }
+            function exportOrdersCsv(list, filename) {
+                const headers = ['订单号', '下单时间', '会员', '收货人', '手机号', '来源渠道', '商品数量', '订单金额', '实收金额', '支付方式', '订单状态', '子类型', '售后状态'];
+                const lines = [headers.join(',')].concat(list.map(function (o) {
+                    return [
+                        o.id, o.orderTime, o.member, o.receiver, o.mobile, o.channel, o.qty,
+                        o.amount, o.paid, o.payType, o.status,
+                        formatOrderPendingSubType(o) || '',
+                        o.afterSale
+                    ].map(escapeCsvCell).join(',');
+                }));
+                const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }
+            menu.querySelectorAll('.export-dropdown-item').forEach(function (item) {
+                item.addEventListener('click', function () {
+                    closeMenu();
+                    const mode = item.dataset.export;
+                    const day = new Date().toISOString().slice(0, 10);
+                    if (mode === 'current') {
+                        if (!filteredOrders.length) {
+                            alert('当前没有可导出的订单。');
+                            return;
+                        }
+                        exportOrdersCsv(filteredOrders, '零售订单_导出当前_' + day + '.csv');
+                        alert('已导出当前列表共 ' + filteredOrders.length + ' 条（CSV）。');
+                    } else if (mode === 'all') {
+                        const list = currentType === 'all' ? [...orders] : orders.filter(function (o) { return o.type === currentType; });
+                        if (!list.length) {
+                            alert('当前分类下没有可导出的订单。');
+                            return;
+                        }
+                        exportOrdersCsv(list, '零售订单_导出全部_' + (currentType === 'all' ? '全部渠道' : currentType) + '_' + day + '.csv');
+                        alert('已导出全部共 ' + list.length + ' 条（不含状态/关键字筛选，CSV）。');
+                    }
+                });
+            });
+        })();
 
         // 排序（支持下单时间）
         function sortData(column, keepRenderOnly = false) {
@@ -1230,7 +1675,7 @@
             order.refundWorkflow = 'applied';
             order.refundApplyTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
             renderRefundWorkflowContent();
-            renderTable();
+            applySearchOnly();
             alert('已提交退款申请，等待上级审批。');
         }
         function doRefundApprove(id, approved) {
@@ -1242,7 +1687,7 @@
                 order.refundApproveBy = '上级审批人（模拟）';
                 order.refundRejectReason = null;
                 renderRefundWorkflowContent();
-                renderTable();
+                applySearchOnly();
                 alert('上级已通过退款申请，请执行退款/付款操作。');
             } else {
                 var reason = prompt('请输入驳回原因（选填）：', '');
@@ -1251,7 +1696,7 @@
                 order.refundApproveBy = null;
                 order.refundRejectReason = reason || '不同意退款';
                 renderRefundWorkflowContent();
-                renderTable();
+                applySearchOnly();
                 alert('上级已驳回退款申请。');
             }
         }
@@ -1263,7 +1708,7 @@
             order.refundDoneTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
             order.afterSale = '已退款';
             renderRefundWorkflowContent();
-            renderTable();
+            applySearchOnly();
             alert('退款已完成。');
         }
 
@@ -1305,6 +1750,23 @@
             }
         });
 
+        function escapeHtml(text) {
+            if (text == null) return '';
+            const s = String(text);
+            return s
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function clearOrderDetailActionHandlers() {
+            ['btnShipOrder', 'btnPrintReceipt', 'btnPrintShipNote', 'btnDeliveryPhoto', 'btnVerifyOrder', 'btnPendingAgree', 'btnPendingReject'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.onclick = null;
+            });
+        }
+
         // 打开订单详情侧滑面板
         function openOrderDetail(id) {
             const drawer = document.getElementById('orderDetailDrawer');
@@ -1335,6 +1797,12 @@
                         <span class="order-detail-kv-label">订单状态</span>
                         <span class="order-detail-kv-value">${order.status}</span>
                     </div>
+                    ${order.status === '待处理' && order.pendingSubType ? `
+                    <div class="order-detail-kv">
+                        <span class="order-detail-kv-label">处理子类</span>
+                        <span class="order-detail-kv-value"><span class="pending-sub-type">${order.pendingSubType}</span>（用户发起）</span>
+                    </div>
+                    ` : ''}
                     <div class="order-detail-kv">
                         <span class="order-detail-kv-label">支付方式</span>
                         <span class="order-detail-kv-value">${order.payType}</span>
@@ -1370,6 +1838,16 @@
                         <span class="order-detail-kv-value">¥${order.paid.toFixed(2)}</span>
                     </div>
                 </div>
+                ${order.deliveryPhotos && order.deliveryPhotos.length ? `
+                <div class="order-detail-section">
+                    <div class="order-detail-section-title">送达照片</div>
+                    <div class="delivery-photo-strip">
+                        ${order.deliveryPhotos.map(function (p) {
+                            return '<img class="delivery-photo-thumb" src="' + String(p.url).replace(/"/g, '&quot;') + '" alt="' + escapeHtml(p.name || '照片') + '">';
+                        }).join('')}
+                    </div>
+                </div>
+                ` : ''}
                 <div class="order-detail-section">
                     <div class="order-detail-section-title">其他</div>
                     <div class="order-detail-kv">
@@ -1392,9 +1870,436 @@
                     </div>
                     `}
                 </div>
+                ${order.status === '待发货' ? `
+                <div class="order-detail-ship-hint">该订单为「待发货」，请在底部操作区点击「发货」「打印小票」或「打印发货单」。</div>
+                ` : order.status === '待收货' ? `
+                <div class="order-detail-ship-hint">该订单为「待收货」，可上传「送达照片」或点击「核销订单」确认收货完成。</div>
+                ` : order.status === '待处理' ? `
+                <div class="order-detail-ship-hint">该订单为「待处理」，子类为「${order.pendingSubType || '—'}」，请审核用户申请后点击「同意」或「拒绝」。</div>
+                ` : ''}
             `;
 
+            const shipBar = document.getElementById('orderDetailActionsShip');
+            const receiveBar = document.getElementById('orderDetailActionsReceive');
+            const pendingBar = document.getElementById('orderDetailActionsPending');
+            if (shipBar && receiveBar && pendingBar) {
+                if (order.status === '待发货') {
+                    pendingBar.classList.remove('show');
+                    pendingBar.setAttribute('aria-hidden', 'true');
+                    shipBar.classList.add('show');
+                    shipBar.setAttribute('aria-hidden', 'false');
+                    receiveBar.classList.remove('show');
+                    receiveBar.setAttribute('aria-hidden', 'true');
+                    clearOrderDetailActionHandlers();
+                    document.getElementById('btnShipOrder').onclick = function () {
+                        openShipModal(order.id);
+                    };
+                    document.getElementById('btnPrintReceipt').onclick = function () {
+                        printOrderReceipt(order);
+                    };
+                    document.getElementById('btnPrintShipNote').onclick = function () {
+                        printShippingNote(order);
+                    };
+                } else if (order.status === '待收货') {
+                    pendingBar.classList.remove('show');
+                    pendingBar.setAttribute('aria-hidden', 'true');
+                    receiveBar.classList.add('show');
+                    receiveBar.setAttribute('aria-hidden', 'false');
+                    shipBar.classList.remove('show');
+                    shipBar.setAttribute('aria-hidden', 'true');
+                    clearOrderDetailActionHandlers();
+                    document.getElementById('btnDeliveryPhoto').onclick = function () {
+                        openDeliveryPhotoPicker(order.id);
+                    };
+                    document.getElementById('btnVerifyOrder').onclick = function () {
+                        verifyReceiveOrder(order.id);
+                    };
+                } else if (order.status === '待处理') {
+                    pendingBar.classList.add('show');
+                    pendingBar.setAttribute('aria-hidden', 'false');
+                    shipBar.classList.remove('show');
+                    shipBar.setAttribute('aria-hidden', 'true');
+                    receiveBar.classList.remove('show');
+                    receiveBar.setAttribute('aria-hidden', 'true');
+                    clearOrderDetailActionHandlers();
+                    document.getElementById('btnPendingAgree').onclick = function () {
+                        resolvePendingAgree(order.id);
+                    };
+                    document.getElementById('btnPendingReject').onclick = function () {
+                        resolvePendingReject(order.id);
+                    };
+                } else {
+                    shipBar.classList.remove('show');
+                    receiveBar.classList.remove('show');
+                    pendingBar.classList.remove('show');
+                    shipBar.setAttribute('aria-hidden', 'true');
+                    receiveBar.setAttribute('aria-hidden', 'true');
+                    pendingBar.setAttribute('aria-hidden', 'true');
+                    clearOrderDetailActionHandlers();
+                }
+            }
+
             drawer.classList.add('show');
+        }
+
+        var deliveryPhotoPickerOrderId = null;
+
+        function openDeliveryPhotoPicker(orderId) {
+            var o = orders.find(function (x) { return x.id === orderId; });
+            if (!o || o.status !== '待收货') return;
+            deliveryPhotoPickerOrderId = orderId;
+            var input = document.getElementById('deliveryPhotoInput');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        }
+
+        function onDeliveryPhotoInputChange(e) {
+            var files = e.target && e.target.files;
+            if (!files || !files.length || !deliveryPhotoPickerOrderId) return;
+            var o = orders.find(function (x) { return x.id === deliveryPhotoPickerOrderId; });
+            deliveryPhotoPickerOrderId = null;
+            if (!o || o.status !== '待收货') {
+                e.target.value = '';
+                return;
+            }
+            if (!o.deliveryPhotos) o.deliveryPhotos = [];
+            var n = 0;
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                if (!file.type || file.type.indexOf('image/') !== 0) continue;
+                var url = URL.createObjectURL(file);
+                o.deliveryPhotos.push({
+                    url: url,
+                    name: file.name,
+                    time: new Date().toLocaleString('zh-CN')
+                });
+                n++;
+            }
+            e.target.value = '';
+            if (n === 0) {
+                alert('请选择图片文件。');
+                return;
+            }
+            openOrderDetail(o.id);
+            alert('已添加 ' + n + ' 张送达照片（当前会话内预览，刷新页面后需重新上传）。');
+        }
+
+        /** 待处理：同意（按子类流转后续状态，示意） */
+        function resolvePendingAgree(orderId) {
+            var o = orders.find(function (x) { return x.id === orderId; });
+            if (!o || o.status !== '待处理' || !o.pendingSubType) return;
+            var t = o.pendingSubType;
+            if (!confirm('确认同意该「' + t + '」申请？')) return;
+            var sub = o.pendingSubType;
+            delete o.pendingSubType;
+            if (sub === '仅退款') {
+                o.status = '已完成';
+                o.afterSale = '已退款';
+            } else if (sub === '退货退款') {
+                o.status = '待收货';
+                o.afterSale = '退货退款中';
+            } else if (sub === '换货') {
+                o.status = '待发货';
+                o.afterSale = '换货中';
+            } else {
+                o.status = '已完成';
+                o.afterSale = '售后处理完成';
+            }
+            applySearchOnly();
+            openOrderDetail(o.id);
+            alert('已同意，订单状态已更新。');
+        }
+
+        /** 待处理：拒绝 */
+        function resolvePendingReject(orderId) {
+            var o = orders.find(function (x) { return x.id === orderId; });
+            if (!o || o.status !== '待处理') return;
+            var reason = prompt('请输入拒绝原因（可留空，点「取消」放弃操作）：', '');
+            if (reason === null) return;
+            delete o.pendingSubType;
+            o.status = '已完成';
+            o.afterSale = '售后已驳回';
+            if (reason && String(reason).trim()) {
+                o.pendingRejectReason = String(reason).trim();
+            }
+            applySearchOnly();
+            openOrderDetail(o.id);
+            alert('已拒绝该用户申请。');
+        }
+
+        /** 核销：待收货 → 已完成 */
+        function verifyReceiveOrder(orderId) {
+            var o = orders.find(function (x) { return x.id === orderId; });
+            if (!o || o.status !== '待收货') return;
+            if (!confirm('确认核销该订单？核销后订单状态将变为「已完成」。')) return;
+            o.status = '已完成';
+            if (o.deliveryPhotos && o.deliveryPhotos.length) {
+                o.deliveryPhotos.forEach(function (p) {
+                    if (p.url && String(p.url).indexOf('blob:') === 0) {
+                        try { URL.revokeObjectURL(p.url); } catch (err) { /* ignore */ }
+                    }
+                });
+                o.deliveryPhotos = [];
+            }
+            applySearchOnly();
+            openOrderDetail(o.id);
+            alert('核销成功，订单已完成。');
+        }
+
+        /** 订单行商品（无 lineItems 时生成一条汇总行） */
+        function getOrderLineItems(order) {
+            if (order.lineItems && order.lineItems.length) return order.lineItems;
+            return [{
+                id: 'default',
+                name: '订单商品（汇总）',
+                image: '',
+                totalQty: order.qty,
+                spec: '规格:默认'
+            }];
+        }
+
+        var currentShipOrderId = null;
+
+        function closeShipModal() {
+            const overlay = document.getElementById('shipModalOverlay');
+            if (overlay) {
+                overlay.classList.remove('show');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+            currentShipOrderId = null;
+        }
+
+        function updateShipExpressFieldsVisibility() {
+            const type = (document.querySelector('input[name="shipLogistics"]:checked') || {}).value || 'express';
+            const box = document.getElementById('shipExpressFields');
+            if (!box) return;
+            const show = type === 'express' || type === 'ewaybill';
+            box.style.display = show ? '' : 'none';
+            const inputs = box.querySelectorAll('input, select, textarea');
+            inputs.forEach(function (el) {
+                el.disabled = !show;
+            });
+        }
+
+        function syncShipSelectAllState() {
+            const all = document.getElementById('shipSelectAll');
+            const rows = document.querySelectorAll('#shipItemsTableBody .ship-line-check');
+            if (!all || !rows.length) return;
+            let n = 0;
+            rows.forEach(function (cb) { if (cb.checked) n++; });
+            all.checked = n === rows.length;
+            all.indeterminate = n > 0 && n < rows.length;
+        }
+
+        /** 打开发货弹窗 */
+        function openShipModal(orderId) {
+            const order = orders.find(function (o) { return o.id === orderId; });
+            if (!order || order.status !== '待发货') return;
+            currentShipOrderId = orderId;
+
+            const items = getOrderLineItems(order);
+            const tbody = document.getElementById('shipItemsTableBody');
+            const imgFallback = 'https://placehold.co/48x48/f0f0f0/666?text=图';
+            tbody.innerHTML = items.map(function (row, i) {
+                const thumb = row.image ? escapeHtml(row.image) : imgFallback;
+                const name = escapeHtml(row.name);
+                const spec = escapeHtml(row.spec || '规格:默认');
+                const maxQ = Math.max(1, parseInt(row.totalQty, 10) || 1);
+                const tid = 'shipQty-' + i;
+                return (
+                    '<tr data-line-id="' + escapeHtml(row.id) + '">' +
+                    '<td class="checkbox-cell"><input type="checkbox" class="ship-line-check" checked data-line-id="' + escapeHtml(row.id) + '"></td>' +
+                    '<td><img class="ship-thumb" src="' + thumb + '" alt="" width="48" height="48" onerror="this.src=\'' + imgFallback + '\'"></td>' +
+                    '<td>' + name + '</td>' +
+                    '<td>' + maxQ + '</td>' +
+                    '<td><span class="ship-qty-cell">' +
+                    '<input type="number" class="ship-qty-input" id="' + tid + '" min="1" max="' + maxQ + '" value="' + maxQ + '">' +
+                    '<button type="button" class="ship-qty-edit" data-target="' + tid + '" title="编辑数量">✎</button>' +
+                    '</span></td>' +
+                    '<td>' + spec + '</td>' +
+                    '</tr>'
+                );
+            }).join('');
+
+            document.getElementById('shipSelectAll').checked = true;
+            document.querySelector('input[name="shipLogistics"][value="express"]').checked = true;
+            document.getElementById('shipCompany').value = '';
+            document.getElementById('shipPostcode').value = '';
+            document.getElementById('shipTracking').value = '';
+            document.getElementById('shipMerchantMsg').value = '';
+            updateShipExpressFieldsVisibility();
+
+            const overlay = document.getElementById('shipModalOverlay');
+            overlay.classList.add('show');
+            overlay.setAttribute('aria-hidden', 'false');
+        }
+
+        /** 提交发货：校验后更新订单为待收货 */
+        function submitShipModal() {
+            if (!currentShipOrderId) return;
+            const o = orders.find(function (x) { return x.id === currentShipOrderId; });
+            if (!o || o.status !== '待发货') {
+                closeShipModal();
+                return;
+            }
+
+            const checked = document.querySelectorAll('#shipItemsTableBody .ship-line-check:checked');
+            if (!checked.length) {
+                alert('请至少选择一件发货商品。');
+                return;
+            }
+
+            for (let i = 0; i < checked.length; i++) {
+                const tr = checked[i].closest('tr');
+                const inp = tr && tr.querySelector('.ship-qty-input');
+                if (!inp) continue;
+                const max = parseInt(inp.getAttribute('max'), 10) || 1;
+                let v = parseInt(inp.value, 10);
+                if (isNaN(v) || v < 1) {
+                    alert('可发货数量须为不小于 1 的整数。');
+                    inp.focus();
+                    return;
+                }
+                if (v > max) {
+                    alert('可发货数量不能大于商品总数（' + max + '）。');
+                    inp.focus();
+                    return;
+                }
+            }
+
+            const logisticsType = (document.querySelector('input[name="shipLogistics"]:checked') || {}).value;
+            if (logisticsType === 'express' || logisticsType === 'ewaybill') {
+                const company = document.getElementById('shipCompany').value.trim();
+                const tracking = document.getElementById('shipTracking').value.trim();
+                if (!company) {
+                    alert('请选择快递公司。');
+                    document.getElementById('shipCompany').focus();
+                    return;
+                }
+                if (!tracking) {
+                    alert('请输入快递单号。');
+                    document.getElementById('shipTracking').focus();
+                    return;
+                }
+            }
+
+            o.status = '待收货';
+            if (!o.shipMeta) o.shipMeta = {};
+            o.shipMeta.logisticsType = logisticsType;
+            if (logisticsType === 'none') {
+                o.shipMeta.company = '';
+                o.shipMeta.tracking = '';
+                o.shipMeta.postcode = '';
+                o.shipMeta.merchantMsg = '';
+            } else {
+                o.shipMeta.company = document.getElementById('shipCompany').value.trim();
+                o.shipMeta.tracking = document.getElementById('shipTracking').value.trim();
+                o.shipMeta.postcode = document.getElementById('shipPostcode').value.trim();
+                o.shipMeta.merchantMsg = document.getElementById('shipMerchantMsg').value.trim();
+            }
+
+            applySearchOnly();
+            closeShipModal();
+            openOrderDetail(o.id);
+            alert('发货成功，订单已进入待收货状态。');
+        }
+
+        (function initShipModal() {
+            const overlay = document.getElementById('shipModalOverlay');
+            if (!overlay) return;
+
+            document.getElementById('shipModalCloseBtn').addEventListener('click', closeShipModal);
+            document.getElementById('shipModalCancelBtn').addEventListener('click', closeShipModal);
+            document.getElementById('shipModalConfirmBtn').addEventListener('click', submitShipModal);
+
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) closeShipModal();
+            });
+
+            document.querySelectorAll('input[name="shipLogistics"]').forEach(function (r) {
+                r.addEventListener('change', updateShipExpressFieldsVisibility);
+            });
+
+            document.getElementById('shipSelectAll').addEventListener('change', function () {
+                const on = this.checked;
+                document.querySelectorAll('#shipItemsTableBody .ship-line-check').forEach(function (cb) {
+                    cb.checked = on;
+                });
+                this.indeterminate = false;
+            });
+
+            overlay.addEventListener('change', function (e) {
+                if (e.target && e.target.classList.contains('ship-line-check')) {
+                    syncShipSelectAllState();
+                }
+            });
+
+            overlay.addEventListener('click', function (e) {
+                const btn = e.target.closest && e.target.closest('.ship-qty-edit');
+                if (!btn) return;
+                const id = btn.getAttribute('data-target');
+                const inp = id && document.getElementById(id);
+                if (inp) {
+                    inp.focus();
+                    inp.select();
+                }
+            });
+        })();
+
+        /** 打印小票（收银小票样式示意） */
+        function printOrderReceipt(order) {
+            const win = window.open('', '_blank');
+            if (!win) {
+                alert('请允许弹出窗口以打印小票。');
+                return;
+            }
+            const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>小票-' + order.id + '</title>' +
+                '<style>body{font-family:monospace,sans-serif;padding:16px;max-width:280px;margin:0 auto;font-size:12px;}' +
+                'h1{font-size:14px;text-align:center;margin:0 0 12px;}.row{display:flex;justify-content:space-between;margin:4px 0;}.total{border-top:1px dashed #000;margin-top:8px;padding-top:8px;font-weight:bold;}</style></head><body>' +
+                '<h1>销售小票</h1>' +
+                '<div class="row"><span>订单号</span><span>' + order.id + '</span></div>' +
+                '<div class="row"><span>时间</span><span>' + order.orderTime + '</span></div>' +
+                '<div class="row"><span>会员</span><span>' + (order.member || '-') + '</span></div>' +
+                '<div class="row"><span>件数</span><span>' + order.qty + '</span></div>' +
+                '<div class="row"><span>实收</span><span>¥' + Number(order.paid).toFixed(2) + '</span></div>' +
+                '<div class="row"><span>支付</span><span>' + (order.payType || '-') + '</span></div>' +
+                '<p class="total" style="text-align:center;margin-top:12px;">谢谢惠顾</p>' +
+                '</body></html>';
+            win.document.write(html);
+            win.document.close();
+            win.focus();
+            win.print();
+        }
+
+        /** 打印发货单 */
+        function printShippingNote(order) {
+            const win = window.open('', '_blank');
+            if (!win) {
+                alert('请允许弹出窗口以打印发货单。');
+                return;
+            }
+            const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>发货单-' + order.id + '</title>' +
+                '<style>body{font-family:sans-serif;padding:24px;max-width:720px;margin:0 auto;font-size:13px;line-height:1.5;}' +
+                'h1{font-size:18px;text-align:center;border-bottom:2px solid #333;padding-bottom:8px;}' +
+                '.kv{display:grid;grid-template-columns:100px 1fr;gap:6px 8px;margin:12px 0;}.label{color:#666;}' +
+                '.sign{margin-top:48px;display:flex;justify-content:space-between;}</style></head><body>' +
+                '<h1>发货单</h1>' +
+                '<div class="kv"><span class="label">订单号</span><span>' + order.id + '</span></div>' +
+                '<div class="kv"><span class="label">下单时间</span><span>' + order.orderTime + '</span></div>' +
+                '<div class="kv"><span class="label">收货人</span><span>' + (order.receiver || '-') + '</span></div>' +
+                '<div class="kv"><span class="label">联系电话</span><span>' + (order.mobile || '-') + '</span></div>' +
+                '<div class="kv"><span class="label">收货地址</span><span>（示例：与会员/收货人信息一致，可对接地址库）</span></div>' +
+                '<div class="kv"><span class="label">商品数量</span><span>' + order.qty + '</span></div>' +
+                '<div class="kv"><span class="label">订单金额</span><span>¥' + Number(order.amount).toFixed(2) + '</span></div>' +
+                '<div class="kv"><span class="label">备注</span><span>请按单拣货、核对后发货；如有赠品请一并装箱。</span></div>' +
+                '<div class="sign"><span>发货人：__________</span><span>复核人：__________</span><span>日期：__________</span></div>' +
+                '</body></html>';
+            win.document.write(html);
+            win.document.close();
+            win.focus();
+            win.print();
         }
 
         // 关闭订单详情侧滑面板
@@ -1413,6 +2318,26 @@
         document.getElementById('moreSearchBtn').addEventListener('click', function () {
             alert('更多搜索（示例）：这里可以展开高级筛选条件，如下单时间、订单状态、支付方式、来源渠道等。');
         });
+
+        // URL 与左侧菜单联动：?orderType=all|online|store|refund
+        (function initOrderTypeFromUrl() {
+            try {
+                var params = new URLSearchParams(window.location.search || '');
+                var ot = params.get('orderType');
+                if (!ot) return;
+                if (ot !== 'all' && ot !== 'online' && ot !== 'store' && ot !== 'refund') return;
+                currentType = ot;
+                document.querySelectorAll('.order-tab-btn').forEach(function (b) {
+                    b.classList.toggle('active', (b.dataset.type || '') === ot);
+                });
+            } catch (e) { /* ignore */ }
+        })();
+
+        // 送达照片：选择文件
+        (function () {
+            var input = document.getElementById('deliveryPhotoInput');
+            if (input) input.addEventListener('change', onDeliveryPhotoInputChange);
+        })();
 
         // 初始化
         filterByType();
