@@ -11,31 +11,6 @@
             background-color: var(--color-neutral-50);
         }
 
-        /* 页面标题 */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-            padding: var(--spacing-lg);
-            background-color: #ffffff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-
-        .page-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin: 0;
-        }
-
-        .page-subtitle {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            margin-top: var(--spacing-xs);
-        }
-
         /* 设置卡片 */
         .settings-card {
             background-color: #ffffff;
@@ -221,24 +196,11 @@
                 margin-top: var(--spacing-sm);
             }
 
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: var(--spacing-xs);
-            }
         }
     </style>
 </head>
 <body>
     <div class="payment-settings-page">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">支付设置</h1>
-                <div class="page-subtitle">配置支付相关的系统设置和安全规则</div>
-            </div>
-        </div>
-
         <!-- 支付方式设置 -->
         <div class="settings-card">
             <div class="settings-card-header">
