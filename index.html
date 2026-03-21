@@ -72,6 +72,38 @@
             flex-wrap: wrap;
         }
 
+        /* 商超：一级 Tab 与「返回应用」同一行 */
+        .level1-menu-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            flex-wrap: wrap;
+        }
+        .level1-menu-row .level1-menu {
+            flex: 1;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        .level1-menu-back-wrap {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 商超模块：隐藏顶部标题栏（模块名 + 原返回位） */
+        .shangchao-module-ui.app-module-mode .content-title-container {
+            display: none !important;
+        }
+
         .level1-menu-item {
             padding: var(--spacing-sm) var(--spacing-lg);
             border: 1px solid var(--color-neutral-300);
@@ -488,6 +520,12 @@
         // 渲染模块的新布局（一级菜单横向，左侧二级菜单，右侧内容）
         function renderSupermarketLayout(module) {
             const contentBody = document.getElementById('contentBody');
+
+            if (module.module === '商超') {
+                document.body.classList.add('shangchao-module-ui');
+            } else {
+                document.body.classList.remove('shangchao-module-ui');
+            }
             
             // 检查是否已经存在布局容器
             let layoutContainer = document.getElementById('moduleLayoutContainer');
@@ -525,8 +563,23 @@
                 
                 level1Menu.appendChild(menuItem);
             });
-            
-            layoutContainer.appendChild(level1Menu);
+
+            if (module.module === '商超') {
+                const level1Row = document.createElement('div');
+                level1Row.className = 'level1-menu-row';
+                level1Row.appendChild(level1Menu);
+                const backWrap = document.createElement('div');
+                backWrap.className = 'level1-menu-back-wrap';
+                const backBtn = document.getElementById('backToCardsBtn');
+                if (backBtn) {
+                    backWrap.appendChild(backBtn);
+                    backBtn.style.display = 'inline-flex';
+                }
+                level1Row.appendChild(backWrap);
+                layoutContainer.appendChild(level1Row);
+            } else {
+                layoutContainer.appendChild(level1Menu);
+            }
             
             // 创建主内容区
             const mainContentArea = document.createElement('div');
@@ -574,6 +627,7 @@
             if (item.children && item.children.length > 0) {
                 var isShangchaoProduct = (module.module === '商超' && item.title === '商品');
                 var isShangchaoInventory = (module.module === '商超' && item.title === '库存');
+                var isShangchaoSales = (module.module === '商超' && item.title === '销售');
                 var productListPath = isShangchaoProduct && item.children[0] ? item.children[0].path : null;
                 var inventoryCategoryNames = ['全部', '厨房用品', '日用品', '食品', '饮料', '其他'];
                 var inventoryQueryCategory = '全部';
@@ -721,6 +775,86 @@
                         // 默认加载商品列表（当前选中的分类）
                         var initialUrl = productListPath + (productListCategory === '全部' ? '' : '?category=' + encodeURIComponent(productListCategory));
                         loadModulePage(initialUrl, '商品列表');
+                    } else if (isShangchaoSales && child.title === '零售管理' && child.children && child.children.length > 0) {
+                        var retailWrap = document.createElement('div');
+                        var retailParentBtn = document.createElement('div');
+                        retailParentBtn.className = 'level2-sidebar-item-parent';
+                        retailParentBtn.innerHTML = '<span class="level2-sidebar-item-parent-text">零售管理</span><svg class="level2-sidebar-arrow" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12l4-4-4-4"/></svg>';
+                        retailParentBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            this.classList.toggle('expanded');
+                        });
+                        retailWrap.appendChild(retailParentBtn);
+                        var retailSubmenu = document.createElement('ul');
+                        retailSubmenu.className = 'level2-sidebar-submenu';
+                        child.children.forEach(function(sub, subIdx) {
+                            var li = document.createElement('li');
+                            li.className = 'level2-sidebar-subitem';
+                            var a = document.createElement('a');
+                            a.href = '#';
+                            a.textContent = sub.title;
+                            a.dataset.path = sub.path;
+                            if (subIdx === 0) a.classList.add('active');
+                            a.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                level2Sidebar.querySelectorAll('.level2-sidebar-item').forEach(function(link) { link.classList.remove('active'); });
+                                level2Sidebar.querySelectorAll('.level2-sidebar-subitem a, .level2-sidebar-subitem-expandable a').forEach(function(link) { link.classList.remove('active'); });
+                                this.classList.add('active');
+                                loadModulePage(sub.path, sub.title);
+                            });
+                            li.appendChild(a);
+                            retailSubmenu.appendChild(li);
+                        });
+                        retailWrap.appendChild(retailSubmenu);
+                        level2Sidebar.appendChild(retailWrap);
+                        if (child.children[0]) {
+                            loadModulePage(child.children[0].path, child.children[0].title);
+                        }
+                    } else if (isShangchaoSales && child.title === '批发管理' && child.children && child.children.length > 0) {
+                        var wholesaleWrap = document.createElement('div');
+                        var wholesaleParentBtn = document.createElement('div');
+                        wholesaleParentBtn.className = 'level2-sidebar-item-parent';
+                        wholesaleParentBtn.innerHTML = '<span class="level2-sidebar-item-parent-text">批发管理</span><svg class="level2-sidebar-arrow" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12l4-4-4-4"/></svg>';
+                        wholesaleParentBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            this.classList.toggle('expanded');
+                        });
+                        wholesaleWrap.appendChild(wholesaleParentBtn);
+                        var wholesaleSubmenu = document.createElement('ul');
+                        wholesaleSubmenu.className = 'level2-sidebar-submenu';
+                        child.children.forEach(function(sub) {
+                            var li = document.createElement('li');
+                            li.className = 'level2-sidebar-subitem';
+                            var a = document.createElement('a');
+                            a.href = '#';
+                            a.textContent = sub.title;
+                            a.dataset.path = sub.path;
+                            a.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                level2Sidebar.querySelectorAll('.level2-sidebar-item').forEach(function(link) { link.classList.remove('active'); });
+                                level2Sidebar.querySelectorAll('.level2-sidebar-subitem a, .level2-sidebar-subitem-expandable a').forEach(function(link) { link.classList.remove('active'); });
+                                this.classList.add('active');
+                                loadModulePage(sub.path, sub.title);
+                            });
+                            li.appendChild(a);
+                            wholesaleSubmenu.appendChild(li);
+                        });
+                        wholesaleWrap.appendChild(wholesaleSubmenu);
+                        level2Sidebar.appendChild(wholesaleWrap);
+                    } else if (isShangchaoSales && child.path) {
+                        var wholesaleItem = document.createElement('a');
+                        wholesaleItem.href = '#';
+                        wholesaleItem.className = 'level2-sidebar-item';
+                        wholesaleItem.textContent = child.title;
+                        wholesaleItem.dataset.path = child.path;
+                        wholesaleItem.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            level2Sidebar.querySelectorAll('.level2-sidebar-item').forEach(function(link) { link.classList.remove('active'); });
+                            level2Sidebar.querySelectorAll('.level2-sidebar-subitem a, .level2-sidebar-subitem-expandable a').forEach(function(link) { link.classList.remove('active'); });
+                            this.classList.add('active');
+                            loadModulePage(child.path, child.title);
+                        });
+                        level2Sidebar.appendChild(wholesaleItem);
                     } else {
                         // 普通二级菜单项（含 商超-商品 下的 套餐列表、商品分类 等）
                         const sidebarItem = document.createElement('a');
@@ -740,8 +874,8 @@
                     }
                 });
                 
-                // 非商超-商品、非商超-库存时，默认加载第一个子菜单（商品/库存的首次加载在各自展开项内已处理）
-                if (!isShangchaoProduct && !isShangchaoInventory && item.children.length > 0) {
+                // 非商超-商品、非商超-库存、非商超-销售时，默认加载第一个子菜单（商品/库存/销售的首次加载在各自分支内已处理）
+                if (!isShangchaoProduct && !isShangchaoInventory && !isShangchaoSales && item.children.length > 0) {
                     loadModulePage(item.children[0].path, item.children[0].title);
                 }
             } else if (item.path) {
