@@ -1,7 +1,7 @@
 // 商超收银台基础设置页面交互逻辑
 
-// 商超收银台：使用与餐饮统一的收银台主界面，传 type=mall 加载商超商品
-const POS_PAGE_PATH = 'pages/收银台/收银台主界面.html?type=mall';
+// 商超收银台：先进入模拟登录页，再进入主界面；传 type=mall 加载商超商品
+const POS_LOGIN_PATH = 'pages/收银台/收银台登录.html?type=mall';
 const STORAGE_KEY = 'posBasicSettings_mall';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function bindEvents() {
     document.getElementById('copyLinkBtn').addEventListener('click', copyEntryLink);
-    document.getElementById('copyAppLinkBtn').addEventListener('click', copyAppLink);
     document.getElementById('enterPosBtn').addEventListener('click', enterPos);
     document.getElementById('saveBtn').addEventListener('click', saveSettings);
     document.getElementById('resetBtn').addEventListener('click', resetSettings);
@@ -52,30 +51,9 @@ function copyEntryLink() {
     }
 }
 
-function copyAppLink() {
-    const input = document.getElementById('appDownloadUrl');
-    if (!input) return;
-    input.select();
-    input.setSelectionRange(0, 99999);
-    try {
-        document.execCommand('copy');
-        alert('APP 下载链接已复制到剪贴板');
-    } catch (err) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(input.value).then(function() {
-                alert('APP 下载链接已复制到剪贴板');
-            }).catch(function() {
-                alert('复制失败，请手动复制');
-            });
-        } else {
-            alert('复制失败，请手动复制');
-        }
-    }
-}
-
 function enterPos() {
-    // 在新窗口中打开商超收银台主界面
-    window.open('../收银台/收银台主界面.html?type=mall', '_blank');
+    // 先打开模拟登录页，登录后再进入主界面
+    window.open('../收银台/收银台登录.html?type=mall', '_blank');
 }
 
 function selectCategory() {
@@ -119,6 +97,7 @@ function loadSettings() {
     document.getElementById('addMoneySwitch').checked = settings.addMoneySwitch !== undefined ? settings.addMoneySwitch : true;
     document.getElementById('enableTeamDividend').checked = settings.enableTeamDividend !== undefined ? settings.enableTeamDividend : true;
     document.getElementById('enableDistribution').checked = settings.enableDistribution !== undefined ? settings.enableDistribution : true;
+    document.getElementById('enableShareholderDividend').checked = settings.enableShareholderDividend !== undefined ? settings.enableShareholderDividend : true;
     document.getElementById('payWechat').checked = settings.payWechat !== undefined ? settings.payWechat : true;
     document.getElementById('payAlipay').checked = settings.payAlipay !== undefined ? settings.payAlipay : true;
     document.getElementById('payCash').checked = settings.payCash !== undefined ? settings.payCash : true;
@@ -161,12 +140,6 @@ function loadSettings() {
         resetBgDisplay();
     }
 
-    // APP 下载链接
-    var appUrlInput = document.getElementById('appDownloadUrl');
-    if (appUrlInput) {
-        appUrlInput.value = settings.appDownloadUrl || 'https://xcxsc.scssrh.com/app/download';
-    }
-
     const categories = settings.categories || ['雅安好物', '雅安好景', '文创产品'];
     const tagsEl = document.getElementById('categoryTags');
     tagsEl.innerHTML = '';
@@ -184,12 +157,15 @@ function saveSettings() {
         return tag.querySelector('.pos-settings-tag-remove').getAttribute('data-name');
     });
 
+    const prevStored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
     const settings = {
         enableShiftHandover: document.getElementById('enableShiftHandover').checked,
         enableMemberRecharge: document.getElementById('enableMemberRecharge').checked,
         addMoneySwitch: document.getElementById('addMoneySwitch').checked,
         enableTeamDividend: document.getElementById('enableTeamDividend').checked,
         enableDistribution: document.getElementById('enableDistribution').checked,
+        enableShareholderDividend: document.getElementById('enableShareholderDividend').checked,
         payWechat: document.getElementById('payWechat').checked,
         payAlipay: document.getElementById('payAlipay').checked,
         payCash: document.getElementById('payCash').checked,
@@ -220,7 +196,9 @@ function saveSettings() {
         logoData: getLogoData(),
         bgData: getBgData(),
         categories: categories,
-        appDownloadUrl: document.getElementById('appDownloadUrl').value.trim()
+        appDownloadUrl: (prevStored.appDownloadUrl !== undefined && prevStored.appDownloadUrl !== '')
+            ? prevStored.appDownloadUrl
+            : 'https://xcxsc.scssrh.com/app/download'
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));

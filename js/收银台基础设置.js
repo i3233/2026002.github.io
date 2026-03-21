@@ -1,7 +1,7 @@
 // 收银台基础设置页面交互逻辑
 
-// 收银台页面路径（与 index.js 中餐饮收银台一致）
-const POS_PAGE_PATH = 'pages/收银台/收银台主界面.html?type=catering';
+// 先进入收银台登录页，再进入主界面
+const POS_LOGIN_PATH = 'pages/收银台/收银台登录.html?type=catering';
 
 document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
@@ -57,16 +57,16 @@ function copyEntryLink() {
     }
 }
 
-// 进入收银台（跳转到收银台主界面）
+// 进入收银台（先进入模拟登录页）
 function enterPos() {
     try {
         if (window.parent && typeof window.parent.loadPage === 'function') {
-            window.parent.loadPage({ preventDefault: function() {} }, POS_PAGE_PATH, '餐饮收银台');
+            window.parent.loadPage({ preventDefault: function() {} }, POS_LOGIN_PATH, '收银台登录');
         } else {
-            window.location.href = '../收银台/收银台主界面.html?type=catering';
+            window.location.href = '../收银台/收银台登录.html?type=catering';
         }
     } catch (e) {
-        window.location.href = '../收银台/收银台主界面.html?type=catering';
+        window.location.href = '../收银台/收银台登录.html?type=catering';
     }
 }
 
@@ -113,6 +113,7 @@ function loadSettings() {
     document.getElementById('addMoneySwitch').checked = settings.addMoneySwitch !== undefined ? settings.addMoneySwitch : true;
     document.getElementById('enableTeamDividend').checked = settings.enableTeamDividend !== undefined ? settings.enableTeamDividend : true;
     document.getElementById('enableDistribution').checked = settings.enableDistribution !== undefined ? settings.enableDistribution : true;
+    document.getElementById('enableShareholderDividend').checked = settings.enableShareholderDividend !== undefined ? settings.enableShareholderDividend : true;
     document.getElementById('payWechat').checked = settings.payWechat !== undefined ? settings.payWechat : true;
     document.getElementById('payAlipay').checked = settings.payAlipay !== undefined ? settings.payAlipay : true;
     document.getElementById('payCash').checked = settings.payCash !== undefined ? settings.payCash : true;
@@ -180,6 +181,7 @@ function saveSettings() {
         addMoneySwitch: document.getElementById('addMoneySwitch').checked,
         enableTeamDividend: document.getElementById('enableTeamDividend').checked,
         enableDistribution: document.getElementById('enableDistribution').checked,
+        enableShareholderDividend: document.getElementById('enableShareholderDividend').checked,
         payWechat: document.getElementById('payWechat').checked,
         payAlipay: document.getElementById('payAlipay').checked,
         payCash: document.getElementById('payCash').checked,

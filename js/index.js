@@ -25,8 +25,24 @@ const menuData = [
             {
                 title: "销售",
                 children: [
-                    { title: "零售管理", path: "pages/商超/全部订单.html" },
-                    { title: "批发管理", path: "pages/商超/批发订单.html" }
+                    {
+                        title: "零售管理",
+                        children: [
+                            { title: "全部", path: "pages/商超/全部订单.html?orderType=all" },
+                            { title: "线上订单", path: "pages/商超/全部订单.html?orderType=online" },
+                            { title: "收银台订单", path: "pages/商超/全部订单.html?orderType=store" },
+                            { title: "退款/售后", path: "pages/商超/全部订单.html?orderType=refund" }
+                        ]
+                    },
+                    {
+                        title: "批发管理",
+                        children: [
+                            { title: "全部", path: "pages/商超/批发订单.html?wholesaleView=all" },
+                            { title: "销售开单", path: "pages/商超/批发订单.html?wholesaleView=salesOrder" },
+                            { title: "销售出库", path: "pages/商超/批发订单.html?wholesaleView=outbound" },
+                            { title: "退货/售后", path: "pages/商超/批发订单.html?wholesaleView=refund" }
+                        ]
+                    }
                 ]
             },
             {
@@ -48,13 +64,13 @@ const menuData = [
                 ]
             },
             {
-                title: "商超收银台",
+                title: "收银",
                 children: [
                     { title: "基础设置", path: "pages/商超/收银台基础设置.html" },
                     { title: "收银员", path: "pages/商超/收银员.html" },
                     { title: "导购员", path: "pages/商超/导购员.html" },
                     { title: "服务员", path: "pages/商超/服务员.html" },
-                    { title: "打印设置", path: "pages/商超/打印设置.html" }
+                    { title: "收银机管理", path: "pages/商超/收银机管理.html" }
                 ]
             },
             {
@@ -63,7 +79,8 @@ const menuData = [
                     { title: "商品", path: "pages/商超/设置/商品.html" },
                     { title: "订单", path: "pages/商超/设置/订单.html" },
                     { title: "支付", path: "pages/商超/设置/支付.html" },
-                    { title: "配送", path: "pages/商超/设置/配送.html" }
+                    { title: "配送", path: "pages/商超/设置/配送.html" },
+                    { title: "打印机", path: "pages/商超/打印设置.html" }
                 ]
             }
         ]
@@ -221,9 +238,28 @@ function generateMenu(moduleName = null) {
                 menuHTML += `<div class="submenu">`;
                 
                 item.children.forEach(child => {
-                    menuHTML += `<div class="submenu-item">`;
-                    menuHTML += `<a href="#" class="submenu-item-link" data-path="${child.path}" data-title="${child.title}" onclick="loadPage(event, '${child.path}', '${child.title}')">${child.title}</a>`;
-                    menuHTML += `</div>`;
+                    if (child.children && child.children.length > 0) {
+                        menuHTML += `<div class="submenu-group">`;
+                        menuHTML += `<div class="submenu-nest-toggle" onclick="toggleNestedSubmenu(event, this)">`;
+                        menuHTML += `<span class="submenu-nest-toggle-text">${child.title}</span>`;
+                        menuHTML += `<svg class="menu-item-arrow" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12l4-4-4-4"/></svg>`;
+                        menuHTML += `</div>`;
+                        menuHTML += `<div class="submenu-nested">`;
+                        child.children.forEach(sub => {
+                            const p = (sub.path || '').replace(/"/g, '&quot;');
+                            const t = (sub.title || '').replace(/"/g, '&quot;');
+                            menuHTML += `<div class="submenu-item submenu-item-deep">`;
+                            menuHTML += `<a href="#" class="submenu-item-link" data-path="${p}" data-title="${t}" onclick="loadPage(event, this.getAttribute('data-path'), this.getAttribute('data-title'))">${sub.title}</a>`;
+                            menuHTML += `</div>`;
+                        });
+                        menuHTML += `</div></div>`;
+                    } else {
+                        const cp = (child.path || '').replace(/"/g, '&quot;');
+                        const ct = (child.title || '').replace(/"/g, '&quot;');
+                        menuHTML += `<div class="submenu-item">`;
+                        menuHTML += `<a href="#" class="submenu-item-link" data-path="${cp}" data-title="${ct}" onclick="loadPage(event, this.getAttribute('data-path'), this.getAttribute('data-title'))">${child.title}</a>`;
+                        menuHTML += `</div>`;
+                    }
                 });
                 
                 menuHTML += `</div>`;
@@ -280,6 +316,16 @@ function toggleSubmenu(element) {
     menuItem.classList.toggle('expanded');
 }
 
+// 三级菜单：如 销售 → 零售管理（默认收起）
+function toggleNestedSubmenu(event, el) {
+    if (event) event.preventDefault();
+    const g = el && el.closest('.submenu-group');
+    if (g) g.classList.toggle('expanded');
+}
+if (typeof window !== 'undefined') {
+    window.toggleNestedSubmenu = toggleNestedSubmenu;
+}
+
 // 查找菜单项的完整路径信息
 function findMenuPath(path) {
     for (const module of menuData) {
@@ -295,10 +341,23 @@ function findMenuPath(path) {
             }
         }
         
-        // 检查二级菜单（有子菜单）
+        // 检查二级 / 三级菜单（有子菜单）
         for (const item of module.items) {
             if (item.children) {
                 for (const child of item.children) {
+                    if (child.children) {
+                        for (const sub of child.children) {
+                            if (sub.path === path) {
+                                return {
+                                    module: module.module,
+                                    level1: item.title,
+                                    level2: child.title,
+                                    level3: sub.title,
+                                    path: path
+                                };
+                            }
+                        }
+                    }
                     if (child.path === path) {
                         return {
                             module: module.module,
@@ -339,6 +398,12 @@ function updateBreadcrumb(pathInfo) {
     if (pathInfo.level2) {
         breadcrumbHTML += '<span class="breadcrumb-separator">/</span>';
         breadcrumbHTML += `<span class="breadcrumb-item">${pathInfo.level2}</span>`;
+    }
+    
+    // 三级菜单（如 零售管理 → 全部）
+    if (pathInfo.level3) {
+        breadcrumbHTML += '<span class="breadcrumb-separator">/</span>';
+        breadcrumbHTML += `<span class="breadcrumb-item">${pathInfo.level3}</span>`;
     }
     
     breadcrumbNav.innerHTML = breadcrumbHTML;
@@ -480,8 +545,10 @@ const tabsManager = {
             link.classList.remove('active');
         });
         
-        // 查找对应的菜单项并激活
-        const menuLink = document.querySelector(`[data-path="${path}"]`);
+        // 查找对应的菜单项并激活（避免 path 含 ? 时 CSS 选择器失效）
+        const menuLink = Array.from(document.querySelectorAll('[data-path]')).find(function (el) {
+            return el.getAttribute('data-path') === path;
+        });
         if (menuLink) {
             menuLink.classList.add('active');
             
@@ -494,6 +561,8 @@ const tabsManager = {
                     menuItem.classList.add('expanded');
                 }
             }
+            const nestedGroup = menuLink.closest('.submenu-group');
+            if (nestedGroup) nestedGroup.classList.add('expanded');
         }
     },
     
