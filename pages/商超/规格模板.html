@@ -17,11 +17,18 @@
             padding: var(--spacing-lg);
             width: 1000px;
         }
+        .card-head-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
         .card-title {
             font-size: var(--font-size-lg);
             font-weight: var(--font-weight-medium);
             color: var(--color-text-primary);
-            margin: 0 0 var(--spacing-md) 0;
+            margin: 0;
         }
         .spec-table {
             width: 100%;
@@ -45,13 +52,6 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .card-foot {
-            margin-top: var(--spacing-lg);
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        /* 已保存规格模板列表（名称样式对齐商品标签 tag-pill） */
         .spec-saved-list {
             margin-top: var(--spacing-xl);
             padding-top: var(--spacing-lg);
@@ -90,30 +90,134 @@
             background-color: currentColor;
             flex-shrink: 0;
         }
+        .spec-table .col-actions {
+            width: 88px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .template-list-del-btn {
+            padding: 4px 10px;
+            font-size: var(--font-size-xs);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            background: #fff;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+        }
+        .template-list-del-btn:hover {
+            border-color: var(--color-error);
+            color: var(--color-error);
+        }
+
+        /* 弹窗 */
+        .spec-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            box-sizing: border-box;
+        }
+        .spec-modal[hidden] {
+            display: none !important;
+        }
+        .spec-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+        }
+        .spec-modal-dialog {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            max-height: calc(100vh - 48px);
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .spec-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            flex-shrink: 0;
+        }
+        .spec-modal-title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+        }
+        .spec-modal-close {
+            border: none;
+            background: transparent;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            padding: 4px 8px;
+        }
+        .spec-modal-close:hover {
+            color: var(--color-text-primary);
+        }
+        .spec-modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+        .spec-modal-toolbar {
+            margin-bottom: var(--spacing-md);
+        }
+        .spec-add-row-btn {
+            padding: 6px 12px;
+            font-size: var(--font-size-sm);
+            border: 1px dashed var(--color-primary);
+            border-radius: var(--radius-md);
+            background: rgba(44, 131, 235, 0.06);
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+        .spec-add-row-btn:hover {
+            background: rgba(44, 131, 235, 0.12);
+        }
+        .spec-modal-row-del {
+            width: 36px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .spec-modal-row-del button {
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+        .spec-modal-row-del button:hover {
+            color: var(--color-error);
+        }
+        .spec-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
     <div class="spec-template-page">
         <div class="card">
-            <h2 class="card-title">规格</h2>
-            <table class="spec-table">
-                <thead>
-                    <tr>
-                        <th>规格名称</th>
-                        <th>加价</th>
-                        <th>成本</th>
-                    </tr>
-                </thead>
-                <tbody id="specTableBody">
-                    <tr>
-                        <td><input type="text" class="spec-name" placeholder="规格名称"></td>
-                        <td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                        <td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="card-foot">
-                <button type="button" class="btn btn-primary" id="specConfirmBtn">确定</button>
+            <div class="card-head-row">
+                <h2 class="card-title">规格模板</h2>
+                <button type="button" class="btn btn-primary" id="openSpecModalBtn">新增规格</button>
             </div>
 
             <div class="spec-saved-list" id="specSavedListSection">
@@ -124,23 +228,53 @@
                             <th>规格名称</th>
                             <th>加价</th>
                             <th>成本</th>
+                            <th class="col-actions">操作</th>
                         </tr>
                     </thead>
                     <tbody id="specSavedListBody"></tbody>
                 </table>
-                <p class="spec-saved-empty" id="specSavedEmpty" style="display: none;">暂无已保存的规格模板，在上方填写一行后点击「确定」将追加到此处列表。</p>
+                <p class="spec-saved-empty" id="specSavedEmpty" style="display: none;">暂无已保存的规格模板，点击「新增规格」在弹窗中填写并点击「确定」将追加到此处列表。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="spec-modal" id="specModal" hidden>
+        <div class="spec-modal-backdrop" id="specModalBackdrop"></div>
+        <div class="spec-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="specModalTitle">
+            <div class="spec-modal-header">
+                <h2 class="spec-modal-title" id="specModalTitle">新增规格</h2>
+                <button type="button" class="spec-modal-close" id="specModalCloseBtn" aria-label="关闭">×</button>
+            </div>
+            <div class="spec-modal-body">
+                <div class="spec-modal-toolbar">
+                    <button type="button" class="spec-add-row-btn" id="specModalAddRowBtn">+ 添加一行</button>
+                </div>
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>规格名称</th>
+                            <th>加价</th>
+                            <th>成本</th>
+                            <th class="spec-modal-row-del"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="specModalTableBody"></tbody>
+                </table>
+            </div>
+            <div class="spec-modal-footer">
+                <button type="button" class="btn" id="specModalCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="specModalConfirmBtn">确定</button>
             </div>
         </div>
     </div>
 
     <script>
         (function () {
-            var tbody = document.getElementById('specTableBody');
             var savedListBody = document.getElementById('specSavedListBody');
             var savedEmptyEl = document.getElementById('specSavedEmpty');
             var STORAGE_KEY = 'shangchaoSpecTemplatesSaved';
+            var MODAL_INITIAL_ROWS = 4;
 
-            // 与商超「商品标签」页表格中「标签名称」一致，加价/成本为示例数据
             var DEFAULT_SAVED_SPECS = [
                 { name: '新品', price: 2.00, cost: 0.80 },
                 { name: '热销', price: 5.50, cost: 1.20 },
@@ -156,29 +290,66 @@
                 { name: '精选', price: 3.60, cost: 0.90 }
             ];
 
+            /** 统一为 { rows: [{name,price,cost},...] }[] */
+            function normalizeTemplates(arr) {
+                if (!Array.isArray(arr)) return [];
+                return arr.map(function (item) {
+                    if (item && Array.isArray(item.rows) && item.rows.length) {
+                        return {
+                            rows: item.rows.map(function (r) {
+                                return {
+                                    name: String(r.name || '').trim(),
+                                    price: parseFloat(r.price) || 0,
+                                    cost: parseFloat(r.cost) || 0
+                                };
+                            }).filter(function (r) { return r.name; })
+                        };
+                    }
+                    if (item && item.name !== undefined && String(item.name).trim()) {
+                        return {
+                            rows: [{
+                                name: String(item.name).trim(),
+                                price: parseFloat(item.price) || 0,
+                                cost: parseFloat(item.cost) || 0
+                            }]
+                        };
+                    }
+                    return { rows: [] };
+                }).filter(function (t) { return t.rows.length > 0; });
+            }
+
             function getSavedSpecData() {
                 var raw = localStorage.getItem(STORAGE_KEY);
                 if (raw === null || raw === '' || raw === '[]') {
+                    var initial = normalizeTemplates(DEFAULT_SAVED_SPECS);
                     try {
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SAVED_SPECS));
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
                     } catch (e) {}
-                    return DEFAULT_SAVED_SPECS.slice();
+                    return initial;
                 }
                 try {
                     var parsed = JSON.parse(raw);
-                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                    var norm = normalizeTemplates(parsed);
+                    if (!norm.length) {
+                        norm = normalizeTemplates(DEFAULT_SAVED_SPECS);
                         try {
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SAVED_SPECS));
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(norm));
                         } catch (e2) {}
-                        return DEFAULT_SAVED_SPECS.slice();
                     }
-                    return parsed;
+                    return norm;
                 } catch (e) {
+                    var fallback = normalizeTemplates(DEFAULT_SAVED_SPECS);
                     try {
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SAVED_SPECS));
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
                     } catch (e2) {}
-                    return DEFAULT_SAVED_SPECS.slice();
+                    return fallback;
                 }
+            }
+
+            function persist(data) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {}
             }
 
             function escapeHtml(s) {
@@ -188,66 +359,127 @@
                 return d.innerHTML;
             }
 
+            function deleteSpecRow(templateIndex, rowIndex) {
+                var data = getSavedSpecData();
+                var tpl = data[templateIndex];
+                if (!tpl || !tpl.rows || !tpl.rows[rowIndex]) return;
+                tpl.rows.splice(rowIndex, 1);
+                if (tpl.rows.length === 0) {
+                    data.splice(templateIndex, 1);
+                }
+                persist(data);
+                renderSavedSpecList();
+            }
+
             function renderSavedSpecList() {
                 if (!savedListBody) return;
                 var data = getSavedSpecData();
-                if (!Array.isArray(data)) data = [];
                 savedListBody.innerHTML = '';
                 var pillClasses = ['tag-pill tag-pill--primary', 'tag-pill tag-pill--danger', 'tag-pill tag-pill--success'];
-                data.forEach(function (row, i) {
-                    var tr = document.createElement('tr');
-                    var pc = pillClasses[i % pillClasses.length];
-                    tr.innerHTML =
-                        '<td><span class="' + pc + '"><span class="tag-preview-dot"></span><span>' + escapeHtml(row.name) + '</span></span></td>' +
-                        '<td>¥' + (Number(row.price) || 0).toFixed(2) + '</td>' +
-                        '<td>¥' + (Number(row.cost) || 0).toFixed(2) + '</td>';
-                    savedListBody.appendChild(tr);
+                var globalRowIndex = 0;
+                data.forEach(function (tpl, ti) {
+                    (tpl.rows || []).forEach(function (row, ri) {
+                        var tr = document.createElement('tr');
+                        var pc = pillClasses[globalRowIndex % pillClasses.length];
+                        globalRowIndex++;
+                        tr.innerHTML =
+                            '<td><span class="' + pc + '"><span class="tag-preview-dot"></span><span>' + escapeHtml(row.name) + '</span></span></td>' +
+                            '<td>¥' + (Number(row.price) || 0).toFixed(2) + '</td>' +
+                            '<td>¥' + (Number(row.cost) || 0).toFixed(2) + '</td>' +
+                            '<td class="col-actions"><button type="button" class="template-list-del-btn" data-ti="' + ti + '" data-ri="' + ri + '">删除</button></td>';
+                        savedListBody.appendChild(tr);
+                    });
+                });
+                savedListBody.querySelectorAll('.template-list-del-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var ti = parseInt(btn.getAttribute('data-ti'), 10);
+                        var ri = parseInt(btn.getAttribute('data-ri'), 10);
+                        if (isNaN(ti) || isNaN(ri)) return;
+                        if (!confirm('确定删除该条规格？')) return;
+                        deleteSpecRow(ti, ri);
+                    });
                 });
                 if (savedEmptyEl) {
-                    savedEmptyEl.style.display = data.length ? 'none' : 'block';
+                    savedEmptyEl.style.display = globalRowIndex ? 'none' : 'block';
                 }
             }
 
-            function collectOneRowFromForm() {
-                var tr = tbody.querySelector('tr');
-                if (!tr) return null;
-                var nameEl = tr.querySelector('.spec-name');
-                var priceEl = tr.querySelector('.spec-price');
-                var costEl = tr.querySelector('.spec-cost');
-                var name = nameEl ? nameEl.value.trim() : '';
-                if (!name) return null;
-                return {
-                    name: name,
-                    price: parseFloat(priceEl && priceEl.value) || 0,
-                    cost: parseFloat(costEl && costEl.value) || 0
-                };
+            var modal = document.getElementById('specModal');
+            var modalBody = document.getElementById('specModalTableBody');
+
+            function createModalRow() {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td><input type="text" class="spec-name" placeholder="规格名称"></td>' +
+                    '<td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
+                    '<td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
+                    '<td class="spec-modal-row-del"><button type="button" class="spec-modal-remove-row" title="删除本行">×</button></td>';
+                tr.querySelector('.spec-modal-remove-row').addEventListener('click', function () {
+                    if (modalBody.querySelectorAll('tr').length <= 1) {
+                        alert('至少保留一行');
+                        return;
+                    }
+                    tr.remove();
+                });
+                return tr;
             }
 
-            function clearFormRow() {
-                var tr = tbody.querySelector('tr');
-                if (!tr) return;
-                var nameEl = tr.querySelector('.spec-name');
-                var priceEl = tr.querySelector('.spec-price');
-                var costEl = tr.querySelector('.spec-cost');
-                if (nameEl) nameEl.value = '';
-                if (priceEl) priceEl.value = '0';
-                if (costEl) costEl.value = '0';
+            function resetModalRows() {
+                modalBody.innerHTML = '';
+                for (var i = 0; i < MODAL_INITIAL_ROWS; i++) {
+                    modalBody.appendChild(createModalRow());
+                }
             }
 
-            document.getElementById('specConfirmBtn').addEventListener('click', function () {
-                var row = collectOneRowFromForm();
-                if (!row) {
-                    alert('请填写规格名称');
+            function openModal() {
+                resetModalRows();
+                modal.hidden = false;
+                document.body.style.overflow = 'hidden';
+                var first = modalBody.querySelector('.spec-name');
+                if (first) first.focus();
+            }
+
+            function closeModal() {
+                modal.hidden = true;
+                document.body.style.overflow = '';
+            }
+
+            function collectModalRows() {
+                var out = [];
+                modalBody.querySelectorAll('tr').forEach(function (tr) {
+                    var nameEl = tr.querySelector('.spec-name');
+                    var priceEl = tr.querySelector('.spec-price');
+                    var costEl = tr.querySelector('.spec-cost');
+                    var name = nameEl ? nameEl.value.trim() : '';
+                    if (!name) return;
+                    out.push({
+                        name: name,
+                        price: parseFloat(priceEl && priceEl.value) || 0,
+                        cost: parseFloat(costEl && costEl.value) || 0
+                    });
+                });
+                return out;
+            }
+
+            document.getElementById('openSpecModalBtn').addEventListener('click', openModal);
+            document.getElementById('specModalBackdrop').addEventListener('click', closeModal);
+            document.getElementById('specModalCloseBtn').addEventListener('click', closeModal);
+            document.getElementById('specModalCancelBtn').addEventListener('click', closeModal);
+            document.getElementById('specModalAddRowBtn').addEventListener('click', function () {
+                modalBody.appendChild(createModalRow());
+            });
+
+            document.getElementById('specModalConfirmBtn').addEventListener('click', function () {
+                var rows = collectModalRows();
+                if (!rows.length) {
+                    alert('请至少填写一行规格名称');
                     return;
                 }
                 var data = getSavedSpecData();
-                if (!Array.isArray(data)) data = [];
-                data.push(row);
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                } catch (e) {}
+                data.push({ rows: rows });
+                persist(data);
                 renderSavedSpecList();
-                clearFormRow();
+                closeModal();
             });
 
             renderSavedSpecList();

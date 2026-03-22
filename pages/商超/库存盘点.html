@@ -122,6 +122,11 @@
             align-items: center;
             justify-content: space-between;
         }
+        .detail-modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
         .detail-modal-title {
             margin: 0;
             font-size: var(--font-size-lg);
@@ -237,19 +242,29 @@
             overflow: hidden;
         }
         .stock-check-product-picker-categories {
-            width: 120px;
+            width: 136px;
             flex-shrink: 0;
             border-right: 1px solid var(--color-neutral-200);
             padding: var(--spacing-sm);
             overflow-y: auto;
         }
         .stock-check-product-picker-cat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             padding: var(--spacing-sm) var(--spacing-md);
             font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
             cursor: pointer;
             border-radius: var(--radius-md);
             margin-bottom: 2px;
+        }
+        .stock-check-product-picker-cat-checkbox {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
         }
         .stock-check-product-picker-cat-item:hover {
             background: var(--color-neutral-50);
@@ -413,7 +428,11 @@
         <div class="detail-modal" style="max-width: 900px;">
             <div class="detail-modal-header">
                 <h3 class="detail-modal-title">盘点执行</h3>
-                <button type="button" class="btn btn-outline" id="doCheckModalClose">关闭</button>
+                <div class="detail-modal-header-actions">
+                    <input type="file" id="doCheckModalImportFile" accept=".csv,.xlsx,.xls" hidden aria-hidden="true">
+                    <button type="button" class="btn btn-outline" id="doCheckModalImportBtn">导入盘点单</button>
+                    <button type="button" class="btn btn-outline" id="doCheckModalClose">关闭</button>
+                </div>
             </div>
             <div class="detail-modal-body">
                 <div class="table-wrapper">
@@ -509,10 +528,22 @@
             </div>
             <div class="stock-check-product-picker-body">
                 <aside class="stock-check-product-picker-categories" id="stockCheckProductPickerCategories">
-                    <div class="stock-check-product-picker-cat-item active" data-category="全部">全部</div>
-                    <div class="stock-check-product-picker-cat-item" data-category="雅安好物">雅安好物</div>
-                    <div class="stock-check-product-picker-cat-item" data-category="雅安好景">雅安好景</div>
-                    <div class="stock-check-product-picker-cat-item" data-category="文创产品">文创产品</div>
+                    <div class="stock-check-product-picker-cat-item active" data-category="全部">
+                        <input type="checkbox" class="stock-check-product-picker-cat-checkbox" data-category="全部" title="全选/取消全选全部商品" aria-label="全选全部商品">
+                        <span>全部</span>
+                    </div>
+                    <div class="stock-check-product-picker-cat-item" data-category="雅安好物">
+                        <input type="checkbox" class="stock-check-product-picker-cat-checkbox" data-category="雅安好物" title="全选/取消全选本类商品" aria-label="全选雅安好物">
+                        <span>雅安好物</span>
+                    </div>
+                    <div class="stock-check-product-picker-cat-item" data-category="雅安好景">
+                        <input type="checkbox" class="stock-check-product-picker-cat-checkbox" data-category="雅安好景" title="全选/取消全选本类商品" aria-label="全选雅安好景">
+                        <span>雅安好景</span>
+                    </div>
+                    <div class="stock-check-product-picker-cat-item" data-category="文创产品">
+                        <input type="checkbox" class="stock-check-product-picker-cat-checkbox" data-category="文创产品" title="全选/取消全选本类商品" aria-label="全选文创产品">
+                        <span>文创产品</span>
+                    </div>
                 </aside>
                 <div class="stock-check-product-picker-list-wrap">
                     <div class="stock-check-product-picker-list" id="stockCheckProductPickerList"></div>
@@ -797,6 +828,46 @@
         const stockCheckProductPickerListEl = document.getElementById('stockCheckProductPickerList');
         const stockCheckProductPickerCategoriesEl = document.getElementById('stockCheckProductPickerCategories');
 
+        function getStockCheckPickerIndicesForCategory(category) {
+            if (category === '全部') {
+                var all = [];
+                for (var i = 0; i < stockCheckPickerProducts.length; i++) all.push(i);
+                return all;
+            }
+            var out = [];
+            stockCheckPickerProducts.forEach(function (p, i) {
+                if (p.category === category) out.push(i);
+            });
+            return out;
+        }
+
+        function syncStockCheckCategoryCheckboxes() {
+            if (!stockCheckProductPickerCategoriesEl) return;
+            stockCheckProductPickerCategoriesEl.querySelectorAll('.stock-check-product-picker-cat-checkbox').forEach(function (cb) {
+                var cat = cb.dataset.category;
+                var indices = getStockCheckPickerIndicesForCategory(cat);
+                if (indices.length === 0) {
+                    cb.checked = false;
+                    cb.indeterminate = false;
+                    return;
+                }
+                var sel = 0;
+                indices.forEach(function (i) {
+                    if (stockCheckPickerSelectedIdx.has(i)) sel++;
+                });
+                if (sel === 0) {
+                    cb.checked = false;
+                    cb.indeterminate = false;
+                } else if (sel === indices.length) {
+                    cb.checked = true;
+                    cb.indeterminate = false;
+                } else {
+                    cb.checked = false;
+                    cb.indeterminate = true;
+                }
+            });
+        }
+
         function renderStockCheckProductPickerList() {
             if (!stockCheckProductPickerListEl) return;
             var cat = stockCheckPickerCurrentCategory;
@@ -817,6 +888,7 @@
                     '</label>';
                 stockCheckProductPickerListEl.appendChild(div);
             });
+            syncStockCheckCategoryCheckboxes();
         }
         function openStockCheckProductPicker() {
             stockCheckPickerSelectedIdx = new Set();
@@ -919,10 +991,24 @@
                 if (isNaN(idx)) return;
                 if (cb.checked) stockCheckPickerSelectedIdx.add(idx);
                 else stockCheckPickerSelectedIdx.delete(idx);
+                syncStockCheckCategoryCheckboxes();
             });
         }
         if (stockCheckProductPickerCategoriesEl) {
+            stockCheckProductPickerCategoriesEl.addEventListener('change', function (e) {
+                var catCb = e.target.closest('.stock-check-product-picker-cat-checkbox');
+                if (!catCb) return;
+                var cat = catCb.dataset.category || '全部';
+                var indices = getStockCheckPickerIndicesForCategory(cat);
+                if (catCb.checked) {
+                    indices.forEach(function (i) { stockCheckPickerSelectedIdx.add(i); });
+                } else {
+                    indices.forEach(function (i) { stockCheckPickerSelectedIdx.delete(i); });
+                }
+                renderStockCheckProductPickerList();
+            });
             stockCheckProductPickerCategoriesEl.addEventListener('click', function (e) {
+                if (e.target.closest('.stock-check-product-picker-cat-checkbox')) return;
                 var cat = e.target.closest('.stock-check-product-picker-cat-item');
                 if (!cat) return;
                 stockCheckPickerCurrentCategory = cat.dataset.category || '全部';
@@ -1004,6 +1090,19 @@
         });
         var doCheckModalClose = document.getElementById('doCheckModalClose');
         if (doCheckModalClose) doCheckModalClose.addEventListener('click', closeDoCheckModal);
+        var doCheckModalImportBtn = document.getElementById('doCheckModalImportBtn');
+        var doCheckModalImportFile = document.getElementById('doCheckModalImportFile');
+        if (doCheckModalImportBtn && doCheckModalImportFile) {
+            doCheckModalImportBtn.addEventListener('click', function () {
+                doCheckModalImportFile.value = '';
+                doCheckModalImportFile.click();
+            });
+            doCheckModalImportFile.addEventListener('change', function () {
+                var f = this.files && this.files[0];
+                if (!f) return;
+                alert('导入盘点单（示例）\n已选择文件：' + f.name + '\n实际系统可解析 CSV/Excel 后回填「实际数量」等字段。');
+            });
+        }
         var doCheckModal = document.getElementById('doCheckModal');
         if (doCheckModal) doCheckModal.addEventListener('click', function(e) { if (e.target === this) closeDoCheckModal(); });
         var doCheckModalSave = document.getElementById('doCheckModalSave');

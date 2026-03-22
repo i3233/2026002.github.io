@@ -228,35 +228,6 @@
             color: var(--color-text-secondary);
         }
 
-        /* Tab 切换（销售订单类型） */
-        .order-tabs {
-            display: flex;
-            gap: var(--spacing-xs);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .order-tab-btn {
-            padding: var(--spacing-xs) var(--spacing-md);
-            border-radius: var(--radius-full);
-            border: none;
-            background-color: transparent;
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            transition: all var(--transition-base) var(--ease-in-out);
-        }
-
-        .order-tab-btn:hover {
-            background-color: var(--color-neutral-100);
-            color: var(--color-text-primary);
-        }
-
-        .order-tab-btn.active {
-            background-color: rgba(44, 131, 235, 0.1);
-            color: var(--color-primary);
-            font-weight: var(--font-weight-medium);
-        }
-
         /* 表格容器 */
         .table-container {
             background-color: #ffffff;
@@ -586,6 +557,24 @@
         }
         .ship-form-required { color: var(--color-error); margin-right: 2px; }
 
+        /* 电子面单：面单下拉较窄；单号 + 获取面单 */
+        .ship-waybill-sheet-select {
+            max-width: 280px;
+        }
+        .ship-tracking-input-row {
+            display: flex;
+            align-items: stretch;
+            gap: var(--spacing-sm);
+        }
+        .ship-tracking-input-row .form-input {
+            flex: 1;
+            min-width: 0;
+        }
+        .ship-tracking-input-row .btn {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
         .btn-link {
             color: var(--color-primary);
             background-color: transparent;
@@ -721,7 +710,7 @@
 </head>
 <body>
     <div class="order-page">
-        <!-- 顶部工具栏（右侧内容区不显示“全部订单”标题，线上订单/收银台订单在下方切页切换） -->
+        <!-- 顶部工具栏；零售管理子类型由左侧菜单 ?orderType= 进入，页内不再展示订单类型页签 -->
         <div class="toolbar-card">
             <div class="toolbar-left">
                 <div class="tabs-nav tabs-nav-inline" id="orderStatusFilterGroup" role="group" aria-label="订单状态筛选">
@@ -757,14 +746,6 @@
                 </div>
                 <button class="btn btn-outline" title="切换为列表视图">列表</button>
             </div>
-        </div>
-
-        <!-- 订单类型 Tab：全部、线上订单、收银台订单、退款/售后 -->
-        <div class="order-tabs">
-            <button class="order-tab-btn active" data-type="all">全部</button>
-            <button class="order-tab-btn" data-type="online">线上订单</button>
-            <button class="order-tab-btn" data-type="store">收银台订单</button>
-            <button class="order-tab-btn" data-type="refund">退款/售后</button>
         </div>
 
         <!-- 统计卡片 -->
@@ -883,28 +864,57 @@
                                 </div>
                             </div>
                             <div id="shipExpressFields">
-                                <div class="form-group">
-                                    <label class="form-label" for="shipCompany"><span class="ship-form-required">*</span>快递公司</label>
-                                    <select id="shipCompany" class="form-input">
-                                        <option value="">请选择快递公司</option>
-                                        <option value="sf">顺丰速运</option>
-                                        <option value="yt">圆通速递</option>
-                                        <option value="zt">中通快递</option>
-                                        <option value="yd">韵达快递</option>
-                                        <option value="jd">京东物流</option>
-                                    </select>
+                                <!-- 快递配送 -->
+                                <div id="shipModeExpress">
+                                    <div class="form-group">
+                                        <label class="form-label" for="shipCompany"><span class="ship-form-required">*</span>快递公司</label>
+                                        <select id="shipCompany" class="form-input">
+                                            <option value="">请选择快递公司</option>
+                                            <option value="sf">顺丰速运</option>
+                                            <option value="yt">圆通速递</option>
+                                            <option value="zt">中通快递</option>
+                                            <option value="yd">韵达快递</option>
+                                            <option value="jd">京东物流</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- 电子面单 -->
+                                <div id="shipModeEwaybill" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label" for="shipWaybillSheet"><span class="ship-form-required">*</span>选择面单</label>
+                                        <select id="shipWaybillSheet" class="form-input ship-waybill-sheet-select">
+                                            <option value="">请选择面单</option>
+                                            <option value="sf_std">顺丰标准面单</option>
+                                            <option value="yt_std">圆通电子面单</option>
+                                            <option value="zt_std">中通电子面单</option>
+                                            <option value="jd_std">京东无界电子面单</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="shipPostcode">收件人邮编</label>
                                     <input type="number" id="shipPostcode" class="form-input" placeholder="请输入收件人邮编" min="0">
                                 </div>
-                                <div class="form-group">
+                                <div id="shipTrackingRowExpress" class="form-group">
                                     <label class="form-label" for="shipTracking"><span class="ship-form-required">*</span>快递单号</label>
                                     <input type="text" id="shipTracking" class="form-input" placeholder="请输入快递单号" autocomplete="off">
+                                </div>
+                                <div id="shipTrackingRowEwaybill" class="form-group" style="display: none;">
+                                    <label class="form-label" for="shipTrackingEwaybill"><span class="ship-form-required">*</span>快递单号</label>
+                                    <div class="ship-tracking-input-row">
+                                        <input type="text" id="shipTrackingEwaybill" class="form-input" placeholder="请输入快递单号" autocomplete="off">
+                                        <button type="button" class="btn btn-outline" id="btnGetWaybill">获取面单</button>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="shipMerchantMsg">商家留言</label>
                                     <textarea id="shipMerchantMsg" class="form-input" rows="3" placeholder="请输入商家留言" style="resize: vertical; min-height: 72px;"></textarea>
+                                </div>
+                            </div>
+                            <div id="shipNoLogisticsFields" style="display: none;">
+                                <div class="form-group">
+                                    <label class="form-label" for="shipLogisticsContent"><span class="ship-form-required">*</span>物流内容</label>
+                                    <input type="text" id="shipLogisticsContent" class="form-input" placeholder="请输入物流内容" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -923,7 +933,6 @@
                         <div class="order-detail-title">订单详情</div>
                         <div class="page-subtitle" id="orderDetailSubtitle">订单号：-</div>
                     </div>
-                    <button class="btn btn-outline" type="button" id="orderDetailCloseBtn">关闭</button>
                 </div>
                 <div class="order-detail-body" id="orderDetailBody">
                     <!-- 详情内容由 JS 渲染 -->
@@ -957,7 +966,6 @@
                         <input type="checkbox" id="bottomSelectAll">
                         <span>全选</span>
                     </label>
-                    <button class="btn btn-outline" id="batchExportBtn">批量导出</button>
                     <button class="btn btn-outline" id="batchCloseBtn">批量关闭订单</button>
                     <button class="btn btn-outline" id="batchDeleteBtn">删除</button>
                     <span class="text-secondary" id="selectedInfo">已选择 0 条记录</span>
@@ -1366,16 +1374,6 @@
             }
         });
 
-        // Tab 点击
-        document.querySelectorAll('.order-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.order-tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentType = btn.dataset.type || 'all';
-                filterByType();
-            });
-        });
-
         (function initOrderStatusFilterTabs() {
             const group = document.getElementById('orderStatusFilterGroup');
             if (!group) return;
@@ -1551,15 +1549,6 @@
         });
 
         // 底部批量操作（示意）
-        document.getElementById('batchExportBtn').addEventListener('click', function () {
-            const ids = getSelectedIds();
-            if (!ids.length) {
-                alert('请先勾选需要导出的订单。');
-                return;
-            }
-            alert('批量导出（示例）：共选择 ' + ids.length + ' 条，订单号：\\n' + ids.join('\\n'));
-        });
-
         document.getElementById('batchCloseBtn').addEventListener('click', function () {
             const ids = getSelectedIds();
             if (!ids.length) {
@@ -2073,14 +2062,45 @@
 
         function updateShipExpressFieldsVisibility() {
             const type = (document.querySelector('input[name="shipLogistics"]:checked') || {}).value || 'express';
-            const box = document.getElementById('shipExpressFields');
-            if (!box) return;
-            const show = type === 'express' || type === 'ewaybill';
-            box.style.display = show ? '' : 'none';
-            const inputs = box.querySelectorAll('input, select, textarea');
-            inputs.forEach(function (el) {
-                el.disabled = !show;
-            });
+            const expressBox = document.getElementById('shipExpressFields');
+            const noneBox = document.getElementById('shipNoLogisticsFields');
+            const showExpressBlock = type === 'express' || type === 'ewaybill';
+            const showNone = type === 'none';
+            const isExpress = type === 'express';
+            const isEwaybill = type === 'ewaybill';
+
+            if (expressBox) {
+                expressBox.style.display = showExpressBlock ? '' : 'none';
+            }
+            if (noneBox) {
+                noneBox.style.display = showNone ? '' : 'none';
+                noneBox.querySelectorAll('input, select, textarea').forEach(function (el) {
+                    el.disabled = !showNone;
+                });
+            }
+
+            const modeEx = document.getElementById('shipModeExpress');
+            const modeEw = document.getElementById('shipModeEwaybill');
+            const rowTrEx = document.getElementById('shipTrackingRowExpress');
+            const rowTrEw = document.getElementById('shipTrackingRowEwaybill');
+            if (modeEx) modeEx.style.display = isExpress ? '' : 'none';
+            if (modeEw) modeEw.style.display = isEwaybill ? '' : 'none';
+            if (rowTrEx) rowTrEx.style.display = isExpress ? '' : 'none';
+            if (rowTrEw) rowTrEw.style.display = isEwaybill ? '' : 'none';
+
+            function setEl(id, disabled) {
+                const el = document.getElementById(id);
+                if (el) el.disabled = disabled;
+            }
+            const off = !showExpressBlock;
+            setEl('shipCompany', off || !isExpress);
+            setEl('shipWaybillSheet', off || !isEwaybill);
+            setEl('shipPostcode', off);
+            setEl('shipTracking', off || !isExpress);
+            setEl('shipTrackingEwaybill', off || !isEwaybill);
+            setEl('shipMerchantMsg', off);
+            const btnGw = document.getElementById('btnGetWaybill');
+            if (btnGw) btnGw.disabled = off || !isEwaybill;
         }
 
         function syncShipSelectAllState() {
@@ -2126,9 +2146,15 @@
             document.getElementById('shipSelectAll').checked = true;
             document.querySelector('input[name="shipLogistics"][value="express"]').checked = true;
             document.getElementById('shipCompany').value = '';
+            var shipWb = document.getElementById('shipWaybillSheet');
+            if (shipWb) shipWb.value = '';
             document.getElementById('shipPostcode').value = '';
             document.getElementById('shipTracking').value = '';
+            var shipTrEw = document.getElementById('shipTrackingEwaybill');
+            if (shipTrEw) shipTrEw.value = '';
             document.getElementById('shipMerchantMsg').value = '';
+            var shipContentEl = document.getElementById('shipLogisticsContent');
+            if (shipContentEl) shipContentEl.value = '';
             updateShipExpressFieldsVisibility();
 
             const overlay = document.getElementById('shipModalOverlay');
@@ -2170,7 +2196,7 @@
             }
 
             const logisticsType = (document.querySelector('input[name="shipLogistics"]:checked') || {}).value;
-            if (logisticsType === 'express' || logisticsType === 'ewaybill') {
+            if (logisticsType === 'express') {
                 const company = document.getElementById('shipCompany').value.trim();
                 const tracking = document.getElementById('shipTracking').value.trim();
                 if (!company) {
@@ -2184,18 +2210,54 @@
                     return;
                 }
             }
+            if (logisticsType === 'ewaybill') {
+                const sheet = document.getElementById('shipWaybillSheet');
+                const sheetVal = sheet ? sheet.value.trim() : '';
+                const trackingEw = document.getElementById('shipTrackingEwaybill');
+                const trackingVal = trackingEw ? trackingEw.value.trim() : '';
+                if (!sheetVal) {
+                    alert('请选择面单。');
+                    if (sheet) sheet.focus();
+                    return;
+                }
+                if (!trackingVal) {
+                    alert('请输入快递单号。');
+                    if (trackingEw) trackingEw.focus();
+                    return;
+                }
+            }
+            if (logisticsType === 'none') {
+                const lc = document.getElementById('shipLogisticsContent');
+                const content = lc ? lc.value.trim() : '';
+                if (!content) {
+                    alert('请填写物流内容。');
+                    if (lc) lc.focus();
+                    return;
+                }
+            }
 
             o.status = '待收货';
             if (!o.shipMeta) o.shipMeta = {};
             o.shipMeta.logisticsType = logisticsType;
             if (logisticsType === 'none') {
                 o.shipMeta.company = '';
+                o.shipMeta.waybillSheet = '';
                 o.shipMeta.tracking = '';
                 o.shipMeta.postcode = '';
                 o.shipMeta.merchantMsg = '';
-            } else {
+                o.shipMeta.logisticsContent = (document.getElementById('shipLogisticsContent') && document.getElementById('shipLogisticsContent').value.trim()) || '';
+            } else if (logisticsType === 'express') {
+                o.shipMeta.logisticsContent = '';
                 o.shipMeta.company = document.getElementById('shipCompany').value.trim();
+                o.shipMeta.waybillSheet = '';
                 o.shipMeta.tracking = document.getElementById('shipTracking').value.trim();
+                o.shipMeta.postcode = document.getElementById('shipPostcode').value.trim();
+                o.shipMeta.merchantMsg = document.getElementById('shipMerchantMsg').value.trim();
+            } else if (logisticsType === 'ewaybill') {
+                o.shipMeta.logisticsContent = '';
+                o.shipMeta.company = '';
+                o.shipMeta.waybillSheet = document.getElementById('shipWaybillSheet') ? document.getElementById('shipWaybillSheet').value.trim() : '';
+                o.shipMeta.tracking = document.getElementById('shipTrackingEwaybill') ? document.getElementById('shipTrackingEwaybill').value.trim() : '';
                 o.shipMeta.postcode = document.getElementById('shipPostcode').value.trim();
                 o.shipMeta.merchantMsg = document.getElementById('shipMerchantMsg').value.trim();
             }
@@ -2221,6 +2283,13 @@
             document.querySelectorAll('input[name="shipLogistics"]').forEach(function (r) {
                 r.addEventListener('change', updateShipExpressFieldsVisibility);
             });
+
+            var btnGetWaybill = document.getElementById('btnGetWaybill');
+            if (btnGetWaybill) {
+                btnGetWaybill.addEventListener('click', function () {
+                    alert('获取面单（示例）：可对接电子面单接口拉取运单号并回填。');
+                });
+            }
 
             document.getElementById('shipSelectAll').addEventListener('change', function () {
                 const on = this.checked;
@@ -2305,12 +2374,10 @@
         // 关闭订单详情侧滑面板
         (function () {
             const drawer = document.getElementById('orderDetailDrawer');
-            const closeBtn = document.getElementById('orderDetailCloseBtn');
             const confirmBtn = document.getElementById('orderDetailConfirmBtn');
             function closeDrawer() {
                 if (drawer) drawer.classList.remove('show');
             }
-            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
             if (confirmBtn) confirmBtn.addEventListener('click', closeDrawer);
         })();
 
@@ -2319,7 +2386,7 @@
             alert('更多搜索（示例）：这里可以展开高级筛选条件，如下单时间、订单状态、支付方式、来源渠道等。');
         });
 
-        // URL 与左侧菜单联动：?orderType=all|online|store|refund
+        // URL 与左侧菜单联动：?orderType=all|online|store|refund（子菜单进入，页内无订单类型页签）
         (function initOrderTypeFromUrl() {
             try {
                 var params = new URLSearchParams(window.location.search || '');
@@ -2327,9 +2394,6 @@
                 if (!ot) return;
                 if (ot !== 'all' && ot !== 'online' && ot !== 'store' && ot !== 'refund') return;
                 currentType = ot;
-                document.querySelectorAll('.order-tab-btn').forEach(function (b) {
-                    b.classList.toggle('active', (b.dataset.type || '') === ot);
-                });
             } catch (e) { /* ignore */ }
         })();
 
