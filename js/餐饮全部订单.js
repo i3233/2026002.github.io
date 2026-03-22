@@ -199,15 +199,6 @@ function initEventListeners() {
     });
 
     // 批量操作
-    document.getElementById('batchExportBtn').addEventListener('click', function() {
-        const ids = getSelectedIds();
-        if (!ids.length) {
-            alert('请先勾选需要导出的订单。');
-            return;
-        }
-        alert('批量导出（示例）：共选择 ' + ids.length + ' 条，订单号：\n' + ids.join('\n'));
-    });
-
     document.getElementById('batchCloseBtn').addEventListener('click', function() {
         const ids = getSelectedIds();
         if (!ids.length) {

@@ -67,10 +67,10 @@ const menuData = [
                 title: "收银",
                 children: [
                     { title: "基础设置", path: "pages/商超/收银台基础设置.html" },
+                    { title: "收银机管理", path: "pages/商超/收银机管理.html" },
                     { title: "收银员", path: "pages/商超/收银员.html" },
                     { title: "导购员", path: "pages/商超/导购员.html" },
-                    { title: "服务员", path: "pages/商超/服务员.html" },
-                    { title: "收银机管理", path: "pages/商超/收银机管理.html" }
+                    { title: "服务员", path: "pages/商超/服务员.html" }
                 ]
             },
             {

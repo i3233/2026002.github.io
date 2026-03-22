@@ -255,14 +255,6 @@ function initEventListeners() {
     });
 
     // 批量操作
-    document.getElementById('batchExportBtn').addEventListener('click', function() {
-        if (selectedOrders.length === 0) {
-            alert('请先选择要导出的订单');
-            return;
-        }
-        exportOrders(true);
-    });
-
     document.getElementById('batchCloseBtn').addEventListener('click', function() {
         if (selectedOrders.length === 0) {
             alert('请先选择要关闭的订单');
