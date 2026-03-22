@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>订单设置 - 2026新项目二</title>
     <link rel="stylesheet" href="../../../css/Main.css">
+    <link rel="stylesheet" href="../../../css/收银台基础设置.css">
     <style>
         .order-settings-page {
             padding: var(--spacing-lg);
@@ -197,6 +198,273 @@
             }
 
         }
+
+        /* 订单打印：绑定打印机（与收银机「打印管理-绑定打印机」一致） */
+        .setting-item--printer-bind {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .setting-item--printer-bind .setting-item-left {
+            flex: 1 1 auto;
+            margin-right: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+        .order-print-bind-toolbar {
+            margin-top: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        .order-printer-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-md);
+            background: #fff;
+        }
+        .order-printer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        .order-printer-table thead {
+            background: var(--color-neutral-50);
+        }
+        .order-printer-table th,
+        .order-printer-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+            text-align: left;
+            white-space: nowrap;
+        }
+        .order-printer-table tbody tr:last-child td { border-bottom: none; }
+        .action-link {
+            cursor: pointer;
+            color: var(--color-primary);
+            margin-right: 8px;
+            font-size: var(--font-size-sm);
+            text-decoration: none;
+        }
+        .action-link.danger { color: var(--color-error); }
+        .action-link:hover { text-decoration: underline; }
+        .pos-table-toggle { vertical-align: middle; }
+        .toggle-mini { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-mini input { opacity: 0; width: 0; height: 0; }
+        .toggle-mini span {
+            position: absolute; cursor: pointer; inset: 0;
+            background: var(--color-neutral-300); border-radius: 12px; transition: .2s;
+        }
+        .toggle-mini span:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background: #fff; border-radius: 50%; transition: .2s;
+        }
+        .toggle-mini input:checked + span { background: var(--color-primary); }
+        .toggle-mini input:checked + span:before { transform: translateX(20px); }
+
+        .bind-modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1200;
+            align-items: center; justify-content: center; padding: var(--spacing-md);
+        }
+        .bind-modal-overlay.show { display: flex; }
+        .bind-modal {
+            background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+            max-width: 480px; width: 100%; max-height: 90vh; overflow: auto;
+        }
+        .bind-modal-header {
+            padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-neutral-200);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .bind-modal-header h3 { margin: 0; font-size: var(--font-size-lg); }
+        .bind-modal-body { padding: var(--spacing-lg); font-size: var(--font-size-sm); }
+        .bind-modal-body .step { margin-bottom: var(--spacing-md); }
+        .bind-modal-body label { display: block; margin-bottom: var(--spacing-xs); font-weight: var(--font-weight-medium); }
+        .bind-modal-body input[type="text"], .bind-modal-body select, .bind-modal-body textarea {
+            width: 100%; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md); font-size: var(--font-size-base); box-sizing: border-box;
+        }
+        .bind-modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200);
+            display: flex; justify-content: flex-end; gap: var(--spacing-sm);
+        }
+        #orderPosPrinterEditOverlay { z-index: 1210; }
+        .ppe-form-group { margin-bottom: var(--spacing-md); }
+        .ppe-form-group label { display: block; margin-bottom: 4px; font-size: var(--font-size-sm); }
+        .ppe-req { color: var(--color-error); }
+        .ppe-form-group input, .ppe-form-group select {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md); font-size: var(--font-size-sm); box-sizing: border-box;
+        }
+
+        /* 与收银机「打印管理」大弹窗、打印配置、规则编辑 */
+        #orderPrintManageOverlay { z-index: 1300; }
+        .print-manage-modal {
+            max-width: 960px;
+            width: 96%;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .print-manage-modal .bind-modal-body { min-height: 0; flex: 1; overflow: hidden; }
+        .order-print-tab-btn.active {
+            background: rgba(44, 131, 235, 0.1);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+        }
+        .print-setting-from-settings .config-section {
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            background: var(--color-neutral-50);
+        }
+        .print-setting-from-settings .config-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .print-setting-from-settings .config-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+        .print-setting-from-settings .config-row label { margin: 0; }
+        .print-setting-from-settings .form-group { margin-bottom: var(--spacing-md); }
+        .print-setting-from-settings .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: var(--font-size-sm);
+        }
+        .print-setting-from-settings .form-group .required { color: var(--color-error); margin-right: 2px; }
+        .print-setting-from-settings .form-group input[type="text"],
+        .print-setting-from-settings .form-group select {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
+            font-size: var(--font-size-sm);
+            box-sizing: border-box;
+        }
+        .print-setting-from-settings .print-config-layout { display: flex; gap: var(--spacing-lg); }
+        .print-setting-from-settings .print-config-left { flex: 1 1 auto; min-width: 0; }
+        .print-setting-from-settings .print-config-right { flex: 0 0 260px; max-width: 260px; }
+        .print-setting-from-settings .receipt-preview {
+            width: 100%;
+            max-height: 560px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            background: #fff;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            overflow: auto;
+        }
+        .print-setting-from-settings .receipt-preview h4 { margin: 0 0 4px; text-align: center; font-size: 14px; }
+        .print-setting-from-settings .receipt-preview .preview-line { margin: 2px 0; }
+        .print-setting-from-settings .receipt-preview .preview-section-title { margin-top: 6px; margin-bottom: 2px; font-weight: bold; }
+        .print-setting-from-settings .receipt-preview .preview-separator {
+            border-top: 1px dashed var(--color-neutral-300);
+            margin: 6px 0;
+        }
+        .print-setting-embed-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+        .rule-editor-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1350;
+            padding: var(--spacing-md);
+        }
+        .rule-editor-overlay.show { display: flex; }
+        .rule-editor-overlay.goods-layer { z-index: 1370; }
+        .rule-editor-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 640px;
+            max-width: 96vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .rule-editor-modal.wide { width: 900px; }
+        .rule-editor-modal .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rule-editor-modal .modal-title { margin: 0; font-size: var(--font-size-lg); }
+        .rule-editor-modal .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .rule-editor-modal .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+        .rule-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .rule-goods-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            margin-bottom: var(--spacing-lg);
+        }
+        .rule-goods-row label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--font-size-sm);
+        }
+        .rule-goods-selector { margin-top: 8px; }
+        .rule-goods-selector-label { font-size: var(--font-size-sm); margin-bottom: 4px; }
+        .rule-goods-select-box {
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            padding: 8px 10px;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            background: #fff;
+        }
+        .rule-goods-select-box.placeholder { color: var(--color-text-secondary); }
+        .rule-goods-tip { margin-top: 4px; font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+        .rule-channel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px 16px;
+        }
+        .rule-channel-item {
+            background: #f5f9ff;
+            border-radius: 20px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+        }
+        .rule-channel-name { color: var(--color-text-primary); }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full); font-size: var(--font-size-xs); }
+        .status-badge.on { background: rgba(40, 167, 69, 0.15); color: var(--color-success); }
+        .status-badge.off { background: var(--color-neutral-200); color: var(--color-text-secondary); }
+        #orderPrintTestModal, #orderClearQueueModal { z-index: 1360; }
     </style>
 </head>
 <body>
@@ -385,20 +653,30 @@
                 </div>
             </div>
 
-            <div class="setting-item">
+            <div class="setting-item setting-item--printer-bind">
                 <div class="setting-item-left">
                     <div class="setting-item-label">
-                        默认打印机
-                        <span class="help-icon" title="订单打印时使用的默认打印机">?</span>
+                        绑定打印机
+                        <span class="help-icon" title="可绑定多台打印机，用于订单相关打印">?</span>
                     </div>
-                    <div class="setting-item-desc">设置订单打印时使用的默认打印机</div>
-                </div>
-                <div class="setting-item-right">
-                    <select class="form-select form-input--medium" id="defaultPrinter">
-                        <option value="">未设置</option>
-                        <option value="printer1" selected>打印机1（收银台）</option>
-                        <option value="printer2">打印机2（仓库）</option>
-                    </select>
+                    <div class="setting-item-desc">从「设置 → 打印机」中已添加的设备里选择绑定；绑定后可在此管理，功能与收银机「打印管理」中的打印机列表一致。</div>
+                    <div class="order-print-bind-toolbar">
+                        <button type="button" class="btn btn-primary" id="orderBindPrinterBtn">绑定打印机</button>
+                    </div>
+                    <div class="order-printer-table-wrap">
+                        <table class="order-printer-table">
+                            <thead>
+                                <tr>
+                                    <th>打印机名称</th>
+                                    <th>类型</th>
+                                    <th>连接方式</th>
+                                    <th>启用</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderPrinterTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -592,43 +870,904 @@
         </div>
     </div>
 
+        <!-- 订单：打印规则/配置（与收银机「打印管理」一致） -->
+    <div class="bind-modal-overlay" id="orderPrintManageOverlay" style="z-index:1300;">
+        <div class="bind-modal print-manage-modal" style="max-width:960px;">
+            <div class="bind-modal-header">
+                <h3 id="orderPrintManageTitle">打印管理</h3>
+                <button type="button" class="btn btn-outline" id="orderPrintManageCloseBtn">关闭</button>
+            </div>
+            <div class="bind-modal-body" style="padding: 0; display: flex; flex-direction: column; min-height: 0;">
+                <p class="print-manage-hint" id="orderPrintManageHint" style="padding: var(--spacing-md) var(--spacing-lg) 0; margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                </p>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; padding: 0 var(--spacing-lg); margin-bottom: var(--spacing-sm);">
+                    <button type="button" class="btn btn-outline order-print-tab-btn active" data-order-tab="rule" id="orderTabRuleBtn">打印规则</button>
+                    <button type="button" class="btn btn-outline order-print-tab-btn" data-order-tab="config" id="orderTabConfigBtn">打印配置</button>
+                </div>
+                <div class="print-manage-scroll" style="overflow:auto; flex:1; padding: 0 var(--spacing-lg) var(--spacing-lg);">
+
+                    <div id="orderPrintPanelRule" class="print-sub-panel">
+                        <div class="page-header" style="margin-bottom: var(--spacing-md); padding: 0;">
+                            <button type="button" class="btn btn-primary" id="orderAddRuleBtn">添加规则</button>
+                        </div>
+                        <div class="order-printer-table-wrap">
+                            <table class="order-printer-table">
+                                <thead>
+                                    <tr>
+                                        <th>规则名称</th>
+                                        <th>触发场景</th>
+                                        <th>默认打印机</th>
+                                        <th>启用</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderRuleTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="orderPrintPanelConfig" class="print-sub-panel" style="display: none;">
+                        <div class="print-setting-from-settings" style="padding-bottom: 0;">
+                <div class="print-config-layout">
+                    <div class="print-config-left">
+                        <!-- 模版信息 -->
+                        <div class="config-section">
+                    <div class="config-section-title">模版信息</div>
+                    <div class="form-group">
+                        <label><span class="required">*</span>选择打印机</label>
+                        <select id="ordPsPrinterSelect">
+                            <!-- JS 根据 printerList 填充 -->
+                        </select>
+                    </div>
+                    <div class="config-row">
+                        <label><span class="required">*</span>发货方式：</label>
+                        <label><input type="checkbox" class="ps-ship-item" value="express" checked> 快递配送</label>
+                        <label><input type="checkbox" class="ps-ship-item" value="city" checked> 同城配送</label>
+                        <label><input type="checkbox" class="ps-ship-item" value="pickup" checked> 到店自提</label>
+                        <label><input type="checkbox" class="ps-ship-item" value="auto"> 自动发货</label>
+                    </div>
+                    <div class="config-row">
+                        <label>订单打印方式：</label>
+                        <label><input type="checkbox" class="ps-print-mode" value="place" checked> 下单打印</label>
+                        <label><input type="checkbox" class="ps-print-mode" value="pay" checked> 付款打印</label>
+                        <label><input type="checkbox" class="ps-print-mode" value="confirm"> 确认收货打印</label>
+                    </div>
+                    <div class="config-row">
+                        <label>是否启用：</label>
+                        <label class="pos-settings-toggle">
+                            <input type="checkbox" id="ordPsEnabled" checked>
+                            <span class="pos-settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                        <!-- 头部内容 -->
+                        <div class="config-section">
+                            <div class="config-section-title">头部内容</div>
+                            <div class="config-row">
+                                <label>字号</label>
+                                <select id="ordPsHeaderFontSize">
+                                    <option value="large">超大</option>
+                                    <option value="normal" selected>标准</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsHeaderBold" checked> 加粗</label>
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-header-item" value="shopName" checked> 商店名称</label>
+                                <label><input type="checkbox" class="ps-header-item" value="serialNo" checked> 流水号</label>
+                            </div>
+                        </div>
+
+                        <!-- 订单信息 -->
+                        <div class="config-section">
+                            <div class="config-section-title">订单信息</div>
+                            <div class="config-row">
+                                <label>字号</label>
+                                <select id="ordPsOrderFontSize">
+                                    <option value="normal" selected>标准</option>
+                                    <option value="small">小号</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsOrderBold"> 加粗</label>
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-order-item" value="shipType" checked> 发货方式</label>
+                                <label><input type="checkbox" class="ps-order-item" value="payType" checked> 支付方式</label>
+                                <label><input type="checkbox" class="ps-order-item" value="orderTime"> 下单时间</label>
+                                <label><input type="checkbox" class="ps-order-item" value="orderType" checked> 订单类型</label>
+                                <label><input type="checkbox" class="ps-order-item" value="parentUser" checked> 下单用户上级</label>
+                                <label><input type="checkbox" class="ps-order-item" value="orderNo"> 订单号</label>
+                            </div>
+                        </div>
+
+                        <!-- 商品信息 -->
+                        <div class="config-section">
+                            <div class="config-section-title">商品信息</div>
+                            <div class="config-row">
+                                <label>字号</label>
+                                <select id="ordPsGoodsFontSize">
+                                    <option value="normal" selected>标准</option>
+                                    <option value="small">小号</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsGoodsBold"> 加粗</label>
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-goods-item" value="name" checked> 商品名称</label>
+                                <label><input type="checkbox" class="ps-goods-item" value="amount" checked> 金额</label>
+                                <label><input type="checkbox" class="ps-goods-item" value="price" checked> 单价</label>
+                                <label><input type="checkbox" class="ps-goods-item" value="qty" checked> 数量</label>
+                                <label><input type="checkbox" class="ps-goods-item" value="spec" checked> 规格</label>
+                                <label><input type="checkbox" class="ps-goods-item" value="sku"> 货号</label>
+                            </div>
+                        </div>
+
+                        <!-- 订单金额 -->
+                        <div class="config-section">
+                            <div class="config-section-title">订单金额</div>
+                            <div class="config-row">
+                                <label>字号</label>
+                                <select id="ordPsAmountFontSize">
+                                    <option value="normal" selected>标准</option>
+                                    <option value="small">小号</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsAmountBold"> 加粗</label>
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-amount-item" value="productCount"> 已购商品数</label>
+                                <label><input type="checkbox" class="ps-amount-item" value="productTotal"> 商品总计</label>
+                                <label><input type="checkbox" class="ps-amount-item" value="freight" checked> 运费</label>
+                                <label><input type="checkbox" class="ps-amount-item" value="coupon" checked> 优惠券优惠</label>
+                                <label><input type="checkbox" class="ps-amount-item" value="platform" checked> 平台补贴优惠</label>
+                                <label><input type="checkbox" class="ps-amount-item" value="points" checked> 积分抵扣</label>
+                                <label><input type="checkbox" class="ps-amount-item" value="member" checked> 会员优惠</label>
+                            </div>
+                        </div>
+
+                        <!-- 门店信息 -->
+                        <div class="config-section">
+                            <div class="config-section-title">门店信息</div>
+                            <div class="config-row">
+                                <label>字号</label>
+                                <select id="ordPsStoreFontSize">
+                                    <option value="normal" selected>标准</option>
+                                    <option value="small">小号</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsStoreBold"> 加粗</label>
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-store-item" value="title" checked> 标题</label>
+                                <label><input type="checkbox" class="ps-store-item" value="name" checked> 店铺名称</label>
+                                <label><input type="checkbox" class="ps-store-item" value="code"> 店铺号码</label>
+                                <label><input type="checkbox" class="ps-store-item" value="address" checked> 店铺地址</label>
+                            </div>
+                        </div>
+
+                        <!-- 收货信息 -->
+                        <div class="config-section">
+                            <div class="config-section-title">收货信息</div>
+                            <div class="config-row">
+                                <label>字号</label>
+                                <select id="ordPsReceiverFontSize">
+                                    <option value="normal" selected>标准</option>
+                                    <option value="small">小号</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsReceiverBold"> 加粗</label>
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-receiver-item" value="title" checked> 标题</label>
+                                <label><input type="checkbox" class="ps-receiver-item" value="name" checked> 收件人</label>
+                                <label><input type="checkbox" class="ps-receiver-item" value="address" checked> 地址</label>
+                                <label><input type="checkbox" class="ps-receiver-item" value="mobile" checked> 电话</label>
+                                <label><input type="checkbox" class="ps-receiver-item" value="deliveryInfo"> 提货/配送信息</label>
+                            </div>
+                        </div>
+
+                        <!-- 其他信息 -->
+                        <div class="config-section" style="margin-bottom:0;">
+                            <div class="config-section-title">其他信息</div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-other-item" value="userRemark" checked> 用户备注</label>
+                                <label>字号</label>
+                                <select id="ordPsOtherFontSize">
+                                    <option value="normal" selected>标准</option>
+                                    <option value="small">小号</option>
+                                </select>
+                                <label><input type="checkbox" id="ordPsOtherBold"> 加粗</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input type="checkbox" class="ps-other-item" value="footer" checked> 底部信息</label>
+                                <input type="text" id="ordPsFooterText" placeholder="请输入底部信息" maxlength="60">
+                            </div>
+                            <div class="config-row">
+                                <label><input type="checkbox" class="ps-other-item" value="barcode"> 条形码</label>
+                                <label><input type="checkbox" class="ps-other-item" value="qrcode" checked> 二维码</label>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="print-config-right">
+                        <div class="config-section-title">打印效果预览</div>
+                        <div class="receipt-preview" id="ordReceiptPreview">
+                            <h4>生鲜超市</h4>
+                            <div class="preview-line">流水号：01</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line">发货方式：同城配送</div>
+                            <div class="preview-line">支付方式：微信支付</div>
+                            <div class="preview-line">下单时间：2021-09-20</div>
+                            <div class="preview-line">订单类型：默认订单</div>
+                            <div class="preview-line">下单用户上级：xxxx</div>
+                            <div class="preview-line">订单号：2368954132698454263</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line preview-section-title">【商品信息】</div>
+                            <div class="preview-line">名称        单价   数量   金额</div>
+                            <div class="preview-line">香菠萝软瓜   7.40   2   ¥14.80</div>
+                            <div class="preview-line">规格：默认   备注：热杀</div>
+                            <div class="preview-line">货号：XH01</div>
+                            <div class="preview-line">香菠萝软瓜   5.60  10   ¥56.00</div>
+                            <div class="preview-line">香菠萝软瓜   7.70   3   ¥23.00</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line preview-section-title">【服务信息】</div>
+                            <div class="preview-line">送货上门时间：18:30:00</div>
+                            <div class="preview-line">送达日期：2021-09-21</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line preview-section-title">【订单金额】</div>
+                            <div class="preview-line">已购商品数：3</div>
+                            <div class="preview-line">商品总额：¥108.60</div>
+                            <div class="preview-line">运费：¥0.00  优惠：¥0.00</div>
+                            <div class="preview-line">积分抵扣：¥0.00  会员优惠：¥0.00</div>
+                            <div class="preview-line">实际支付：¥85.60</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line preview-section-title">【门店信息】</div>
+                            <div class="preview-line">店铺名称：李先生</div>
+                            <div class="preview-line">店铺地址：广东某某城市某某路1203</div>
+                            <div class="preview-line">联系电话：13698521415</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line preview-section-title">【收货信息】</div>
+                            <div class="preview-line">收货人：李先生</div>
+                            <div class="preview-line">地址：广东某某城市某某路1203</div>
+                            <div class="preview-line">电话：13698521415</div>
+                            <div class="preview-line">提货/配送日期：2021-10-20</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line">备注：清单仅供核对使用，最终费用以系统结算为准</div>
+                            <div class="preview-separator"></div>
+                            <div class="preview-line" style="text-align:center;margin-top:12px;">[ 二维码区域 ]</div>
+                            <div class="preview-line" style="text-align:center;margin-top:8px;">[ 条形码区域 ]</div>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+
+                        <div class="print-setting-embed-footer">
+                            <button type="button" class="btn btn-outline" id="orderPmPrintSettingCancelBtn">取消</button>
+                            <button type="button" class="btn btn-primary" id="orderSavePrintConfigBtn">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rule-editor-overlay" id="orderCashierRuleModal">
+        <div class="rule-editor-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="orderCashierRuleModalTitle">编辑打印规则</h3>
+                <button type="button" class="btn btn-outline" id="orderCashierRuleModalCloseBtn">关闭</button>
+            </div>
+            <div class="modal-body">
+                <div class="rule-section">
+                    <div class="rule-section-title">适用商品</div>
+                    <div class="rule-goods-row">
+                        <label><input type="radio" name="orderCashierRuleGoodsScope" value="all" checked> 全部商品可用</label>
+                        <label><input type="radio" name="orderCashierRuleGoodsScope" value="include"> 指定商品可用</label>
+                        <label><input type="radio" name="orderCashierRuleGoodsScope" value="exclude"> 指定商品不可用</label>
+                    </div>
+                    <div class="rule-goods-selector" id="orderCashierRuleGoodsSelector" style="display:none;">
+                        <div class="rule-goods-selector-label">选择商品</div>
+                        <div class="rule-goods-select-box placeholder" id="orderCashierRuleGoodsSelectBox">请选择商品</div>
+                        <div class="rule-goods-tip">点击选择需要包含/排除的商品</div>
+                    </div>
+                </div>
+                <div class="rule-section">
+                    <div class="rule-section-title">订单渠道</div>
+                    <div class="rule-channel-grid">
+                        <div class="rule-channel-item"><span class="rule-channel-name">外卖订单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="waimai"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">自取订单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="ziqu"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">桌码订单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="table"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">收银台</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="cashier"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">营销订单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="marketing"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">交班单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="shift"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">接待单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="reception"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">积分订单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="points"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">商城订单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="mall"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">厨房制作单</span><label class="pos-settings-toggle"><input type="checkbox" class="order-cashier-rule-channel-toggle" value="kitchen"><span class="pos-settings-toggle-slider"></span></label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="orderCashierRuleModalCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="orderCashierRuleModalSaveBtn">确定</button>
+            </div>
+        </div>
+    </div>
+    <div class="rule-editor-overlay goods-layer" id="orderCashierGoodsModal">
+        <div class="rule-editor-modal wide">
+            <div class="modal-header">
+                <h3 class="modal-title">选择商品</h3>
+                <button type="button" class="btn btn-outline" id="orderCashierGoodsModalCloseBtn">关闭</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom:12px;">
+                    <input type="text" id="orderCashierGoodsSearchInput" placeholder="搜索商品名称" style="width:100%;padding:8px 12px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;">
+                </div>
+                <div style="display:flex; gap:16px; max-height:400px;">
+                    <div style="flex:0 0 40%; border:1px solid var(--color-neutral-200); border-radius:var(--radius-md); overflow:auto;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead><tr style="background:#f5f9ff;"><th style="padding:8px; text-align:left;"><label><input type="checkbox" id="orderCashierGoodsCategoryAll"> 全选分类</label></th></tr></thead>
+                            <tbody id="orderCashierGoodsCategoryBody"></tbody>
+                        </table>
+                    </div>
+                    <div style="flex:1 1 auto; border:1px solid var(--color-neutral-200); border-radius:var(--radius-md); overflow:auto;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead><tr style="background:#f5f9ff;"><th style="padding:8px; text-align:left;">商品</th></tr></thead>
+                            <tbody id="orderCashierGoodsProductBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content:space-between;">
+                <div style="font-size:12px; color:var(--color-text-secondary);">已选择 <span id="orderCashierGoodsSelectedCount">0</span> 件商品</div>
+                <div>
+                    <button type="button" class="btn btn-outline" id="orderCashierGoodsModalCancelBtn">取消</button>
+                    <button type="button" class="btn btn-primary" id="orderCashierGoodsModalConfirmBtn">确定</button>
+                </div>
+            </div>
+        </div>
+    <div class="bind-modal-overlay" id="orderPrintTestModal" style="z-index:1320;">
+        <div class="bind-modal" style="max-width:400px;">
+            <div class="bind-modal-header"><h3>打印测试</h3><button type="button" class="btn btn-outline" id="orderPrintTestCloseBtn">关闭</button></div>
+            <div class="bind-modal-body">
+                <p id="orderPrintTestStatus" style="margin:0 0 12px;">正在连接打印机…</p>
+                <div style="height:8px;background:var(--color-neutral-200);border-radius:4px;overflow:hidden;">
+                    <div id="orderPrintTestBar" style="height:100%;width:0;background:var(--color-primary);transition:width .3s;"></div>
+                </div>
+            </div>
+            <div class="bind-modal-footer">
+                <button type="button" class="btn btn-primary" id="orderPrintTestDoneBtn" style="display:none;">完成</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bind-modal-overlay" id="orderClearQueueModal" style="z-index:1320;">
+        <div class="bind-modal" style="max-width:420px;">
+            <div class="bind-modal-header"><h3>清除打印队列</h3><button type="button" class="btn btn-outline" id="orderClearQueueCloseBtn">关闭</button></div>
+            <div class="bind-modal-body">
+                <p style="margin:0 0 8px;font-size:var(--font-size-sm);color:var(--color-text-secondary);">以下待打印任务将被取消：</p>
+                <ul id="orderClearQueueList" style="margin:0;padding-left:20px;font-size:var(--font-size-sm);line-height:1.8;"></ul>
+            </div>
+            <div class="bind-modal-footer">
+                <button type="button" class="btn btn-outline" id="orderClearQueueCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="orderClearQueueConfirmBtn">全部清除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定打印机（与收银机管理页一致） -->
+    <div class="bind-modal-overlay" id="orderBindPrinterModal">
+        <div class="bind-modal">
+            <div class="bind-modal-header">
+                <h3>绑定打印机</h3>
+                <button type="button" class="btn btn-outline" id="orderBindPrinterModalClose">关闭</button>
+            </div>
+            <div class="bind-modal-body">
+                <div class="step">
+                    <label for="orderPrinterNameInput">打印机名称</label>
+                    <input type="text" id="orderPrinterNameInput" placeholder="可自定义，不填则使用所选打印机名称">
+                </div>
+                <div class="step">
+                    <label for="orderBindPrinterSettingsSelect">选择打印机</label>
+                    <select id="orderBindPrinterSettingsSelect">
+                        <option value="">请选择打印机</option>
+                    </select>
+                </div>
+                <div class="step">
+                    <label for="orderBindPrinterRemarkInput">备注</label>
+                    <textarea id="orderBindPrinterRemarkInput" rows="3" placeholder="选填" style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div class="bind-modal-footer">
+                <button type="button" class="btn btn-outline" id="orderBindPrinterModalCancel">取消</button>
+                <button type="button" class="btn btn-primary" id="orderBindPrinterModalConfirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑打印机（飞鹅参数，与收银机页一致） -->
+    <div class="bind-modal-overlay" id="orderPosPrinterEditOverlay">
+        <div class="bind-modal" style="max-width: 520px;">
+            <div class="bind-modal-header">
+                <h3 id="orderPosPrinterEditTitle">编辑打印机</h3>
+                <button type="button" class="btn btn-outline" id="orderPosPrinterEditCloseBtn">关闭</button>
+            </div>
+            <div class="bind-modal-body">
+                <p style="margin:0 0 var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.5;">
+                    云打印（飞鹅）参数与「设置 → 打印机」中添加打印机表单一致。
+                </p>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印机名称</label>
+                    <input type="text" id="orderPosPrinterEditName" placeholder="如：小票机-总店前台" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label>打印机类型</label>
+                    <select id="orderPosPrinterEditTypeSelect">
+                        <option value="feie">飞鹅打印机</option>
+                    </select>
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>USER</label>
+                    <input type="text" id="orderPosPrinterEditUser" placeholder="飞鹅账号 USER" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>UKEY</label>
+                    <input type="text" id="orderPosPrinterEditUkey" placeholder="飞鹅账号 UKEY" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印机编号</label>
+                    <input type="text" id="orderPosPrinterEditSn" placeholder="飞鹅打印机编号 SN" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印机 key</label>
+                    <input type="text" id="orderPosPrinterEditKey" placeholder="打印机密钥 KEY" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印联数</label>
+                    <input type="number" id="orderPosPrinterEditCopies" min="1" step="1" value="1">
+                </div>
+            </div>
+            <div class="bind-modal-footer">
+                <button type="button" class="btn btn-outline" id="orderPosPrinterEditCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="orderPosPrinterEditSaveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        /** 与收银机管理页「设置 → 打印机」数据源一致（示例，实际应接口拉取） */
+        var settingsPrinterCatalog = [
+            { id: 'set1', name: '飞鹅01', method: '飞鹅打印机' },
+            { id: 'set2', name: '飞鹅02', method: '飞鹅打印机' },
+            { id: 'set3', name: '厨房网络打印机-K1', method: '网络打印机' }
+        ];
+
+        /** 订单场景已绑定打印机（可多台） */
+        var orderBindPrinterList = [
+            { id: 'op1', name: '飞鹅01', type: '飞鹅打印机', conn: '云打印', enabled: true, printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SET-set1', key: 'KEY001', copies: 1, remark: '', settingsPrinterId: 'set1' },
+            { id: 'op2', name: '厨房网络打印机-K1', type: '网络打印机', conn: '云打印', enabled: true, printerType: 'feie', user: '', ukey: '', sn: 'SET-set3', key: '', copies: 1, remark: '拣货单', settingsPrinterId: 'set3' }
+        ];
+
+        var orderCurrentPosPrinterEditId = null;
+
+        /** 当前在订单打印管理弹窗中选中的绑定打印机 */
+        var currentOrderPrintPrinter = null;
+        var currentOrderRuleEditId = null;
+        var currentOrderRuleProducts = [];
+
+        /** 打印规则（按绑定打印机 deviceId 关联，与收银机 ruleList 结构一致） */
+        var orderRuleList = [
+            { id: 'or1', deviceId: 'op1', name: '订单支付小票', scene: '支付成功', printer: '飞鹅01', enabled: true, detail: { goodsScope: 'all', channels: { mall: true, cashier: true }, products: [] } },
+            { id: 'or2', deviceId: 'op1', name: '退款凭证', scene: '退款完成', printer: '飞鹅01', enabled: false, detail: { goodsScope: 'all', channels: {}, products: [] } },
+            { id: 'or3', deviceId: 'op2', name: '拣货单', scene: '订单审核', printer: '厨房网络打印机-K1', enabled: true, detail: { goodsScope: 'all', channels: { mall: true }, products: [] } }
+        ];
+        var orderCashierRuleCategories = [
+            { id: 'c1', name: '软饮系列' }, { id: 'c2', name: '啤酒' }, { id: 'c3', name: '小吃系列' }, { id: 'c4', name: '优惠套餐' }
+        ];
+        var orderCashierRuleProducts = [
+            { id: 'p1', name: '红牛', categoryId: 'c1' }, { id: 'p2', name: '旺仔牛奶', categoryId: 'c1' }, { id: 'p3', name: '王老吉（听装）', categoryId: 'c1' },
+            { id: 'p4', name: '可乐（听装）', categoryId: 'c1' }, { id: 'p5', name: '农夫山泉550ml', categoryId: 'c1' }, { id: 'p6', name: '苏打水', categoryId: 'c1' },
+            { id: 'p7', name: '雪碧', categoryId: 'c1' }, { id: 'p8', name: '脉动', categoryId: 'c1' }, { id: 'p9', name: '精酿啤酒', categoryId: 'c2' },
+            { id: 'p10', name: '炸鸡套餐', categoryId: 'c3' }, { id: 'p11', name: '优惠家庭套餐', categoryId: 'c4' }
+        ];
+
+        function defaultOrderRuleList() {
+            return [
+                { id: 'or1', deviceId: 'op1', name: '订单支付小票', scene: '支付成功', printer: '飞鹅01', enabled: true, detail: { goodsScope: 'all', channels: { mall: true, cashier: true }, products: [] } },
+                { id: 'or2', deviceId: 'op1', name: '退款凭证', scene: '退款完成', printer: '飞鹅01', enabled: false, detail: { goodsScope: 'all', channels: {}, products: [] } },
+                { id: 'or3', deviceId: 'op2', name: '拣货单', scene: '订单审核', printer: '厨房网络打印机-K1', enabled: true, detail: { goodsScope: 'all', channels: { mall: true }, products: [] } }
+            ];
+        }
+
+        function defaultOrderBindPrinterList() {
+            return [
+                { id: 'op1', name: '飞鹅01', type: '飞鹅打印机', conn: '云打印', enabled: true, printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SET-set1', key: 'KEY001', copies: 1, remark: '', settingsPrinterId: 'set1' },
+                { id: 'op2', name: '厨房网络打印机-K1', type: '网络打印机', conn: '云打印', enabled: true, printerType: 'feie', user: '', ukey: '', sn: 'SET-set3', key: '', copies: 1, remark: '拣货单', settingsPrinterId: 'set3' }
+            ];
+        }
+
+        function refreshOrderBindPrinterSettingsSelect() {
+            var sel = document.getElementById('orderBindPrinterSettingsSelect');
+            if (!sel) return;
+            sel.innerHTML = '';
+            var empty = document.createElement('option');
+            empty.value = '';
+            empty.textContent = '请选择打印机';
+            sel.appendChild(empty);
+            settingsPrinterCatalog.forEach(function (p) {
+                var o = document.createElement('option');
+                o.value = p.id;
+                o.textContent = p.name;
+                sel.appendChild(o);
+            });
+        }
+
+        function renderOrderBindPrinterTable() {
+            var tbody = document.getElementById('orderPrinterTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            orderBindPrinterList.forEach(function (row) {
+                var en = row.enabled !== false;
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + (row.name || '-') + '</td>' +
+                    '<td>' + (row.type || '-') + '</td>' +
+                    '<td>' + (row.conn || '-') + '</td>' +
+                    '<td class="pos-table-toggle">' +
+                    '<label class="toggle-mini order-printer-enable-toggle" data-id="' + row.id + '">' +
+                    '<input type="checkbox" class="order-printer-enabled-input" data-id="' + row.id + '"' + (en ? ' checked' : '') + '>' +
+                    '<span></span></label></td>' +
+                    '<td>' +
+                    '<a href="#" class="action-link order-printer-edit" data-id="' + row.id + '">编辑</a>' +
+                    '<a href="#" class="action-link order-printer-rule" data-id="' + row.id + '">打印规则</a>' +
+                    '<a href="#" class="action-link order-printer-config" data-id="' + row.id + '">打印配置</a>' +
+                    '<a href="#" class="action-link order-printer-test" data-id="' + row.id + '">打印测试</a>' +
+                    '<a href="#" class="action-link order-printer-clear-queue" data-id="' + row.id + '">清除队列</a>' +
+                    '<a href="#" class="action-link danger order-printer-delete" data-id="' + row.id + '">删除</a>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openOrderBindPrinterModal() {
+            refreshOrderBindPrinterSettingsSelect();
+            document.getElementById('orderPrinterNameInput').value = '';
+            document.getElementById('orderBindPrinterRemarkInput').value = '';
+            document.getElementById('orderBindPrinterSettingsSelect').value = '';
+            document.getElementById('orderBindPrinterModal').classList.add('show');
+        }
+
+        function closeOrderBindPrinterModal() {
+            document.getElementById('orderBindPrinterModal').classList.remove('show');
+        }
+
+        function orderPrinterById(pid) {
+            return orderBindPrinterList.filter(function (r) { return r.id === pid; })[0];
+        }
+
+        function openOrderPosPrinterEditModal(printerId) {
+            var row = orderPrinterById(printerId);
+            if (!row) return;
+            orderCurrentPosPrinterEditId = printerId;
+            document.getElementById('orderPosPrinterEditTitle').textContent = '编辑打印机';
+            document.getElementById('orderPosPrinterEditName').value = row.name || '';
+            document.getElementById('orderPosPrinterEditTypeSelect').value = row.printerType || 'feie';
+            document.getElementById('orderPosPrinterEditUser').value = row.user || '';
+            document.getElementById('orderPosPrinterEditUkey').value = row.ukey || '';
+            document.getElementById('orderPosPrinterEditSn').value = row.sn || '';
+            document.getElementById('orderPosPrinterEditKey').value = row.key || '';
+            document.getElementById('orderPosPrinterEditCopies').value = row.copies != null ? row.copies : 1;
+            document.getElementById('orderPosPrinterEditOverlay').classList.add('show');
+        }
+
+        function closeOrderPosPrinterEditModal() {
+            document.getElementById('orderPosPrinterEditOverlay').classList.remove('show');
+            orderCurrentPosPrinterEditId = null;
+        }
+
+        function getOrderRulesForCurrentPrinter() {
+            if (!currentOrderPrintPrinter) return [];
+            var did = String(currentOrderPrintPrinter.id);
+            return orderRuleList.filter(function (r) {
+                return String(r.deviceId) === did;
+            });
+        }
+
+        function renderOrderRuleTable() {
+            var tbody = document.getElementById('orderRuleTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            getOrderRulesForCurrentPrinter().forEach(function (row) {
+                var tr = document.createElement('tr');
+                var en = row.enabled ? '<span class="status-badge on">是</span>' : '<span class="status-badge off">否</span>';
+                tr.innerHTML =
+                    '<td>' + (row.name || '-') + '</td>' +
+                    '<td>' + (row.scene || '-') + '</td>' +
+                    '<td>' + (row.printer || '-') + '</td>' +
+                    '<td>' + en + '</td>' +
+                    '<td>' +
+                    '<a href="#" class="action-link order-rule-detail" data-id="' + row.id + '">规则设置</a> ' +
+                    '<a href="#" class="action-link order-rule-edit" data-id="' + row.id + '">编辑</a> ' +
+                    '<a href="#" class="action-link danger order-rule-del" data-id="' + row.id + '">删除</a>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchOrderPrintTab(sub) {
+            var showRule = sub === 'rule';
+            document.getElementById('orderPrintPanelRule').style.display = showRule ? 'block' : 'none';
+            document.getElementById('orderPrintPanelConfig').style.display = showRule ? 'none' : 'block';
+            document.querySelectorAll('.order-print-tab-btn').forEach(function (b) {
+                b.classList.toggle('active', b.getAttribute('data-order-tab') === sub);
+            });
+        }
+
+        function refreshOrderOrdPsPrinterSelect() {
+            var sel = document.getElementById('ordPsPrinterSelect');
+            if (!sel) return;
+            sel.innerHTML = '';
+            orderBindPrinterList.forEach(function (p) {
+                var o = document.createElement('option');
+                o.value = p.id;
+                o.textContent = p.name;
+                sel.appendChild(o);
+            });
+            if (currentOrderPrintPrinter) sel.value = currentOrderPrintPrinter.id;
+        }
+
+        function openOrderPrintManage(mode, printerId) {
+            var row = orderPrinterById(printerId);
+            if (!row) return;
+            currentOrderPrintPrinter = row;
+            var titleEl = document.getElementById('orderPrintManageTitle');
+            if (titleEl) titleEl.textContent = '打印管理 — ' + (row.name || '');
+            var hintEl = document.getElementById('orderPrintManageHint');
+            if (hintEl) {
+                hintEl.textContent = '订单打印场景下，为「' + (row.name || '该打印机') + '」配置规则与票据；与收银机「打印管理」一致。';
+            }
+            refreshOrderOrdPsPrinterSelect();
+            renderOrderRuleTable();
+            switchOrderPrintTab(mode || 'rule');
+            document.getElementById('orderPrintManageOverlay').classList.add('show');
+        }
+
+        function closeOrderPrintManage() {
+            document.getElementById('orderPrintManageOverlay').classList.remove('show');
+            currentOrderPrintPrinter = null;
+        }
+
+        function collectOrderPrintSettingChecked(selector) {
+            var root = document.getElementById('orderPrintPanelConfig');
+            if (!root) return [];
+            return Array.prototype.map.call(
+                root.querySelectorAll(selector + ':checked'),
+                function (el) { return el.value; }
+            );
+        }
+
+        function updateOrderRuleGoodsSelectorVisibility(scope) {
+            var box = document.getElementById('orderCashierRuleGoodsSelector');
+            if (!box) return;
+            box.style.display = (scope === 'include' || scope === 'exclude') ? '' : 'none';
+        }
+
+        function renderOrderRuleGoodsBox() {
+            var box = document.getElementById('orderCashierRuleGoodsSelectBox');
+            if (!box) return;
+            if (!currentOrderRuleProducts || !currentOrderRuleProducts.length) {
+                box.textContent = '请选择商品';
+                box.classList.add('placeholder');
+                return;
+            }
+            var names = currentOrderRuleProducts.map(function (pid) {
+                var p = orderCashierRuleProducts.find(function (x) { return x.id === pid; });
+                return p ? p.name : '';
+            }).filter(Boolean);
+            if (!names.length) {
+                box.textContent = '已选择 ' + currentOrderRuleProducts.length + ' 件商品';
+            } else {
+                var text = names.join('、');
+                if (text.length > 40) text = text.substring(0, 40) + '... （共 ' + names.length + ' 件）';
+                box.textContent = text;
+            }
+            box.classList.remove('placeholder');
+        }
+
+        function openOrderRuleDetailModal(ruleId) {
+            if (!currentOrderPrintPrinter) return;
+            currentOrderRuleEditId = ruleId || null;
+            currentOrderRuleProducts = [];
+            var titleEl = document.getElementById('orderCashierRuleModalTitle');
+            var row = ruleId ? orderRuleList.filter(function (r) { return r.id === ruleId; })[0] : null;
+            if (ruleId && !row) return;
+
+            if (row) {
+                if (titleEl) titleEl.textContent = '规则设置 — ' + (row.name || '') + '（' + (currentOrderPrintPrinter.name || '') + '）';
+                var d = row.detail || { goodsScope: 'all', channels: {}, products: [] };
+                var scope = d.goodsScope || 'all';
+                Array.prototype.forEach.call(document.querySelectorAll('input[name="orderCashierRuleGoodsScope"]'), function (r) {
+                    r.checked = (r.value === scope);
+                });
+                var ch = d.channels || {};
+                Array.prototype.forEach.call(document.querySelectorAll('.order-cashier-rule-channel-toggle'), function (cb) {
+                    cb.checked = !!ch[cb.value];
+                });
+                currentOrderRuleProducts = d.products ? d.products.slice() : [];
+                updateOrderRuleGoodsSelectorVisibility(scope);
+                renderOrderRuleGoodsBox();
+            } else {
+                if (titleEl) titleEl.textContent = '新建打印规则（' + (currentOrderPrintPrinter.name || '') + '）';
+                Array.prototype.forEach.call(document.querySelectorAll('input[name="orderCashierRuleGoodsScope"]'), function (r) {
+                    r.checked = (r.value === 'all');
+                });
+                Array.prototype.forEach.call(document.querySelectorAll('.order-cashier-rule-channel-toggle'), function (cb) {
+                    cb.checked = false;
+                });
+                updateOrderRuleGoodsSelectorVisibility('all');
+                renderOrderRuleGoodsBox();
+            }
+            document.getElementById('orderCashierRuleModal').classList.add('show');
+        }
+
+        function closeOrderRuleDetailModal() {
+            document.getElementById('orderCashierRuleModal').classList.remove('show');
+        }
+
+        function openOrderGoodsModal() {
+            var modal = document.getElementById('orderCashierGoodsModal');
+            var catBody = document.getElementById('orderCashierGoodsCategoryBody');
+            var prodBody = document.getElementById('orderCashierGoodsProductBody');
+            var searchInput = document.getElementById('orderCashierGoodsSearchInput');
+            var selectedCountEl = document.getElementById('orderCashierGoodsSelectedCount');
+            if (!modal || !catBody || !prodBody) return;
+            searchInput.value = '';
+            catBody.innerHTML = '';
+            orderCashierRuleCategories.forEach(function (c) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td style="padding:6px 8px; border-top:1px solid #f0f0f0;"><label><input type="checkbox" class="order-cashier-goods-category" value="' + c.id + '"> ' + c.name + '</label></td>';
+                catBody.appendChild(tr);
+            });
+
+            function renderOrderGoodsProducts() {
+                var kw = (searchInput.value || '').trim().toLowerCase();
+                prodBody.innerHTML = '';
+                orderCashierRuleProducts.forEach(function (p) {
+                    if (kw && p.name.toLowerCase().indexOf(kw) === -1) return;
+                    var checked = currentOrderRuleProducts.indexOf(p.id) !== -1;
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td style="padding:6px 8px; border-top:1px solid #f0f0f0;"><label><input type="checkbox" class="order-cashier-goods-product" value="' + p.id + '" ' + (checked ? 'checked' : '') + '> ' + p.name + '</label></td>';
+                    prodBody.appendChild(tr);
+                });
+                if (selectedCountEl) selectedCountEl.textContent = String(currentOrderRuleProducts.length);
+            }
+
+            renderOrderGoodsProducts();
+            var allCat = document.getElementById('orderCashierGoodsCategoryAll');
+            if (allCat) allCat.checked = false;
+
+            catBody.onchange = function (e) {
+                if (!e.target.classList.contains('order-cashier-goods-category')) return;
+                var catId = e.target.value;
+                var checked = e.target.checked;
+                orderCashierRuleProducts.forEach(function (p) {
+                    if (p.categoryId !== catId) return;
+                    if (checked && currentOrderRuleProducts.indexOf(p.id) === -1) currentOrderRuleProducts.push(p.id);
+                    if (!checked) currentOrderRuleProducts = currentOrderRuleProducts.filter(function (id) { return id !== p.id; });
+                });
+                renderOrderGoodsProducts();
+            };
+
+            prodBody.onchange = function (e) {
+                if (!e.target.classList.contains('order-cashier-goods-product')) return;
+                var pid = e.target.value;
+                if (e.target.checked) {
+                    if (currentOrderRuleProducts.indexOf(pid) === -1) currentOrderRuleProducts.push(pid);
+                } else {
+                    currentOrderRuleProducts = currentOrderRuleProducts.filter(function (id) { return id !== pid; });
+                }
+                if (selectedCountEl) selectedCountEl.textContent = String(currentOrderRuleProducts.length);
+            };
+
+            searchInput.oninput = function () { renderOrderGoodsProducts(); };
+
+            if (allCat) {
+                allCat.onchange = function () {
+                    var checked = this.checked;
+                    Array.prototype.forEach.call(catBody.querySelectorAll('.order-cashier-goods-category'), function (cb) {
+                        cb.checked = checked;
+                        var evt = document.createEvent('HTMLEvents');
+                        evt.initEvent('change', true, false);
+                        cb.dispatchEvent(evt);
+                    });
+                };
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeOrderGoodsModal() {
+            var modal = document.getElementById('orderCashierGoodsModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        var orderPrintTestTimer = null;
+        function openOrderPrintTestModal(printerId) {
+            var pr = orderPrinterById(printerId);
+            var name = pr && pr.name ? pr.name : '打印机';
+            document.getElementById('orderPrintTestStatus').textContent = '正在连接「' + name + '」…';
+            document.getElementById('orderPrintTestBar').style.width = '0%';
+            document.getElementById('orderPrintTestDoneBtn').style.display = 'none';
+            document.getElementById('orderPrintTestModal').classList.add('show');
+            if (orderPrintTestTimer) clearInterval(orderPrintTestTimer);
+            var w = 0;
+            orderPrintTestTimer = setInterval(function () {
+                w += 10;
+                if (w >= 100) {
+                    w = 100;
+                    clearInterval(orderPrintTestTimer);
+                    orderPrintTestTimer = null;
+                    document.getElementById('orderPrintTestStatus').textContent = '测试页已发送至「' + name + '」（示例）';
+                    document.getElementById('orderPrintTestDoneBtn').style.display = '';
+                }
+                document.getElementById('orderPrintTestBar').style.width = w + '%';
+            }, 100);
+        }
+
+        function closeOrderPrintTestModal() {
+            if (orderPrintTestTimer) clearInterval(orderPrintTestTimer);
+            orderPrintTestTimer = null;
+            document.getElementById('orderPrintTestModal').classList.remove('show');
+        }
+
+        function openOrderClearQueueModal(printerId) {
+            var pr = orderPrinterById(printerId);
+            var name = pr && pr.name ? pr.name : '打印机';
+            var ul = document.getElementById('orderClearQueueList');
+            ul.innerHTML = '';
+            var samples = ['订单小票 #' + String(Date.now()).slice(-6), '拣货单 待打', '面单 1张'];
+            samples.forEach(function (t) {
+                var li = document.createElement('li');
+                li.textContent = t;
+                ul.appendChild(li);
+            });
+            document.getElementById('orderClearQueueModal').classList.add('show');
+            document.getElementById('orderClearQueueConfirmBtn').onclick = function () {
+                ul.innerHTML = '<li style="color:var(--color-text-secondary);list-style:none;">「' + name + '」队列已清空（示例）</li>';
+                setTimeout(function () {
+                    document.getElementById('orderClearQueueModal').classList.remove('show');
+                }, 700);
+            };
+        }
+
+        function closeOrderClearQueueModal() {
+            document.getElementById('orderClearQueueModal').classList.remove('show');
+        }
+
         // 保存设置
         function saveSettings() {
             const settings = {
-                // 订单基础设置
                 orderNoRule: document.getElementById('orderNoRule').value,
                 orderNoPrefix: document.getElementById('orderNoPrefix').value,
                 defaultOrderStatus: document.getElementById('defaultOrderStatus').value,
                 autoCancelHours: parseInt(document.getElementById('autoCancelHours').value),
                 enableOrderRemark: document.getElementById('enableOrderRemark').checked,
-                
-                // 订单审核设置
+
                 enableOrderAudit: document.getElementById('enableOrderAudit').checked,
                 auditAmountThreshold: parseFloat(document.getElementById('auditAmountThreshold').value),
                 enableWholesaleAudit: document.getElementById('enableWholesaleAudit').checked,
                 enableCreditAudit: document.getElementById('enableCreditAudit').checked,
                 autoPrintAfterAudit: document.getElementById('autoPrintAfterAudit').checked,
-                
-                // 订单打印设置
-                defaultPrinter: document.getElementById('defaultPrinter').value,
+
                 printTemplate: document.getElementById('printTemplate').value,
                 autoPrintPickingList: document.getElementById('autoPrintPickingList').checked,
                 printCopies: parseInt(document.getElementById('printCopies').value),
-                
-                // 订单通知设置
+                orderBindPrinters: JSON.parse(JSON.stringify(orderBindPrinterList)),
+
                 notifyOnCreate: document.getElementById('notifyOnCreate').checked,
                 notifyOnAudit: document.getElementById('notifyOnAudit').checked,
                 notifyOnComplete: document.getElementById('notifyOnComplete').checked,
                 notifyOnCancel: document.getElementById('notifyOnCancel').checked,
-                
-                // 订单统计设置
+
                 statisticsPeriod: document.getElementById('statisticsPeriod').value,
                 statisticsTimeRule: document.getElementById('statisticsTimeRule').value,
-                autoGenerateReport: document.getElementById('autoGenerateReport').checked
+                autoGenerateReport: document.getElementById('autoGenerateReport').checked,
+
+                orderPrintRules: JSON.parse(JSON.stringify(orderRuleList))
             };
 
-            // 模拟保存
             console.log('保存设置：', settings);
             alert('设置保存成功！');
         }
@@ -639,39 +1778,316 @@
                 return;
             }
 
-            // 重置所有设置到默认值
             document.getElementById('orderNoRule').value = 'dateSeq';
             document.getElementById('orderNoPrefix').value = 'PO';
             document.getElementById('defaultOrderStatus').value = 'pending';
             document.getElementById('autoCancelHours').value = '24';
             document.getElementById('enableOrderRemark').checked = true;
-            
+
             document.getElementById('enableOrderAudit').checked = true;
             document.getElementById('auditAmountThreshold').value = '0';
             document.getElementById('enableWholesaleAudit').checked = true;
             document.getElementById('enableCreditAudit').checked = true;
             document.getElementById('autoPrintAfterAudit').checked = false;
-            
-            document.getElementById('defaultPrinter').value = 'printer1';
+
             document.getElementById('printTemplate').value = 'standard';
             document.getElementById('autoPrintPickingList').checked = false;
             document.getElementById('printCopies').value = '1';
-            
+
+            orderBindPrinterList = defaultOrderBindPrinterList();
+            renderOrderBindPrinterTable();
+
             document.getElementById('notifyOnCreate').checked = true;
             document.getElementById('notifyOnAudit').checked = true;
             document.getElementById('notifyOnComplete').checked = true;
             document.getElementById('notifyOnCancel').checked = true;
-            
+
             document.getElementById('statisticsPeriod').value = 'daily';
             document.getElementById('statisticsTimeRule').value = 'natural';
             document.getElementById('autoGenerateReport').checked = false;
 
+            orderRuleList = defaultOrderRuleList();
+
             alert('设置已重置为默认值');
         }
 
-        // 事件绑定
         document.getElementById('saveBtn').addEventListener('click', saveSettings);
         document.getElementById('resetBtn').addEventListener('click', resetSettings);
+
+        document.getElementById('orderBindPrinterBtn').addEventListener('click', openOrderBindPrinterModal);
+        document.getElementById('orderBindPrinterModalClose').addEventListener('click', closeOrderBindPrinterModal);
+        document.getElementById('orderBindPrinterModalCancel').addEventListener('click', closeOrderBindPrinterModal);
+        document.getElementById('orderBindPrinterModal').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('orderBindPrinterModal')) closeOrderBindPrinterModal();
+        });
+        document.getElementById('orderBindPrinterModalConfirm').addEventListener('click', function () {
+            var sid = document.getElementById('orderBindPrinterSettingsSelect').value;
+            var sp = settingsPrinterCatalog.filter(function (x) { return x.id === sid; })[0];
+            if (!sp) {
+                alert('请选择设置中已添加的打印机');
+                return;
+            }
+            var customName = (document.getElementById('orderPrinterNameInput').value || '').trim();
+            var name = customName || sp.name;
+            var remark = (document.getElementById('orderBindPrinterRemarkInput').value || '').trim();
+            orderBindPrinterList.unshift({
+                id: 'op' + Date.now(),
+                name: name,
+                type: sp.method,
+                conn: '云打印',
+                enabled: true,
+                printerType: 'feie',
+                user: '',
+                ukey: '',
+                sn: 'SET-' + sp.id,
+                key: '',
+                copies: 1,
+                remark: remark,
+                settingsPrinterId: sp.id
+            });
+            closeOrderBindPrinterModal();
+            renderOrderBindPrinterTable();
+            alert('绑定成功（示例），已加入订单打印打印机列表。');
+        });
+
+        document.getElementById('orderPrinterTableBody').addEventListener('change', function (e) {
+            if (!e.target.classList.contains('order-printer-enabled-input')) return;
+            var id = e.target.getAttribute('data-id');
+            var row = orderPrinterById(id);
+            if (row) row.enabled = e.target.checked;
+        });
+
+        document.getElementById('orderPrinterTableBody').addEventListener('click', function (e) {
+            if (e.target.closest('.order-printer-enable-toggle') || e.target.classList.contains('order-printer-enabled-input')) {
+                return;
+            }
+            e.preventDefault();
+            var ed = e.target.closest('.order-printer-edit');
+            if (ed) {
+                openOrderPosPrinterEditModal(ed.getAttribute('data-id'));
+                return;
+            }
+            if (e.target.closest('.order-printer-rule')) {
+                var rid = e.target.closest('.order-printer-rule').getAttribute('data-id');
+                openOrderPrintManage('rule', rid);
+                return;
+            }
+            if (e.target.closest('.order-printer-config')) {
+                var cid = e.target.closest('.order-printer-config').getAttribute('data-id');
+                openOrderPrintManage('config', cid);
+                return;
+            }
+            var test = e.target.closest('.order-printer-test');
+            if (test) {
+                openOrderPrintTestModal(test.getAttribute('data-id'));
+                return;
+            }
+            var cq = e.target.closest('.order-printer-clear-queue');
+            if (cq) {
+                openOrderClearQueueModal(cq.getAttribute('data-id'));
+                return;
+            }
+            var del = e.target.closest('.order-printer-delete');
+            if (del) {
+                var id = del.getAttribute('data-id');
+                if (confirm('删除后该打印机记录将移除，确定删除？')) {
+                    orderBindPrinterList = orderBindPrinterList.filter(function (r) { return r.id !== id; });
+                    renderOrderBindPrinterTable();
+                }
+            }
+        });
+
+        document.getElementById('orderPosPrinterEditCloseBtn').addEventListener('click', closeOrderPosPrinterEditModal);
+        document.getElementById('orderPosPrinterEditCancelBtn').addEventListener('click', closeOrderPosPrinterEditModal);
+        document.getElementById('orderPosPrinterEditOverlay').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('orderPosPrinterEditOverlay')) closeOrderPosPrinterEditModal();
+        });
+        document.getElementById('orderPosPrinterEditSaveBtn').addEventListener('click', function () {
+            if (!orderCurrentPosPrinterEditId) return;
+            var row = orderPrinterById(orderCurrentPosPrinterEditId);
+            if (!row) {
+                closeOrderPosPrinterEditModal();
+                return;
+            }
+            var name = (document.getElementById('orderPosPrinterEditName').value || '').trim();
+            var user = (document.getElementById('orderPosPrinterEditUser').value || '').trim();
+            var ukey = (document.getElementById('orderPosPrinterEditUkey').value || '').trim();
+            var sn = (document.getElementById('orderPosPrinterEditSn').value || '').trim();
+            var key = (document.getElementById('orderPosPrinterEditKey').value || '').trim();
+            var copies = parseInt(document.getElementById('orderPosPrinterEditCopies').value, 10) || 1;
+            if (!name || !user || !ukey || !sn || !key) {
+                alert('请完整填写带 * 号的必填项。');
+                return;
+            }
+            row.name = name;
+            row.printerType = document.getElementById('orderPosPrinterEditTypeSelect').value || 'feie';
+            row.user = user;
+            row.ukey = ukey;
+            row.sn = sn;
+            row.key = key;
+            row.copies = copies;
+            alert('打印机已保存（示例），实际系统中应调用后台接口。');
+            closeOrderPosPrinterEditModal();
+            renderOrderBindPrinterTable();
+        });
+
+        document.getElementById('orderPrintManageCloseBtn').addEventListener('click', closeOrderPrintManage);
+        document.getElementById('orderPrintManageOverlay').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('orderPrintManageOverlay')) closeOrderPrintManage();
+        });
+        document.getElementById('orderTabRuleBtn').addEventListener('click', function () {
+            switchOrderPrintTab('rule');
+        });
+        document.getElementById('orderTabConfigBtn').addEventListener('click', function () {
+            switchOrderPrintTab('config');
+        });
+        document.getElementById('orderAddRuleBtn').addEventListener('click', function () {
+            openOrderRuleDetailModal(null);
+        });
+        document.getElementById('orderRuleTableBody').addEventListener('click', function (e) {
+            e.preventDefault();
+            var det = e.target.closest('.order-rule-detail');
+            if (det) {
+                openOrderRuleDetailModal(det.getAttribute('data-id'));
+                return;
+            }
+            if (e.target.closest('.order-rule-edit')) {
+                var id = e.target.closest('.order-rule-edit').getAttribute('data-id');
+                var row = orderRuleList.filter(function (r) { return r.id === id; })[0];
+                if (!row) return;
+                var n = prompt('规则名称', row.name || '');
+                if (n === null) return;
+                n = n.trim() || row.name;
+                var sc = prompt('触发场景', row.scene || '');
+                if (sc === null) return;
+                row.name = n;
+                row.scene = (sc || '').trim() || row.scene;
+                var pr = prompt('默认打印机', row.printer || '');
+                if (pr !== null) row.printer = (pr || '').trim() || row.printer;
+                renderOrderRuleTable();
+                return;
+            }
+            if (e.target.closest('.order-rule-del')) {
+                var id2 = e.target.closest('.order-rule-del').getAttribute('data-id');
+                if (confirm('删除该规则？')) {
+                    orderRuleList = orderRuleList.filter(function (r) { return r.id !== id2; });
+                    renderOrderRuleTable();
+                }
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('input[name="orderCashierRuleGoodsScope"]'), function (r) {
+            r.addEventListener('change', function () {
+                updateOrderRuleGoodsSelectorVisibility(this.value);
+            });
+        });
+        document.getElementById('orderCashierRuleGoodsSelectBox').addEventListener('click', function () {
+            openOrderGoodsModal();
+        });
+        document.getElementById('orderCashierRuleModalCloseBtn').addEventListener('click', closeOrderRuleDetailModal);
+        document.getElementById('orderCashierRuleModalCancelBtn').addEventListener('click', closeOrderRuleDetailModal);
+        document.getElementById('orderCashierRuleModal').addEventListener('click', function (e) {
+            if (e.target === this) closeOrderRuleDetailModal();
+        });
+        document.getElementById('orderCashierRuleModalSaveBtn').addEventListener('click', function () {
+            if (!currentOrderPrintPrinter) {
+                closeOrderRuleDetailModal();
+                return;
+            }
+            var scope = 'all';
+            Array.prototype.forEach.call(document.querySelectorAll('input[name="orderCashierRuleGoodsScope"]'), function (r) {
+                if (r.checked) scope = r.value;
+            });
+            var channels = {};
+            Array.prototype.forEach.call(document.querySelectorAll('.order-cashier-rule-channel-toggle'), function (cb) {
+                channels[cb.value] = cb.checked;
+            });
+            var detail = {
+                goodsScope: scope,
+                channels: channels,
+                products: currentOrderRuleProducts.slice()
+            };
+            if (currentOrderRuleEditId) {
+                var row = orderRuleList.filter(function (r) { return r.id === currentOrderRuleEditId; })[0];
+                if (row) {
+                    row.detail = detail;
+                    alert('规则已保存（示例）：「' + (row.name || '') + '」的适用商品与订单渠道已更新。');
+                }
+            } else {
+                var name = prompt('请输入规则名称（将显示在列表中）', '新打印规则');
+                if (name === null) return;
+                name = (name || '').trim() || '新打印规则';
+                var defP = currentOrderPrintPrinter.name || '默认打印机';
+                orderRuleList.push({
+                    id: 'or' + Date.now(),
+                    deviceId: currentOrderPrintPrinter.id,
+                    name: name,
+                    scene: '支付成功',
+                    printer: defP,
+                    enabled: true,
+                    detail: detail
+                });
+                alert('已添加规则（示例），可在列表中继续「编辑」名称或「规则设置」细项。');
+            }
+            closeOrderRuleDetailModal();
+            renderOrderRuleTable();
+        });
+
+        document.getElementById('orderCashierGoodsModalCloseBtn').addEventListener('click', closeOrderGoodsModal);
+        document.getElementById('orderCashierGoodsModalCancelBtn').addEventListener('click', closeOrderGoodsModal);
+        document.getElementById('orderCashierGoodsModal').addEventListener('click', function (e) {
+            if (e.target === this) closeOrderGoodsModal();
+        });
+        document.getElementById('orderCashierGoodsModalConfirmBtn').addEventListener('click', function () {
+            renderOrderRuleGoodsBox();
+            closeOrderGoodsModal();
+        });
+
+        document.getElementById('orderSavePrintConfigBtn').addEventListener('click', function () {
+            var printerId = document.getElementById('ordPsPrinterSelect').value;
+            if (!printerId) {
+                alert('请选择打印机。');
+                return;
+            }
+            var footerText = (document.getElementById('ordPsFooterText').value || '').trim();
+            var config = {
+                shipOptions: collectOrderPrintSettingChecked('.ps-ship-item'),
+                printModes: collectOrderPrintSettingChecked('.ps-print-mode'),
+                headerItems: collectOrderPrintSettingChecked('.ps-header-item'),
+                orderItems: collectOrderPrintSettingChecked('.ps-order-item'),
+                goodsItems: collectOrderPrintSettingChecked('.ps-goods-item'),
+                amountItems: collectOrderPrintSettingChecked('.ps-amount-item'),
+                storeItems: collectOrderPrintSettingChecked('.ps-store-item'),
+                receiverItems: collectOrderPrintSettingChecked('.ps-receiver-item'),
+                otherItems: collectOrderPrintSettingChecked('.ps-other-item'),
+                footerText: footerText
+            };
+            var posName = currentOrderPrintPrinter ? currentOrderPrintPrinter.name : '（未选择打印机）';
+            var printerRow = orderBindPrinterList.filter(function (p) { return String(p.id) === String(printerId); })[0];
+            var pname = printerRow ? printerRow.name : '打印设置';
+            var enabled = document.getElementById('ordPsEnabled').checked;
+            alert('打印配置已保存（示例）\n订单打印机：' + posName + '\n配票打印机：' + pname + '\n启用：' + (enabled ? '是' : '否') +
+                '\n底部信息：' + (config.footerText || '（空）') +
+                '\n与「设置 → 打印机 → 打印设置」编辑弹窗一致（示例），实际应调用后台接口。');
+        });
+        document.getElementById('orderPmPrintSettingCancelBtn').addEventListener('click', function () {
+            switchOrderPrintTab('rule');
+            renderOrderRuleTable();
+        });
+
+        document.getElementById('orderPrintTestCloseBtn').addEventListener('click', closeOrderPrintTestModal);
+        document.getElementById('orderPrintTestDoneBtn').addEventListener('click', closeOrderPrintTestModal);
+        document.getElementById('orderPrintTestModal').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('orderPrintTestModal')) closeOrderPrintTestModal();
+        });
+
+        document.getElementById('orderClearQueueCloseBtn').addEventListener('click', closeOrderClearQueueModal);
+        document.getElementById('orderClearQueueCancelBtn').addEventListener('click', closeOrderClearQueueModal);
+        document.getElementById('orderClearQueueModal').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('orderClearQueueModal')) closeOrderClearQueueModal();
+        });
+
+        renderOrderBindPrinterTable();
     </script>
 </body>
 </html>
