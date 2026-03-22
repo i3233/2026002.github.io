@@ -150,63 +150,6 @@
             margin: 6px 0;
         }
 
-        /* 打印规则弹窗 */
-        .rule-section-title {
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            margin-bottom: var(--spacing-sm);
-        }
-        .rule-goods-row {
-            display: flex;
-            gap: 24px;
-            margin-bottom: var(--spacing-lg);
-        }
-        .rule-goods-row label {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: var(--font-size-sm);
-        }
-        .rule-goods-selector {
-            margin-top: 8px;
-        }
-        .rule-goods-selector-label {
-            font-size: var(--font-size-sm);
-            margin-bottom: 4px;
-        }
-        .rule-goods-select-box {
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
-            padding: 8px 10px;
-            font-size: var(--font-size-sm);
-            cursor: pointer;
-            background: #fff;
-        }
-        .rule-goods-select-box.placeholder {
-            color: var(--color-text-secondary);
-        }
-        .rule-goods-tip {
-            margin-top: 4px;
-            font-size: var(--font-size-xs);
-            color: var(--color-text-secondary);
-        }
-        .rule-channel-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px 16px;
-        }
-        .rule-channel-item {
-            background: #f5f9ff;
-            border-radius: 20px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: var(--font-size-sm);
-        }
-        .rule-channel-name {
-            color: var(--color-text-primary);
-        }
     </style>
 </head>
 <body>
@@ -263,167 +206,6 @@
             </div>
             <div class="bottom-toolbar">
                 <div id="printSettingPagination"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 打印规则弹窗 -->
-    <div class="modal-overlay" id="printerRuleModal">
-        <div class="modal" style="width: 640px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="printerRuleModalTitle">编辑打印规则</h3>
-                <button type="button" class="btn btn-outline" id="printerRuleModalCloseBtn">关闭</button>
-            </div>
-            <div class="modal-body">
-                <div class="rule-section">
-                    <div class="rule-section-title">适用商品</div>
-                    <div class="rule-goods-row">
-                        <label>
-                            <input type="radio" name="ruleGoodsScope" value="all" checked>
-                            全部商品可用
-                        </label>
-                        <label>
-                            <input type="radio" name="ruleGoodsScope" value="include">
-                            指定商品可用
-                        </label>
-                        <label>
-                            <input type="radio" name="ruleGoodsScope" value="exclude">
-                            指定商品不可用
-                        </label>
-                    </div>
-                    <div class="rule-goods-selector" id="ruleGoodsSelector" style="display:none;">
-                        <div class="rule-goods-selector-label">选择商品</div>
-                        <div class="rule-goods-select-box placeholder" id="ruleGoodsSelectBox">请选择商品</div>
-                        <div class="rule-goods-tip">点击选择需要包含/排除的商品</div>
-                    </div>
-                </div>
-                <div class="rule-section">
-                    <div class="rule-section-title">订单渠道</div>
-                    <div class="rule-channel-grid">
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">外卖订单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="waimai">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">自取订单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="ziqu">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">桌码订单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="table">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">收银台</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="cashier">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">营销订单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="marketing">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">交班单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="shift">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">接待单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="reception">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">积分订单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="points">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">商城订单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="mall">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="rule-channel-item">
-                            <span class="rule-channel-name">厨房制作单</span>
-                            <label class="pos-settings-toggle">
-                                <input type="checkbox" class="rule-channel-toggle" value="kitchen">
-                                <span class="pos-settings-toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" id="printerRuleModalCancelBtn">取消</button>
-                <button type="button" class="btn btn-primary" id="printerRuleModalSaveBtn">确定</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 打印规则 - 选择商品弹窗 -->
-    <div class="modal-overlay" id="printerGoodsModal">
-        <div class="modal" style="width: 900px;">
-            <div class="modal-header">
-                <h3 class="modal-title">选择商品</h3>
-                <button type="button" class="btn btn-outline" id="printerGoodsModalCloseBtn">关闭</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <input type="text" id="printerGoodsSearchInput" placeholder="搜索商品名称">
-                </div>
-                <div style="display:flex; gap:16px; max-height:400px;">
-                    <div style="flex:0 0 40%; border:1px solid var(--color-neutral-200); border-radius:var(--radius-md); overflow:auto;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <thead>
-                                <tr style="background:#f5f9ff;">
-                                    <th style="padding:8px; text-align:left;">
-                                        <label><input type="checkbox" id="printerGoodsCategoryAll"> 全选分类</label>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="printerGoodsCategoryBody"></tbody>
-                        </table>
-                    </div>
-                    <div style="flex:1 1 auto; border:1px solid var(--color-neutral-200); border-radius:var(--radius-md); overflow:auto;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <thead>
-                                <tr style="background:#f5f9ff;">
-                                    <th style="padding:8px; text-align:left;">商品</th>
-                                </tr>
-                            </thead>
-                            <tbody id="printerGoodsProductBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer" style="justify-content:space-between;">
-                <div style="font-size:12px; color:var(--color-text-secondary);">
-                    已选择 <span id="printerGoodsSelectedCount">0</span> 件商品
-                </div>
-                <div>
-                    <button type="button" class="btn btn-outline" id="printerGoodsModalCancelBtn">取消</button>
-                    <button type="button" class="btn btn-primary" id="printerGoodsModalConfirmBtn">确定</button>
-                </div>
             </div>
         </div>
     </div>
@@ -730,12 +512,7 @@
                 ukey: 'UKEY_DEMO',
                 sn: 'SN001',
                 key: 'KEY001',
-                copies: 1,
-                rule: {
-                    goodsScope: 'all',
-                    channels: {},
-                    products: []
-                }
+                copies: 1
             },
             {
                 id: 2,
@@ -748,40 +525,11 @@
                 ukey: 'UKEY_DEMO2',
                 sn: 'SN002',
                 key: 'KEY002',
-                copies: 1,
-                rule: {
-                    goodsScope: 'all',
-                    channels: {},
-                    products: []
-                }
+                copies: 1
             }
         ];
         var printerPage = 1;
         var printerPageSize = 10;
-
-        var currentRulePrinterId = null;
-        var currentRuleProducts = [];
-
-        // 示例分类与商品数据（仅前端演示）
-        var printerRuleCategories = [
-            { id: 'c1', name: '软饮系列' },
-            { id: 'c2', name: '啤酒' },
-            { id: 'c3', name: '小吃系列' },
-            { id: 'c4', name: '优惠套餐' }
-        ];
-        var printerRuleProducts = [
-            { id: 'p1', name: '红牛', categoryId: 'c1' },
-            { id: 'p2', name: '旺仔牛奶', categoryId: 'c1' },
-            { id: 'p3', name: '王老吉（听装）', categoryId: 'c1' },
-            { id: 'p4', name: '可乐（听装）', categoryId: 'c1' },
-            { id: 'p5', name: '农夫山泉550ml', categoryId: 'c1' },
-            { id: 'p6', name: '苏打水', categoryId: 'c1' },
-            { id: 'p7', name: '雪碧', categoryId: 'c1' },
-            { id: 'p8', name: '脉动', categoryId: 'c1' },
-            { id: 'p9', name: '精酿啤酒', categoryId: 'c2' },
-            { id: 'p10', name: '炸鸡套餐', categoryId: 'c3' },
-            { id: 'p11', name: '优惠家庭套餐', categoryId: 'c4' }
-        ];
 
         function getFilteredPrinters() {
             var kw = (document.getElementById('searchInput').value || '').trim().toLowerCase();
@@ -813,8 +561,6 @@
                         '<td>' + (row.connection || '-') + '</td>' +
                         '<td>' + (row.remark || '-') + '</td>' +
                         '<td class="text-right">' +
-                            '<a href="#" class="action-link edit-printer" data-id="' + row.id + '">编辑</a>' +
-                            '<a href="#" class="action-link printer-rule" data-id="' + row.id + '">打印规则</a>' +
                             '<a href="#" class="action-link danger delete-printer" data-id="' + row.id + '">删除</a>' +
                         '</td>';
                     tbody.appendChild(tr);
@@ -905,80 +651,6 @@
             document.getElementById('printerModal').classList.remove('show');
         }
 
-        function openPrinterRuleModal(id) {
-            var modal = document.getElementById('printerRuleModal');
-            if (!modal) return;
-            currentRulePrinterId = null;
-            currentRuleProducts = [];
-            var row = printerList.find(function (p) { return String(p.id) === String(id); });
-            if (!row) return;
-            currentRulePrinterId = row.id;
-
-            var titleEl = document.getElementById('printerRuleModalTitle');
-            if (titleEl) {
-                titleEl.textContent = '编辑打印规则 - ' + (row.name || '');
-            }
-
-            var scope = (row.rule && row.rule.goodsScope) || 'all';
-            var radios = document.querySelectorAll('input[name="ruleGoodsScope"]');
-            Array.prototype.forEach.call(radios, function (r) {
-                r.checked = (r.value === scope);
-            });
-
-            var channels = (row.rule && row.rule.channels) || {};
-            Array.prototype.forEach.call(document.querySelectorAll('.rule-channel-toggle'), function (cb) {
-                var key = cb.value;
-                cb.checked = !!channels[key];
-            });
-
-            currentRuleProducts = (row.rule && row.rule.products) ? row.rule.products.slice() : [];
-            updateRuleGoodsSelectorVisibility(scope);
-            renderRuleGoodsBox();
-
-            modal.classList.add('show');
-        }
-
-        function closePrinterRuleModal() {
-            var modal = document.getElementById('printerRuleModal');
-            if (modal) modal.classList.remove('show');
-        }
-
-        function updateRuleGoodsSelectorVisibility(scope) {
-            var box = document.getElementById('ruleGoodsSelector');
-            if (!box) return;
-            if (scope === 'include' || scope === 'exclude') {
-                box.style.display = '';
-            } else {
-                box.style.display = 'none';
-            }
-        }
-
-        function renderRuleGoodsBox() {
-            var box = document.getElementById('ruleGoodsSelectBox');
-            if (!box) return;
-            if (!currentRuleProducts || !currentRuleProducts.length) {
-                box.textContent = '请选择商品';
-                box.classList.add('placeholder');
-                return;
-            }
-            var names = currentRuleProducts
-                .map(function (pid) {
-                    var p = printerRuleProducts.find(function (x) { return x.id === pid; });
-                    return p ? p.name : '';
-                })
-                .filter(Boolean);
-            if (!names.length) {
-                box.textContent = '已选择 ' + currentRuleProducts.length + ' 件商品';
-            } else {
-                var text = names.join('、');
-                if (text.length > 40) {
-                    text = text.substring(0, 40) + '... （共 ' + names.length + ' 件）';
-                }
-                box.textContent = text;
-            }
-            box.classList.remove('placeholder');
-        }
-
         var addBtnEl = document.getElementById('addPrinterBtn');
 
         function updateAddButtonLabel() {
@@ -995,19 +667,7 @@
         });
 
         document.getElementById('printerTableBody').addEventListener('click', function (e) {
-            var edit = e.target.closest('.edit-printer');
-            var rule = e.target.closest('.printer-rule');
             var del = e.target.closest('.delete-printer');
-            if (edit) {
-                e.preventDefault();
-                var id = edit.getAttribute('data-id');
-                openPrinterModal(id);
-            }
-            if (rule) {
-                e.preventDefault();
-                var id = rule.getAttribute('data-id');
-                openPrinterRuleModal(id);
-            }
             if (del) {
                 e.preventDefault();
                 var id = del.getAttribute('data-id');
@@ -1022,22 +682,6 @@
         document.getElementById('printerModalCancelBtn').addEventListener('click', closePrinterModal);
         document.getElementById('printerModal').addEventListener('click', function (e) {
             if (e.target === this) closePrinterModal();
-        });
-
-        document.getElementById('printerRuleModalCloseBtn').addEventListener('click', closePrinterRuleModal);
-        document.getElementById('printerRuleModalCancelBtn').addEventListener('click', closePrinterRuleModal);
-        document.getElementById('printerRuleModal').addEventListener('click', function (e) {
-            if (e.target === this) closePrinterRuleModal();
-        });
-
-        Array.prototype.forEach.call(document.querySelectorAll('input[name="ruleGoodsScope"]'), function (r) {
-            r.addEventListener('change', function () {
-                updateRuleGoodsSelectorVisibility(this.value);
-            });
-        });
-
-        document.getElementById('ruleGoodsSelectBox').addEventListener('click', function () {
-            openPrinterGoodsModal();
         });
 
         document.getElementById('printerModalSaveBtn').addEventListener('click', function () {
@@ -1313,137 +957,6 @@
                 var row = printSettingList.find(function (p) { return String(p.id) === String(id2); });
                 if (row) row.enabled = toggle.checked;
             }
-        });
-
-        function openPrinterGoodsModal() {
-            var modal = document.getElementById('printerGoodsModal');
-            if (!modal) return;
-            var catBody = document.getElementById('printerGoodsCategoryBody');
-            var prodBody = document.getElementById('printerGoodsProductBody');
-            var searchInput = document.getElementById('printerGoodsSearchInput');
-            var selectedCountEl = document.getElementById('printerGoodsSelectedCount');
-
-            searchInput.value = '';
-
-            // 分类列表
-            catBody.innerHTML = '';
-            printerRuleCategories.forEach(function (c) {
-                var tr = document.createElement('tr');
-                tr.innerHTML =
-                    '<td style="padding:6px 8px; border-top:1px solid #f0f0f0;">' +
-                        '<label><input type="checkbox" class="printer-goods-category" value="' + c.id + '"> ' + c.name + '</label>' +
-                    '</td>';
-                catBody.appendChild(tr);
-            });
-
-            function renderProducts() {
-                var kw = (searchInput.value || '').trim().toLowerCase();
-                prodBody.innerHTML = '';
-                printerRuleProducts.forEach(function (p) {
-                    if (kw && p.name.toLowerCase().indexOf(kw) === -1) return;
-                    var checked = currentRuleProducts.indexOf(p.id) !== -1;
-                    var tr = document.createElement('tr');
-                    tr.innerHTML =
-                        '<td style="padding:6px 8px; border-top:1px solid #f0f0f0;">' +
-                            '<label><input type="checkbox" class="printer-goods-product" value="' + p.id + '" ' + (checked ? 'checked' : '') + '> ' + p.name + '</label>' +
-                        '</td>';
-                    prodBody.appendChild(tr);
-                });
-                selectedCountEl.textContent = currentRuleProducts.length;
-            }
-
-            renderProducts();
-
-            document.getElementById('printerGoodsCategoryAll').checked = false;
-
-            catBody.addEventListener('change', function (e) {
-                if (!e.target.classList.contains('printer-goods-category')) return;
-                var catId = e.target.value;
-                var checked = e.target.checked;
-                printerRuleProducts.forEach(function (p) {
-                    if (p.categoryId === catId) {
-                        if (checked && currentRuleProducts.indexOf(p.id) === -1) {
-                            currentRuleProducts.push(p.id);
-                        }
-                        if (!checked) {
-                            currentRuleProducts = currentRuleProducts.filter(function (id) { return id !== p.id; });
-                        }
-                    }
-                });
-                renderProducts();
-                if (selectedCountEl) selectedCountEl.textContent = currentRuleProducts.length;
-            });
-
-            document.getElementById('printerGoodsCategoryAll').addEventListener('change', function () {
-                var checked = this.checked;
-                Array.prototype.forEach.call(document.querySelectorAll('.printer-goods-category'), function (cb) {
-                    cb.checked = checked;
-                    var evt = document.createEvent('HTMLEvents');
-                    evt.initEvent('change', true, false);
-                    cb.dispatchEvent(evt);
-                });
-            }, { once: true });
-
-            searchInput.addEventListener('input', function () {
-                renderProducts();
-            }, { once: true });
-
-            prodBody.addEventListener('change', function (e) {
-                if (!e.target.classList.contains('printer-goods-product')) return;
-                var pid = e.target.value;
-                if (e.target.checked) {
-                    if (currentRuleProducts.indexOf(pid) === -1) currentRuleProducts.push(pid);
-                } else {
-                    currentRuleProducts = currentRuleProducts.filter(function (id) { return id !== pid; });
-                }
-                document.getElementById('printerGoodsSelectedCount').textContent = currentRuleProducts.length;
-            }, { once: true });
-
-            modal.classList.add('show');
-        }
-
-        function closePrinterGoodsModal() {
-            var modal = document.getElementById('printerGoodsModal');
-            if (modal) modal.classList.remove('show');
-        }
-
-        document.getElementById('printerGoodsModalCloseBtn').addEventListener('click', closePrinterGoodsModal);
-        document.getElementById('printerGoodsModalCancelBtn').addEventListener('click', closePrinterGoodsModal);
-        document.getElementById('printerGoodsModal').addEventListener('click', function (e) {
-            if (e.target === this) closePrinterGoodsModal();
-        });
-
-        document.getElementById('printerGoodsModalConfirmBtn').addEventListener('click', function () {
-            renderRuleGoodsBox();
-            closePrinterGoodsModal();
-        });
-
-        document.getElementById('printerRuleModalSaveBtn').addEventListener('click', function () {
-            if (currentRulePrinterId == null) {
-                closePrinterRuleModal();
-                return;
-            }
-            var row = printerList.find(function (p) { return String(p.id) === String(currentRulePrinterId); });
-            if (!row) {
-                closePrinterRuleModal();
-                return;
-            }
-            var scope = 'all';
-            var radios = document.querySelectorAll('input[name="ruleGoodsScope"]');
-            Array.prototype.forEach.call(radios, function (r) {
-                if (r.checked) scope = r.value;
-            });
-            var channels = {};
-            Array.prototype.forEach.call(document.querySelectorAll('.rule-channel-toggle'), function (cb) {
-                channels[cb.value] = cb.checked;
-            });
-            row.rule = {
-                goodsScope: scope,
-                channels: channels,
-                products: currentRuleProducts.slice()
-            };
-            alert('打印规则已保存（示例），实际系统中应调用后台接口。');
-            closePrinterRuleModal();
         });
 
         updateAddButtonLabel();

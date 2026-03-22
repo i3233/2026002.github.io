@@ -50,15 +50,6 @@
     <div class="performance-detail-page">
         <div class="filter-section">
             <div class="filter-item">
-                <label>所属门店/自提点</label>
-                <select id="filterStore">
-                    <option value="">全部部门/自提点</option>
-                    <option value="WH001">总店</option>
-                    <option value="WH002">分店A</option>
-                    <option value="WH003">自提点1</option>
-                </select>
-            </div>
-            <div class="filter-item">
                 <label>下单时间</label>
                 <div class="date-range">
                     <input type="date" id="dateStart" title="开始日期">
@@ -122,7 +113,8 @@
         </div>
 
         <div class="tabs-row">
-            <button type="button" class="tab-btn active" data-tab="cashier">收银员</button>
+            <button type="button" class="tab-btn active" data-tab="all">全部</button>
+            <button type="button" class="tab-btn" data-tab="cashier">收银员</button>
             <button type="button" class="tab-btn" data-tab="salesperson">导购员</button>
             <button type="button" class="tab-btn" data-tab="waiter">服务员</button>
         </div>
@@ -151,10 +143,11 @@
             { orderTime: '2026-03-08 09:52:33', orderId: '20260308095233110974', status: '待核算', statusClass: 'pending', cashier: '001 张三', salesperson: 'SP01 李四', waiter: 'WT02 孙八', type: '买单', payment: '支付宝', amount: 120.00, refund: 0.00, cashierCommission: 1.20, salespersonCommission: 0.60, waiterCommission: 0.40 },
             { orderTime: '2026-03-07 16:20:15', orderId: '20260307162015110973', status: '已完成', statusClass: 'completed', cashier: '001 张三', salesperson: '-', waiter: 'WT01 王五', type: '退款', payment: '现金支付', amount: 0.00, refund: 89.00, cashierCommission: 0.00, salespersonCommission: 0.00, waiterCommission: 0.00 }
         ];
-        let currentTab = 'cashier';
+        let currentTab = 'all';
         let currentPage = 1;
         let pageSize = 10;
         var TAB_CONFIG = {
+            all: { filterId: 'filterPerson' },
             cashier: { roleLabel: '收银员', roleKey: 'cashier', commissionKey: 'cashierCommission', filterId: 'filterPerson' },
             salesperson: { roleLabel: '导购员', roleKey: 'salesperson', commissionKey: 'salespersonCommission', filterId: 'filterPerson' },
             waiter: { roleLabel: '服务员', roleKey: 'waiter', commissionKey: 'waiterCommission', filterId: 'filterPerson' }
@@ -162,7 +155,6 @@
 
         function getFilteredList() {
             var data = list.slice();
-            var store = document.getElementById('filterStore').value;
             var dateStart = document.getElementById('dateStart').value;
             var dateEnd = document.getElementById('dateEnd').value;
             var type = document.getElementById('filterType').value;
@@ -170,18 +162,31 @@
             var statusSel = document.getElementById('filterStatus') && document.getElementById('filterStatus').value;
             var cfg = TAB_CONFIG[currentTab];
             var roleKeyword = (document.getElementById(cfg.filterId).value || '').trim().toLowerCase();
-            if (store) data = data.filter(function(r) { return r.storeId === store; });
             if (dateStart) data = data.filter(function(r) { return (r.orderTime || '').slice(0, 10) >= dateStart; });
             if (dateEnd) data = data.filter(function(r) { return (r.orderTime || '').slice(0, 10) <= dateEnd; });
-            if (roleKeyword) data = data.filter(function(r) { return ((r[cfg.roleKey] || '') + '').toLowerCase().includes(roleKeyword); });
+            if (roleKeyword) {
+                if (currentTab === 'all') {
+                    data = data.filter(function(r) {
+                        return ['cashier', 'salesperson', 'waiter'].some(function(k) {
+                            return ((r[k] || '') + '').toLowerCase().indexOf(roleKeyword) >= 0;
+                        });
+                    });
+                } else {
+                    data = data.filter(function(r) { return ((r[cfg.roleKey] || '') + '').toLowerCase().indexOf(roleKeyword) >= 0; });
+                }
+            }
             if (statusSel) data = data.filter(function(r) { return (r.status || '') === statusSel; });
             if (type) data = data.filter(function(r) { return r.type === type; });
             if (payment) data = data.filter(function(r) { return r.payment === payment; });
             return data;
         }
         function renderHead() {
-            var cfg = TAB_CONFIG[currentTab];
             var th = document.getElementById('tableHeadRow');
+            if (currentTab === 'all') {
+                th.innerHTML = '<th>下单时间</th><th>订单号</th><th>状态</th><th>收银员</th><th>导购员</th><th>服务员</th><th>类型</th><th>付款方式</th><th class="text-right">实收金额(元)</th><th class="text-right">退款金额(元)</th><th class="text-right">提成合计(元)</th>';
+                return;
+            }
+            var cfg = TAB_CONFIG[currentTab];
             th.innerHTML = '<th>下单时间</th><th>订单号</th><th>状态</th><th>' + cfg.roleLabel + '</th><th>类型</th><th>付款方式</th><th class="text-right">实收金额(元)</th><th class="text-right">退款金额(元)</th><th class="text-right">提成(元)</th>';
         }
 
@@ -196,18 +201,33 @@
             var tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             pageData.forEach(function(row) {
-                var roleVal = row[cfg.roleKey] || '-';
-                var commission = row[cfg.commissionKey];
                 var tr = document.createElement('tr');
-                tr.innerHTML = '<td>' + (row.orderTime || '-') + '</td>' +
-                    '<td><a href="#" class="order-link" data-id="' + (row.orderId || '') + '">' + (row.orderId || '-') + '</a></td>' +
-                    '<td><span class="status-badge ' + (row.statusClass || '') + '">' + (row.status || '-') + '</span></td>' +
-                    '<td>' + roleVal + '</td>' +
-                    '<td>' + (row.type || '-') + '</td>' +
-                    '<td>' + (row.payment || '-') + '</td>' +
-                    '<td class="text-right">' + (row.amount != null ? row.amount.toFixed(2) : '0.00') + '</td>' +
-                    '<td class="text-right">' + (row.refund != null ? row.refund.toFixed(2) : '0.00') + '</td>' +
-                    '<td class="text-right">' + (commission != null ? commission.toFixed(2) : '0.00') + '</td>';
+                if (currentTab === 'all') {
+                    var commSum = (row.cashierCommission || 0) + (row.salespersonCommission || 0) + (row.waiterCommission || 0);
+                    tr.innerHTML = '<td>' + (row.orderTime || '-') + '</td>' +
+                        '<td><a href="#" class="order-link" data-id="' + (row.orderId || '') + '">' + (row.orderId || '-') + '</a></td>' +
+                        '<td><span class="status-badge ' + (row.statusClass || '') + '">' + (row.status || '-') + '</span></td>' +
+                        '<td>' + (row.cashier || '-') + '</td>' +
+                        '<td>' + (row.salesperson || '-') + '</td>' +
+                        '<td>' + (row.waiter || '-') + '</td>' +
+                        '<td>' + (row.type || '-') + '</td>' +
+                        '<td>' + (row.payment || '-') + '</td>' +
+                        '<td class="text-right">' + (row.amount != null ? row.amount.toFixed(2) : '0.00') + '</td>' +
+                        '<td class="text-right">' + (row.refund != null ? row.refund.toFixed(2) : '0.00') + '</td>' +
+                        '<td class="text-right">' + commSum.toFixed(2) + '</td>';
+                } else {
+                    var roleVal = row[cfg.roleKey] || '-';
+                    var commission = row[cfg.commissionKey];
+                    tr.innerHTML = '<td>' + (row.orderTime || '-') + '</td>' +
+                        '<td><a href="#" class="order-link" data-id="' + (row.orderId || '') + '">' + (row.orderId || '-') + '</a></td>' +
+                        '<td><span class="status-badge ' + (row.statusClass || '') + '">' + (row.status || '-') + '</span></td>' +
+                        '<td>' + roleVal + '</td>' +
+                        '<td>' + (row.type || '-') + '</td>' +
+                        '<td>' + (row.payment || '-') + '</td>' +
+                        '<td class="text-right">' + (row.amount != null ? row.amount.toFixed(2) : '0.00') + '</td>' +
+                        '<td class="text-right">' + (row.refund != null ? row.refund.toFixed(2) : '0.00') + '</td>' +
+                        '<td class="text-right">' + (commission != null ? commission.toFixed(2) : '0.00') + '</td>';
+                }
                 tbody.appendChild(tr);
             });
 
@@ -238,7 +258,12 @@
             // 汇总统计：订单数、实收总额、退款总额、提成总额（当前维度）
             var totalAmount = data.reduce(function (sum, row) { return sum + (row.amount || 0); }, 0);
             var totalRefund = data.reduce(function (sum, row) { return sum + (row.refund || 0); }, 0);
-            var totalCommission = data.reduce(function (sum, row) { return sum + (row[cfg.commissionKey] || 0); }, 0);
+            var totalCommission = data.reduce(function (sum, row) {
+                if (currentTab === 'all') {
+                    return sum + (row.cashierCommission || 0) + (row.salespersonCommission || 0) + (row.waiterCommission || 0);
+                }
+                return sum + (row[cfg.commissionKey] || 0);
+            }, 0);
             document.getElementById('summaryOrderCount').textContent = data.length;
             document.getElementById('summaryTotalAmount').textContent = '¥' + totalAmount.toFixed(2);
             document.getElementById('summaryTotalRefund').textContent = '¥' + totalRefund.toFixed(2);
@@ -249,12 +274,11 @@
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
                 this.classList.add('active');
-                currentTab = this.dataset.tab || 'cashier';
+                currentTab = this.dataset.tab || 'all';
                 currentPage = 1;
                 render();
             });
         });
-        document.getElementById('filterStore').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('dateStart').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('dateEnd').addEventListener('change', function() { currentPage = 1; render(); });
         document.getElementById('filterPerson').addEventListener('input', function() { currentPage = 1; render(); });

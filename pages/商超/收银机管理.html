@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>收银机管理 - 收银</title>
     <link rel="stylesheet" href="../../css/Main.css">
+    <link rel="stylesheet" href="../../css/收银台基础设置.css">
     <style>
         .pos-device-page { padding: var(--spacing-lg); background-color: var(--color-neutral-50); }
         .page-header { display: flex; justify-content: flex-start; align-items: center; margin-bottom: var(--spacing-md); padding: var(--spacing-lg); background-color: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); gap: var(--spacing-md); flex-wrap: wrap; }
@@ -18,38 +19,9 @@
             line-height: 1.6;
             margin-bottom: var(--spacing-lg);
         }
-        .info-banner.print-hint {
-            background: rgba(23, 162, 184, 0.08);
-            border-color: rgba(23, 162, 184, 0.3);
-        }
         .info-banner strong { color: var(--color-primary); }
-        .info-banner.print-hint strong { color: var(--color-info, #17a2b8); }
 
-        /* 一级：收银机 / 打印管理 */
-        .main-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: var(--spacing-lg);
-            border-bottom: 1px solid var(--color-neutral-200);
-            background: #fff;
-            padding: 0 var(--spacing-md);
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            box-shadow: var(--shadow-card);
-        }
-        .main-tab-btn {
-            padding: var(--spacing-md) var(--spacing-xl);
-            border: none;
-            background: none;
-            font-size: var(--font-size-base);
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-        }
-        .main-tab-btn:hover { color: var(--color-primary); }
-        .main-tab-btn.active { color: var(--color-primary); font-weight: var(--font-weight-medium); border-bottom-color: var(--color-primary); }
-
-        /* 打印管理：二级标签 */
+        /* 打印管理弹窗内：二级标签 */
         .print-sub-tabs {
             display: flex;
             flex-wrap: wrap;
@@ -136,9 +108,9 @@
         .toggle-mini input:checked + span { background: var(--color-primary); }
         .toggle-mini input:checked + span:before { transform: translateX(20px); }
 
-        /* 弹窗 */
+        /* 弹窗（绑定收银机/打印机叠在打印管理弹窗之上） */
         .bind-modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1100;
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1200;
             align-items: center; justify-content: center; padding: var(--spacing-md);
         }
         .bind-modal-overlay.show { display: flex; }
@@ -162,38 +134,133 @@
             padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200);
             display: flex; justify-content: flex-end; gap: var(--spacing-sm);
         }
-
-        /* APP 下载（自基础设置迁入） */
-        .app-download-card {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
+        /* 按收银机的打印管理（大弹窗） */
+        #printManageModalOverlay { z-index: 1150; }
+        .print-manage-modal {
+            max-width: 920px;
+            width: 96%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
         }
-        .app-download-card h3 {
-            margin: 0 0 var(--spacing-sm);
-            font-size: var(--font-size-base);
-            font-weight: var(--font-weight-medium);
+        .print-manage-modal .print-manage-scroll {
+            overflow: auto;
+            flex: 1;
+            padding: 0 var(--spacing-lg) var(--spacing-lg);
         }
-        .app-download-desc {
-            margin: 0 0 var(--spacing-md);
+        .print-manage-hint {
             font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
+            padding: var(--spacing-sm) 0 var(--spacing-md);
             line-height: 1.5;
         }
-        .app-download-row {
-            display: flex;
-            flex-wrap: wrap;
+
+        /* 打印规则详情（自设置-打印机迁入） */
+        .rule-editor-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
             align-items: center;
+            justify-content: center;
+            z-index: 1250;
+            padding: var(--spacing-md);
+        }
+        .rule-editor-overlay.show { display: flex; }
+        .rule-editor-overlay.goods-layer { z-index: 1270; }
+        .rule-editor-modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 640px;
+            max-width: 96vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .rule-editor-modal.wide { width: 900px; }
+        .rule-editor-modal .modal-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rule-editor-modal .modal-title { margin: 0; font-size: var(--font-size-lg); }
+        .rule-editor-modal .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .rule-editor-modal .modal-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-end;
             gap: var(--spacing-sm);
         }
-        .app-download-row input[type="text"] {
-            flex: 1;
-            min-width: 200px;
-            padding: var(--spacing-sm) var(--spacing-md);
+        .rule-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-sm);
+        }
+        .rule-goods-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            margin-bottom: var(--spacing-lg);
+        }
+        .rule-goods-row label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--font-size-sm);
+        }
+        .rule-goods-selector { margin-top: 8px; }
+        .rule-goods-selector-label { font-size: var(--font-size-sm); margin-bottom: 4px; }
+        .rule-goods-select-box {
             border: 1px solid var(--color-neutral-300);
             border-radius: var(--radius-md);
+            padding: 8px 10px;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            background: #fff;
+        }
+        .rule-goods-select-box.placeholder { color: var(--color-text-secondary); }
+        .rule-goods-tip { margin-top: 4px; font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+        .rule-channel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px 16px;
+        }
+        .rule-channel-item {
+            background: #f5f9ff;
+            border-radius: 20px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+        }
+        .rule-channel-name { color: var(--color-text-primary); }
+
+        /* 编辑打印机（飞鹅参数，原设置-打印机弹窗） */
+        #posPrinterEditOverlay { z-index: 1280; }
+        .ppe-form-group { margin-bottom: var(--spacing-md); }
+        .ppe-form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+        .ppe-form-group .ppe-req { color: var(--color-error); margin-right: 2px; }
+        .ppe-form-group input,
+        .ppe-form-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-300);
             font-size: var(--font-size-sm);
             box-sizing: border-box;
         }
@@ -205,30 +272,10 @@
             <strong>说明：</strong>收银机为自带 APP 的硬件终端。请在本页完成<strong>绑定</strong>后，收银员方可在对应设备上登录；
             一个门店可绑定<strong>多台</strong>收银机。未绑定或已解绑的设备无法用于登录。
         </div>
-        <div id="infoBannerPrint" class="info-banner print-hint" style="display: none;">
-            <strong>打印管理：</strong>在此<strong>绑定打印机</strong>、配置<strong>打印规则</strong>与<strong>小票样式</strong>，并完成<strong>打印参数</strong>（联数、切纸等）。
-            仅与当前门店/收银机策略关联的打印机可用于出票（示例逻辑）。
-        </div>
-
-        <div class="main-tabs" id="mainTabs">
-            <button type="button" class="main-tab-btn active" data-main="devices">收银机管理</button>
-            <button type="button" class="main-tab-btn" data-main="print">打印管理</button>
-        </div>
-
-        <!-- ========== 收银机 ========== -->
+        <!-- ========== 收银机列表（打印管理从每行「打印管理」进入） ========== -->
         <div id="panelDevices">
             <div class="page-header">
                 <button type="button" class="btn btn-primary" id="bindBtn">绑定收银机</button>
-            </div>
-
-            <div class="app-download-card" id="appDownloadSection">
-                <h3>APP 下载</h3>
-                <p class="app-download-desc">可将该链接生成二维码，张贴在门店供商家扫码下载安装收银机 APP。</p>
-                <div class="app-download-row">
-                    <input type="text" id="appDownloadUrl" placeholder="APP 下载地址" value="https://xcxsc.scssrh.com/app/download" autocomplete="off">
-                    <button type="button" class="btn btn-outline" id="copyAppLinkBtn">复制链接</button>
-                    <button type="button" class="btn btn-primary" id="saveAppDownloadUrlBtn">保存链接</button>
-                </div>
             </div>
 
             <div class="filter-section">
@@ -275,154 +322,162 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- ========== 打印管理 ========== -->
-        <div id="panelPrint" style="display: none;">
-            <div class="print-sub-tabs" id="printSubTabs">
-                <button type="button" class="print-sub-tab-btn active" data-print="bind">绑定打印机</button>
-                <button type="button" class="print-sub-tab-btn" data-print="rule">打印规则</button>
-                <button type="button" class="print-sub-tab-btn" data-print="ticket">小票样式</button>
-                <button type="button" class="print-sub-tab-btn" data-print="config">打印配置</button>
+    <!-- 打印管理（按所选收银机，弹窗） -->
+    <div class="bind-modal-overlay" id="printManageModalOverlay">
+        <div class="bind-modal print-manage-modal">
+            <div class="bind-modal-header">
+                <h3 id="printManageModalTitle">打印管理</h3>
+                <button type="button" class="btn btn-outline" id="printManageModalClose">关闭</button>
             </div>
+            <div class="bind-modal-body" style="padding: 0; display: flex; flex-direction: column; min-height: 0;">
+                <p class="print-manage-hint" id="printManageModalHint" style="padding: var(--spacing-md) var(--spacing-lg) 0; margin: 0;">
+                    以下为当前收银机可用的打印机、规则与小票设置；绑定新打印机时默认关联到该机。
+                </p>
+                <div class="print-sub-tabs" id="printSubTabs" style="padding: 0 var(--spacing-lg);">
+                    <button type="button" class="print-sub-tab-btn active" data-print="bind">绑定打印机</button>
+                    <button type="button" class="print-sub-tab-btn" data-print="rule">打印规则</button>
+                    <button type="button" class="print-sub-tab-btn" data-print="ticket">小票样式</button>
+                    <button type="button" class="print-sub-tab-btn" data-print="config">打印配置</button>
+                </div>
+                <div class="print-manage-scroll">
+                    <div id="printPanelBind" class="print-sub-panel">
+                        <div class="page-header" style="margin-bottom: var(--spacing-md); padding-left: 0; padding-right: 0;">
+                            <button type="button" class="btn btn-primary" id="bindPrinterBtn">绑定打印机</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>打印机名称</th>
+                                            <th>类型</th>
+                                            <th>连接方式</th>
+                                            <th>绑定收银机</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="printerTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- 绑定打印机 -->
-            <div id="printPanelBind" class="print-sub-panel">
-                <div class="page-header" style="margin-bottom: var(--spacing-md);">
-                    <button type="button" class="btn btn-primary" id="bindPrinterBtn">绑定打印机</button>
-                </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>打印机名称</th>
-                                    <th>类型</th>
-                                    <th>连接方式</th>
-                                    <th>绑定收银机</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="printerTableBody"></tbody>
-                        </table>
+                    <div id="printPanelRule" class="print-sub-panel" style="display: none;">
+                        <div class="page-header" style="margin-bottom: var(--spacing-md); padding-left: 0; padding-right: 0;">
+                            <button type="button" class="btn btn-primary" id="addRuleBtn">添加规则</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>规则名称</th>
+                                            <th>触发场景</th>
+                                            <th>默认打印机</th>
+                                            <th>启用</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ruleTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 打印规则 -->
-            <div id="printPanelRule" class="print-sub-panel" style="display: none;">
-                <div class="page-header" style="margin-bottom: var(--spacing-md);">
-                    <button type="button" class="btn btn-primary" id="addRuleBtn">添加规则</button>
-                </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>规则名称</th>
-                                    <th>触发场景</th>
-                                    <th>默认打印机</th>
-                                    <th>启用</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ruleTableBody"></tbody>
-                        </table>
+                    <div id="printPanelTicket" class="print-sub-panel" style="display: none;">
+                        <div class="page-header" style="margin-bottom: var(--spacing-md); padding-left: 0; padding-right: 0;">
+                            <button type="button" class="btn btn-primary" id="addTicketBtn">新建小票模板</button>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>模板名称</th>
+                                            <th>纸张宽度</th>
+                                            <th>适用票据</th>
+                                            <th>默认</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ticketTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 小票样式 -->
-            <div id="printPanelTicket" class="print-sub-panel" style="display: none;">
-                <div class="page-header" style="margin-bottom: var(--spacing-md);">
-                    <button type="button" class="btn btn-primary" id="addTicketBtn">新建小票模板</button>
-                </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>模板名称</th>
-                                    <th>纸张宽度</th>
-                                    <th>适用票据</th>
-                                    <th>默认</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ticketTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 打印配置 -->
-            <div id="printPanelConfig" class="print-sub-panel" style="display: none;">
-                <div class="print-config-card">
-                    <h3>出票与硬件</h3>
-                    <div class="config-row">
-                        <div class="config-row-label">
-                            默认结账小票打印机
-                            <span>未指定时使用门店默认打印机</span>
+                    <div id="printPanelConfig" class="print-sub-panel" style="display: none;">
+                        <div class="print-config-card">
+                            <h3>出票与硬件</h3>
+                            <div class="config-row">
+                                <div class="config-row-label">
+                                    默认结账小票打印机
+                                    <span>未指定时使用门店默认打印机</span>
+                                </div>
+                                <div class="config-row-ctrl">
+                                    <select id="cfgDefaultPrinter">
+                                        <option value="">跟随门店默认</option>
+                                        <option value="p1">小票机-总店前台</option>
+                                        <option value="p2">厨房打印机-K1</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="config-row">
+                                <div class="config-row-label">
+                                    打印联数（结账小票）
+                                    <span>顾客联 + 留存联等，示例为联数总和</span>
+                                </div>
+                                <div class="config-row-ctrl">
+                                    <input type="number" id="cfgCopies" value="1" min="1" max="5">
+                                </div>
+                            </div>
+                            <div class="config-row">
+                                <div class="config-row-label">打印后自动切纸</div>
+                                <div class="config-row-ctrl">
+                                    <label class="toggle-mini"><input type="checkbox" id="cfgCut" checked><span></span></label>
+                                </div>
+                            </div>
+                            <div class="config-row">
+                                <div class="config-row-label">支付成功自动打印小票</div>
+                                <div class="config-row-ctrl">
+                                    <label class="toggle-mini"><input type="checkbox" id="cfgAutoPrint" checked><span></span></label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="config-row-ctrl">
-                            <select id="cfgDefaultPrinter">
-                                <option value="">跟随门店默认</option>
-                                <option value="p1">小票机-总店前台</option>
-                                <option value="p2">厨房打印机-K1</option>
-                            </select>
+                        <div class="print-config-card">
+                            <h3>内容与样式</h3>
+                            <div class="config-row">
+                                <div class="config-row-label">
+                                    小票模板
+                                    <span>与「小票样式」中模板关联</span>
+                                </div>
+                                <div class="config-row-ctrl">
+                                    <select id="cfgTicketTpl">
+                                        <option value="t1">标准收银小票（58mm）</option>
+                                        <option value="t2">简洁小票（80mm）</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="config-row">
+                                <div class="config-row-label">打印 Logo / 店招</div>
+                                <div class="config-row-ctrl">
+                                    <label class="toggle-mini"><input type="checkbox" id="cfgLogo" checked><span></span></label>
+                                </div>
+                            </div>
+                            <div class="config-row">
+                                <div class="config-row-label">底部自定义文案</div>
+                                <div class="config-row-ctrl">
+                                    <input type="text" id="cfgFooter" placeholder="例如：谢谢惠迎，欢迎再次光临" style="min-width:220px;padding:8px 12px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);">
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="config-row">
-                        <div class="config-row-label">
-                            打印联数（结账小票）
-                            <span>顾客联 + 留存联等，示例为联数总和</span>
-                        </div>
-                        <div class="config-row-ctrl">
-                            <input type="number" id="cfgCopies" value="1" min="1" max="5">
-                        </div>
-                    </div>
-                    <div class="config-row">
-                        <div class="config-row-label">打印后自动切纸</div>
-                        <div class="config-row-ctrl">
-                            <label class="toggle-mini"><input type="checkbox" id="cfgCut" checked><span></span></label>
-                        </div>
-                    </div>
-                    <div class="config-row">
-                        <div class="config-row-label">支付成功自动打印小票</div>
-                        <div class="config-row-ctrl">
-                            <label class="toggle-mini"><input type="checkbox" id="cfgAutoPrint" checked><span></span></label>
-                        </div>
-                    </div>
-                </div>
-                <div class="print-config-card">
-                    <h3>内容与样式</h3>
-                    <div class="config-row">
-                        <div class="config-row-label">
-                            小票模板
-                            <span>与「小票样式」中模板关联</span>
-                        </div>
-                        <div class="config-row-ctrl">
-                            <select id="cfgTicketTpl">
-                                <option value="t1">标准收银小票（58mm）</option>
-                                <option value="t2">简洁小票（80mm）</option>
-                            </select>
+                        <div style="padding: 0 0 var(--spacing-lg);">
+                            <button type="button" class="btn btn-primary" id="savePrintConfigBtn">保存打印配置</button>
                         </div>
                     </div>
-                    <div class="config-row">
-                        <div class="config-row-label">打印 Logo / 店招</div>
-                        <div class="config-row-ctrl">
-                            <label class="toggle-mini"><input type="checkbox" id="cfgLogo" checked><span></span></label>
-                        </div>
-                    </div>
-                    <div class="config-row">
-                        <div class="config-row-label">底部自定义文案</div>
-                        <div class="config-row-ctrl">
-                            <input type="text" id="cfgFooter" placeholder="例如：谢谢惠迎，欢迎再次光临" style="min-width:220px;padding:8px 12px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);">
-                        </div>
-                    </div>
-                </div>
-                <div style="padding: 0 0 var(--spacing-lg);">
-                    <button type="button" class="btn btn-primary" id="savePrintConfigBtn">保存打印配置</button>
                 </div>
             </div>
         </div>
@@ -509,69 +564,162 @@
         </div>
     </div>
 
+    <!-- 编辑打印机（飞鹅 USER/UKEY/SN/KEY 等，原设置-打印机「编辑」弹窗） -->
+    <div class="bind-modal-overlay" id="posPrinterEditOverlay">
+        <div class="bind-modal" style="max-width: 520px;">
+            <div class="bind-modal-header">
+                <h3 id="posPrinterEditTitle">编辑打印机</h3>
+                <button type="button" class="btn btn-outline" id="posPrinterEditCloseBtn">关闭</button>
+            </div>
+            <div class="bind-modal-body">
+                <p style="margin:0 0 var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.5;">
+                    云打印（飞鹅）参数与「设置 → 打印机」中添加打印机表单一致；此处用于已绑定到收银机的设备维护。
+                </p>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印机名称</label>
+                    <input type="text" id="posPrinterEditName" placeholder="如：小票机-总店前台" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label>打印机类型</label>
+                    <select id="posPrinterEditTypeSelect">
+                        <option value="feie">飞鹅打印机</option>
+                    </select>
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>USER</label>
+                    <input type="text" id="posPrinterEditUser" placeholder="飞鹅账号 USER" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>UKEY</label>
+                    <input type="text" id="posPrinterEditUkey" placeholder="飞鹅账号 UKEY" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印机编号</label>
+                    <input type="text" id="posPrinterEditSn" placeholder="飞鹅打印机编号 SN" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印机 key</label>
+                    <input type="text" id="posPrinterEditKey" placeholder="打印机密钥 KEY" autocomplete="off">
+                </div>
+                <div class="ppe-form-group">
+                    <label><span class="ppe-req">*</span>打印联数</label>
+                    <input type="number" id="posPrinterEditCopies" min="1" step="1" value="1">
+                </div>
+            </div>
+            <div class="bind-modal-footer">
+                <button type="button" class="btn btn-outline" id="posPrinterEditCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="posPrinterEditSaveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 打印规则详情（适用商品 + 订单渠道，原设置-打印机） -->
+    <div class="rule-editor-overlay" id="cashierRuleModal">
+        <div class="rule-editor-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="cashierRuleModalTitle">编辑打印规则</h3>
+                <button type="button" class="btn btn-outline" id="cashierRuleModalCloseBtn">关闭</button>
+            </div>
+            <div class="modal-body">
+                <div class="rule-section">
+                    <div class="rule-section-title">适用商品</div>
+                    <div class="rule-goods-row">
+                        <label><input type="radio" name="cashierRuleGoodsScope" value="all" checked> 全部商品可用</label>
+                        <label><input type="radio" name="cashierRuleGoodsScope" value="include"> 指定商品可用</label>
+                        <label><input type="radio" name="cashierRuleGoodsScope" value="exclude"> 指定商品不可用</label>
+                    </div>
+                    <div class="rule-goods-selector" id="cashierRuleGoodsSelector" style="display:none;">
+                        <div class="rule-goods-selector-label">选择商品</div>
+                        <div class="rule-goods-select-box placeholder" id="cashierRuleGoodsSelectBox">请选择商品</div>
+                        <div class="rule-goods-tip">点击选择需要包含/排除的商品</div>
+                    </div>
+                </div>
+                <div class="rule-section">
+                    <div class="rule-section-title">订单渠道</div>
+                    <div class="rule-channel-grid">
+                        <div class="rule-channel-item"><span class="rule-channel-name">外卖订单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="waimai"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">自取订单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="ziqu"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">桌码订单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="table"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">收银台</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="cashier"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">营销订单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="marketing"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">交班单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="shift"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">接待单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="reception"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">积分订单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="points"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">商城订单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="mall"><span class="pos-settings-toggle-slider"></span></label></div>
+                        <div class="rule-channel-item"><span class="rule-channel-name">厨房制作单</span><label class="pos-settings-toggle"><input type="checkbox" class="cashier-rule-channel-toggle" value="kitchen"><span class="pos-settings-toggle-slider"></span></label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cashierRuleModalCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="cashierRuleModalSaveBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="rule-editor-overlay goods-layer" id="cashierGoodsModal">
+        <div class="rule-editor-modal wide">
+            <div class="modal-header">
+                <h3 class="modal-title">选择商品</h3>
+                <button type="button" class="btn btn-outline" id="cashierGoodsModalCloseBtn">关闭</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom:12px;">
+                    <input type="text" id="cashierGoodsSearchInput" placeholder="搜索商品名称" style="width:100%;padding:8px 12px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-md);font-size:var(--font-size-sm);box-sizing:border-box;">
+                </div>
+                <div style="display:flex; gap:16px; max-height:400px;">
+                    <div style="flex:0 0 40%; border:1px solid var(--color-neutral-200); border-radius:var(--radius-md); overflow:auto;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead><tr style="background:#f5f9ff;"><th style="padding:8px; text-align:left;"><label><input type="checkbox" id="cashierGoodsCategoryAll"> 全选分类</label></th></tr></thead>
+                            <tbody id="cashierGoodsCategoryBody"></tbody>
+                        </table>
+                    </div>
+                    <div style="flex:1 1 auto; border:1px solid var(--color-neutral-200); border-radius:var(--radius-md); overflow:auto;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead><tr style="background:#f5f9ff;"><th style="padding:8px; text-align:left;">商品</th></tr></thead>
+                            <tbody id="cashierGoodsProductBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content:space-between;">
+                <div style="font-size:12px; color:var(--color-text-secondary);">已选择 <span id="cashierGoodsSelectedCount">0</span> 件商品</div>
+                <div>
+                    <button type="button" class="btn btn-outline" id="cashierGoodsModalCancelBtn">取消</button>
+                    <button type="button" class="btn btn-primary" id="cashierGoodsModalConfirmBtn">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        var POS_BASIC_SETTINGS_KEY = 'posBasicSettings_mall';
-
-        function loadAppDownloadUrl() {
-            var el = document.getElementById('appDownloadUrl');
-            if (!el) return;
-            try {
-                var prev = JSON.parse(localStorage.getItem(POS_BASIC_SETTINGS_KEY) || '{}');
-                el.value = prev.appDownloadUrl || 'https://xcxsc.scssrh.com/app/download';
-            } catch (e) {
-                el.value = 'https://xcxsc.scssrh.com/app/download';
-            }
-        }
-
-        function saveAppDownloadUrl() {
-            var el = document.getElementById('appDownloadUrl');
-            if (!el) return;
-            var url = (el.value || '').trim() || 'https://xcxsc.scssrh.com/app/download';
-            var prev = {};
-            try {
-                prev = JSON.parse(localStorage.getItem(POS_BASIC_SETTINGS_KEY) || '{}');
-            } catch (e) {}
-            prev.appDownloadUrl = url;
-            localStorage.setItem(POS_BASIC_SETTINGS_KEY, JSON.stringify(prev));
-            alert('APP 下载链接已保存');
-        }
-
-        function copyAppDownloadLink() {
-            var input = document.getElementById('appDownloadUrl');
-            if (!input) return;
-            input.select();
-            input.setSelectionRange(0, 99999);
-            try {
-                document.execCommand('copy');
-                alert('APP 下载链接已复制到剪贴板');
-            } catch (err) {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(input.value).then(function () {
-                        alert('APP 下载链接已复制到剪贴板');
-                    }).catch(function () {
-                        alert('复制失败，请手动复制');
-                    });
-                } else {
-                    alert('复制失败，请手动复制');
-                }
-            }
-        }
-
         var list = [
             { id: '1', name: '总店-前台1号机', deviceNo: 'SN-POS-2026-001', store: '总店', status: 'bound', lastOnline: '2026-01-31 18:20' },
             { id: '2', name: '总店-前台2号机', deviceNo: 'SN-POS-2026-002', store: '总店', status: 'bound', lastOnline: '2026-01-31 17:55' },
             { id: '3', name: '分店A-收银台', deviceNo: 'SN-POS-2026-015', store: '分店A', status: 'pending', lastOnline: '-' }
         ];
         var printerList = [
-            { id: 'p1', name: '小票机-总店前台', type: '热敏小票', conn: '局域网IP', posName: '总店-前台1号机', status: 'bound' },
-            { id: 'p2', name: '厨房打印机-K1', type: '热敏小票', conn: '局域网IP', posName: '总店-前台1号机', status: 'bound' },
-            { id: 'p3', name: '备用蓝牙小票', type: '热敏小票', conn: '蓝牙', posName: '全门店共享', status: 'pending' }
+            { id: 'p1', name: '小票机-总店前台', type: '热敏小票', conn: '局域网IP', posName: '总店-前台1号机', status: 'bound', printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SN001', key: 'KEY001', copies: 1 },
+            { id: 'p2', name: '厨房打印机-K1', type: '热敏小票', conn: '局域网IP', posName: '总店-前台1号机', status: 'bound', printerType: 'feie', user: 'USER_DEMO2', ukey: 'UKEY_DEMO2', sn: 'SN002', key: 'KEY002', copies: 1 },
+            { id: 'p3', name: '备用蓝牙小票', type: '热敏小票', conn: '蓝牙', posName: '全门店共享', status: 'pending', printerType: 'feie', user: '', ukey: '', sn: '', key: '', copies: 1 }
         ];
+        var currentPosPrinterEditId = null;
         var ruleList = [
-            { id: 'r1', name: '结账出小票', scene: '支付成功', printer: '小票机-总店前台', enabled: true },
-            { id: 'r2', name: '后厨出制作单', scene: '下单/加菜', printer: '厨房打印机-K1', enabled: true },
-            { id: 'r3', name: '退款凭证', scene: '退款完成', printer: '小票机-总店前台', enabled: false }
+            { id: 'r1', deviceId: '1', name: '结账出小票', scene: '支付成功', printer: '小票机-总店前台', enabled: true, detail: { goodsScope: 'all', channels: { cashier: true, mall: true }, products: [] } },
+            { id: 'r2', deviceId: '1', name: '后厨出制作单', scene: '下单/加菜', printer: '厨房打印机-K1', enabled: true, detail: { goodsScope: 'all', channels: { kitchen: true }, products: [] } },
+            { id: 'r3', deviceId: '1', name: '退款凭证', scene: '退款完成', printer: '小票机-总店前台', enabled: false, detail: { goodsScope: 'all', channels: {}, products: [] } }
         ];
+        var cashierRuleCategories = [
+            { id: 'c1', name: '软饮系列' }, { id: 'c2', name: '啤酒' }, { id: 'c3', name: '小吃系列' }, { id: 'c4', name: '优惠套餐' }
+        ];
+        var cashierRuleProducts = [
+            { id: 'p1', name: '红牛', categoryId: 'c1' }, { id: 'p2', name: '旺仔牛奶', categoryId: 'c1' }, { id: 'p3', name: '王老吉（听装）', categoryId: 'c1' },
+            { id: 'p4', name: '可乐（听装）', categoryId: 'c1' }, { id: 'p5', name: '农夫山泉550ml', categoryId: 'c1' }, { id: 'p6', name: '苏打水', categoryId: 'c1' },
+            { id: 'p7', name: '雪碧', categoryId: 'c1' }, { id: 'p8', name: '脉动', categoryId: 'c1' }, { id: 'p9', name: '精酿啤酒', categoryId: 'c2' },
+            { id: 'p10', name: '炸鸡套餐', categoryId: 'c3' }, { id: 'p11', name: '优惠家庭套餐', categoryId: 'c4' }
+        ];
+        var currentCashierRuleEditId = null;
+        var currentCashierRuleProducts = [];
         var ticketList = [
             { id: 't1', name: '标准收银小票（58mm）', width: '58mm', use: '结账 / 退款', isDefault: true },
             { id: 't2', name: '简洁小票（80mm）', width: '80mm', use: '结账', isDefault: false },
@@ -579,8 +727,9 @@
         ];
 
         var currentPage = 1, pageSize = 10;
-        var mainTab = 'devices';
         var printSubTab = 'bind';
+        /** 当前在「打印管理」弹窗中选中的收银机（用于筛选打印机与保存配置） */
+        var currentPrintDevice = null;
 
         function getFilteredList() {
             var data = list.slice();
@@ -615,6 +764,7 @@
                     '<td><span class="status-badge ' + statusCls + '">' + statusText + '</span></td>' +
                     '<td>' + (row.lastOnline || '-') + '</td>' +
                     '<td>' +
+                    '<a href="#" class="action-link print-manage-item" data-id="' + row.id + '">打印管理</a>' +
                     '<a href="#" class="action-link rename-item" data-id="' + row.id + '">改名</a>' +
                     '<a href="#" class="action-link danger unbind-item" data-id="' + row.id + '">解绑</a>' +
                     '</td>';
@@ -660,11 +810,19 @@
             });
         }
 
+        function getPrintersForCurrentDevice() {
+            if (!currentPrintDevice) return printerList.slice();
+            var n = currentPrintDevice.name;
+            return printerList.filter(function (p) {
+                return p.posName === n || p.posName === '全门店共享';
+            });
+        }
+
         function renderPrinterTable() {
             var tbody = document.getElementById('printerTableBody');
             if (!tbody) return;
             tbody.innerHTML = '';
-            printerList.forEach(function (row) {
+            getPrintersForCurrentDevice().forEach(function (row) {
                 var tr = document.createElement('tr');
                 var st = row.status === 'bound' ? '已绑定' : '待配对';
                 var cls = row.status === 'bound' ? 'bound' : 'pending';
@@ -682,11 +840,19 @@
             });
         }
 
+        function getRulesForCurrentDevice() {
+            if (!currentPrintDevice) return ruleList.slice();
+            var did = String(currentPrintDevice.id);
+            return ruleList.filter(function (r) {
+                return !r.deviceId || String(r.deviceId) === did;
+            });
+        }
+
         function renderRuleTable() {
             var tbody = document.getElementById('ruleTableBody');
             if (!tbody) return;
             tbody.innerHTML = '';
-            ruleList.forEach(function (row) {
+            getRulesForCurrentDevice().forEach(function (row) {
                 var tr = document.createElement('tr');
                 var en = row.enabled ? '<span class="status-badge on">是</span>' : '<span class="status-badge off">否</span>';
                 tr.innerHTML =
@@ -694,8 +860,11 @@
                     '<td>' + (row.scene || '-') + '</td>' +
                     '<td>' + (row.printer || '-') + '</td>' +
                     '<td>' + en + '</td>' +
-                    '<td><a href="#" class="action-link rule-edit" data-id="' + row.id + '">编辑</a> ' +
-                    '<a href="#" class="action-link danger rule-del" data-id="' + row.id + '">删除</a></td>';
+                    '<td>' +
+                    '<a href="#" class="action-link rule-detail" data-id="' + row.id + '">规则设置</a> ' +
+                    '<a href="#" class="action-link rule-edit" data-id="' + row.id + '">编辑</a> ' +
+                    '<a href="#" class="action-link danger rule-del" data-id="' + row.id + '">删除</a>' +
+                    '</td>';
                 tbody.appendChild(tr);
             });
         }
@@ -718,15 +887,27 @@
             });
         }
 
-        function switchMainTab(tab) {
-            mainTab = tab;
-            document.getElementById('panelDevices').style.display = tab === 'devices' ? 'block' : 'none';
-            document.getElementById('panelPrint').style.display = tab === 'print' ? 'block' : 'none';
-            document.getElementById('infoBannerDevices').style.display = tab === 'devices' ? 'block' : 'none';
-            document.getElementById('infoBannerPrint').style.display = tab === 'print' ? 'block' : 'none';
-            document.querySelectorAll('#mainTabs .main-tab-btn').forEach(function (b) {
-                b.classList.toggle('active', b.getAttribute('data-main') === tab);
-            });
+        function openPrintManageModal(deviceId) {
+            var row = list.filter(function (r) { return r.id === deviceId; })[0];
+            if (!row) return;
+            currentPrintDevice = row;
+            var titleEl = document.getElementById('printManageModalTitle');
+            if (titleEl) titleEl.textContent = '打印管理 — ' + (row.name || '');
+            var hintEl = document.getElementById('printManageModalHint');
+            if (hintEl) {
+                hintEl.textContent = '设备编号：' + (row.deviceNo || '-') + '　门店：' + (row.store || '-') +
+                    '。以下打印机、规则与小票设置为「' + (row.name || '该收银机') + '」专用；新绑定打印机默认关联到该机。';
+            }
+            document.getElementById('printManageModalOverlay').classList.add('show');
+            switchPrintSubTab('bind');
+            renderPrinterTable();
+            renderRuleTable();
+            renderTicketTable();
+        }
+
+        function closePrintManageModal() {
+            document.getElementById('printManageModalOverlay').classList.remove('show');
+            currentPrintDevice = null;
         }
 
         function switchPrintSubTab(sub) {
@@ -753,19 +934,183 @@
         function openBindPrinterModal() {
             document.getElementById('printerNameInput').value = '';
             document.getElementById('printerDeviceInput').value = '';
-            document.getElementById('printerPosSelect').value = '';
             refreshPrinterPosOptions();
+            var posSel = document.getElementById('printerPosSelect');
+            if (currentPrintDevice && posSel) {
+                posSel.value = currentPrintDevice.name;
+            } else if (posSel) {
+                posSel.value = '';
+            }
             document.getElementById('bindPrinterModal').classList.add('show');
         }
         function closeBindPrinterModal() {
             document.getElementById('bindPrinterModal').classList.remove('show');
         }
 
-        document.getElementById('mainTabs').addEventListener('click', function (e) {
-            var btn = e.target.closest('.main-tab-btn');
-            if (!btn) return;
-            switchMainTab(btn.getAttribute('data-main') || 'devices');
-        });
+        function openPosPrinterEditModal(printerId) {
+            var row = printerList.filter(function (r) { return r.id === printerId; })[0];
+            if (!row) return;
+            currentPosPrinterEditId = printerId;
+            document.getElementById('posPrinterEditTitle').textContent = '编辑打印机';
+            document.getElementById('posPrinterEditName').value = row.name || '';
+            document.getElementById('posPrinterEditTypeSelect').value = row.printerType || 'feie';
+            document.getElementById('posPrinterEditUser').value = row.user || '';
+            document.getElementById('posPrinterEditUkey').value = row.ukey || '';
+            document.getElementById('posPrinterEditSn').value = row.sn || '';
+            document.getElementById('posPrinterEditKey').value = row.key || '';
+            document.getElementById('posPrinterEditCopies').value = row.copies != null ? row.copies : 1;
+            document.getElementById('posPrinterEditOverlay').classList.add('show');
+        }
+
+        function closePosPrinterEditModal() {
+            document.getElementById('posPrinterEditOverlay').classList.remove('show');
+            currentPosPrinterEditId = null;
+        }
+
+        function updateCashierRuleGoodsSelectorVisibility(scope) {
+            var box = document.getElementById('cashierRuleGoodsSelector');
+            if (!box) return;
+            box.style.display = (scope === 'include' || scope === 'exclude') ? '' : 'none';
+        }
+
+        function renderCashierRuleGoodsBox() {
+            var box = document.getElementById('cashierRuleGoodsSelectBox');
+            if (!box) return;
+            if (!currentCashierRuleProducts || !currentCashierRuleProducts.length) {
+                box.textContent = '请选择商品';
+                box.classList.add('placeholder');
+                return;
+            }
+            var names = currentCashierRuleProducts.map(function (pid) {
+                var p = cashierRuleProducts.find(function (x) { return x.id === pid; });
+                return p ? p.name : '';
+            }).filter(Boolean);
+            if (!names.length) {
+                box.textContent = '已选择 ' + currentCashierRuleProducts.length + ' 件商品';
+            } else {
+                var text = names.join('、');
+                if (text.length > 40) text = text.substring(0, 40) + '... （共 ' + names.length + ' 件）';
+                box.textContent = text;
+            }
+            box.classList.remove('placeholder');
+        }
+
+        function openCashierRuleDetailModal(ruleId) {
+            if (!currentPrintDevice) {
+                alert('请先从收银机列表打开「打印管理」。');
+                return;
+            }
+            currentCashierRuleEditId = ruleId || null;
+            currentCashierRuleProducts = [];
+            var titleEl = document.getElementById('cashierRuleModalTitle');
+            var row = ruleId ? ruleList.filter(function (r) { return r.id === ruleId; })[0] : null;
+            if (ruleId && !row) return;
+
+            if (row) {
+                if (titleEl) titleEl.textContent = '规则设置 — ' + (row.name || '') + '（' + (currentPrintDevice.name || '') + '）';
+                var d = row.detail || { goodsScope: 'all', channels: {}, products: [] };
+                var scope = d.goodsScope || 'all';
+                Array.prototype.forEach.call(document.querySelectorAll('input[name="cashierRuleGoodsScope"]'), function (r) {
+                    r.checked = (r.value === scope);
+                });
+                var ch = d.channels || {};
+                Array.prototype.forEach.call(document.querySelectorAll('.cashier-rule-channel-toggle'), function (cb) {
+                    cb.checked = !!ch[cb.value];
+                });
+                currentCashierRuleProducts = d.products ? d.products.slice() : [];
+                updateCashierRuleGoodsSelectorVisibility(scope);
+                renderCashierRuleGoodsBox();
+            } else {
+                if (titleEl) titleEl.textContent = '新建打印规则（' + (currentPrintDevice.name || '') + '）';
+                Array.prototype.forEach.call(document.querySelectorAll('input[name="cashierRuleGoodsScope"]'), function (r) {
+                    r.checked = (r.value === 'all');
+                });
+                Array.prototype.forEach.call(document.querySelectorAll('.cashier-rule-channel-toggle'), function (cb) {
+                    cb.checked = false;
+                });
+                updateCashierRuleGoodsSelectorVisibility('all');
+                renderCashierRuleGoodsBox();
+            }
+            document.getElementById('cashierRuleModal').classList.add('show');
+        }
+
+        function closeCashierRuleDetailModal() {
+            document.getElementById('cashierRuleModal').classList.remove('show');
+        }
+
+        function openCashierGoodsModal() {
+            var modal = document.getElementById('cashierGoodsModal');
+            var catBody = document.getElementById('cashierGoodsCategoryBody');
+            var prodBody = document.getElementById('cashierGoodsProductBody');
+            var searchInput = document.getElementById('cashierGoodsSearchInput');
+            var selectedCountEl = document.getElementById('cashierGoodsSelectedCount');
+            if (!modal || !catBody || !prodBody) return;
+            searchInput.value = '';
+            catBody.innerHTML = '';
+            cashierRuleCategories.forEach(function (c) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td style="padding:6px 8px; border-top:1px solid #f0f0f0;"><label><input type="checkbox" class="cashier-goods-category" value="' + c.id + '"> ' + c.name + '</label></td>';
+                catBody.appendChild(tr);
+            });
+
+            function renderCashierGoodsProducts() {
+                var kw = (searchInput.value || '').trim().toLowerCase();
+                prodBody.innerHTML = '';
+                cashierRuleProducts.forEach(function (p) {
+                    if (kw && p.name.toLowerCase().indexOf(kw) === -1) return;
+                    var checked = currentCashierRuleProducts.indexOf(p.id) !== -1;
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td style="padding:6px 8px; border-top:1px solid #f0f0f0;"><label><input type="checkbox" class="cashier-goods-product" value="' + p.id + '" ' + (checked ? 'checked' : '') + '> ' + p.name + '</label></td>';
+                    prodBody.appendChild(tr);
+                });
+                if (selectedCountEl) selectedCountEl.textContent = String(currentCashierRuleProducts.length);
+            }
+
+            renderCashierGoodsProducts();
+            document.getElementById('cashierGoodsCategoryAll').checked = false;
+
+            catBody.onchange = function (e) {
+                if (!e.target.classList.contains('cashier-goods-category')) return;
+                var catId = e.target.value;
+                var checked = e.target.checked;
+                cashierRuleProducts.forEach(function (p) {
+                    if (p.categoryId !== catId) return;
+                    if (checked && currentCashierRuleProducts.indexOf(p.id) === -1) currentCashierRuleProducts.push(p.id);
+                    if (!checked) currentCashierRuleProducts = currentCashierRuleProducts.filter(function (id) { return id !== p.id; });
+                });
+                renderCashierGoodsProducts();
+            };
+
+            document.getElementById('cashierGoodsCategoryAll').onchange = function () {
+                var checked = this.checked;
+                Array.prototype.forEach.call(catBody.querySelectorAll('.cashier-goods-category'), function (cb) {
+                    cb.checked = checked;
+                    var evt = document.createEvent('HTMLEvents');
+                    evt.initEvent('change', true, false);
+                    cb.dispatchEvent(evt);
+                });
+            };
+
+            searchInput.oninput = function () { renderCashierGoodsProducts(); };
+
+            prodBody.onchange = function (e) {
+                if (!e.target.classList.contains('cashier-goods-product')) return;
+                var pid = e.target.value;
+                if (e.target.checked) {
+                    if (currentCashierRuleProducts.indexOf(pid) === -1) currentCashierRuleProducts.push(pid);
+                } else {
+                    currentCashierRuleProducts = currentCashierRuleProducts.filter(function (id) { return id !== pid; });
+                }
+                if (selectedCountEl) selectedCountEl.textContent = String(currentCashierRuleProducts.length);
+            };
+
+            modal.classList.add('show');
+        }
+
+        function closeCashierGoodsModal() {
+            var modal = document.getElementById('cashierGoodsModal');
+            if (modal) modal.classList.remove('show');
+        }
 
         document.getElementById('printSubTabs').addEventListener('click', function (e) {
             var btn = e.target.closest('.print-sub-tab-btn');
@@ -808,6 +1153,11 @@
 
         document.getElementById('tableBody').addEventListener('click', function (e) {
             e.preventDefault();
+            var pm = e.target.closest('.print-manage-item');
+            if (pm) {
+                openPrintManageModal(pm.getAttribute('data-id'));
+                return;
+            }
             var unbind = e.target.closest('.unbind-item');
             var rename = e.target.closest('.rename-item');
             if (unbind) {
@@ -849,17 +1199,26 @@
             var conn = document.getElementById('printerConnInput').value;
             var posSel = document.getElementById('printerPosSelect').value;
             var posName = posSel || '全门店共享';
+            if (currentPrintDevice && !posSel) {
+                posName = currentPrintDevice.name;
+            }
             printerList.unshift({
                 id: 'p' + Date.now(),
                 name: name,
                 type: type,
                 conn: conn,
                 posName: posName,
-                status: 'bound'
+                status: 'bound',
+                printerType: 'feie',
+                user: '',
+                ukey: '',
+                sn: code,
+                key: '',
+                copies: 1
             });
             closeBindPrinterModal();
             renderPrinterTable();
-            alert('打印机绑定成功（示例）');
+            alert('打印机绑定成功（示例），已关联到：' + posName);
         });
 
         document.getElementById('printerTableBody').addEventListener('click', function (e) {
@@ -872,20 +1231,147 @@
                     renderPrinterTable();
                 }
             }
-            if (e.target.closest('.printer-edit')) {
-                alert('编辑打印机（示例）：可修改名称、连接方式、绑定收银机等');
+            var ed = e.target.closest('.printer-edit');
+            if (ed) {
+                openPosPrinterEditModal(ed.getAttribute('data-id'));
             }
         });
 
+        document.getElementById('posPrinterEditCloseBtn').addEventListener('click', closePosPrinterEditModal);
+        document.getElementById('posPrinterEditCancelBtn').addEventListener('click', closePosPrinterEditModal);
+        document.getElementById('posPrinterEditOverlay').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('posPrinterEditOverlay')) closePosPrinterEditModal();
+        });
+        document.getElementById('posPrinterEditSaveBtn').addEventListener('click', function () {
+            if (!currentPosPrinterEditId) return;
+            var row = printerList.filter(function (r) { return r.id === currentPosPrinterEditId; })[0];
+            if (!row) {
+                closePosPrinterEditModal();
+                return;
+            }
+            var name = (document.getElementById('posPrinterEditName').value || '').trim();
+            var user = (document.getElementById('posPrinterEditUser').value || '').trim();
+            var ukey = (document.getElementById('posPrinterEditUkey').value || '').trim();
+            var sn = (document.getElementById('posPrinterEditSn').value || '').trim();
+            var key = (document.getElementById('posPrinterEditKey').value || '').trim();
+            var copies = parseInt(document.getElementById('posPrinterEditCopies').value, 10) || 1;
+            if (!name || !user || !ukey || !sn || !key) {
+                alert('请完整填写带 * 号的必填项。');
+                return;
+            }
+            row.name = name;
+            row.printerType = document.getElementById('posPrinterEditTypeSelect').value || 'feie';
+            row.user = user;
+            row.ukey = ukey;
+            row.sn = sn;
+            row.key = key;
+            row.copies = copies;
+            alert('打印机已保存（示例），实际系统中应调用后台接口。');
+            closePosPrinterEditModal();
+            renderPrinterTable();
+        });
+
         document.getElementById('addRuleBtn').addEventListener('click', function () {
-            alert('添加打印规则（示例）：可选择触发场景、关联打印机与模板');
+            openCashierRuleDetailModal(null);
         });
         document.getElementById('ruleTableBody').addEventListener('click', function (e) {
             e.preventDefault();
-            if (e.target.closest('.rule-edit')) alert('编辑规则（示例）');
-            if (e.target.closest('.rule-del')) {
-                if (confirm('删除该规则？')) alert('已删除（示例）');
+            var det = e.target.closest('.rule-detail');
+            if (det) {
+                openCashierRuleDetailModal(det.getAttribute('data-id'));
+                return;
             }
+            if (e.target.closest('.rule-edit')) {
+                var id = e.target.closest('.rule-edit').getAttribute('data-id');
+                var row = ruleList.filter(function (r) { return r.id === id; })[0];
+                if (!row) return;
+                var n = prompt('规则名称', row.name || '');
+                if (n === null) return;
+                n = n.trim() || row.name;
+                var sc = prompt('触发场景', row.scene || '');
+                if (sc === null) return;
+                row.name = n;
+                row.scene = (sc || '').trim() || row.scene;
+                var pr = prompt('默认打印机', row.printer || '');
+                if (pr !== null) row.printer = (pr || '').trim() || row.printer;
+                renderRuleTable();
+                return;
+            }
+            if (e.target.closest('.rule-del')) {
+                var id2 = e.target.closest('.rule-del').getAttribute('data-id');
+                if (confirm('删除该规则？')) {
+                    ruleList = ruleList.filter(function (r) { return r.id !== id2; });
+                    renderRuleTable();
+                }
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('input[name="cashierRuleGoodsScope"]'), function (r) {
+            r.addEventListener('change', function () {
+                updateCashierRuleGoodsSelectorVisibility(this.value);
+            });
+        });
+        document.getElementById('cashierRuleGoodsSelectBox').addEventListener('click', function () {
+            openCashierGoodsModal();
+        });
+        document.getElementById('cashierRuleModalCloseBtn').addEventListener('click', closeCashierRuleDetailModal);
+        document.getElementById('cashierRuleModalCancelBtn').addEventListener('click', closeCashierRuleDetailModal);
+        document.getElementById('cashierRuleModal').addEventListener('click', function (e) {
+            if (e.target === this) closeCashierRuleDetailModal();
+        });
+        document.getElementById('cashierRuleModalSaveBtn').addEventListener('click', function () {
+            if (!currentPrintDevice) {
+                closeCashierRuleDetailModal();
+                return;
+            }
+            var scope = 'all';
+            Array.prototype.forEach.call(document.querySelectorAll('input[name="cashierRuleGoodsScope"]'), function (r) {
+                if (r.checked) scope = r.value;
+            });
+            var channels = {};
+            Array.prototype.forEach.call(document.querySelectorAll('.cashier-rule-channel-toggle'), function (cb) {
+                channels[cb.value] = cb.checked;
+            });
+            var detail = {
+                goodsScope: scope,
+                channels: channels,
+                products: currentCashierRuleProducts.slice()
+            };
+            if (currentCashierRuleEditId) {
+                var row = ruleList.filter(function (r) { return r.id === currentCashierRuleEditId; })[0];
+                if (row) {
+                    row.detail = detail;
+                    alert('规则已保存（示例）：「' + (row.name || '') + '」的适用商品与订单渠道已更新。');
+                }
+            } else {
+                var name = prompt('请输入规则名称（将显示在列表中）', '新打印规则');
+                if (name === null) return;
+                name = (name || '').trim() || '新打印规则';
+                var printers = getPrintersForCurrentDevice();
+                var defP = (printers[0] && printers[0].name) ? printers[0].name : '默认打印机';
+                ruleList.push({
+                    id: 'r' + Date.now(),
+                    deviceId: currentPrintDevice.id,
+                    name: name,
+                    scene: '支付成功',
+                    printer: defP,
+                    enabled: true,
+                    detail: detail
+                });
+                alert('已添加规则（示例），可在列表中继续「编辑」名称或「规则设置」细项。');
+            }
+            closeCashierRuleDetailModal();
+            renderRuleTable();
+        });
+
+        document.getElementById('cashierGoodsModalCloseBtn').addEventListener('click', closeCashierGoodsModal);
+        document.getElementById('cashierGoodsModalCancelBtn').addEventListener('click', closeCashierGoodsModal);
+        document.getElementById('cashierGoodsModal').addEventListener('click', function (e) {
+            if (e.target === this) closeCashierGoodsModal();
+        });
+        document.getElementById('cashierGoodsModalConfirmBtn').addEventListener('click', function () {
+            renderCashierRuleGoodsBox();
+            closeCashierGoodsModal();
         });
 
         document.getElementById('addTicketBtn').addEventListener('click', function () {
@@ -903,19 +1389,18 @@
         });
 
         document.getElementById('savePrintConfigBtn').addEventListener('click', function () {
-            alert('打印配置已保存（示例）\n默认打印机：' + (document.getElementById('cfgDefaultPrinter').value || '跟随门店') +
+            var posName = currentPrintDevice ? currentPrintDevice.name : '（未选择收银机）';
+            alert('打印配置已保存（示例）\n收银机：' + posName +
+                '\n默认打印机：' + (document.getElementById('cfgDefaultPrinter').value || '跟随门店') +
                 '\n联数：' + document.getElementById('cfgCopies').value);
         });
 
-        document.getElementById('copyAppLinkBtn').addEventListener('click', copyAppDownloadLink);
-        document.getElementById('saveAppDownloadUrlBtn').addEventListener('click', saveAppDownloadUrl);
+        document.getElementById('printManageModalClose').addEventListener('click', closePrintManageModal);
+        document.getElementById('printManageModalOverlay').addEventListener('click', function (e) {
+            if (e.target === document.getElementById('printManageModalOverlay')) closePrintManageModal();
+        });
 
-        loadAppDownloadUrl();
         render();
-        renderPrinterTable();
-        renderRuleTable();
-        renderTicketTable();
-        switchPrintSubTab('bind');
     </script>
 </body>
 </html>
