@@ -171,6 +171,75 @@
             font-size: var(--font-size-xs);
         }
 
+        /* 详情侧滑（与销售侧一致；盘点「查看」类用） */
+        .order-detail-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1099;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .order-detail-backdrop.show { opacity: 1; visibility: visible; }
+        .order-detail-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(640px, 100%);
+            max-width: 100%;
+            height: 100%;
+            background: #fff;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+            transform: translateX(100%);
+            transition: transform 0.22s ease;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+        }
+        .order-detail-drawer.show { transform: translateX(0); }
+        .order-detail-drawer .order-detail-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+        }
+        .order-detail-drawer .order-detail-title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+        }
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .order-detail-drawer .order-detail-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .order-detail-drawer .order-detail-footer {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: flex-start;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+        .drawer-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--color-text-secondary);
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .drawer-close-btn:hover { color: var(--color-text-primary); }
+
         /* 新增盘点弹窗表单 */
         .new-check-modal .detail-modal { max-width: 1000px; }
         .new-check-form-row { margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
@@ -373,53 +442,57 @@
         </div>
     </div>
 
-    <!-- 详情弹窗：单条商品盘点明细 -->
-    <div class="detail-modal-overlay" id="checkDetailModal">
-        <div class="detail-modal">
-            <div class="detail-modal-header">
-                <h3 class="detail-modal-title" id="checkDetailTitle">盘点明细详情</h3>
-                <button type="button" class="btn btn-outline" id="checkDetailCloseBtn">关闭</button>
+    <!-- 单条商品盘点明细侧滑 -->
+    <div class="order-detail-backdrop" id="checkDetailBackdrop" aria-hidden="true"></div>
+    <div class="order-detail-drawer" id="checkDetailDrawer" aria-hidden="true">
+        <div class="order-detail-header">
+            <div>
+                <h3 class="order-detail-title">盘点明细详情</h3>
+                <div class="page-subtitle" id="checkDetailSubtitle">商品：-</div>
             </div>
-            <div class="detail-modal-body" id="checkDetailContent"></div>
-            <div class="detail-modal-footer">
-                <button type="button" class="btn btn-primary" id="checkDetailOkBtn">我知道了</button>
-            </div>
+            <button type="button" class="drawer-close-btn" id="checkDetailCloseBtn" aria-label="关闭">×</button>
+        </div>
+        <div class="order-detail-body" id="checkDetailContent"></div>
+        <div class="order-detail-footer" style="justify-content: flex-end;">
+            <button type="button" class="btn btn-primary" id="checkDetailOkBtn">我知道了</button>
         </div>
     </div>
 
-    <!-- 查看盘点信息弹窗（点击列表「查看」时打开，只读展示基本信息+盘点产品） -->
-    <div class="detail-modal-overlay" id="viewCheckModal">
-        <div class="detail-modal" style="max-width: 820px;">
-            <div class="detail-modal-header">
-                <h3 class="detail-modal-title">查看盘点信息</h3>
-                <button type="button" class="btn btn-outline" id="viewCheckModalClose" aria-label="关闭">×</button>
+    <!-- 查看盘点信息侧滑 -->
+    <div class="order-detail-backdrop" id="viewCheckBackdrop" aria-hidden="true"></div>
+    <div class="order-detail-drawer" id="viewCheckDrawer" aria-hidden="true">
+        <div class="order-detail-header">
+            <div>
+                <h3 class="order-detail-title">查看盘点信息</h3>
+                <div class="page-subtitle" id="viewCheckSubtitle">单号：-</div>
             </div>
-            <div class="detail-modal-body">
-                <div class="view-check-section-title">基本信息</div>
-                <div class="view-check-basic-grid" id="viewCheckBasicInfo"></div>
-                <div class="view-check-section-title" style="margin-top: var(--spacing-lg);">盘点产品</div>
-                <div class="table-wrapper">
-                    <table class="view-check-products-table">
-                        <thead>
-                            <tr>
-                                <th>产品ID</th>
-                                <th>产品</th>
-                                <th>单位</th>
-                                <th class="text-right">销售价</th>
-                                <th class="text-right">采购价</th>
-                                <th class="text-right">系统数</th>
-                                <th class="text-right">实际数</th>
-                                <th class="text-right">盈亏数</th>
-                                <th>备注</th>
-                            </tr>
-                        </thead>
-                        <tbody id="viewCheckProductsBody"></tbody>
-                    </table>
-                </div>
+            <button type="button" class="drawer-close-btn" id="viewCheckModalClose" aria-label="关闭">×</button>
+        </div>
+        <div class="order-detail-body">
+            <div class="view-check-section-title">基本信息</div>
+            <div class="view-check-basic-grid" id="viewCheckBasicInfo"></div>
+            <div class="view-check-section-title" style="margin-top: var(--spacing-lg);">盘点产品</div>
+            <div class="table-wrapper">
+                <table class="view-check-products-table">
+                    <thead>
+                        <tr>
+                            <th>产品ID</th>
+                            <th>产品</th>
+                            <th>单位</th>
+                            <th class="text-right">销售价</th>
+                            <th class="text-right">采购价</th>
+                            <th class="text-right">系统数</th>
+                            <th class="text-right">实际数</th>
+                            <th class="text-right">盈亏数</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="viewCheckProductsBody"></tbody>
+                </table>
             </div>
-            <div class="detail-modal-footer" style="justify-content: flex-start;">
-                <button type="button" class="btn btn-primary" id="viewCheckExportBtn">下载盘点表</button>
-            </div>
+        </div>
+        <div class="order-detail-footer">
+            <button type="button" class="btn btn-primary" id="viewCheckExportBtn">下载盘点表</button>
         </div>
     </div>
 
@@ -756,10 +829,30 @@
                     tbody.appendChild(tr);
                 });
             }
-            document.getElementById('viewCheckModal').classList.add('show');
+            var sub = document.getElementById('viewCheckSubtitle');
+            if (sub) sub.textContent = '单号：' + (bill.docNo || bill.id || billId);
+            var bd = document.getElementById('viewCheckBackdrop');
+            var dr = document.getElementById('viewCheckDrawer');
+            if (bd) {
+                bd.classList.add('show');
+                bd.setAttribute('aria-hidden', 'false');
+            }
+            if (dr) {
+                dr.classList.add('show');
+                dr.setAttribute('aria-hidden', 'false');
+            }
         }
         function closeViewCheckModal() {
-            document.getElementById('viewCheckModal').classList.remove('show');
+            var bd = document.getElementById('viewCheckBackdrop');
+            var dr = document.getElementById('viewCheckDrawer');
+            if (bd) {
+                bd.classList.remove('show');
+                bd.setAttribute('aria-hidden', 'true');
+            }
+            if (dr) {
+                dr.classList.remove('show');
+                dr.setAttribute('aria-hidden', 'true');
+            }
         }
 
         function renderDoCheckDetails() {
@@ -1069,8 +1162,8 @@
         });
         var viewCheckModalClose = document.getElementById('viewCheckModalClose');
         if (viewCheckModalClose) viewCheckModalClose.addEventListener('click', closeViewCheckModal);
-        var viewCheckModal = document.getElementById('viewCheckModal');
-        if (viewCheckModal) viewCheckModal.addEventListener('click', function(e) { if (e.target === this) closeViewCheckModal(); });
+        var viewCheckBackdrop = document.getElementById('viewCheckBackdrop');
+        if (viewCheckBackdrop) viewCheckBackdrop.addEventListener('click', closeViewCheckModal);
         var viewCheckExportBtn = document.getElementById('viewCheckExportBtn');
         if (viewCheckExportBtn) viewCheckExportBtn.addEventListener('click', function() {
             alert('下载盘点表（示例）：可下载当前查看的盘点单基本信息与产品明细。');
@@ -1162,12 +1255,13 @@
         function openCheckDetail(productId) {
             const row = checkDetails.find(r => r.productId === productId);
             if (!row) return;
-            const modal = document.getElementById('checkDetailModal');
-            const titleEl = document.getElementById('checkDetailTitle');
+            const backdrop = document.getElementById('checkDetailBackdrop');
+            const drawer = document.getElementById('checkDetailDrawer');
+            const subEl = document.getElementById('checkDetailSubtitle');
             const contentEl = document.getElementById('checkDetailContent');
-            if (!modal || !contentEl) return;
+            if (!drawer || !contentEl) return;
 
-            if (titleEl) titleEl.textContent = '盘点明细 - ' + (row.productName || '');
+            if (subEl) subEl.textContent = '商品：' + (row.productName || row.productId || '-');
 
             const baseHtml = `
                 <div class="detail-section-title">基础信息</div>
@@ -1246,23 +1340,32 @@
             }
 
             contentEl.innerHTML = baseHtml + invHtml + serialHtml;
-            modal.classList.add('show');
+            if (backdrop) {
+                backdrop.classList.add('show');
+                backdrop.setAttribute('aria-hidden', 'false');
+            }
+            drawer.classList.add('show');
+            drawer.setAttribute('aria-hidden', 'false');
         }
 
         (function () {
-            const modal = document.getElementById('checkDetailModal');
+            const backdrop = document.getElementById('checkDetailBackdrop');
+            const drawer = document.getElementById('checkDetailDrawer');
             const closeBtn = document.getElementById('checkDetailCloseBtn');
             const okBtn = document.getElementById('checkDetailOkBtn');
             function closeDetail() {
-                if (modal) modal.classList.remove('show');
+                if (backdrop) {
+                    backdrop.classList.remove('show');
+                    backdrop.setAttribute('aria-hidden', 'true');
+                }
+                if (drawer) {
+                    drawer.classList.remove('show');
+                    drawer.setAttribute('aria-hidden', 'true');
+                }
             }
             if (closeBtn) closeBtn.addEventListener('click', closeDetail);
             if (okBtn) okBtn.addEventListener('click', closeDetail);
-            if (modal) {
-                modal.addEventListener('click', function (e) {
-                    if (e.target === modal) closeDetail();
-                });
-            }
+            if (backdrop) backdrop.addEventListener('click', closeDetail);
         })();
     </script>
 </body>

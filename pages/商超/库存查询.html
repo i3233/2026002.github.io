@@ -252,55 +252,76 @@
         .photo-modal-box img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; }
         .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
 
-        /* 详情弹窗 */
-        .detail-modal-overlay {
+        /* 详情侧滑（与销售侧一致） */
+        .order-detail-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1099;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .order-detail-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .order-detail-drawer {
             position: fixed;
             top: 0;
-            left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
+            width: min(560px, 100%);
+            max-width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+            transform: translateX(100%);
+            transition: transform 0.22s ease;
             z-index: 1100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .detail-modal-overlay.show { display: flex; }
-        .detail-modal {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
-        .detail-modal-header {
+        .order-detail-drawer.show {
+            transform: translateX(0);
+        }
+        .order-detail-drawer .order-detail-header {
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--color-neutral-200);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
+            gap: var(--spacing-sm);
         }
-        .detail-modal-title {
+        .order-detail-drawer .order-detail-title {
             margin: 0;
             font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-medium);
+            font-weight: var(--font-weight-bold);
         }
-        .detail-modal-body {
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .order-detail-drawer .order-detail-body {
             padding: var(--spacing-lg);
             overflow-y: auto;
             flex: 1;
         }
-        .detail-modal-footer {
+        .order-detail-drawer .order-detail-footer {
             padding: var(--spacing-md) var(--spacing-lg);
             border-top: 1px solid var(--color-neutral-200);
-            display: flex;
-            justify-content: flex-end;
-            gap: var(--spacing-sm);
+            text-align: right;
         }
+        .drawer-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--color-text-secondary);
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .drawer-close-btn:hover { color: var(--color-text-primary); }
         .detail-section-title {
             font-size: var(--font-size-base);
             font-weight: var(--font-weight-medium);
@@ -568,19 +589,19 @@
         </div>
     </div>
 
-    <!-- 库存详情弹窗 -->
-    <div class="detail-modal-overlay" id="inventoryDetailModal">
-        <div class="detail-modal">
-            <div class="detail-modal-header">
-                <h3 class="detail-modal-title" id="inventoryDetailTitle">库存详情</h3>
-                <button type="button" class="btn btn-outline" id="inventoryDetailCloseBtn">关闭</button>
+    <!-- 库存详情侧滑 -->
+    <div class="order-detail-backdrop" id="inventoryDetailBackdrop" aria-hidden="true"></div>
+    <div class="order-detail-drawer" id="inventoryDetailDrawer" aria-hidden="true">
+        <div class="order-detail-header">
+            <div>
+                <h3 class="order-detail-title">库存详情</h3>
+                <div class="page-subtitle" id="inventoryDetailSubtitle">产品：-</div>
             </div>
-            <div class="detail-modal-body" id="inventoryDetailContent">
-                <!-- JS 渲染 -->
-            </div>
-            <div class="detail-modal-footer">
-                <button type="button" class="btn btn-primary" id="inventoryDetailOkBtn">我知道了</button>
-            </div>
+            <button type="button" class="drawer-close-btn" id="inventoryDetailCloseBtn" aria-label="关闭">×</button>
+        </div>
+        <div class="order-detail-body" id="inventoryDetailContent"></div>
+        <div class="order-detail-footer">
+            <button type="button" class="btn btn-primary" id="inventoryDetailOkBtn">我知道了</button>
         </div>
     </div>
 
@@ -1166,17 +1187,18 @@
             if (e.target === this) this.classList.remove('show');
         });
 
-        // 库存详情弹窗
+        // 库存详情侧滑
         function openInventoryDetail(productId) {
             const product = inventoryData.find(p => p.id === productId);
             if (!product) return;
-            const modal = document.getElementById('inventoryDetailModal');
-            const titleEl = document.getElementById('inventoryDetailTitle');
+            const backdrop = document.getElementById('inventoryDetailBackdrop');
+            const drawer = document.getElementById('inventoryDetailDrawer');
+            const subEl = document.getElementById('inventoryDetailSubtitle');
             const contentEl = document.getElementById('inventoryDetailContent');
-            if (!modal || !contentEl) return;
+            if (!drawer || !contentEl) return;
 
-            if (titleEl) {
-                titleEl.textContent = '库存详情 - ' + (product.name || '');
+            if (subEl) {
+                subEl.textContent = '产品：' + (product.name || product.id || '-');
             }
 
             const baseInfoHtml = `
@@ -1274,23 +1296,32 @@
             }
 
             contentEl.innerHTML = baseInfoHtml + inventoryInfoHtml + serialHtml;
-            modal.classList.add('show');
+            if (backdrop) {
+                backdrop.classList.add('show');
+                backdrop.setAttribute('aria-hidden', 'false');
+            }
+            drawer.classList.add('show');
+            drawer.setAttribute('aria-hidden', 'false');
         }
 
         (function () {
-            const modal = document.getElementById('inventoryDetailModal');
+            const backdrop = document.getElementById('inventoryDetailBackdrop');
+            const drawer = document.getElementById('inventoryDetailDrawer');
             const closeBtn = document.getElementById('inventoryDetailCloseBtn');
             const okBtn = document.getElementById('inventoryDetailOkBtn');
             function closeDetail() {
-                if (modal) modal.classList.remove('show');
+                if (backdrop) {
+                    backdrop.classList.remove('show');
+                    backdrop.setAttribute('aria-hidden', 'true');
+                }
+                if (drawer) {
+                    drawer.classList.remove('show');
+                    drawer.setAttribute('aria-hidden', 'true');
+                }
             }
             if (closeBtn) closeBtn.addEventListener('click', closeDetail);
             if (okBtn) okBtn.addEventListener('click', closeDetail);
-            if (modal) {
-                modal.addEventListener('click', function (e) {
-                    if (e.target === modal) closeDetail();
-                });
-            }
+            if (backdrop) backdrop.addEventListener('click', closeDetail);
         })();
 
         // 打印

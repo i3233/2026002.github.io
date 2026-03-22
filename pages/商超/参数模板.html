@@ -24,6 +24,56 @@
             gap: var(--spacing-md);
             margin-bottom: var(--spacing-md);
         }
+        .param-filter-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+        .param-filter-row label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+        .param-filter-row select {
+            min-width: 220px;
+            padding: 8px 12px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            background: #fff;
+        }
+        .param-modal-category-row {
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+        .param-modal-category-row label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text-primary);
+        }
+        .param-modal-category-row select {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 12px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            box-sizing: border-box;
+        }
+        .param-modal-hint {
+            margin: var(--spacing-sm) 0 0 0;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+        .required {
+            color: var(--color-error);
+        }
         .card-title {
             font-size: var(--font-size-lg);
             font-weight: var(--font-weight-medium);
@@ -160,6 +210,10 @@
             text-align: center;
             white-space: nowrap;
         }
+        .spec-table th:first-child,
+        .spec-table td:first-child {
+            min-width: 120px;
+        }
         .template-list-del-btn {
             padding: 4px 10px;
             font-size: var(--font-size-xs);
@@ -285,11 +339,17 @@
                 <button type="button" class="btn btn-primary" id="openParamModalBtn">新增参数</button>
             </div>
 
+            <div class="param-filter-row">
+                <label for="paramCategoryFilter">按商品分类查看</label>
+                <select id="paramCategoryFilter" aria-label="按商品分类筛选参数模板"></select>
+            </div>
+
             <div class="param-saved-list" id="paramSavedListSection">
                 <h2 class="card-title">已设定参数模板</h2>
                 <table class="spec-table">
                     <thead>
                         <tr>
+                            <th>商品分类</th>
                             <th>规格名称</th>
                             <th>加价</th>
                             <th>成本</th>
@@ -299,7 +359,7 @@
                     </thead>
                     <tbody id="paramSavedListBody"></tbody>
                 </table>
-                <p class="param-saved-empty" id="paramSavedEmpty" style="display: none;">暂无已保存的参数模板，点击「新增参数」在弹窗中填写并点击「确定」将追加到此处列表。</p>
+                <p class="param-saved-empty" id="paramSavedEmpty" style="display: none;">暂无已保存的参数模板。请选择商品分类后点击「新增参数」，参数模板将隶属于该分类（仅该分类下商品可选用）。</p>
             </div>
         </div>
     </div>
@@ -312,6 +372,11 @@
                 <button type="button" class="param-modal-close" id="paramModalCloseBtn" aria-label="关闭">×</button>
             </div>
             <div class="param-modal-body">
+                <div class="param-modal-category-row">
+                    <label for="paramModalCategorySelect"><span class="required">*</span> 商品分类</label>
+                    <select id="paramModalCategorySelect"></select>
+                    <p class="param-modal-hint">参数模板隶属于所选分类；保存后，仅该分类下的商品在编辑时可选用对应参数项。</p>
+                </div>
                 <div class="choose-setting">
                     <label>下边商品为</label>
                     <input type="number" class="choose-input" id="modalChooseTotal" min="1" value="1" placeholder="几">
@@ -346,23 +411,94 @@
         (function () {
             var savedListBody = document.getElementById('paramSavedListBody');
             var savedEmptyEl = document.getElementById('paramSavedEmpty');
-            var TEMPLATES_LIST_KEY = 'shangchaoParamTemplatesSaved';
+            var categoryFilterEl = document.getElementById('paramCategoryFilter');
+            var modalCategorySelect = document.getElementById('paramModalCategorySelect');
+            var TEMPLATES_LIST_KEY = 'shangchaoParamTemplatesSaved_v2';
             var GLOBAL_CHOOSE_KEY = 'shangchaoParamTemplate';
             var MODAL_INITIAL_ROWS = 4;
 
+            var FALLBACK_CATEGORIES = [
+                { id: 1, name: '雅安好物', productCount: 3, sort: 1, status: 'enabled', parentId: null },
+                { id: 2, name: '雅安好景', productCount: 7, sort: 2, status: 'enabled', parentId: null },
+                { id: 3, name: '文创产品', productCount: 5, sort: 3, status: 'enabled', parentId: null },
+                { id: 4, name: '绿营养蛋系列', productCount: 2, sort: 1, status: 'enabled', parentId: 1 },
+                { id: 5, name: '蒙顶山茶系列', productCount: 3, sort: 2, status: 'enabled', parentId: 2 },
+                { id: 6, name: '茶饮小类', productCount: 1, sort: 1, status: 'enabled', parentId: 5 }
+            ];
+
+            function getProductCategories() {
+                try {
+                    var raw = localStorage.getItem('shangchaoCategoryData');
+                    if (raw) {
+                        var arr = JSON.parse(raw);
+                        if (Array.isArray(arr) && arr.length) {
+                            return arr.filter(function (c) {
+                                return c && c.status !== 'disabled';
+                            });
+                        }
+                    }
+                } catch (e) {}
+                return FALLBACK_CATEGORIES.slice();
+            }
+
+            function getDefaultCategoryId() {
+                var cats = getProductCategories();
+                return cats.length ? cats[0].id : null;
+            }
+
+            function getCategoryName(categoryId) {
+                if (categoryId == null || categoryId === '') return '未分类';
+                var cats = getProductCategories();
+                var c = cats.filter(function (x) { return String(x.id) === String(categoryId); })[0];
+                return c ? c.name : '（分类已删除）';
+            }
+
+            function fillCategorySelect(selectEl, includeAll) {
+                if (!selectEl) return;
+                var cats = getProductCategories();
+                selectEl.innerHTML = '';
+                if (includeAll) {
+                    var o0 = document.createElement('option');
+                    o0.value = '';
+                    o0.textContent = '全部分类';
+                    selectEl.appendChild(o0);
+                }
+                cats.forEach(function (c) {
+                    var o = document.createElement('option');
+                    o.value = String(c.id);
+                    o.textContent = c.name;
+                    selectEl.appendChild(o);
+                });
+            }
+
+            /**
+             * 演示数据：6 个商品分类各一组模板，每组 2 条参数 + 不同「几选几」示例
+             */
             var DEFAULT_PARAM_TEMPLATES = [
-                { name: '新品', price: 2.00, cost: 0.80, required: true, limited: false, limitQty: 1 },
-                { name: '热销', price: 5.50, cost: 1.20, required: true, limited: true, limitQty: 3 },
-                { name: '自营', price: 3.00, cost: 0.60, required: false, limited: false, limitQty: 1 },
-                { name: '限时抢购', price: 8.00, cost: 2.50, required: true, limited: true, limitQty: 2 },
-                { name: '产地直供', price: 4.20, cost: 1.00, required: true, limited: false, limitQty: 1 },
-                { name: '推荐', price: 2.80, cost: 0.50, required: true, limited: false, limitQty: 1 },
-                { name: '爆款', price: 6.00, cost: 1.80, required: true, limited: true, limitQty: 5 },
-                { name: '包邮', price: 0, cost: 0, required: false, limited: false, limitQty: 1 },
-                { name: '会员专享', price: 10.00, cost: 3.20, required: true, limited: false, limitQty: 1 },
-                { name: '限时', price: 7.50, cost: 2.00, required: true, limited: true, limitQty: 1 },
-                { name: '雅安特产', price: 4.50, cost: 1.10, required: true, limited: false, limitQty: 1 },
-                { name: '精选', price: 3.60, cost: 0.90, required: false, limited: true, limitQty: 4 }
+                { categoryId: 1, chooseTotal: 4, chooseCount: 2, rows: [
+                    { name: '新品', price: 2.00, cost: 0.80, required: true, limited: false, limitQty: 1 },
+                    { name: '热销', price: 5.50, cost: 1.20, required: true, limited: true, limitQty: 3 }
+                ]},
+                { categoryId: 2, chooseTotal: 3, chooseCount: 1, rows: [
+                    { name: '自营', price: 3.00, cost: 0.60, required: false, limited: false, limitQty: 1 },
+                    { name: '限时抢购', price: 8.00, cost: 2.50, required: true, limited: true, limitQty: 2 }
+                ]},
+                { categoryId: 3, chooseTotal: 5, chooseCount: 2, rows: [
+                    { name: '产地直供', price: 4.20, cost: 1.00, required: true, limited: false, limitQty: 1 },
+                    { name: '推荐', price: 2.80, cost: 0.50, required: true, limited: false, limitQty: 1 }
+                ]},
+                { categoryId: 4, chooseTotal: 2, chooseCount: 1, rows: [
+                    { name: '爆款', price: 6.00, cost: 1.80, required: true, limited: true, limitQty: 5 },
+                    { name: '包邮', price: 0, cost: 0, required: false, limited: false, limitQty: 1 }
+                ]},
+                { categoryId: 5, chooseTotal: 6, chooseCount: 3, rows: [
+                    { name: '会员专享', price: 10.00, cost: 3.20, required: true, limited: false, limitQty: 1 },
+                    { name: '限时', price: 7.50, cost: 2.00, required: true, limited: true, limitQty: 1 }
+                ]},
+                { categoryId: 6, chooseTotal: 3, chooseCount: 2, rows: [
+                    { name: '雅安特产', price: 4.50, cost: 1.10, required: true, limited: false, limitQty: 1 },
+                    { name: '精选', price: 3.60, cost: 0.90, required: false, limited: true, limitQty: 4 }
+                ]}
             ];
 
             function escapeHtml(s) {
@@ -381,12 +517,20 @@
                 return parts.join('，');
             }
 
-            /** 统一为 { chooseTotal, chooseCount, rows: [...] }[] */
+            /**
+             * 统一为 { categoryId, chooseTotal, chooseCount, rows: [...] }[]
+             * 兼容旧数据：无 categoryId 时归入默认分类
+             */
             function normalizeTemplates(arr) {
                 if (!Array.isArray(arr)) return [];
+                var defCat = getDefaultCategoryId();
                 return arr.map(function (item) {
+                    var categoryId = item && item.categoryId != null && item.categoryId !== ''
+                        ? item.categoryId
+                        : defCat;
                     if (item && Array.isArray(item.rows) && item.rows.length) {
                         return {
+                            categoryId: categoryId,
                             chooseTotal: Math.max(1, parseInt(item.chooseTotal, 10) || 1),
                             chooseCount: Math.max(1, parseInt(item.chooseCount, 10) || 1),
                             rows: item.rows.map(function (r) {
@@ -403,6 +547,7 @@
                     }
                     if (item && item.name !== undefined && String(item.name).trim()) {
                         return {
+                            categoryId: categoryId,
                             chooseTotal: 1,
                             chooseCount: 1,
                             rows: [{
@@ -415,7 +560,7 @@
                             }]
                         };
                     }
-                    return { chooseTotal: 1, chooseCount: 1, rows: [] };
+                    return { categoryId: categoryId, chooseTotal: 1, chooseCount: 1, rows: [] };
                 }).filter(function (t) { return t.rows.length > 0; });
             }
 
@@ -467,16 +612,22 @@
 
             function renderSavedParamList() {
                 if (!savedListBody) return;
+                var filterVal = categoryFilterEl ? categoryFilterEl.value : '';
                 var data = getSavedParamTemplatesData();
                 savedListBody.innerHTML = '';
                 var pillClasses = ['tag-pill tag-pill--primary', 'tag-pill tag-pill--danger', 'tag-pill tag-pill--success'];
                 var globalRowIndex = 0;
                 data.forEach(function (tpl, ti) {
+                    if (filterVal !== '' && String(tpl.categoryId) !== String(filterVal)) {
+                        return;
+                    }
                     (tpl.rows || []).forEach(function (row, ri) {
                         var tr = document.createElement('tr');
                         var pc = pillClasses[globalRowIndex % pillClasses.length];
                         globalRowIndex++;
+                        var catLabel = getCategoryName(tpl.categoryId);
                         tr.innerHTML =
+                            '<td>' + escapeHtml(catLabel) + '</td>' +
                             '<td><span class="' + pc + '"><span class="tag-preview-dot"></span><span>' + escapeHtml(row.name) + '</span></span></td>' +
                             '<td>¥' + (Number(row.price) || 0).toFixed(2) + '</td>' +
                             '<td>¥' + (Number(row.cost) || 0).toFixed(2) + '</td>' +
@@ -560,6 +711,19 @@
             }
 
             function openModal() {
+                var cats = getProductCategories();
+                if (!cats.length) {
+                    alert('请先在「商品分类」中维护分类，再创建参数模板。');
+                    return;
+                }
+                fillCategorySelect(modalCategorySelect, false);
+                var pre = categoryFilterEl && categoryFilterEl.value ? categoryFilterEl.value : '';
+                if (pre && modalCategorySelect.querySelector('option[value="' + pre + '"]')) {
+                    modalCategorySelect.value = pre;
+                } else {
+                    var opt0 = modalCategorySelect.querySelector('option');
+                    if (opt0) modalCategorySelect.value = opt0.value;
+                }
                 resetModalRows();
                 loadChooseIntoModal();
                 modal.hidden = false;
@@ -605,6 +769,11 @@
             });
 
             document.getElementById('paramModalConfirmBtn').addEventListener('click', function () {
+                var catId = modalCategorySelect ? modalCategorySelect.value : '';
+                if (!catId) {
+                    alert('请选择商品分类');
+                    return;
+                }
                 var rows = collectModalRows();
                 if (!rows.length) {
                     alert('请至少填写一行规格名称');
@@ -622,6 +791,7 @@
                 } catch (e) {}
                 var data = getSavedParamTemplatesData();
                 data.push({
+                    categoryId: catId,
                     chooseTotal: chooseTotal,
                     chooseCount: chooseCount,
                     rows: rows
@@ -630,6 +800,13 @@
                 renderSavedParamList();
                 closeModal();
             });
+
+            fillCategorySelect(categoryFilterEl, true);
+            if (categoryFilterEl) {
+                categoryFilterEl.addEventListener('change', function () {
+                    renderSavedParamList();
+                });
+            }
 
             renderSavedParamList();
         })();

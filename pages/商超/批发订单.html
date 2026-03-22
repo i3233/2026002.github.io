@@ -359,6 +359,13 @@
         .order-detail-kv-label { color: var(--color-text-secondary); }
         .order-detail-kv-value { color: var(--color-text-primary); }
         .order-detail-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--color-neutral-200); text-align: right; }
+        .order-detail-footer-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
         .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-xs); }
 
         /* 收款码弹窗 */
@@ -888,31 +895,34 @@
             </div>
         </div>
 
-        <!-- 订单状态 Tab：默认全部；销售开单入口仅显示待提交/审核中/待付款 -->
+        <!-- 订单状态 Tab：默认全部；销售开单仅 待付款/待提交/审核中 -->
         <div class="order-tabs" id="orderTabsFull">
             <button class="order-tab-btn active" data-status="all">全部</button>
             <button class="order-tab-btn" data-status="pendingPayment">待付款</button>
             <button class="order-tab-btn" data-status="pendingSubmit">待提交</button>
             <button class="order-tab-btn" data-status="pendingAudit">审核中</button>
             <button class="order-tab-btn" data-status="pendingOutbound">待出库</button>
-            <button class="order-tab-btn" data-status="paid">已付款</button>
+            <button class="order-tab-btn" data-status="pendingReceive">待收货</button>
+            <button class="order-tab-btn" data-status="pendingProcess">待处理</button>
             <button class="order-tab-btn" data-status="completed">已完成</button>
         </div>
         <div class="order-tabs" id="orderTabsSales" style="display: none;" aria-hidden="true">
-            <button class="order-tab-btn active" data-status="pendingSubmit">待提交</button>
+            <button class="order-tab-btn active" data-status="pendingPayment">待付款</button>
+            <button class="order-tab-btn" data-status="pendingSubmit">待提交</button>
             <button class="order-tab-btn" data-status="pendingAudit">审核中</button>
-            <button class="order-tab-btn" data-status="pendingPayment">待付款</button>
         </div>
-        <!-- 销售出库入口：仅待出库 / 已完成 -->
+        <!-- 销售出库：待出库 / 待收货 / 已完成 / 待处理（data-status 前缀 ob 避免与订单状态字面值混淆） -->
         <div class="order-tabs" id="orderTabsOutbound" style="display: none;" aria-hidden="true">
-            <button class="order-tab-btn active" data-status="outboundWaiting">待出库</button>
-            <button class="order-tab-btn" data-status="completed">已完成</button>
+            <button class="order-tab-btn active" data-status="obWaiting">待出库</button>
+            <button class="order-tab-btn" data-status="obReceive">待收货</button>
+            <button class="order-tab-btn" data-status="obCompleted">已完成</button>
+            <button class="order-tab-btn" data-status="obPending">待处理</button>
         </div>
-        <!-- 退货售后入口：仅审核中 / 待出库 / 已完成 -->
+        <!-- 退货售后：待处理（子类型）/ 有售后 / 无售后 -->
         <div class="order-tabs" id="orderTabsRefund" style="display: none;" aria-hidden="true">
-            <button class="order-tab-btn active" data-status="refundPendingAudit">审核中</button>
-            <button class="order-tab-btn" data-status="refundPendingOutbound">待出库</button>
-            <button class="order-tab-btn" data-status="completed">已完成</button>
+            <button class="order-tab-btn active" data-status="refundPendingProcess">待处理</button>
+            <button class="order-tab-btn" data-status="refundHasAfterSale">有售后</button>
+            <button class="order-tab-btn" data-status="refundNoAfterSale">无售后</button>
         </div>
 
         <!-- 统计卡片 -->
@@ -988,7 +998,10 @@
                 </div>
                 <div class="order-detail-body" id="orderDetailBody"></div>
                 <div class="order-detail-footer">
-                    <button class="btn btn-primary" type="button" id="orderDetailConfirmBtn">我知道了</button>
+                    <div class="order-detail-footer-actions">
+                        <button class="btn btn-outline" type="button" id="orderDetailConfirmBtn">我知道了</button>
+                        <button class="btn btn-primary" type="button" id="orderDetailSubmitAuditBtn" style="display: none;">提交审核</button>
+                    </div>
                 </div>
             </div>
 
@@ -1339,7 +1352,7 @@
                 amount: 3500.00,
                 paid: 0.00,
                 payType: '赊账',
-                status: 'pendingOutbound', // 待出库
+                status: 'pendingProcess', // 待处理（售后子类）
                 auditStatus: 'approved',
                 auditTime: '2025-08-27 14:20:00',
                 printTime: '2025-08-27 14:21:00',
@@ -1361,14 +1374,15 @@
                 amount: 1980.00,
                 paid: 1980.00,
                 payType: '转账',
-                status: 'pendingAudit',
+                status: 'pendingProcess',
                 auditStatus: 'pending',
                 auditTime: null,
                 printTime: null,
                 pickingStatus: 'pending',
                 outboundStatus: 'pending',
                 completedTime: null,
-                afterSale: '退货待审核'
+                afterSale: '仅退款处理中',
+                pendingSubType: '仅退款'
             },
             {
                 id: 'PF20250915002',
@@ -1382,14 +1396,15 @@
                 amount: 2860.00,
                 paid: 0.00,
                 payType: '赊账',
-                status: 'pendingAudit',
+                status: 'pendingProcess',
                 auditStatus: 'pending',
                 auditTime: null,
                 printTime: null,
                 pickingStatus: 'pending',
                 outboundStatus: 'pending',
                 completedTime: null,
-                afterSale: '换货申请待审'
+                afterSale: '换货申请待审',
+                pendingSubType: '换货'
             },
             {
                 id: 'PF20250916001',
@@ -1403,14 +1418,15 @@
                 amount: 1650.00,
                 paid: 0.00,
                 payType: '赊账',
-                status: 'pendingAudit',
+                status: 'pendingProcess',
                 auditStatus: 'pending',
                 auditTime: null,
                 printTime: null,
                 pickingStatus: 'pending',
                 outboundStatus: 'pending',
                 completedTime: null,
-                afterSale: '售后协商中'
+                afterSale: '售后协商中',
+                pendingSubType: '退货退款'
             },
             {
                 id: 'PF20250828001',
@@ -1438,9 +1454,10 @@
             { id: 'PF20250829003', orderTime: '2025-08-29 11:30:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '资阳批发商G', contact: '杨老板', mobile: '13800000007', qty: 28, amount: 2890.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
             { id: 'PF20250829004', orderTime: '2025-08-29 14:00:00', source: 'online-credit', sourceText: '商家自助(赊账)', partner: '遂宁批发商H', contact: '吴经理', mobile: '13800000008', qty: 38, amount: 3800.00, paid: 0.00, payType: '赊账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
             { id: 'PF20250829005', orderTime: '2025-08-29 15:45:00', source: 'manual', sourceText: '部门代下单', partner: '内江批发商I', contact: '郑总', mobile: '13800000009', qty: 52, amount: 5350.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
-            { id: 'PF20250910001', orderTime: '2025-09-01 09:30:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '成都双流批发站', contact: '周经理', mobile: '13911110001', qty: 48, amount: 9600.00, paid: 9600.00, payType: '转账', status: 'paid', auditStatus: 'approved', auditTime: '2025-09-01 09:31:00', printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
-            { id: 'PF20250910002', orderTime: '2025-09-01 11:00:00', source: 'manual', sourceText: '部门代下单', partner: '重庆江北批发商', contact: '孙总', mobile: '13911110002', qty: 60, amount: 12000.00, paid: 12000.00, payType: '转账', status: 'paid', auditStatus: 'approved', auditTime: '2025-09-01 11:00:00', printTime: '2025-09-01 11:05:00', pickingStatus: 'completed', outboundStatus: 'pending', completedTime: null },
-            { id: 'PF20250910003', orderTime: '2025-09-02 14:20:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '西安未央经销部', contact: '钱经理', mobile: '13911110003', qty: 32, amount: 6400.00, paid: 6400.00, payType: '转账', status: 'paid', auditStatus: 'approved', auditTime: '2025-09-02 14:20:00', printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null }
+            { id: 'PF20250910001', orderTime: '2025-09-01 09:30:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '成都双流批发站', contact: '周经理', mobile: '13911110001', qty: 48, amount: 9600.00, paid: 9600.00, payType: '转账', status: 'pendingReceive', auditStatus: 'approved', auditTime: '2025-09-01 09:31:00', printTime: '2025-09-01 09:35:00', pickingStatus: 'completed', outboundStatus: 'shipped', completedTime: null },
+            { id: 'PF20250910002', orderTime: '2025-09-01 11:00:00', source: 'manual', sourceText: '部门代下单', partner: '重庆江北批发商', contact: '孙总', mobile: '13911110002', qty: 60, amount: 12000.00, paid: 12000.00, payType: '转账', status: 'pendingReceive', auditStatus: 'approved', auditTime: '2025-09-01 11:00:00', printTime: '2025-09-01 11:05:00', pickingStatus: 'completed', outboundStatus: 'shipped', completedTime: null },
+            { id: 'PF20250910003', orderTime: '2025-09-02 14:20:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '西安未央经销部', contact: '钱经理', mobile: '13911110003', qty: 32, amount: 6400.00, paid: 6400.00, payType: '转账', status: 'pendingProcess', auditStatus: 'approved', auditTime: '2025-09-02 14:20:00', printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250920001', orderTime: '2025-09-20 08:00:00', source: 'manual', sourceText: '部门代下单', partner: '出库异常样例', contact: '库管', mobile: '13900000000', qty: 10, amount: 1000.00, paid: 1000.00, payType: '转账', status: 'pendingProcess', auditStatus: 'approved', auditTime: '2025-09-20 08:01:00', printTime: '2025-09-20 08:02:00', pickingStatus: 'completed', outboundStatus: 'hold', completedTime: null }
         ];
 
         // 历史「待财务审核」与「审核中」合并：原 pendingFinanceAudit 视为已审过，进入待打印
@@ -1950,24 +1967,32 @@
 
             // 左侧「批发管理」子菜单入口：销售开单 / 销售出库 / 退货售后
             if (wholesaleMenuView === 'salesOrder') {
-                const salesOrderStatuses = ['pendingSubmit', 'pendingPayment', 'pendingAudit', 'pendingPrint'];
+                const salesOrderStatuses = ['pendingPayment', 'pendingSubmit', 'pendingAudit'];
                 filteredOrders = filteredOrders.filter(o => salesOrderStatuses.indexOf(o.status) !== -1);
             } else if (wholesaleMenuView === 'outbound') {
-                if (currentStatus === 'completed') {
+                if (currentStatus === 'obCompleted') {
                     filteredOrders = filteredOrders.filter(o => o.status === 'completed');
+                } else if (currentStatus === 'obReceive') {
+                    filteredOrders = filteredOrders.filter(o => o.status === 'pendingReceive');
+                } else if (currentStatus === 'obPending') {
+                    filteredOrders = filteredOrders.filter(o => o.status === 'pendingProcess');
                 } else {
-                    const outboundOpenStatuses = ['pendingPrint', 'picking', 'pendingOutbound', 'paid'];
-                    filteredOrders = filteredOrders.filter(o => outboundOpenStatuses.indexOf(o.status) !== -1);
+                    filteredOrders = filteredOrders.filter(function (o) {
+                        if (['pendingPrint', 'picking', 'pendingOutbound'].indexOf(o.status) !== -1) return true;
+                        if (o.status === 'pendingProcess' && !o.pendingSubType) return true;
+                        return false;
+                    });
                 }
             } else if (wholesaleMenuView === 'refund') {
-                filteredOrders = filteredOrders.filter(o => orderHasAfterSale(o));
-                if (currentStatus === 'completed') {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'completed');
-                } else if (currentStatus === 'refundPendingOutbound') {
-                    const refundOpenStatuses = ['pendingPrint', 'picking', 'pendingOutbound', 'paid'];
-                    filteredOrders = filteredOrders.filter(o => refundOpenStatuses.indexOf(o.status) !== -1);
-                } else {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'pendingAudit');
+                if (currentStatus === 'refundPendingProcess') {
+                    const subOk = ['仅退款', '换货', '退货退款'];
+                    filteredOrders = filteredOrders.filter(function (o) {
+                        return o.status === 'pendingProcess' && o.pendingSubType && subOk.indexOf(o.pendingSubType) !== -1;
+                    });
+                } else if (currentStatus === 'refundHasAfterSale') {
+                    filteredOrders = filteredOrders.filter(function (o) { return orderHasAfterSale(o); });
+                } else if (currentStatus === 'refundNoAfterSale') {
+                    filteredOrders = filteredOrders.filter(function (o) { return !orderHasAfterSale(o); });
                 }
             }
 
@@ -1978,7 +2003,8 @@
                     if (currentStatus === 'pendingSubmit') return order.status === 'pendingSubmit';
                     if (currentStatus === 'pendingAudit') return order.status === 'pendingAudit';
                     if (currentStatus === 'pendingOutbound') return order.status === 'pendingOutbound';
-                    if (currentStatus === 'paid') return order.status === 'paid';
+                    if (currentStatus === 'pendingReceive') return order.status === 'pendingReceive';
+                    if (currentStatus === 'pendingProcess') return order.status === 'pendingProcess';
                     if (currentStatus === 'completed') return order.status === 'completed';
                     return false;
                 });
@@ -2082,7 +2108,8 @@
             if (status === 'completed') return 'status-pill status-pill--success';
             if (status === 'pendingPayment') return 'status-pill status-pill--warning';
             if (status === 'pendingAudit') return 'status-pill status-pill--warning';
-            if (status === 'paid') return 'status-pill status-pill--success';
+            if (status === 'pendingProcess') return 'status-pill status-pill--warning';
+            if (status === 'pendingReceive') return 'status-pill status-pill--primary';
             if (status === 'pendingSubmit' || status === 'pendingPrint' || status === 'picking' || status === 'pendingOutbound') {
                 return 'status-pill status-pill--primary';
             }
@@ -2123,12 +2150,14 @@
             if (s === 'pendingPayment') parts.push('收款码');
             if (s === 'pendingSubmit') parts.push('提交审核');
             if (s === 'pendingAudit') parts.push('财务审核');
-            if (s === 'pendingPrint' || s === 'picking') parts.push('打印拣货');
-            if (s === 'paid') {
+            if (s === 'pendingReceive') parts.push('待收货确认');
+            if (s === 'pendingProcess' && order.pendingSubType) parts.push('售后待处理');
+            if (s === 'pendingProcess' && !order.pendingSubType) {
                 if (!order.printTime) parts.push('打印拣货');
                 else if (order.pickingStatus !== 'completed') parts.push('拣货');
                 if (order.pickingStatus === 'completed') parts.push('出库');
             }
+            if (s === 'pendingPrint' || s === 'picking') parts.push('打印拣货');
             if (s === 'pendingOutbound') {
                 if (!order.printTime) parts.push('打印拣货');
                 parts.push('出库');
@@ -2145,7 +2174,8 @@
                 'pendingPrint': '待打印',
                 'picking': '拣货中',
                 'pendingOutbound': '待出库',
-                'paid': '已付款',
+                'pendingReceive': '待收货',
+                'pendingProcess': '待处理',
                 'completed': '已完成'
             };
             return statusMap[status] || status;
@@ -2173,7 +2203,14 @@
             if (order.status === 'pendingAudit') {
                 buttons += `<button class="btn-link audit-btn" data-id="${order.id}">审核通过</button>`;
             }
-            if (order.status === 'pendingPrint' || order.status === 'picking' || order.status === 'pendingOutbound' || order.status === 'paid') {
+            if (order.status === 'pendingReceive') {
+                buttons += `<button class="btn-link receive-confirm-btn" data-id="${order.id}">确认收货</button>`;
+            }
+            if (order.status === 'pendingProcess') {
+                buttons += `<button class="btn-link process-btn" data-id="${order.id}">处理</button>`;
+            }
+            if (order.status === 'pendingPrint' || order.status === 'picking' || order.status === 'pendingOutbound' ||
+                (order.status === 'pendingProcess' && !order.pendingSubType)) {
                 if (!order.printTime) {
                     buttons += `<button class="btn-link print-btn" data-id="${order.id}">打印</button>`;
                 }
@@ -2181,7 +2218,7 @@
             if (order.status === 'pendingOutbound') {
                 buttons += `<button class="btn-link outbound-btn" data-id="${order.id}">出库</button>`;
             }
-            if (order.status === 'paid' && order.pickingStatus === 'completed') {
+            if (order.status === 'pendingProcess' && !order.pendingSubType && order.pickingStatus === 'completed') {
                 buttons += `<button class="btn-link outbound-btn" data-id="${order.id}">出库</button>`;
             }
             return buttons;
@@ -2228,6 +2265,11 @@
                     <div class="order-detail-kv"><span class="order-detail-kv-label">实付金额</span><span class="order-detail-kv-value">¥${(order.paid != null ? order.paid : 0).toFixed(2)}</span></div>
                 </div>
             `;
+            drawer.dataset.detailOrderId = order.id;
+            var submitAuditBtn = document.getElementById('orderDetailSubmitAuditBtn');
+            if (submitAuditBtn) {
+                submitAuditBtn.style.display = order.status === 'pendingSubmit' ? '' : 'none';
+            }
             drawer.classList.add('show');
         }
         function closeOrderDetailDrawer() {
@@ -2237,6 +2279,21 @@
         (function initOrderDetailDrawer() {
             const confirmBtn = document.getElementById('orderDetailConfirmBtn');
             if (confirmBtn) confirmBtn.addEventListener('click', closeOrderDetailDrawer);
+            const submitAuditBtn = document.getElementById('orderDetailSubmitAuditBtn');
+            if (submitAuditBtn) {
+                submitAuditBtn.addEventListener('click', function () {
+                    const drawer = document.getElementById('orderDetailDrawer');
+                    const id = drawer && drawer.dataset.detailOrderId;
+                    if (!id) return;
+                    const o = wholesaleOrders.find(function (x) { return x.id === id; });
+                    if (o && o.status === 'pendingSubmit') {
+                        o.status = 'pendingAudit';
+                        filterOrders();
+                        alert('已提交审核，请等待财务审核。');
+                        openOrderDetail(id);
+                    }
+                });
+            }
         })();
 
         // 绑定表格事件
@@ -2267,6 +2324,26 @@
                 btn.addEventListener('click', function() {
                     const orderId = this.dataset.id;
                     auditOrder(orderId);
+                });
+            });
+
+            document.querySelectorAll('.receive-confirm-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    var order = wholesaleOrders.find(function (o) { return o.id === orderId; });
+                    if (order && order.status === 'pendingReceive') {
+                        order.status = 'completed';
+                        if (!order.completedTime) order.completedTime = new Date().toLocaleString('zh-CN');
+                        filterOrders();
+                        alert('已确认收货，订单已完成。');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.process-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    alert('待处理（示例）：订单 ' + orderId + ' 可在此跳转售后/拦截原因处理。');
                 });
             });
 
@@ -2564,12 +2641,12 @@
                 }
                 sales.style.display = 'flex';
                 sales.setAttribute('aria-hidden', 'false');
-                currentStatus = 'pendingSubmit';
+                currentStatus = 'pendingPayment';
                 document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 if (outbound) document.querySelectorAll('#orderTabsOutbound .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 if (refund) document.querySelectorAll('#orderTabsRefund .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 document.querySelectorAll('#orderTabsSales .order-tab-btn').forEach(function (b) {
-                    b.classList.toggle('active', (b.dataset.status || '') === 'pendingSubmit');
+                    b.classList.toggle('active', (b.dataset.status || '') === 'pendingPayment');
                 });
             } else if (wholesaleMenuView === 'outbound') {
                 full.style.display = 'none';
@@ -2583,13 +2660,13 @@
                     outbound.style.display = 'flex';
                     outbound.setAttribute('aria-hidden', 'false');
                 }
-                currentStatus = 'outboundWaiting';
+                currentStatus = 'obWaiting';
                 document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 document.querySelectorAll('#orderTabsSales .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 if (refund) document.querySelectorAll('#orderTabsRefund .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 if (outbound) {
                     document.querySelectorAll('#orderTabsOutbound .order-tab-btn').forEach(function (b) {
-                        b.classList.toggle('active', (b.dataset.status || '') === 'outboundWaiting');
+                        b.classList.toggle('active', (b.dataset.status || '') === 'obWaiting');
                     });
                 }
             } else if (wholesaleMenuView === 'refund') {
@@ -2604,13 +2681,13 @@
                     refund.style.display = 'flex';
                     refund.setAttribute('aria-hidden', 'false');
                 }
-                currentStatus = 'refundPendingAudit';
+                currentStatus = 'refundPendingProcess';
                 document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 document.querySelectorAll('#orderTabsSales .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 if (outbound) document.querySelectorAll('#orderTabsOutbound .order-tab-btn').forEach(function (b) { b.classList.remove('active'); });
                 if (refund) {
                     document.querySelectorAll('#orderTabsRefund .order-tab-btn').forEach(function (b) {
-                        b.classList.toggle('active', (b.dataset.status || '') === 'refundPendingAudit');
+                        b.classList.toggle('active', (b.dataset.status || '') === 'refundPendingProcess');
                     });
                 }
             } else {
@@ -2625,12 +2702,22 @@
                     refund.style.display = 'none';
                     refund.setAttribute('aria-hidden', 'true');
                 }
-                if (currentStatus === 'outboundWaiting') {
+                if (currentStatus === 'obWaiting' || currentStatus === 'obReceive' || currentStatus === 'obCompleted' || currentStatus === 'obPending') {
                     currentStatus = 'all';
                     document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) {
                         b.classList.toggle('active', (b.dataset.status || '') === 'all');
                     });
-                } else if (currentStatus === 'refundPendingAudit' || currentStatus === 'refundPendingOutbound') {
+                } else if (currentStatus === 'refundPendingProcess' || currentStatus === 'refundHasAfterSale' || currentStatus === 'refundNoAfterSale') {
+                    currentStatus = 'all';
+                    document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) {
+                        b.classList.toggle('active', (b.dataset.status || '') === 'all');
+                    });
+                } else if (currentStatus === 'pendingPayment' || currentStatus === 'pendingSubmit' || currentStatus === 'pendingAudit') {
+                    currentStatus = 'all';
+                    document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) {
+                        b.classList.toggle('active', (b.dataset.status || '') === 'all');
+                    });
+                } else if (currentStatus === 'pendingReceive' || currentStatus === 'pendingProcess') {
                     currentStatus = 'all';
                     document.querySelectorAll('#orderTabsFull .order-tab-btn').forEach(function (b) {
                         b.classList.toggle('active', (b.dataset.status || '') === 'all');

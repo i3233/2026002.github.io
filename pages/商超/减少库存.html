@@ -49,52 +49,71 @@
         .photo-modal-box img { max-width: 100%; max-height: 70vh; }
         .photo-modal-box .photo-placeholder { padding: 48px; color: var(--color-text-secondary); }
 
-        /* 详情弹窗 */
-        .detail-modal-overlay {
+        /* 详情侧滑（与销售侧一致） */
+        .order-detail-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1100;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1099;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
         }
-        .detail-modal-overlay.show { display: flex; }
-        .detail-modal {
+        .order-detail-backdrop.show { opacity: 1; visibility: visible; }
+        .order-detail-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(560px, 100%);
+            max-width: 100%;
+            height: 100%;
             background: #fff;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            width: 90%;
-            max-width: 720px;
-            max-height: 90vh;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+            transform: translateX(100%);
+            transition: transform 0.22s ease;
+            z-index: 1100;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
-        .detail-modal-header {
+        .order-detail-drawer.show { transform: translateX(0); }
+        .order-detail-drawer .order-detail-header {
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--color-neutral-200);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
+            gap: var(--spacing-sm);
         }
-        .detail-modal-title {
+        .order-detail-drawer .order-detail-title {
             margin: 0;
             font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-medium);
+            font-weight: var(--font-weight-bold);
         }
-        .detail-modal-body {
+        .page-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+        .order-detail-drawer .order-detail-body {
             padding: var(--spacing-lg);
             overflow-y: auto;
             flex: 1;
         }
-        .detail-modal-footer {
+        .order-detail-drawer .order-detail-footer {
             padding: var(--spacing-md) var(--spacing-lg);
             border-top: 1px solid var(--color-neutral-200);
-            display: flex;
-            justify-content: flex-end;
-            gap: var(--spacing-sm);
+            text-align: right;
         }
+        .drawer-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--color-text-secondary);
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .drawer-close-btn:hover { color: var(--color-text-primary); }
         .detail-section-title {
             font-size: var(--font-size-base);
             font-weight: var(--font-weight-medium);
@@ -207,17 +226,18 @@
         </div>
     </div>
 
-    <!-- 详情弹窗 -->
-    <div class="detail-modal-overlay" id="decreaseDetailModal">
-        <div class="detail-modal">
-            <div class="detail-modal-header">
-                <h3 class="detail-modal-title" id="decreaseDetailTitle">减少库存详情</h3>
-                <button type="button" class="btn btn-outline" id="decreaseDetailCloseBtn">关闭</button>
+    <div class="order-detail-backdrop" id="decreaseDetailBackdrop" aria-hidden="true"></div>
+    <div class="order-detail-drawer" id="decreaseDetailDrawer" aria-hidden="true">
+        <div class="order-detail-header">
+            <div>
+                <h3 class="order-detail-title">减少库存详情</h3>
+                <div class="page-subtitle" id="decreaseDetailSubtitle">单号：-</div>
             </div>
-            <div class="detail-modal-body" id="decreaseDetailContent"></div>
-            <div class="detail-modal-footer">
-                <button type="button" class="btn btn-primary" id="decreaseDetailOkBtn">我知道了</button>
-            </div>
+            <button type="button" class="drawer-close-btn" id="decreaseDetailCloseBtn" aria-label="关闭">×</button>
+        </div>
+        <div class="order-detail-body" id="decreaseDetailContent"></div>
+        <div class="order-detail-footer">
+            <button type="button" class="btn btn-primary" id="decreaseDetailOkBtn">我知道了</button>
         </div>
     </div>
     <script>
@@ -328,12 +348,13 @@
         function openDecreaseDetail(id) {
             const item = list.find(x => x.id === id);
             if (!item) return;
-            const modal = document.getElementById('decreaseDetailModal');
-            const titleEl = document.getElementById('decreaseDetailTitle');
+            const backdrop = document.getElementById('decreaseDetailBackdrop');
+            const drawer = document.getElementById('decreaseDetailDrawer');
+            const subEl = document.getElementById('decreaseDetailSubtitle');
             const contentEl = document.getElementById('decreaseDetailContent');
-            if (!modal || !contentEl) return;
+            if (!drawer || !contentEl) return;
 
-            if (titleEl) titleEl.textContent = '减少库存详情 - ' + (item.productName || '');
+            if (subEl) subEl.textContent = '单号：' + item.id + ' ｜ ' + (item.productName || '');
 
             const baseHtml = `
                 <div class="detail-section-title">基础信息</div>
@@ -406,23 +427,32 @@
             }
 
             contentEl.innerHTML = baseHtml + productHtml + serialHtml;
-            modal.classList.add('show');
+            if (backdrop) {
+                backdrop.classList.add('show');
+                backdrop.setAttribute('aria-hidden', 'false');
+            }
+            drawer.classList.add('show');
+            drawer.setAttribute('aria-hidden', 'false');
         }
 
         (function () {
-            const modal = document.getElementById('decreaseDetailModal');
+            const backdrop = document.getElementById('decreaseDetailBackdrop');
+            const drawer = document.getElementById('decreaseDetailDrawer');
             const closeBtn = document.getElementById('decreaseDetailCloseBtn');
             const okBtn = document.getElementById('decreaseDetailOkBtn');
             function closeDetail() {
-                if (modal) modal.classList.remove('show');
+                if (backdrop) {
+                    backdrop.classList.remove('show');
+                    backdrop.setAttribute('aria-hidden', 'true');
+                }
+                if (drawer) {
+                    drawer.classList.remove('show');
+                    drawer.setAttribute('aria-hidden', 'true');
+                }
             }
             if (closeBtn) closeBtn.addEventListener('click', closeDetail);
             if (okBtn) okBtn.addEventListener('click', closeDetail);
-            if (modal) {
-                modal.addEventListener('click', function (e) {
-                    if (e.target === modal) closeDetail();
-                });
-            }
+            if (backdrop) backdrop.addEventListener('click', closeDetail);
         })();
         filterData();
     </script>

@@ -506,6 +506,65 @@
             border-radius: var(--radius-sm);
             margin-bottom: var(--spacing-sm);
         }
+        .ship-modal-section-tag--inbound {
+            background: linear-gradient(90deg, #2a9d8f, #21867a);
+        }
+        /* 换货弹窗：换出 / 换入 切页 */
+        .ship-exchange-tabs-wrap {
+            margin-bottom: var(--spacing-sm);
+        }
+        .ship-exchange-tabs {
+            display: inline-flex;
+            gap: 0;
+            padding: 3px;
+            background: var(--color-neutral-100);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-200);
+        }
+        .ship-exchange-tab {
+            padding: 8px 18px;
+            font-size: var(--font-size-sm);
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s ease, color 0.15s ease;
+            white-space: nowrap;
+        }
+        .ship-exchange-tab:hover {
+            color: var(--color-text-primary);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .ship-exchange-tab.ship-exchange-tab--active {
+            color: var(--color-primary);
+            background: #fff;
+            font-weight: var(--font-weight-medium);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .ship-inbound-hint {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin: 0 0 var(--spacing-sm);
+            line-height: 1.5;
+        }
+        .ship-inbound-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+        .ship-inbound-toolbar label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ship-inbound-toolbar .form-input {
+            min-width: 160px;
+        }
         .ship-items-table th,
         .ship-items-table td { white-space: normal; vertical-align: middle; }
         .ship-items-table .ship-thumb {
@@ -833,27 +892,68 @@
                         <button type="button" class="modal-close" id="shipModalCloseBtn" aria-label="关闭">×</button>
                     </div>
                     <div class="modal-body">
-                        <div class="ship-modal-section">
-                            <div class="ship-modal-section-tag">选择发货商品（默认全选）</div>
-                            <div class="table-wrapper" style="max-height: 280px; overflow: auto; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md);">
-                                <table class="ship-items-table">
-                                    <thead>
-                                        <tr>
-                                            <th class="checkbox-cell" style="width:48px;">
-                                                <input type="checkbox" id="shipSelectAll" checked title="全选">
-                                            </th>
-                                            <th style="width:64px;">图片</th>
-                                            <th>名称</th>
-                                            <th style="width:88px;">商品总数</th>
-                                            <th style="width:140px;">可发货数量</th>
-                                            <th style="width:120px;">规格</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="shipItemsTableBody"></tbody>
-                                </table>
+                        <div class="ship-modal-section" id="shipModalGoodsSection">
+                            <div id="shipModalTagNormalWrap">
+                                <div class="ship-modal-section-tag">选择发货商品（默认全选）</div>
+                            </div>
+                            <div id="shipModalExchangeTabsWrap" class="ship-exchange-tabs-wrap" style="display: none;" aria-hidden="true">
+                                <div class="ship-exchange-tabs" role="tablist" aria-label="换货商品">
+                                    <button type="button" class="ship-exchange-tab ship-exchange-tab--active" id="shipExchangeTabOut" role="tab" aria-selected="true" data-ship-exchange-tab="out">换出商品</button>
+                                    <button type="button" class="ship-exchange-tab" id="shipExchangeTabIn" role="tab" aria-selected="false" data-ship-exchange-tab="in">换入商品</button>
+                                </div>
+                            </div>
+                            <div id="shipModalTagExchangeOut" class="ship-modal-section-tag" style="display: none;">换出商品（默认全选）</div>
+                            <div id="shipOutboundBlock">
+                                <div class="table-wrapper" style="max-height: 280px; overflow: auto; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md);">
+                                    <table class="ship-items-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkbox-cell" style="width:48px;">
+                                                    <input type="checkbox" id="shipSelectAll" checked title="全选">
+                                                </th>
+                                                <th style="width:64px;">图片</th>
+                                                <th>名称</th>
+                                                <th style="width:88px;">商品总数</th>
+                                                <th style="width:140px;">可发货数量</th>
+                                                <th style="width:120px;">规格</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="shipItemsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="shipInboundBlock" style="display: none;" aria-hidden="true">
+                                <div class="ship-modal-section-tag ship-modal-section-tag--inbound">换入商品（顾客退回·入库）</div>
+                                <p class="ship-inbound-hint">清点顾客寄回的退货商品，确认数量与规格后执行入库；可与仓库系统对接后自动过账。</p>
+                                <div class="table-wrapper" style="max-height: 240px; overflow: auto; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md);">
+                                    <table class="ship-items-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:64px;">图片</th>
+                                                <th>名称</th>
+                                                <th style="width:88px;">退货数量</th>
+                                                <th style="width:100px;">实收数量</th>
+                                                <th style="width:120px;">规格</th>
+                                                <th style="width:120px;">入库仓位</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="shipInboundTableBody"></tbody>
+                                    </table>
+                                </div>
+                                <div class="ship-inbound-toolbar">
+                                    <label>
+                                        默认入库仓库
+                                        <select id="shipInboundWarehouse" class="form-input">
+                                            <option value="main">主仓</option>
+                                            <option value="store">门店仓</option>
+                                            <option value="defect">次品仓</option>
+                                        </select>
+                                    </label>
+                                    <button type="button" class="btn btn-outline" id="btnShipInboundConfirm">确认入库</button>
+                                </div>
                             </div>
                         </div>
-                        <div class="ship-modal-section">
+                        <div class="ship-modal-section" id="shipModalLogisticsSection">
                             <div class="ship-modal-section-tag">物流信息</div>
                             <div class="form-group ship-logistics-row">
                                 <span class="form-label">物流选择</span>
@@ -1859,11 +1959,15 @@
                     </div>
                     `}
                 </div>
-                ${order.status === '待发货' ? `
-                <div class="order-detail-ship-hint">该订单为「待发货」，请在底部操作区点击「发货」「打印小票」或「打印发货单」。</div>
-                ` : order.status === '待收货' ? `
+                ${order.status === '待收货' ? `
                 <div class="order-detail-ship-hint">该订单为「待收货」，可上传「送达照片」或点击「核销订单」确认收货完成。</div>
-                ` : order.status === '待处理' ? `
+                ` : (order.status === '待发货' || (order.status === '待处理' && order.pendingSubType === '换货')) ? (
+                    (order.pendingSubType === '换货' || order.afterSale === '换货中') ? `
+                <div class="order-detail-ship-hint">该订单为换货流程，请在底部操作区点击「换货」填写物流并发出换货商品，或使用「打印小票」「打印发货单」。</div>
+                ` : `
+                <div class="order-detail-ship-hint">该订单为「待发货」，请在底部操作区点击「发货」「打印小票」或「打印发货单」。</div>
+                `
+                ) : order.status === '待处理' ? `
                 <div class="order-detail-ship-hint">该订单为「待处理」，子类为「${order.pendingSubType || '—'}」，请审核用户申请后点击「同意」或「拒绝」。</div>
                 ` : ''}
             `;
@@ -1872,7 +1976,9 @@
             const receiveBar = document.getElementById('orderDetailActionsReceive');
             const pendingBar = document.getElementById('orderDetailActionsPending');
             if (shipBar && receiveBar && pendingBar) {
-                if (order.status === '待发货') {
+                var primaryIsExchange = order.pendingSubType === '换货' || order.afterSale === '换货中';
+                var showShipActions = order.status === '待发货' || (order.status === '待处理' && order.pendingSubType === '换货');
+                if (showShipActions) {
                     pendingBar.classList.remove('show');
                     pendingBar.setAttribute('aria-hidden', 'true');
                     shipBar.classList.add('show');
@@ -1880,9 +1986,13 @@
                     receiveBar.classList.remove('show');
                     receiveBar.setAttribute('aria-hidden', 'true');
                     clearOrderDetailActionHandlers();
-                    document.getElementById('btnShipOrder').onclick = function () {
-                        openShipModal(order.id);
-                    };
+                    var btnShip = document.getElementById('btnShipOrder');
+                    if (btnShip) {
+                        btnShip.textContent = primaryIsExchange ? '换货' : '发货';
+                        btnShip.onclick = function () {
+                            openShipModal(order.id);
+                        };
+                    }
                     document.getElementById('btnPrintReceipt').onclick = function () {
                         printOrderReceipt(order);
                     };
@@ -2050,6 +2160,112 @@
         }
 
         var currentShipOrderId = null;
+        /** 当前弹窗是否为换货模式（控制换出/换入切页） */
+        var shipModalIsExchange = false;
+
+        /** 换货弹窗：切换「换出商品 / 换入商品」页签 */
+        function setShipModalExchangeTab(tab) {
+            if (!shipModalIsExchange) return;
+            var tabOut = document.getElementById('shipExchangeTabOut');
+            var tabIn = document.getElementById('shipExchangeTabIn');
+            var outBlock = document.getElementById('shipOutboundBlock');
+            var inBlock = document.getElementById('shipInboundBlock');
+            var tagEx = document.getElementById('shipModalTagExchangeOut');
+            var log = document.getElementById('shipModalLogisticsSection');
+            var isOut = tab === 'out';
+            if (tabOut) {
+                tabOut.classList.toggle('ship-exchange-tab--active', isOut);
+                tabOut.setAttribute('aria-selected', isOut ? 'true' : 'false');
+            }
+            if (tabIn) {
+                tabIn.classList.toggle('ship-exchange-tab--active', !isOut);
+                tabIn.setAttribute('aria-selected', isOut ? 'false' : 'true');
+            }
+            if (outBlock) outBlock.style.display = isOut ? '' : 'none';
+            if (inBlock) {
+                inBlock.style.display = isOut ? 'none' : '';
+                inBlock.setAttribute('aria-hidden', isOut ? 'true' : 'false');
+            }
+            if (tagEx) tagEx.style.display = isOut ? '' : 'none';
+            if (log) log.style.display = isOut ? '' : 'none';
+        }
+
+        /** 换货弹窗与普通发货弹窗的布局切换 */
+        function applyShipModalExchangeLayout(isExchange) {
+            shipModalIsExchange = !!isExchange;
+            var normalWrap = document.getElementById('shipModalTagNormalWrap');
+            var tabsWrap = document.getElementById('shipModalExchangeTabsWrap');
+            var tagEx = document.getElementById('shipModalTagExchangeOut');
+            var outBlock = document.getElementById('shipOutboundBlock');
+            var inBlock = document.getElementById('shipInboundBlock');
+            var log = document.getElementById('shipModalLogisticsSection');
+            var tabOut = document.getElementById('shipExchangeTabOut');
+            var tabIn = document.getElementById('shipExchangeTabIn');
+            if (!normalWrap || !tabsWrap) return;
+            if (isExchange) {
+                normalWrap.style.display = 'none';
+                tabsWrap.style.display = '';
+                tabsWrap.setAttribute('aria-hidden', 'false');
+                if (tagEx) tagEx.style.display = '';
+                if (outBlock) outBlock.style.display = '';
+                if (inBlock) {
+                    inBlock.style.display = 'none';
+                    inBlock.setAttribute('aria-hidden', 'true');
+                }
+                if (log) log.style.display = '';
+                setShipModalExchangeTab('out');
+            } else {
+                normalWrap.style.display = '';
+                tabsWrap.style.display = 'none';
+                tabsWrap.setAttribute('aria-hidden', 'true');
+                if (tagEx) tagEx.style.display = 'none';
+                if (outBlock) outBlock.style.display = '';
+                if (inBlock) {
+                    inBlock.style.display = 'none';
+                    inBlock.setAttribute('aria-hidden', 'true');
+                }
+                if (log) log.style.display = '';
+                if (tabOut) {
+                    tabOut.classList.add('ship-exchange-tab--active');
+                    tabOut.setAttribute('aria-selected', 'true');
+                }
+                if (tabIn) {
+                    tabIn.classList.remove('ship-exchange-tab--active');
+                    tabIn.setAttribute('aria-selected', 'false');
+                }
+            }
+        }
+
+        /** 换入：根据订单行填充退货入库表（示意） */
+        function fillShipInboundTable(order) {
+            var items = getOrderLineItems(order);
+            var tbody = document.getElementById('shipInboundTableBody');
+            if (!tbody) return;
+            var imgFallback = 'https://placehold.co/48x48/f0f0f0/666?text=图';
+            var binOpts =
+                '<option value="A-01-01">A区-01-01</option>' +
+                '<option value="A-01-02">A区-01-02</option>' +
+                '<option value="B-02-01">B区-02-01</option>' +
+                '<option value="待验">待验区</option>';
+            tbody.innerHTML = items.map(function (row, i) {
+                var thumb = row.image ? escapeHtml(row.image) : imgFallback;
+                var name = escapeHtml(row.name);
+                var spec = escapeHtml(row.spec || '规格:默认');
+                var maxQ = Math.max(1, parseInt(row.totalQty, 10) || 1);
+                var tid = 'shipInRecv-' + i;
+                var sid = 'shipInBin-' + i;
+                return (
+                    '<tr data-line-id="' + escapeHtml(row.id) + '">' +
+                    '<td><img class="ship-thumb" src="' + thumb + '" alt="" width="48" height="48" onerror="this.src=\'' + imgFallback + '\'"></td>' +
+                    '<td>' + name + '</td>' +
+                    '<td>' + maxQ + '</td>' +
+                    '<td><input type="number" class="ship-qty-input" id="' + tid + '" min="0" max="' + maxQ + '" value="' + maxQ + '" title="实收数量"></td>' +
+                    '<td>' + spec + '</td>' +
+                    '<td><select id="' + sid + '" class="form-input" style="min-width:100px;">' + binOpts + '</select></td>' +
+                    '</tr>'
+                );
+            }).join('');
+        }
 
         function closeShipModal() {
             const overlay = document.getElementById('shipModalOverlay');
@@ -2058,6 +2274,7 @@
                 overlay.setAttribute('aria-hidden', 'true');
             }
             currentShipOrderId = null;
+            applyShipModalExchangeLayout(false);
         }
 
         function updateShipExpressFieldsVisibility() {
@@ -2113,11 +2330,23 @@
             all.indeterminate = n > 0 && n < rows.length;
         }
 
-        /** 打开发货弹窗 */
+        /** 打开发货弹窗（待发货，或待处理且子类为换货） */
         function openShipModal(orderId) {
             const order = orders.find(function (o) { return o.id === orderId; });
-            if (!order || order.status !== '待发货') return;
+            const canOpen = order && (order.status === '待发货' || (order.status === '待处理' && order.pendingSubType === '换货'));
+            if (!canOpen) return;
             currentShipOrderId = orderId;
+
+            const isEx = order.pendingSubType === '换货' || order.afterSale === '换货中';
+            const titleEl = document.getElementById('shipModalTitle');
+            if (titleEl) {
+                titleEl.textContent = isEx ? '换货' : '发货';
+            }
+
+            applyShipModalExchangeLayout(isEx);
+            if (isEx) {
+                fillShipInboundTable(order);
+            }
 
             const items = getOrderLineItems(order);
             const tbody = document.getElementById('shipItemsTableBody');
@@ -2166,9 +2395,18 @@
         function submitShipModal() {
             if (!currentShipOrderId) return;
             const o = orders.find(function (x) { return x.id === currentShipOrderId; });
-            if (!o || o.status !== '待发货') {
+            const canSubmit = o && (o.status === '待发货' || (o.status === '待处理' && o.pendingSubType === '换货'));
+            if (!canSubmit) {
                 closeShipModal();
                 return;
+            }
+
+            if (shipModalIsExchange) {
+                var tabInBtn = document.getElementById('shipExchangeTabIn');
+                if (tabInBtn && tabInBtn.classList.contains('ship-exchange-tab--active')) {
+                    alert('请先切换到「换出商品」页签，填写物流信息后再确认换货发出。');
+                    return;
+                }
             }
 
             const checked = document.querySelectorAll('#shipItemsTableBody .ship-line-check:checked');
@@ -2236,7 +2474,14 @@
                 }
             }
 
+            const wasExchangeFromPending = o.pendingSubType === '换货';
+            const isExchangeSuccessMsg = wasExchangeFromPending || o.afterSale === '换货中';
+
             o.status = '待收货';
+            if (wasExchangeFromPending) {
+                delete o.pendingSubType;
+                o.afterSale = '换货中';
+            }
             if (!o.shipMeta) o.shipMeta = {};
             o.shipMeta.logisticsType = logisticsType;
             if (logisticsType === 'none') {
@@ -2265,7 +2510,7 @@
             applySearchOnly();
             closeShipModal();
             openOrderDetail(o.id);
-            alert('发货成功，订单已进入待收货状态。');
+            alert(isExchangeSuccessMsg ? '换货发出成功，订单已进入待收货状态。' : '发货成功，订单已进入待收货状态。');
         }
 
         (function initShipModal() {
@@ -2275,6 +2520,21 @@
             document.getElementById('shipModalCloseBtn').addEventListener('click', closeShipModal);
             document.getElementById('shipModalCancelBtn').addEventListener('click', closeShipModal);
             document.getElementById('shipModalConfirmBtn').addEventListener('click', submitShipModal);
+
+            var tabOut = document.getElementById('shipExchangeTabOut');
+            var tabIn = document.getElementById('shipExchangeTabIn');
+            if (tabOut) tabOut.addEventListener('click', function () { setShipModalExchangeTab('out'); });
+            if (tabIn) tabIn.addEventListener('click', function () { setShipModalExchangeTab('in'); });
+
+            var btnInConfirm = document.getElementById('btnShipInboundConfirm');
+            if (btnInConfirm) {
+                btnInConfirm.addEventListener('click', function () {
+                    if (!currentShipOrderId) return;
+                    var wh = document.getElementById('shipInboundWarehouse');
+                    var whLabel = wh && wh.options[wh.selectedIndex] ? wh.options[wh.selectedIndex].text : '';
+                    alert('已确认退货入库（示意）：默认仓库「' + whLabel + '」；可对接 WMS/库存完成过账。');
+                });
+            }
 
             overlay.addEventListener('click', function (e) {
                 if (e.target === overlay) closeShipModal();
