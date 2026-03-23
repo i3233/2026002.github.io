@@ -161,7 +161,6 @@
 
         <div class="printer-tabs">
             <button type="button" class="printer-tab-btn active" data-tab="printers">打印机设置</button>
-            <button type="button" class="printer-tab-btn" data-tab="settings">打印设置</button>
         </div>
 
         <div class="printer-toolbar">
@@ -561,6 +560,7 @@
                         '<td>' + (row.connection || '-') + '</td>' +
                         '<td>' + (row.remark || '-') + '</td>' +
                         '<td class="text-right">' +
+                            '<a href="#" class="action-link edit-printer" data-id="' + row.id + '">编辑</a>' +
                             '<a href="#" class="action-link danger delete-printer" data-id="' + row.id + '">删除</a>' +
                         '</td>';
                     tbody.appendChild(tr);
@@ -655,7 +655,7 @@
 
         function updateAddButtonLabel() {
             if (!addBtnEl) return;
-            addBtnEl.textContent = currentTab === 'printers' ? '添加打印机' : '添加打印设置';
+            addBtnEl.textContent = '添加打印机';
         }
 
         document.getElementById('addPrinterBtn').addEventListener('click', function () {
@@ -667,7 +667,14 @@
         });
 
         document.getElementById('printerTableBody').addEventListener('click', function (e) {
+            var edit = e.target.closest('.edit-printer');
             var del = e.target.closest('.delete-printer');
+            if (edit) {
+                e.preventDefault();
+                var editId = edit.getAttribute('data-id');
+                openPrinterModal(editId);
+                return;
+            }
             if (del) {
                 e.preventDefault();
                 var id = del.getAttribute('data-id');

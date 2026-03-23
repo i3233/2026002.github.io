@@ -896,12 +896,7 @@
                             <div id="shipModalTagNormalWrap">
                                 <div class="ship-modal-section-tag">选择发货商品（默认全选）</div>
                             </div>
-                            <div id="shipModalExchangeTabsWrap" class="ship-exchange-tabs-wrap" style="display: none;" aria-hidden="true">
-                                <div class="ship-exchange-tabs" role="tablist" aria-label="换货商品">
-                                    <button type="button" class="ship-exchange-tab ship-exchange-tab--active" id="shipExchangeTabOut" role="tab" aria-selected="true" data-ship-exchange-tab="out">换出商品</button>
-                                    <button type="button" class="ship-exchange-tab" id="shipExchangeTabIn" role="tab" aria-selected="false" data-ship-exchange-tab="in">换入商品</button>
-                                </div>
-                            </div>
+                            <div id="shipModalExchangeTabsWrap" class="ship-exchange-tabs-wrap" style="display: none;" aria-hidden="true"></div>
                             <div id="shipModalTagExchangeOut" class="ship-modal-section-tag" style="display: none;">换出商品（默认全选）</div>
                             <div id="shipOutboundBlock">
                                 <div class="table-wrapper" style="max-height: 280px; overflow: auto; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md);">
@@ -941,14 +936,6 @@
                                     </table>
                                 </div>
                                 <div class="ship-inbound-toolbar">
-                                    <label>
-                                        默认入库仓库
-                                        <select id="shipInboundWarehouse" class="form-input">
-                                            <option value="main">主仓</option>
-                                            <option value="store">门店仓</option>
-                                            <option value="defect">次品仓</option>
-                                        </select>
-                                    </label>
                                     <button type="button" class="btn btn-outline" id="btnShipInboundConfirm">确认入库</button>
                                 </div>
                             </div>
@@ -2163,33 +2150,6 @@
         /** 当前弹窗是否为换货模式（控制换出/换入切页） */
         var shipModalIsExchange = false;
 
-        /** 换货弹窗：切换「换出商品 / 换入商品」页签 */
-        function setShipModalExchangeTab(tab) {
-            if (!shipModalIsExchange) return;
-            var tabOut = document.getElementById('shipExchangeTabOut');
-            var tabIn = document.getElementById('shipExchangeTabIn');
-            var outBlock = document.getElementById('shipOutboundBlock');
-            var inBlock = document.getElementById('shipInboundBlock');
-            var tagEx = document.getElementById('shipModalTagExchangeOut');
-            var log = document.getElementById('shipModalLogisticsSection');
-            var isOut = tab === 'out';
-            if (tabOut) {
-                tabOut.classList.toggle('ship-exchange-tab--active', isOut);
-                tabOut.setAttribute('aria-selected', isOut ? 'true' : 'false');
-            }
-            if (tabIn) {
-                tabIn.classList.toggle('ship-exchange-tab--active', !isOut);
-                tabIn.setAttribute('aria-selected', isOut ? 'false' : 'true');
-            }
-            if (outBlock) outBlock.style.display = isOut ? '' : 'none';
-            if (inBlock) {
-                inBlock.style.display = isOut ? 'none' : '';
-                inBlock.setAttribute('aria-hidden', isOut ? 'true' : 'false');
-            }
-            if (tagEx) tagEx.style.display = isOut ? '' : 'none';
-            if (log) log.style.display = isOut ? '' : 'none';
-        }
-
         /** 换货弹窗与普通发货弹窗的布局切换 */
         function applyShipModalExchangeLayout(isExchange) {
             shipModalIsExchange = !!isExchange;
@@ -2199,21 +2159,18 @@
             var outBlock = document.getElementById('shipOutboundBlock');
             var inBlock = document.getElementById('shipInboundBlock');
             var log = document.getElementById('shipModalLogisticsSection');
-            var tabOut = document.getElementById('shipExchangeTabOut');
-            var tabIn = document.getElementById('shipExchangeTabIn');
             if (!normalWrap || !tabsWrap) return;
             if (isExchange) {
                 normalWrap.style.display = 'none';
-                tabsWrap.style.display = '';
-                tabsWrap.setAttribute('aria-hidden', 'false');
+                tabsWrap.style.display = 'none';
+                tabsWrap.setAttribute('aria-hidden', 'true');
                 if (tagEx) tagEx.style.display = '';
                 if (outBlock) outBlock.style.display = '';
                 if (inBlock) {
-                    inBlock.style.display = 'none';
-                    inBlock.setAttribute('aria-hidden', 'true');
+                    inBlock.style.display = '';
+                    inBlock.setAttribute('aria-hidden', 'false');
                 }
                 if (log) log.style.display = '';
-                setShipModalExchangeTab('out');
             } else {
                 normalWrap.style.display = '';
                 tabsWrap.style.display = 'none';
@@ -2225,14 +2182,6 @@
                     inBlock.setAttribute('aria-hidden', 'true');
                 }
                 if (log) log.style.display = '';
-                if (tabOut) {
-                    tabOut.classList.add('ship-exchange-tab--active');
-                    tabOut.setAttribute('aria-selected', 'true');
-                }
-                if (tabIn) {
-                    tabIn.classList.remove('ship-exchange-tab--active');
-                    tabIn.setAttribute('aria-selected', 'false');
-                }
             }
         }
 
@@ -2401,14 +2350,6 @@
                 return;
             }
 
-            if (shipModalIsExchange) {
-                var tabInBtn = document.getElementById('shipExchangeTabIn');
-                if (tabInBtn && tabInBtn.classList.contains('ship-exchange-tab--active')) {
-                    alert('请先切换到「换出商品」页签，填写物流信息后再确认换货发出。');
-                    return;
-                }
-            }
-
             const checked = document.querySelectorAll('#shipItemsTableBody .ship-line-check:checked');
             if (!checked.length) {
                 alert('请至少选择一件发货商品。');
@@ -2521,18 +2462,11 @@
             document.getElementById('shipModalCancelBtn').addEventListener('click', closeShipModal);
             document.getElementById('shipModalConfirmBtn').addEventListener('click', submitShipModal);
 
-            var tabOut = document.getElementById('shipExchangeTabOut');
-            var tabIn = document.getElementById('shipExchangeTabIn');
-            if (tabOut) tabOut.addEventListener('click', function () { setShipModalExchangeTab('out'); });
-            if (tabIn) tabIn.addEventListener('click', function () { setShipModalExchangeTab('in'); });
-
             var btnInConfirm = document.getElementById('btnShipInboundConfirm');
             if (btnInConfirm) {
                 btnInConfirm.addEventListener('click', function () {
                     if (!currentShipOrderId) return;
-                    var wh = document.getElementById('shipInboundWarehouse');
-                    var whLabel = wh && wh.options[wh.selectedIndex] ? wh.options[wh.selectedIndex].text : '';
-                    alert('已确认退货入库（示意）：默认仓库「' + whLabel + '」；可对接 WMS/库存完成过账。');
+                    alert('已确认退货入库（示意）：可对接 WMS/库存完成过账。');
                 });
             }
 

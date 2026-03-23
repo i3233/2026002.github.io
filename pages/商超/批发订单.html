@@ -1290,7 +1290,7 @@
                 amount: 3000.00,
                 paid: 0.00,
                 payType: '赊账',
-                status: 'pendingSubmit', // 待提交
+                status: 'pendingAudit', // 审核中
                 auditStatus: 'pending',
                 auditTime: null,
                 printTime: null,
@@ -1452,8 +1452,8 @@
             { id: 'PF20250829001', orderTime: '2025-08-29 09:00:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '德阳批发商E', contact: '刘经理', mobile: '13800000005', qty: 60, amount: 6200.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
             { id: 'PF20250829002', orderTime: '2025-08-29 10:15:00', source: 'manual', sourceText: '部门代下单', partner: '眉山批发商F', contact: '陈总', mobile: '13800000006', qty: 45, amount: 4580.00, paid: 0.00, payType: '现金', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
             { id: 'PF20250829003', orderTime: '2025-08-29 11:30:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '资阳批发商G', contact: '杨老板', mobile: '13800000007', qty: 28, amount: 2890.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
-            { id: 'PF20250829004', orderTime: '2025-08-29 14:00:00', source: 'online-credit', sourceText: '商家自助(赊账)', partner: '遂宁批发商H', contact: '吴经理', mobile: '13800000008', qty: 38, amount: 3800.00, paid: 0.00, payType: '赊账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
-            { id: 'PF20250829005', orderTime: '2025-08-29 15:45:00', source: 'manual', sourceText: '部门代下单', partner: '内江批发商I', contact: '郑总', mobile: '13800000009', qty: 52, amount: 5350.00, paid: 0.00, payType: '转账', status: 'pendingPayment', auditStatus: null, auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250829004', orderTime: '2025-08-29 14:00:00', source: 'online-credit', sourceText: '商家自助(赊账)', partner: '遂宁批发商H', contact: '吴经理', mobile: '13800000008', qty: 38, amount: 3800.00, paid: 0.00, payType: '赊账', status: 'pendingAudit', auditStatus: 'pending', auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
+            { id: 'PF20250829005', orderTime: '2025-08-29 15:45:00', source: 'manual', sourceText: '部门代下单', partner: '内江批发商I', contact: '郑总', mobile: '13800000009', qty: 52, amount: 5350.00, paid: 0.00, payType: '赊账', status: 'pendingSubmit', auditStatus: 'pending', auditTime: null, printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
             { id: 'PF20250910001', orderTime: '2025-09-01 09:30:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '成都双流批发站', contact: '周经理', mobile: '13911110001', qty: 48, amount: 9600.00, paid: 9600.00, payType: '转账', status: 'pendingReceive', auditStatus: 'approved', auditTime: '2025-09-01 09:31:00', printTime: '2025-09-01 09:35:00', pickingStatus: 'completed', outboundStatus: 'shipped', completedTime: null },
             { id: 'PF20250910002', orderTime: '2025-09-01 11:00:00', source: 'manual', sourceText: '部门代下单', partner: '重庆江北批发商', contact: '孙总', mobile: '13911110002', qty: 60, amount: 12000.00, paid: 12000.00, payType: '转账', status: 'pendingReceive', auditStatus: 'approved', auditTime: '2025-09-01 11:00:00', printTime: '2025-09-01 11:05:00', pickingStatus: 'completed', outboundStatus: 'shipped', completedTime: null },
             { id: 'PF20250910003', orderTime: '2025-09-02 14:20:00', source: 'online-paid', sourceText: '商家自助(实付)', partner: '西安未央经销部', contact: '钱经理', mobile: '13911110003', qty: 32, amount: 6400.00, paid: 6400.00, payType: '转账', status: 'pendingProcess', auditStatus: 'approved', auditTime: '2025-09-02 14:20:00', printTime: null, pickingStatus: 'pending', outboundStatus: 'pending', completedTime: null },
@@ -1974,8 +1974,17 @@
                     filteredOrders = filteredOrders.filter(o => o.status === 'completed');
                 } else if (currentStatus === 'obReceive') {
                     filteredOrders = filteredOrders.filter(o => o.status === 'pendingReceive');
+                } else if (currentStatus === 'obWaiting') {
+                    // 待出库只对应两类：待打印(pendingPrint) 和 拣货中(picking)
+                    filteredOrders = filteredOrders.filter(function (o) {
+                        return o.status === 'pendingPrint' || o.status === 'picking';
+                    });
                 } else if (currentStatus === 'obPending') {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'pendingProcess');
+                    filteredOrders = filteredOrders.filter(function (o) {
+                        if (o.status !== 'pendingProcess') return false;
+                        var sub = String(o.pendingSubType || '');
+                        return sub === '仅退款' || sub === '退货退款' || sub === '换货';
+                    });
                 } else {
                     filteredOrders = filteredOrders.filter(function (o) {
                         if (['pendingPrint', 'picking', 'pendingOutbound'].indexOf(o.status) !== -1) return true;
@@ -2085,14 +2094,14 @@
                     <td class="text-right">${order.paid.toFixed(2)}</td>
                     <td>${order.payType}</td>
                     <td class="order-status-cell">
-                        <span class="${statusPillClass} status-link" data-id="${order.id}">${getStatusText(order.status)}</span>
+                        <span class="${statusPillClass} status-link" data-id="${order.id}">${getDisplayStatusText(order)}</span>
                     </td>
                     <td>${subTypeHtml}</td>
                     <td>${afterSaleHtml}</td>
                     <td class="op-type-cell">${opTypeText}</td>
                     <td>
                         <button class="btn-link view-btn" data-id="${order.id}">查看</button>
-                        ${getActionButtons(order)}
+                        ${shouldMoveActionsToDrawer() ? '' : getActionButtons(order)}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2116,8 +2125,25 @@
             return 'status-pill status-pill--primary';
         }
 
-        /** 子类型（与零售「待处理」子类展示方式一致，无则 —） */
+        /** 子类型展示：销售出库按业务子类映射；其它视图保持原样 */
         function formatWholesaleSubTypeCell(order) {
+            if (wholesaleMenuView === 'outbound') {
+                if (order.status === 'pendingPrint') {
+                    return '<span class="pending-sub-type">待打印</span>';
+                }
+                if (order.status === 'picking') {
+                    return '<span class="pending-sub-type">拣货中</span>';
+                }
+                if (order.status === 'pendingProcess') {
+                    var sub = String(order.pendingSubType || '');
+                    if (sub === '换货') {
+                        return '<span class="pending-sub-type">换货中</span>';
+                    }
+                    if (sub === '仅退款' || sub === '退货退款') {
+                        return '<span class="pending-sub-type">待退款</span>';
+                    }
+                }
+            }
             if (order.pendingSubType) {
                 return '<span class="pending-sub-type">' + escapeHtml(order.pendingSubType) + '</span>';
             }
@@ -2181,6 +2207,14 @@
             return statusMap[status] || status;
         }
 
+        /** 订单状态展示文案：销售出库中 pendingPrint / picking 统一显示为待出库 */
+        function getDisplayStatusText(order) {
+            if (wholesaleMenuView === 'outbound' && order && (order.status === 'pendingPrint' || order.status === 'picking')) {
+                return '待出库';
+            }
+            return getStatusText(order ? order.status : '');
+        }
+
         // 获取来源样式类
         function getSourceClass(source) {
             const sourceMap = {
@@ -2224,6 +2258,11 @@
             return buttons;
         }
 
+        // 销售开单 / 销售出库 / 退货售后：列表操作项迁移到详情侧滑底部
+        function shouldMoveActionsToDrawer() {
+            return wholesaleMenuView === 'salesOrder' || wholesaleMenuView === 'outbound' || wholesaleMenuView === 'refund';
+        }
+
         // 更新合计
         function updateTotals() {
             const totalQty = filteredOrders.reduce((sum, order) => sum + order.qty, 0);
@@ -2249,7 +2288,7 @@
                     <div class="order-detail-section-title">基本信息</div>
                     <div class="order-detail-kv"><span class="order-detail-kv-label">下单时间</span><span class="order-detail-kv-value">${order.orderTime}</span></div>
                     <div class="order-detail-kv"><span class="order-detail-kv-label">订单来源</span><span class="order-detail-kv-value">${order.sourceText || order.source || '-'}</span></div>
-                    <div class="order-detail-kv"><span class="order-detail-kv-label">订单状态</span><span class="order-detail-kv-value">${getStatusText(order.status)}</span></div>
+                    <div class="order-detail-kv"><span class="order-detail-kv-label">订单状态</span><span class="order-detail-kv-value">${getDisplayStatusText(order)}</span></div>
                     <div class="order-detail-kv"><span class="order-detail-kv-label">支付方式</span><span class="order-detail-kv-value">${order.payType || '-'}</span></div>
                 </div>
                 <div class="order-detail-section">
@@ -2267,8 +2306,32 @@
             `;
             drawer.dataset.detailOrderId = order.id;
             var submitAuditBtn = document.getElementById('orderDetailSubmitAuditBtn');
+            if (shouldMoveActionsToDrawer()) {
+                body.insertAdjacentHTML('beforeend', `
+                    <div class="order-detail-section" id="orderDetailDynamicActions" style="padding-top: var(--spacing-sm); margin-top: var(--spacing-sm); margin-bottom: 10px;"></div>
+                `);
+                var dynamicActions = document.getElementById('orderDetailDynamicActions');
+                if (dynamicActions) {
+                    dynamicActions.innerHTML = `<div class="order-detail-dynamic-actions-body"></div>`;
+                    var inner = dynamicActions.querySelector('.order-detail-dynamic-actions-body');
+                    if (inner) {
+                        inner.innerHTML = getActionButtons(order);
+                        bindOrderDetailDynamicActionEvents(inner);
+                    }
+                    // 统一把 btn-link 变成按钮样式
+                    if (inner) {
+                        inner.querySelectorAll('button.btn-link').forEach(function (btn) {
+                            btn.classList.remove('btn-link');
+                            btn.classList.add('btn', 'btn-outline');
+                        });
+                    }
+                }
+            } else {
+                var oldDynamic = document.getElementById('orderDetailDynamicActions');
+                if (oldDynamic) oldDynamic.remove();
+            }
             if (submitAuditBtn) {
-                submitAuditBtn.style.display = order.status === 'pendingSubmit' ? '' : 'none';
+                submitAuditBtn.style.display = shouldMoveActionsToDrawer() ? 'none' : (order.status === 'pendingSubmit' ? '' : 'none');
             }
             drawer.classList.add('show');
         }
@@ -2285,16 +2348,86 @@
                     const drawer = document.getElementById('orderDetailDrawer');
                     const id = drawer && drawer.dataset.detailOrderId;
                     if (!id) return;
-                    const o = wholesaleOrders.find(function (x) { return x.id === id; });
-                    if (o && o.status === 'pendingSubmit') {
-                        o.status = 'pendingAudit';
-                        filterOrders();
-                        alert('已提交审核，请等待财务审核。');
+                    if (handleSubmitAuditAction(id)) {
                         openOrderDetail(id);
                     }
                 });
             }
         })();
+
+        function handleSubmitAuditAction(orderId) {
+            const order = wholesaleOrders.find(o => o.id === orderId);
+            if (order && order.status === 'pendingSubmit') {
+                order.status = 'pendingAudit';
+                filterOrders();
+                alert('已提交审核，请等待财务审核。');
+                return true;
+            }
+            return false;
+        }
+
+        function handleReceiveConfirmAction(orderId) {
+            var order = wholesaleOrders.find(function (o) { return o.id === orderId; });
+            if (order && order.status === 'pendingReceive') {
+                order.status = 'completed';
+                if (!order.completedTime) order.completedTime = new Date().toLocaleString('zh-CN');
+                filterOrders();
+                alert('已确认收货，订单已完成。');
+                return true;
+            }
+            return false;
+        }
+
+        function handleProcessAction(orderId) {
+            alert('待处理（示例）：订单 ' + orderId + ' 可在此跳转售后/拦截原因处理。');
+        }
+
+        function bindOrderDetailDynamicActionEvents(container) {
+            if (!container) return;
+            container.querySelectorAll('.submit-audit-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    if (handleSubmitAuditAction(orderId)) openOrderDetail(orderId);
+                });
+            });
+            container.querySelectorAll('.audit-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    auditOrder(orderId);
+                    openOrderDetail(orderId);
+                });
+            });
+            container.querySelectorAll('.receive-confirm-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    if (handleReceiveConfirmAction(orderId)) openOrderDetail(orderId);
+                });
+            });
+            container.querySelectorAll('.process-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    handleProcessAction(this.dataset.id);
+                });
+            });
+            container.querySelectorAll('.print-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    printPickingList(orderId);
+                    openOrderDetail(orderId);
+                });
+            });
+            container.querySelectorAll('.outbound-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.dataset.id;
+                    doOutbound(orderId);
+                    openOrderDetail(orderId);
+                });
+            });
+            container.querySelectorAll('.paycode-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    openPaycodeModal(this.dataset.id);
+                });
+            });
+        }
 
         // 绑定表格事件
         function bindTableEvents() {
@@ -2310,12 +2443,7 @@
             document.querySelectorAll('.submit-audit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const orderId = this.dataset.id;
-                    const order = wholesaleOrders.find(o => o.id === orderId);
-                    if (order && order.status === 'pendingSubmit') {
-                        order.status = 'pendingAudit';
-                        filterOrders();
-                        alert('已提交审核，请等待财务审核。');
-                    }
+                    handleSubmitAuditAction(orderId);
                 });
             });
 
@@ -2330,20 +2458,13 @@
             document.querySelectorAll('.receive-confirm-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var orderId = this.dataset.id;
-                    var order = wholesaleOrders.find(function (o) { return o.id === orderId; });
-                    if (order && order.status === 'pendingReceive') {
-                        order.status = 'completed';
-                        if (!order.completedTime) order.completedTime = new Date().toLocaleString('zh-CN');
-                        filterOrders();
-                        alert('已确认收货，订单已完成。');
-                    }
+                    handleReceiveConfirmAction(orderId);
                 });
             });
 
             document.querySelectorAll('.process-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
-                    var orderId = this.dataset.id;
-                    alert('待处理（示例）：订单 ' + orderId + ' 可在此跳转售后/拦截原因处理。');
+                    handleProcessAction(this.dataset.id);
                 });
             });
 

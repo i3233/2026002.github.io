@@ -926,6 +926,8 @@
 
         var currentPage = 1, pageSize = 10;
         var printSubTab = 'bind';
+        var currentEditingPosId = null;
+        var currentEditingBoundPrinterId = null;
         /** 当前在「打印管理」弹窗中选中的收银机（用于筛选打印机与保存配置） */
         var currentPrintDevice = null;
 
@@ -1135,14 +1137,33 @@
         }
 
         function openBindModal() {
+            currentEditingPosId = null;
+            var titleEl = document.querySelector('#bindModal .bind-modal-header h3');
+            var confirmEl = document.getElementById('bindModalConfirm');
+            if (titleEl) titleEl.textContent = '新增收银机';
+            if (confirmEl) confirmEl.textContent = '确定';
             document.getElementById('bindCodeInput').value = '';
             document.getElementById('bindNameInput').value = '';
             document.getElementById('bindZoneSelect').value = '一楼前场';
             document.getElementById('bindRemarkInput').value = '';
             document.getElementById('bindModal').classList.add('show');
         }
+        function openEditBindModal(row) {
+            if (!row) return;
+            currentEditingPosId = row.id;
+            var titleEl = document.querySelector('#bindModal .bind-modal-header h3');
+            var confirmEl = document.getElementById('bindModalConfirm');
+            if (titleEl) titleEl.textContent = '编辑收银机';
+            if (confirmEl) confirmEl.textContent = '保存';
+            document.getElementById('bindCodeInput').value = row.deviceNo || '';
+            document.getElementById('bindNameInput').value = row.name || '';
+            document.getElementById('bindZoneSelect').value = row.zone || '一楼前场';
+            document.getElementById('bindRemarkInput').value = row.remark || '';
+            document.getElementById('bindModal').classList.add('show');
+        }
         function closeBindModal() {
             document.getElementById('bindModal').classList.remove('show');
+            currentEditingPosId = null;
         }
 
         function refreshBindPrinterSettingsSelect() {
@@ -1161,15 +1182,37 @@
             });
         }
 
-        function openBindPrinterModal() {
+        function openBindPrinterModal(printerId) {
             refreshBindPrinterSettingsSelect();
-            document.getElementById('printerNameInput').value = '';
-            document.getElementById('bindPrinterRemarkInput').value = '';
-            document.getElementById('bindPrinterSettingsSelect').value = '';
+            var titleEl = document.querySelector('#bindPrinterModal .bind-modal-header h3');
+            var confirmEl = document.getElementById('bindPrinterModalConfirm');
+            if (printerId != null) {
+                var row = printerList.filter(function (r) { return r.id === printerId; })[0];
+                if (!row) return;
+                currentEditingBoundPrinterId = printerId;
+                if (titleEl) titleEl.textContent = '编辑打印机';
+                if (confirmEl) confirmEl.textContent = '保存';
+                document.getElementById('printerNameInput').value = row.name || '';
+                document.getElementById('bindPrinterRemarkInput').value = row.remark || '';
+                var defaultSid = row.settingsPrinterId || '';
+                if (!defaultSid && settingsPrinterCatalog && settingsPrinterCatalog.length) {
+                    var matched = settingsPrinterCatalog.filter(function (x) { return (x.name || '') === (row.name || ''); })[0];
+                    if (matched) defaultSid = matched.id;
+                }
+                document.getElementById('bindPrinterSettingsSelect').value = defaultSid;
+            } else {
+                currentEditingBoundPrinterId = null;
+                if (titleEl) titleEl.textContent = '绑定打印机';
+                if (confirmEl) confirmEl.textContent = '确认';
+                document.getElementById('printerNameInput').value = '';
+                document.getElementById('bindPrinterRemarkInput').value = '';
+                document.getElementById('bindPrinterSettingsSelect').value = '';
+            }
             document.getElementById('bindPrinterModal').classList.add('show');
         }
         function closeBindPrinterModal() {
             document.getElementById('bindPrinterModal').classList.remove('show');
+            currentEditingBoundPrinterId = null;
         }
 
         function openPosPrinterEditModal(printerId) {
@@ -1257,6 +1300,22 @@
                 renderCashierRuleGoodsBox();
             }
             document.getElementById('cashierRuleModal').classList.add('show');
+        }
+
+        function openRuleSettingModalForPrinter(printerId) {
+            var printer = printerList.filter(function (p) { return p.id === printerId; })[0];
+            if (!printer) return;
+            // 优先打开该收银机下、且默认打印机为当前打印机的规则设置
+            var matchedRule = ruleList.filter(function (r) {
+                var sameDevice = !currentPrintDevice || !r.deviceId || String(r.deviceId) === String(currentPrintDevice.id);
+                return sameDevice && String(r.printer || '') === String(printer.name || '');
+            })[0];
+            if (matchedRule) {
+                openCashierRuleDetailModal(matchedRule.id);
+            } else {
+                // 没有现成规则时，直接进入新建规则设置弹窗
+                openCashierRuleDetailModal(null);
+            }
         }
 
         function closeCashierRuleDetailModal() {
@@ -1366,21 +1425,37 @@
             var name = (document.getElementById('bindNameInput').value || '').trim();
             var zone = document.getElementById('bindZoneSelect').value || '一楼前场';
             var remark = (document.getElementById('bindRemarkInput').value || '').trim();
-            var newId = String(Date.now());
-            list.unshift({
-                id: newId,
-                name: name || ('收银机-' + code.slice(0, 8)),
-                deviceNo: code.length > 20 ? code.slice(0, 20) + '…' : code,
-                zone: zone,
-                sysVersion: 'v2.8.1',
-                lineStatus: 'offline',
-                enabled: true,
-                remark: remark
-            });
-            closeBindModal();
-            currentPage = 1;
-            render();
-            alert('新增成功（示例）。实际系统中需在 APP 侧确认后生效。');
+            if (currentEditingPosId) {
+                var editingRow = list.filter(function (r) { return r.id === currentEditingPosId; })[0];
+                if (!editingRow) {
+                    alert('未找到要编辑的收银机记录');
+                    return;
+                }
+                editingRow.deviceNo = code.length > 20 ? code.slice(0, 20) + '…' : code;
+                editingRow.name = name || ('收银机-' + code.slice(0, 8));
+                editingRow.zone = zone;
+                editingRow.remark = remark;
+                closeBindModal();
+                render();
+                renderPrinterTable();
+                alert('修改成功（示例）。');
+            } else {
+                var newId = String(Date.now());
+                list.unshift({
+                    id: newId,
+                    name: name || ('收银机-' + code.slice(0, 8)),
+                    deviceNo: code.length > 20 ? code.slice(0, 20) + '…' : code,
+                    zone: zone,
+                    sysVersion: 'v2.8.1',
+                    lineStatus: 'offline',
+                    enabled: true,
+                    remark: remark
+                });
+                closeBindModal();
+                currentPage = 1;
+                render();
+                alert('新增成功（示例）。实际系统中需在 APP 侧确认后生效。');
+            }
         });
 
         document.getElementById('tableBody').addEventListener('change', function (e) {
@@ -1416,12 +1491,7 @@
                 var id2 = edit.getAttribute('data-id');
                 var row = list.filter(function (r) { return r.id === id2; })[0];
                 if (!row) return;
-                var n = prompt('编辑收银机名称', row.name || '');
-                if (n !== null && n.trim()) {
-                    row.name = n.trim();
-                    render();
-                    renderPrinterTable();
-                }
+                openEditBindModal(row);
             }
             if (act) {
                 var id3 = act.getAttribute('data-id');
@@ -1431,7 +1501,10 @@
             }
         });
 
-        document.getElementById('bindPrinterBtn').addEventListener('click', openBindPrinterModal);
+        document.getElementById('bindPrinterBtn').addEventListener('click', function () {
+            // 绑定打印机：不传入参数，避免把点击事件对象误当打印机ID
+            openBindPrinterModal(null);
+        });
         document.getElementById('bindPrinterModalClose').addEventListener('click', closeBindPrinterModal);
         document.getElementById('bindPrinterModalCancel').addEventListener('click', closeBindPrinterModal);
         document.getElementById('bindPrinterModal').addEventListener('click', function (e) {
@@ -1448,25 +1521,42 @@
             var name = customName || sp.name;
             var remark = (document.getElementById('bindPrinterRemarkInput').value || '').trim();
             var posName = currentPrintDevice ? currentPrintDevice.name : '全门店共享';
-            printerList.unshift({
-                id: 'p' + Date.now(),
-                name: name,
-                type: sp.method,
-                conn: '云打印',
-                posName: posName,
-                enabled: true,
-                printerType: 'feie',
-                user: '',
-                ukey: '',
-                sn: 'SET-' + sp.id,
-                key: '',
-                copies: 1,
-                remark: remark,
-                settingsPrinterId: sp.id
-            });
-            closeBindPrinterModal();
-            renderPrinterTable();
-            alert('绑定成功（示例），已关联到：' + posName);
+            if (currentEditingBoundPrinterId != null) {
+                var editing = printerList.filter(function (r) { return r.id === currentEditingBoundPrinterId; })[0];
+                if (!editing) {
+                    alert('未找到要编辑的打印机');
+                    return;
+                }
+                editing.name = name;
+                editing.type = sp.method;
+                editing.conn = '云打印';
+                editing.posName = posName;
+                editing.remark = remark;
+                editing.settingsPrinterId = sp.id;
+                closeBindPrinterModal();
+                renderPrinterTable();
+                alert('已保存打印机信息（示例）。');
+            } else {
+                printerList.unshift({
+                    id: 'p' + Date.now(),
+                    name: name,
+                    type: sp.method,
+                    conn: '云打印',
+                    posName: posName,
+                    enabled: true,
+                    printerType: 'feie',
+                    user: '',
+                    ukey: '',
+                    sn: 'SET-' + sp.id,
+                    key: '',
+                    copies: 1,
+                    remark: remark,
+                    settingsPrinterId: sp.id
+                });
+                closeBindPrinterModal();
+                renderPrinterTable();
+                alert('绑定成功（示例），已关联到：' + posName);
+            }
         });
 
         document.getElementById('printerTableBody').addEventListener('change', function (e) {
@@ -1486,13 +1576,12 @@
             }
             var ed = e.target.closest('.printer-edit');
             if (ed) {
-                openPosPrinterEditModal(ed.getAttribute('data-id'));
+                openBindPrinterModal(ed.getAttribute('data-id'));
                 return;
             }
             var rule = e.target.closest('.printer-rule');
             if (rule) {
-                switchPrintSubTab('rule');
-                renderRuleTable();
+                openRuleSettingModalForPrinter(rule.getAttribute('data-id'));
                 return;
             }
             var cfg = e.target.closest('.printer-config');

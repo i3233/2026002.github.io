@@ -15,70 +15,12 @@
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
             padding: var(--spacing-lg);
-            width: 1200px;
+            width: 1000px;
         }
-        .card-head-row {
+        .card-toolbar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-        }
-        .param-filter-row {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
             margin-bottom: var(--spacing-lg);
-            flex-wrap: wrap;
-        }
-        .param-filter-row label {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            white-space: nowrap;
-        }
-        .param-filter-row select {
-            min-width: 220px;
-            padding: 8px 12px;
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-sm);
-            background: #fff;
-        }
-        .param-modal-category-row {
-            margin-bottom: var(--spacing-lg);
-            padding-bottom: var(--spacing-md);
-            border-bottom: 1px solid var(--color-neutral-200);
-        }
-        .param-modal-category-row label {
-            display: block;
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            margin-bottom: var(--spacing-xs);
-            color: var(--color-text-primary);
-        }
-        .param-modal-category-row select {
-            width: 100%;
-            max-width: 400px;
-            padding: 8px 12px;
-            border: 1px solid var(--color-neutral-300);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-sm);
-            box-sizing: border-box;
-        }
-        .param-modal-hint {
-            margin: var(--spacing-sm) 0 0 0;
-            font-size: var(--font-size-xs);
-            color: var(--color-text-secondary);
-            line-height: 1.5;
-        }
-        .required {
-            color: var(--color-error);
-        }
-        .card-title {
-            font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-medium);
-            color: var(--color-text-primary);
-            margin: 0;
         }
         .spec-table {
             width: 100%;
@@ -95,126 +37,10 @@
             background: var(--color-neutral-50);
             font-weight: var(--font-weight-medium);
         }
-        .spec-table input {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid var(--color-neutral-300);
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .spec-table .col-setting {
-            min-width: 220px;
+        .spec-table td:last-child {
             white-space: nowrap;
         }
-        .setting-cell {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            flex-wrap: nowrap;
-        }
-        .setting-cell label {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: var(--font-size-sm);
-            font-weight: normal;
-            cursor: pointer;
-        }
-        .setting-cell input[type="checkbox"] {
-            width: auto;
-        }
-        .setting-limit-wrap {
-            display: none;
-            align-items: center;
-            gap: 4px;
-        }
-        .setting-limit-wrap.visible {
-            display: inline-flex;
-        }
-        .setting-limit-wrap .setting-limit-input {
-            width: 56px;
-            padding: 4px 6px;
-            border: 1px solid var(--color-neutral-300);
-            border-radius: 4px;
-            font-size: var(--font-size-sm);
-        }
-        .choose-setting {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-            padding: var(--spacing-sm) 0;
-        }
-        .choose-setting label {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-        }
-        .choose-setting .choose-input {
-            width: 56px;
-            padding: 6px 8px;
-            border: 1px solid var(--color-neutral-300);
-            border-radius: 4px;
-            font-size: var(--font-size-base);
-            text-align: center;
-        }
-        .choose-setting .choose-input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-        }
-
-        .param-saved-list {
-            margin-top: var(--spacing-xl);
-            padding-top: var(--spacing-lg);
-            border-top: 1px solid var(--color-neutral-200);
-        }
-        .param-saved-empty {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            margin: var(--spacing-sm) 0 0 0;
-        }
-        .tag-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: var(--font-size-xs);
-            font-weight: var(--font-weight-medium);
-        }
-        .tag-pill--primary {
-            background-color: rgba(44, 131, 235, 0.1);
-            color: var(--color-primary);
-        }
-        .tag-pill--danger {
-            background-color: rgba(220, 53, 69, 0.08);
-            color: var(--color-error);
-        }
-        .tag-pill--success {
-            background-color: rgba(40, 167, 69, 0.08);
-            color: var(--color-success);
-        }
-        .tag-preview-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: currentColor;
-            flex-shrink: 0;
-        }
-        .param-saved-setting {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            max-width: 280px;
-        }
-        .spec-table .col-actions {
-            width: 88px;
-            text-align: center;
-            white-space: nowrap;
-        }
-        .spec-table th:first-child,
-        .spec-table td:first-child {
-            min-width: 120px;
-        }
-        .template-list-del-btn {
+        .action-btn {
             padding: 4px 10px;
             font-size: var(--font-size-xs);
             border: 1px solid var(--color-neutral-300);
@@ -222,13 +48,53 @@
             background: #fff;
             cursor: pointer;
             color: var(--color-text-secondary);
+            margin-right: 6px;
         }
-        .template-list-del-btn:hover {
+        .action-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .action-btn-danger:hover {
             border-color: var(--color-error);
             color: var(--color-error);
         }
-
-        /* 弹窗（与规格模板一致，略宽以容纳设定列） */
+        .status-switch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            width: 44px;
+            height: 24px;
+        }
+        .status-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .status-slider {
+            position: absolute;
+            inset: 0;
+            background: #d1d5db;
+            border-radius: 999px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .status-slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .status-switch input:checked + .status-slider {
+            background: #22c55e;
+        }
+        .status-switch input:checked + .status-slider::before {
+            transform: translateX(20px);
+        }
         .param-modal {
             position: fixed;
             inset: 0;
@@ -245,80 +111,61 @@
         .param-modal-backdrop {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(0, 0, 0, 0.35);
         }
         .param-modal-dialog {
             position: relative;
             width: 100%;
-            max-width: 1000px;
-            max-height: calc(100vh - 48px);
+            max-width: 760px;
             background: #fff;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
-        }
-        .param-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-bottom: 1px solid var(--color-neutral-200);
-            flex-shrink: 0;
-        }
-        .param-modal-title {
-            margin: 0;
-            font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-medium);
-        }
-        .param-modal-close {
-            border: none;
-            background: transparent;
-            font-size: 22px;
-            line-height: 1;
-            cursor: pointer;
-            color: var(--color-text-secondary);
-            padding: 4px 8px;
-        }
-        .param-modal-close:hover {
-            color: var(--color-text-primary);
         }
         .param-modal-body {
             padding: var(--spacing-lg);
-            overflow-y: auto;
-            flex: 1;
-            min-height: 0;
+            border-bottom: 1px solid var(--color-neutral-200);
         }
         .param-modal-toolbar {
             margin-bottom: var(--spacing-md);
         }
-        .param-add-row-btn {
-            padding: 6px 12px;
+        .param-modal-tip {
+            margin: 0 0 var(--spacing-sm) 0;
             font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+        }
+        .param-add-row-btn {
             border: 1px dashed var(--color-primary);
-            border-radius: var(--radius-md);
-            background: rgba(44, 131, 235, 0.06);
+            background: rgba(44, 131, 235, 0.08);
             color: var(--color-primary);
+            border-radius: var(--radius-md);
+            padding: 6px 12px;
             cursor: pointer;
         }
         .param-add-row-btn:hover {
-            background: rgba(44, 131, 235, 0.12);
+            background: rgba(44, 131, 235, 0.14);
         }
-        .param-modal-row-del {
-            width: 36px;
-            text-align: center;
-            vertical-align: middle;
+        .param-modal-table th,
+        .param-modal-table td {
+            border: 1px solid var(--color-neutral-200);
+            padding: 8px 12px;
         }
-        .param-modal-row-del button {
+        .param-modal-table input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-sm);
+            padding: 6px 8px;
+        }
+        .param-modal-del {
             border: none;
             background: transparent;
             color: var(--color-text-secondary);
             cursor: pointer;
             font-size: 16px;
-            padding: 4px;
+            line-height: 1;
         }
-        .param-modal-row-del button:hover {
+        .param-modal-del:hover {
             color: var(--color-error);
         }
         .param-modal-footer {
@@ -326,75 +173,46 @@
             justify-content: flex-end;
             gap: var(--spacing-sm);
             padding: var(--spacing-md) var(--spacing-lg);
-            border-top: 1px solid var(--color-neutral-200);
-            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
     <div class="attr-template-page">
         <div class="card">
-            <div class="card-head-row">
-                <h2 class="card-title">参数模板</h2>
+            <div class="card-toolbar">
                 <button type="button" class="btn btn-primary" id="openParamModalBtn">新增参数</button>
             </div>
-
-            <div class="param-filter-row">
-                <label for="paramCategoryFilter">按商品分类查看</label>
-                <select id="paramCategoryFilter" aria-label="按商品分类筛选参数模板"></select>
-            </div>
-
-            <div class="param-saved-list" id="paramSavedListSection">
-                <h2 class="card-title">已设定参数模板</h2>
-                <table class="spec-table">
-                    <thead>
-                        <tr>
-                            <th>商品分类</th>
-                            <th>规格名称</th>
-                            <th>加价</th>
-                            <th>成本</th>
-                            <th>设定</th>
-                            <th class="col-actions">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="paramSavedListBody"></tbody>
-                </table>
-                <p class="param-saved-empty" id="paramSavedEmpty" style="display: none;">暂无已保存的参数模板。请选择商品分类后点击「新增参数」，参数模板将隶属于该分类（仅该分类下商品可选用）。</p>
-            </div>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>ID</th>
+                        <th>参数名称</th>
+                        <th>启用/禁用</th>
+                        <th>绑定商品数</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="paramSavedListBody"></tbody>
+            </table>
         </div>
     </div>
 
     <div class="param-modal" id="paramModal" hidden>
         <div class="param-modal-backdrop" id="paramModalBackdrop"></div>
-        <div class="param-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="paramModalTitle">
-            <div class="param-modal-header">
-                <h2 class="param-modal-title" id="paramModalTitle">新增参数</h2>
-                <button type="button" class="param-modal-close" id="paramModalCloseBtn" aria-label="关闭">×</button>
-            </div>
+        <div class="param-modal-dialog" role="dialog" aria-modal="true">
             <div class="param-modal-body">
-                <div class="param-modal-category-row">
-                    <label for="paramModalCategorySelect"><span class="required">*</span> 商品分类</label>
-                    <select id="paramModalCategorySelect"></select>
-                    <p class="param-modal-hint">参数模板隶属于所选分类；保存后，仅该分类下的商品在编辑时可选用对应参数项。</p>
-                </div>
-                <div class="choose-setting">
-                    <label>下边商品为</label>
-                    <input type="number" class="choose-input" id="modalChooseTotal" min="1" value="1" placeholder="几">
-                    <span>选</span>
-                    <input type="number" class="choose-input" id="modalChooseCount" min="1" value="1" placeholder="几">
-                    <label>（可填数字，表示几选几）</label>
-                </div>
                 <div class="param-modal-toolbar">
+                    <p class="param-modal-tip">参数名称：女款套裙F01</p>
                     <button type="button" class="param-add-row-btn" id="paramModalAddRowBtn">+ 添加一行</button>
                 </div>
-                <table class="spec-table">
+                <table class="spec-table param-modal-table">
                     <thead>
                         <tr>
-                            <th>规格名称</th>
+                            <th>参数名称</th>
                             <th>加价</th>
                             <th>成本</th>
-                            <th class="col-setting">设定</th>
-                            <th class="param-modal-row-del"></th>
+                            <th style="width: 48px;"></th>
                         </tr>
                     </thead>
                     <tbody id="paramModalTableBody"></tbody>
@@ -410,274 +228,109 @@
     <script>
         (function () {
             var savedListBody = document.getElementById('paramSavedListBody');
-            var savedEmptyEl = document.getElementById('paramSavedEmpty');
-            var categoryFilterEl = document.getElementById('paramCategoryFilter');
-            var modalCategorySelect = document.getElementById('paramModalCategorySelect');
-            var TEMPLATES_LIST_KEY = 'shangchaoParamTemplatesSaved_v2';
-            var GLOBAL_CHOOSE_KEY = 'shangchaoParamTemplate';
-            var MODAL_INITIAL_ROWS = 4;
-
-            var FALLBACK_CATEGORIES = [
-                { id: 1, name: '雅安好物', productCount: 3, sort: 1, status: 'enabled', parentId: null },
-                { id: 2, name: '雅安好景', productCount: 7, sort: 2, status: 'enabled', parentId: null },
-                { id: 3, name: '文创产品', productCount: 5, sort: 3, status: 'enabled', parentId: null },
-                { id: 4, name: '绿营养蛋系列', productCount: 2, sort: 1, status: 'enabled', parentId: 1 },
-                { id: 5, name: '蒙顶山茶系列', productCount: 3, sort: 2, status: 'enabled', parentId: 2 },
-                { id: 6, name: '茶饮小类', productCount: 1, sort: 1, status: 'enabled', parentId: 5 }
-            ];
-
-            function getProductCategories() {
-                try {
-                    var raw = localStorage.getItem('shangchaoCategoryData');
-                    if (raw) {
-                        var arr = JSON.parse(raw);
-                        if (Array.isArray(arr) && arr.length) {
-                            return arr.filter(function (c) {
-                                return c && c.status !== 'disabled';
-                            });
-                        }
-                    }
-                } catch (e) {}
-                return FALLBACK_CATEGORIES.slice();
-            }
-
-            function getDefaultCategoryId() {
-                var cats = getProductCategories();
-                return cats.length ? cats[0].id : null;
-            }
-
-            function getCategoryName(categoryId) {
-                if (categoryId == null || categoryId === '') return '未分类';
-                var cats = getProductCategories();
-                var c = cats.filter(function (x) { return String(x.id) === String(categoryId); })[0];
-                return c ? c.name : '（分类已删除）';
-            }
-
-            function fillCategorySelect(selectEl, includeAll) {
-                if (!selectEl) return;
-                var cats = getProductCategories();
-                selectEl.innerHTML = '';
-                if (includeAll) {
-                    var o0 = document.createElement('option');
-                    o0.value = '';
-                    o0.textContent = '全部分类';
-                    selectEl.appendChild(o0);
-                }
-                cats.forEach(function (c) {
-                    var o = document.createElement('option');
-                    o.value = String(c.id);
-                    o.textContent = c.name;
-                    selectEl.appendChild(o);
-                });
-            }
-
-            /**
-             * 演示数据：6 个商品分类各一组模板，每组 2 条参数 + 不同「几选几」示例
-             */
-            var DEFAULT_PARAM_TEMPLATES = [
-                { categoryId: 1, chooseTotal: 4, chooseCount: 2, rows: [
-                    { name: '新品', price: 2.00, cost: 0.80, required: true, limited: false, limitQty: 1 },
-                    { name: '热销', price: 5.50, cost: 1.20, required: true, limited: true, limitQty: 3 }
-                ]},
-                { categoryId: 2, chooseTotal: 3, chooseCount: 1, rows: [
-                    { name: '自营', price: 3.00, cost: 0.60, required: false, limited: false, limitQty: 1 },
-                    { name: '限时抢购', price: 8.00, cost: 2.50, required: true, limited: true, limitQty: 2 }
-                ]},
-                { categoryId: 3, chooseTotal: 5, chooseCount: 2, rows: [
-                    { name: '产地直供', price: 4.20, cost: 1.00, required: true, limited: false, limitQty: 1 },
-                    { name: '推荐', price: 2.80, cost: 0.50, required: true, limited: false, limitQty: 1 }
-                ]},
-                { categoryId: 4, chooseTotal: 2, chooseCount: 1, rows: [
-                    { name: '爆款', price: 6.00, cost: 1.80, required: true, limited: true, limitQty: 5 },
-                    { name: '包邮', price: 0, cost: 0, required: false, limited: false, limitQty: 1 }
-                ]},
-                { categoryId: 5, chooseTotal: 6, chooseCount: 3, rows: [
-                    { name: '会员专享', price: 10.00, cost: 3.20, required: true, limited: false, limitQty: 1 },
-                    { name: '限时', price: 7.50, cost: 2.00, required: true, limited: true, limitQty: 1 }
-                ]},
-                { categoryId: 6, chooseTotal: 3, chooseCount: 2, rows: [
-                    { name: '雅安特产', price: 4.50, cost: 1.10, required: true, limited: false, limitQty: 1 },
-                    { name: '精选', price: 3.60, cost: 0.90, required: false, limited: true, limitQty: 4 }
-                ]}
-            ];
-
-            function escapeHtml(s) {
-                if (s == null) return '';
-                var d = document.createElement('div');
-                d.textContent = s;
-                return d.innerHTML;
-            }
-
-            function formatSettingText(row) {
-                var parts = [];
-                parts.push(row.required !== false ? '必选' : '非必选');
-                if (row.limited) {
-                    parts.push('限量' + (parseInt(row.limitQty, 10) || 1) + '份');
-                }
-                return parts.join('，');
-            }
-
-            /**
-             * 统一为 { categoryId, chooseTotal, chooseCount, rows: [...] }[]
-             * 兼容旧数据：无 categoryId 时归入默认分类
-             */
-            function normalizeTemplates(arr) {
-                if (!Array.isArray(arr)) return [];
-                var defCat = getDefaultCategoryId();
-                return arr.map(function (item) {
-                    var categoryId = item && item.categoryId != null && item.categoryId !== ''
-                        ? item.categoryId
-                        : defCat;
-                    if (item && Array.isArray(item.rows) && item.rows.length) {
-                        return {
-                            categoryId: categoryId,
-                            chooseTotal: Math.max(1, parseInt(item.chooseTotal, 10) || 1),
-                            chooseCount: Math.max(1, parseInt(item.chooseCount, 10) || 1),
-                            rows: item.rows.map(function (r) {
-                                return {
-                                    name: String(r.name || '').trim(),
-                                    price: parseFloat(r.price) || 0,
-                                    cost: parseFloat(r.cost) || 0,
-                                    required: r.required !== false,
-                                    limited: !!r.limited,
-                                    limitQty: Math.max(1, parseInt(r.limitQty, 10) || 1)
-                                };
-                            }).filter(function (r) { return r.name; })
-                        };
-                    }
-                    if (item && item.name !== undefined && String(item.name).trim()) {
-                        return {
-                            categoryId: categoryId,
-                            chooseTotal: 1,
-                            chooseCount: 1,
-                            rows: [{
-                                name: String(item.name).trim(),
-                                price: parseFloat(item.price) || 0,
-                                cost: parseFloat(item.cost) || 0,
-                                required: item.required !== false,
-                                limited: !!item.limited,
-                                limitQty: Math.max(1, parseInt(item.limitQty, 10) || 1)
-                            }]
-                        };
-                    }
-                    return { categoryId: categoryId, chooseTotal: 1, chooseCount: 1, rows: [] };
-                }).filter(function (t) { return t.rows.length > 0; });
-            }
-
-            function getSavedParamTemplatesData() {
-                var raw = localStorage.getItem(TEMPLATES_LIST_KEY);
-                if (raw === null || raw === '' || raw === '[]') {
-                    var initial = normalizeTemplates(DEFAULT_PARAM_TEMPLATES);
-                    try {
-                        localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(initial));
-                    } catch (e) {}
-                    return initial;
-                }
-                try {
-                    var parsed = JSON.parse(raw);
-                    var norm = normalizeTemplates(parsed);
-                    if (!norm.length) {
-                        norm = normalizeTemplates(DEFAULT_PARAM_TEMPLATES);
-                        try {
-                            localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(norm));
-                        } catch (e2) {}
-                    }
-                    return norm;
-                } catch (e) {
-                    var fallback = normalizeTemplates(DEFAULT_PARAM_TEMPLATES);
-                    try {
-                        localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(fallback));
-                    } catch (e2) {}
-                    return fallback;
-                }
-            }
-
-            function persist(data) {
-                try {
-                    localStorage.setItem(TEMPLATES_LIST_KEY, JSON.stringify(data));
-                } catch (e) {}
-            }
-
-            function deleteParamRow(templateIndex, rowIndex) {
-                var data = getSavedParamTemplatesData();
-                var tpl = data[templateIndex];
-                if (!tpl || !tpl.rows || !tpl.rows[rowIndex]) return;
-                tpl.rows.splice(rowIndex, 1);
-                if (tpl.rows.length === 0) {
-                    data.splice(templateIndex, 1);
-                }
-                persist(data);
-                renderSavedParamList();
-            }
-
-            function renderSavedParamList() {
-                if (!savedListBody) return;
-                var filterVal = categoryFilterEl ? categoryFilterEl.value : '';
-                var data = getSavedParamTemplatesData();
-                savedListBody.innerHTML = '';
-                var pillClasses = ['tag-pill tag-pill--primary', 'tag-pill tag-pill--danger', 'tag-pill tag-pill--success'];
-                var globalRowIndex = 0;
-                data.forEach(function (tpl, ti) {
-                    if (filterVal !== '' && String(tpl.categoryId) !== String(filterVal)) {
-                        return;
-                    }
-                    (tpl.rows || []).forEach(function (row, ri) {
-                        var tr = document.createElement('tr');
-                        var pc = pillClasses[globalRowIndex % pillClasses.length];
-                        globalRowIndex++;
-                        var catLabel = getCategoryName(tpl.categoryId);
-                        tr.innerHTML =
-                            '<td>' + escapeHtml(catLabel) + '</td>' +
-                            '<td><span class="' + pc + '"><span class="tag-preview-dot"></span><span>' + escapeHtml(row.name) + '</span></span></td>' +
-                            '<td>¥' + (Number(row.price) || 0).toFixed(2) + '</td>' +
-                            '<td>¥' + (Number(row.cost) || 0).toFixed(2) + '</td>' +
-                            '<td class="param-saved-setting">' + escapeHtml(formatSettingText(row)) + '</td>' +
-                            '<td class="col-actions"><button type="button" class="template-list-del-btn" data-ti="' + ti + '" data-ri="' + ri + '">删除</button></td>';
-                        savedListBody.appendChild(tr);
-                    });
-                });
-                savedListBody.querySelectorAll('.template-list-del-btn').forEach(function (btn) {
-                    btn.addEventListener('click', function () {
-                        var ti = parseInt(btn.getAttribute('data-ti'), 10);
-                        var ri = parseInt(btn.getAttribute('data-ri'), 10);
-                        if (isNaN(ti) || isNaN(ri)) return;
-                        if (!confirm('确定删除该条参数？')) return;
-                        deleteParamRow(ti, ri);
-                    });
-                });
-                if (savedEmptyEl) {
-                    savedEmptyEl.style.display = globalRowIndex ? 'none' : 'block';
-                }
-            }
-
+            var addBtn = document.getElementById('openParamModalBtn');
             var modal = document.getElementById('paramModal');
             var modalBody = document.getElementById('paramModalTableBody');
+            var modalTip = document.querySelector('.param-modal-tip');
+            var modalAddRowBtn = document.getElementById('paramModalAddRowBtn');
+            var STORAGE_KEY = 'shangchaoParamTemplateSimpleList';
+            var modalMode = 'create';
+            var editingParamId = null;
 
-            function bindSettingControls(cell) {
-                var limitedCheckbox = cell.querySelector('.setting-limited');
-                var limitWrap = cell.querySelector('.setting-limit-wrap');
-                if (!limitedCheckbox || !limitWrap) return;
-                function updateLimitVisibility() {
-                    if (limitedCheckbox.checked) {
-                        limitWrap.classList.add('visible');
-                    } else {
-                        limitWrap.classList.remove('visible');
-                    }
+            var DEFAULT_PARAMS = [
+                { id: 2001, name: '女款套裙F01', enabled: true, bindCount: 12 },
+                { id: 2002, name: '女款套裙F02', enabled: true, bindCount: 8 },
+                { id: 2003, name: '女款套裙F03', enabled: false, bindCount: 0 },
+                { id: 2004, name: '女款套裙F04', enabled: true, bindCount: 5 },
+                { id: 2005, name: '女款套裙F05', enabled: true, bindCount: 3 },
+                { id: 2006, name: '女款套裙F06', enabled: false, bindCount: 1 }
+            ];
+
+            function getData() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return DEFAULT_PARAMS.slice();
+                    var parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_PARAMS.slice();
+                } catch (e) {
+                    return DEFAULT_PARAMS.slice();
                 }
-                limitedCheckbox.addEventListener('change', updateLimitVisibility);
-                updateLimitVisibility();
             }
 
-            function createModalRow() {
+            function saveData(data) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {}
+            }
+
+            function renderTable() {
+                var data = getData();
+                savedListBody.innerHTML = '';
+
+                data.forEach(function (item, index) {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        '<td>' + (index + 1) + '</td>' +
+                        '<td>' + item.id + '</td>' +
+                        '<td>' + item.name + '</td>' +
+                        '<td>' +
+                            '<label class="status-switch">' +
+                                '<input type="checkbox" class="status-toggle" data-id="' + item.id + '"' + (item.enabled ? ' checked' : '') + '>' +
+                                '<span class="status-slider"></span>' +
+                            '</label>' +
+                        '</td>' +
+                        '<td>' + (item.bindCount || 0) + '</td>' +
+                        '<td>' +
+                            '<button type="button" class="action-btn action-edit" data-id="' + item.id + '">编辑</button>' +
+                            '<button type="button" class="action-btn action-btn-danger action-delete" data-id="' + item.id + '">删除</button>' +
+                        '</td>';
+                    savedListBody.appendChild(tr);
+                });
+
+                bindRowActions();
+            }
+
+            function bindRowActions() {
+                savedListBody.querySelectorAll('.status-toggle').forEach(function (el) {
+                    el.addEventListener('change', function () {
+                        var id = Number(this.getAttribute('data-id'));
+                        var data = getData();
+                        var target = data.find(function (x) { return Number(x.id) === id; });
+                        if (!target) return;
+                        target.enabled = this.checked;
+                        saveData(data);
+                    });
+                });
+
+                savedListBody.querySelectorAll('.action-edit').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var id = Number(this.getAttribute('data-id'));
+                        var data = getData();
+                        var target = data.find(function (x) { return Number(x.id) === id; });
+                        if (!target) return;
+                        openEditModal(target);
+                    });
+                });
+
+                savedListBody.querySelectorAll('.action-delete').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var id = Number(this.getAttribute('data-id'));
+                        if (!confirm('确定删除该参数吗？')) return;
+                        var data = getData().filter(function (x) { return Number(x.id) !== id; });
+                        saveData(data);
+                        renderTable();
+                    });
+                });
+            }
+
+            function createModalRow(defaultName) {
                 var tr = document.createElement('tr');
                 tr.innerHTML =
-                    '<td><input type="text" class="spec-name" placeholder="规格名称"></td>' +
-                    '<td><input type="number" class="spec-price" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
-                    '<td><input type="number" class="spec-cost" placeholder="0" value="0" step="0.01" min="0"> 元</td>' +
-                    '<td class="col-setting"><div class="setting-cell"><label><input type="checkbox" class="setting-required" checked> 必选</label><label><input type="checkbox" class="setting-limited"> 限量</label><span class="setting-limit-wrap"><input type="number" class="setting-limit-input" min="1" value="1"> 份</span></div></td>' +
-                    '<td class="param-modal-row-del"><button type="button" class="param-modal-remove-row" title="删除本行">×</button></td>';
-                bindSettingControls(tr.querySelector('.setting-cell'));
-                tr.querySelector('.param-modal-remove-row').addEventListener('click', function () {
+                    '<td><input type="text" class="modal-param-name" placeholder="参数名称" value="' + (defaultName || '') + '"></td>' +
+                    '<td><input type="number" class="modal-param-price" value="0" min="0" step="0.01"> 元</td>' +
+                    '<td><input type="number" class="modal-param-cost" value="0" min="0" step="0.01"> 元</td>' +
+                    '<td style="text-align:center;"><button type="button" class="param-modal-del" title="删除">×</button></td>';
+                tr.querySelector('.param-modal-del').addEventListener('click', function () {
                     if (modalBody.querySelectorAll('tr').length <= 1) {
                         alert('至少保留一行');
                         return;
@@ -689,47 +342,31 @@
 
             function resetModalRows() {
                 modalBody.innerHTML = '';
-                for (var i = 0; i < MODAL_INITIAL_ROWS; i++) {
-                    modalBody.appendChild(createModalRow());
-                }
-            }
-
-            function loadChooseIntoModal() {
-                var saved = null;
-                try {
-                    saved = JSON.parse(localStorage.getItem(GLOBAL_CHOOSE_KEY) || 'null');
-                } catch (e) {}
-                var ct = document.getElementById('modalChooseTotal');
-                var cc = document.getElementById('modalChooseCount');
-                if (saved && typeof saved.chooseTotal === 'number') {
-                    if (ct) ct.value = saved.chooseTotal || 1;
-                    if (cc) cc.value = saved.chooseCount || 1;
-                } else {
-                    if (ct) ct.value = 1;
-                    if (cc) cc.value = 1;
-                }
+                modalBody.appendChild(createModalRow('女款套裙F01'));
+                modalBody.appendChild(createModalRow('女款套裙F02'));
+                modalBody.appendChild(createModalRow('女款套裙F03'));
+                modalBody.appendChild(createModalRow('女款套裙F04'));
             }
 
             function openModal() {
-                var cats = getProductCategories();
-                if (!cats.length) {
-                    alert('请先在「商品分类」中维护分类，再创建参数模板。');
-                    return;
-                }
-                fillCategorySelect(modalCategorySelect, false);
-                var pre = categoryFilterEl && categoryFilterEl.value ? categoryFilterEl.value : '';
-                if (pre && modalCategorySelect.querySelector('option[value="' + pre + '"]')) {
-                    modalCategorySelect.value = pre;
-                } else {
-                    var opt0 = modalCategorySelect.querySelector('option');
-                    if (opt0) modalCategorySelect.value = opt0.value;
-                }
+                modalMode = 'create';
+                editingParamId = null;
+                if (modalTip) modalTip.textContent = '参数名称：女款套裙F01';
+                if (modalAddRowBtn) modalAddRowBtn.style.display = 'inline-block';
                 resetModalRows();
-                loadChooseIntoModal();
                 modal.hidden = false;
                 document.body.style.overflow = 'hidden';
-                var first = modalBody.querySelector('.spec-name');
-                if (first) first.focus();
+            }
+
+            function openEditModal(paramItem) {
+                modalMode = 'edit';
+                editingParamId = Number(paramItem.id);
+                if (modalTip) modalTip.textContent = '参数名称：' + (paramItem.name || '');
+                if (modalAddRowBtn) modalAddRowBtn.style.display = 'none';
+                modalBody.innerHTML = '';
+                modalBody.appendChild(createModalRow(paramItem.name || ''));
+                modal.hidden = false;
+                document.body.style.overflow = 'hidden';
             }
 
             function closeModal() {
@@ -737,78 +374,52 @@
                 document.body.style.overflow = '';
             }
 
-            function collectModalRows() {
-                var out = [];
-                modalBody.querySelectorAll('tr').forEach(function (tr) {
-                    var nameEl = tr.querySelector('.spec-name');
-                    var priceEl = tr.querySelector('.spec-price');
-                    var costEl = tr.querySelector('.spec-cost');
-                    var reqEl = tr.querySelector('.setting-required');
-                    var limEl = tr.querySelector('.setting-limited');
-                    var limInput = tr.querySelector('.setting-limit-input');
-                    var name = nameEl ? nameEl.value.trim() : '';
-                    if (!name) return;
-                    out.push({
-                        name: name,
-                        price: parseFloat(priceEl && priceEl.value) || 0,
-                        cost: parseFloat(costEl && costEl.value) || 0,
-                        required: !!(reqEl && reqEl.checked),
-                        limited: !!(limEl && limEl.checked),
-                        limitQty: Math.max(1, parseInt(limInput && limInput.value, 10) || 1)
-                    });
-                });
-                return out;
-            }
-
-            document.getElementById('openParamModalBtn').addEventListener('click', openModal);
+            addBtn.addEventListener('click', openModal);
             document.getElementById('paramModalBackdrop').addEventListener('click', closeModal);
-            document.getElementById('paramModalCloseBtn').addEventListener('click', closeModal);
             document.getElementById('paramModalCancelBtn').addEventListener('click', closeModal);
             document.getElementById('paramModalAddRowBtn').addEventListener('click', function () {
-                modalBody.appendChild(createModalRow());
+                modalBody.appendChild(createModalRow(''));
             });
-
             document.getElementById('paramModalConfirmBtn').addEventListener('click', function () {
-                var catId = modalCategorySelect ? modalCategorySelect.value : '';
-                if (!catId) {
-                    alert('请选择商品分类');
-                    return;
-                }
-                var rows = collectModalRows();
-                if (!rows.length) {
-                    alert('请至少填写一行规格名称');
-                    return;
-                }
-                var chooseTotal = parseInt(document.getElementById('modalChooseTotal').value, 10) || 1;
-                var chooseCount = parseInt(document.getElementById('modalChooseCount').value, 10) || 1;
-                chooseTotal = Math.max(1, chooseTotal);
-                chooseCount = Math.max(1, Math.min(chooseCount, chooseTotal));
-                try {
-                    localStorage.setItem(GLOBAL_CHOOSE_KEY, JSON.stringify({
-                        chooseTotal: chooseTotal,
-                        chooseCount: chooseCount
-                    }));
-                } catch (e) {}
-                var data = getSavedParamTemplatesData();
-                data.push({
-                    categoryId: catId,
-                    chooseTotal: chooseTotal,
-                    chooseCount: chooseCount,
-                    rows: rows
+                var rows = [];
+                modalBody.querySelectorAll('tr').forEach(function (tr) {
+                    var name = (tr.querySelector('.modal-param-name').value || '').trim();
+                    if (!name) return;
+                    rows.push({
+                        name: name,
+                        price: parseFloat(tr.querySelector('.modal-param-price').value) || 0,
+                        cost: parseFloat(tr.querySelector('.modal-param-cost').value) || 0
+                    });
                 });
-                persist(data);
-                renderSavedParamList();
+                if (!rows.length) {
+                    alert('请至少填写一条参数名称');
+                    return;
+                }
+                var data = getData();
+                if (modalMode === 'edit' && editingParamId != null) {
+                    var editTarget = data.find(function (x) { return Number(x.id) === Number(editingParamId); });
+                    if (!editTarget) return;
+                    editTarget.name = rows[0].name;
+                    saveData(data);
+                    renderTable();
+                    closeModal();
+                    return;
+                }
+                var maxId = data.length ? Math.max.apply(null, data.map(function (x) { return Number(x.id) || 0; })) : 2000;
+                rows.forEach(function (row, idx) {
+                    data.push({
+                        id: maxId + idx + 1,
+                        name: row.name,
+                        enabled: true,
+                        bindCount: 0
+                    });
+                });
+                saveData(data);
+                renderTable();
                 closeModal();
             });
 
-            fillCategorySelect(categoryFilterEl, true);
-            if (categoryFilterEl) {
-                categoryFilterEl.addEventListener('change', function () {
-                    renderSavedParamList();
-                });
-            }
-
-            renderSavedParamList();
+            renderTable();
         })();
     </script>
 </body>
