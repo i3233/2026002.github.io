@@ -655,11 +655,6 @@
 
             <div class="setting-item setting-item--printer-bind">
                 <div class="setting-item-left">
-                    <div class="setting-item-label">
-                        绑定打印机
-                        <span class="help-icon" title="可绑定多台打印机，用于订单相关打印">?</span>
-                    </div>
-                    <div class="setting-item-desc">从「设置 → 打印机」中已添加的设备里选择绑定；绑定后可在此管理，功能与收银机「打印管理」中的打印机列表一致。</div>
                     <div class="order-print-bind-toolbar">
                         <button type="button" class="btn btn-primary" id="orderBindPrinterBtn">绑定打印机</button>
                     </div>
@@ -680,51 +675,6 @@
                 </div>
             </div>
 
-            <div class="setting-item">
-                <div class="setting-item-left">
-                    <div class="setting-item-label">
-                        打印模板
-                        <span class="help-icon" title="订单打印使用的模板">?</span>
-                    </div>
-                    <div class="setting-item-desc">选择订单打印使用的模板样式</div>
-                </div>
-                <div class="setting-item-right">
-                    <select class="form-select form-input--medium" id="printTemplate">
-                        <option value="standard" selected>标准模板</option>
-                        <option value="compact">紧凑模板</option>
-                        <option value="detailed">详细模板</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-item-left">
-                    <div class="setting-item-label">
-                        自动打印拣货单
-                        <span class="help-icon" title="订单创建后是否自动打印拣货单">?</span>
-                    </div>
-                    <div class="setting-item-desc">开启后，订单创建后自动打印拣货单（仅限已支付订单）</div>
-                </div>
-                <div class="setting-item-right">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="autoPrintPickingList">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-item-left">
-                    <div class="setting-item-label">
-                        打印份数
-                        <span class="help-icon" title="每次打印的份数">?</span>
-                    </div>
-                    <div class="setting-item-desc">设置每次打印订单的份数</div>
-                </div>
-                <div class="setting-item-right">
-                    <input type="number" class="form-input form-input--small" id="printCopies" value="1" min="1" max="10">
-                </div>
-            </div>
         </div>
 
         <!-- 订单通知设置 -->
@@ -1336,8 +1286,9 @@
 
         /** 订单场景已绑定打印机（可多台） */
         var orderBindPrinterList = [
-            { id: 'op1', name: '飞鹅01', type: '飞鹅打印机', conn: '云打印', enabled: true, printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SET-set1', key: 'KEY001', copies: 1, remark: '', settingsPrinterId: 'set1' },
-            { id: 'op2', name: '厨房网络打印机-K1', type: '网络打印机', conn: '云打印', enabled: true, printerType: 'feie', user: '', ukey: '', sn: 'SET-set3', key: '', copies: 1, remark: '拣货单', settingsPrinterId: 'set3' }
+            { id: 'op1', name: '小票机-总店前台', type: '热敏小票', conn: '局域网IP', enabled: true, printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SET-set1', key: 'KEY001', copies: 1, remark: '', settingsPrinterId: 'set1' },
+            { id: 'op2', name: '厨房打印机-K1', type: '热敏小票', conn: '局域网IP', enabled: true, printerType: 'feie', user: '', ukey: '', sn: 'SET-set3', key: '', copies: 1, remark: '', settingsPrinterId: 'set3' },
+            { id: 'op3', name: '备用蓝牙小票', type: '热敏小票', conn: '蓝牙', enabled: true, printerType: 'feie', user: '', ukey: '', sn: '', key: '', copies: 1, remark: '', settingsPrinterId: '' }
         ];
 
         var orderCurrentPosPrinterEditId = null;
@@ -1373,8 +1324,9 @@
 
         function defaultOrderBindPrinterList() {
             return [
-                { id: 'op1', name: '飞鹅01', type: '飞鹅打印机', conn: '云打印', enabled: true, printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SET-set1', key: 'KEY001', copies: 1, remark: '', settingsPrinterId: 'set1' },
-                { id: 'op2', name: '厨房网络打印机-K1', type: '网络打印机', conn: '云打印', enabled: true, printerType: 'feie', user: '', ukey: '', sn: 'SET-set3', key: '', copies: 1, remark: '拣货单', settingsPrinterId: 'set3' }
+                { id: 'op1', name: '小票机-总店前台', type: '热敏小票', conn: '局域网IP', enabled: true, printerType: 'feie', user: 'USER_DEMO', ukey: 'UKEY_DEMO', sn: 'SET-set1', key: 'KEY001', copies: 1, remark: '', settingsPrinterId: 'set1' },
+                { id: 'op2', name: '厨房打印机-K1', type: '热敏小票', conn: '局域网IP', enabled: true, printerType: 'feie', user: '', ukey: '', sn: 'SET-set3', key: '', copies: 1, remark: '', settingsPrinterId: 'set3' },
+                { id: 'op3', name: '备用蓝牙小票', type: '热敏小票', conn: '蓝牙', enabled: true, printerType: 'feie', user: '', ukey: '', sn: '', key: '', copies: 1, remark: '', settingsPrinterId: '' }
             ];
         }
 
@@ -1751,9 +1703,6 @@
                 enableCreditAudit: document.getElementById('enableCreditAudit').checked,
                 autoPrintAfterAudit: document.getElementById('autoPrintAfterAudit').checked,
 
-                printTemplate: document.getElementById('printTemplate').value,
-                autoPrintPickingList: document.getElementById('autoPrintPickingList').checked,
-                printCopies: parseInt(document.getElementById('printCopies').value),
                 orderBindPrinters: JSON.parse(JSON.stringify(orderBindPrinterList)),
 
                 notifyOnCreate: document.getElementById('notifyOnCreate').checked,
@@ -1789,10 +1738,6 @@
             document.getElementById('enableWholesaleAudit').checked = true;
             document.getElementById('enableCreditAudit').checked = true;
             document.getElementById('autoPrintAfterAudit').checked = false;
-
-            document.getElementById('printTemplate').value = 'standard';
-            document.getElementById('autoPrintPickingList').checked = false;
-            document.getElementById('printCopies').value = '1';
 
             orderBindPrinterList = defaultOrderBindPrinterList();
             renderOrderBindPrinterTable();
