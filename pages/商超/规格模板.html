@@ -133,6 +133,17 @@
             margin: 0 0 var(--spacing-sm) 0;
             font-size: var(--font-size-sm);
             color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .spec-modal-main-name {
+            width: 260px;
+            max-width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-sm);
+            padding: 6px 8px;
         }
         .spec-add-row-btn {
             border: 1px dashed var(--color-primary);
@@ -202,7 +213,10 @@
         <div class="spec-modal-dialog" role="dialog" aria-modal="true">
             <div class="spec-modal-body">
                 <div class="spec-modal-toolbar">
-                    <p class="spec-modal-tip">规格名称：女款套裙F01</p>
+                    <p class="spec-modal-tip">
+                        <label for="specModalMainNameInput">规格名称：</label>
+                        <input type="text" id="specModalMainNameInput" class="spec-modal-main-name" value="女款套裙F01">
+                    </p>
                     <button type="button" class="spec-add-row-btn" id="specModalAddRowBtn">+ 添加一行</button>
                 </div>
                 <table class="spec-table spec-modal-table">
@@ -230,7 +244,7 @@
             var addBtn = document.getElementById('openSpecModalBtn');
             var modal = document.getElementById('specModal');
             var modalBody = document.getElementById('specModalTableBody');
-            var modalTip = document.querySelector('.spec-modal-tip');
+            var modalMainNameInput = document.getElementById('specModalMainNameInput');
             var modalAddRowBtn = document.getElementById('specModalAddRowBtn');
             var STORAGE_KEY = 'shangchaoSpecTemplateSimpleList';
             var modalMode = 'create';
@@ -347,10 +361,25 @@
                 modalBody.appendChild(createModalRow('女款套裙F04'));
             }
 
+            function buildEditRows(specItem) {
+                var bindCount = Number(specItem.bindCount) || 0;
+                var savedRows = Array.isArray(specItem.specRows) ? specItem.specRows : [];
+                var rows = [];
+                for (var i = 0; i < bindCount; i++) {
+                    var row = savedRows[i] || {};
+                    rows.push({
+                        name: row.name || ((specItem.name || '规格') + (i + 1)),
+                        price: Number(row.price) || 0,
+                        cost: Number(row.cost) || 0
+                    });
+                }
+                return rows;
+            }
+
             function openModal() {
                 modalMode = 'create';
                 editingSpecId = null;
-                if (modalTip) modalTip.textContent = '规格名称：女款套裙F01';
+                if (modalMainNameInput) modalMainNameInput.value = '女款套裙F01';
                 if (modalAddRowBtn) modalAddRowBtn.style.display = 'inline-block';
                 resetModalRows();
                 modal.hidden = false;
@@ -360,10 +389,17 @@
             function openEditModal(specItem) {
                 modalMode = 'edit';
                 editingSpecId = Number(specItem.id);
-                if (modalTip) modalTip.textContent = '规格名称：' + (specItem.name || '');
+                if (modalMainNameInput) modalMainNameInput.value = specItem.name || '';
                 if (modalAddRowBtn) modalAddRowBtn.style.display = 'none';
                 modalBody.innerHTML = '';
-                modalBody.appendChild(createModalRow(specItem.name || ''));
+                buildEditRows(specItem).forEach(function (row) {
+                    var tr = createModalRow(row.name || '');
+                    var priceEl = tr.querySelector('.modal-spec-price');
+                    var costEl = tr.querySelector('.modal-spec-cost');
+                    if (priceEl) priceEl.value = Number(row.price) || 0;
+                    if (costEl) costEl.value = Number(row.cost) || 0;
+                    modalBody.appendChild(tr);
+                });
                 modal.hidden = false;
                 document.body.style.overflow = 'hidden';
             }
@@ -381,16 +417,23 @@
             });
             document.getElementById('specModalConfirmBtn').addEventListener('click', function () {
                 var rows = [];
+                var mainName = (modalMainNameInput && modalMainNameInput.value ? modalMainNameInput.value : '').trim();
                 modalBody.querySelectorAll('tr').forEach(function (tr) {
                     var name = (tr.querySelector('.modal-spec-name').value || '').trim();
-                    if (!name) return;
                     rows.push({
                         name: name,
                         price: parseFloat(tr.querySelector('.modal-spec-price').value) || 0,
                         cost: parseFloat(tr.querySelector('.modal-spec-cost').value) || 0
                     });
                 });
-                if (!rows.length) {
+                if (!mainName) {
+                    alert('请填写规格名称');
+                    return;
+                }
+                if (modalMode === 'create') {
+                    rows = rows.filter(function (row) { return (row.name || '').trim(); });
+                }
+                if (modalMode === 'create' && !rows.length) {
                     alert('请至少填写一条规格名称');
                     return;
                 }
@@ -398,7 +441,15 @@
                 if (modalMode === 'edit' && editingSpecId != null) {
                     var editTarget = data.find(function (x) { return Number(x.id) === Number(editingSpecId); });
                     if (!editTarget) return;
-                    editTarget.name = rows[0].name;
+                    editTarget.name = mainName;
+                    editTarget.specRows = rows.map(function (row, idx) {
+                        var safeName = (row.name || '').trim() || (mainName + (idx + 1));
+                        return {
+                            name: safeName,
+                            price: Number(row.price) || 0,
+                            cost: Number(row.cost) || 0
+                        };
+                    });
                     saveData(data);
                     renderTable();
                     closeModal();

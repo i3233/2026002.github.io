@@ -58,6 +58,33 @@
             border-color: var(--color-error);
             color: var(--color-error);
         }
+        .table-setting-tags {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .setting-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--color-neutral-300);
+            background: #fff;
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .setting-tag.required {
+            border-color: #1677ff;
+            color: #1677ff;
+            background: rgba(22, 119, 255, 0.08);
+        }
+        .setting-tag.limited {
+            border-color: #fa8c16;
+            color: #fa8c16;
+            background: rgba(250, 140, 22, 0.1);
+        }
         .status-switch {
             position: relative;
             display: inline-flex;
@@ -133,6 +160,17 @@
             margin: 0 0 var(--spacing-sm) 0;
             font-size: var(--font-size-sm);
             color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .param-modal-main-name {
+            width: 260px;
+            max-width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-sm);
+            padding: 6px 8px;
         }
         .param-add-row-btn {
             border: 1px dashed var(--color-primary);
@@ -156,6 +194,29 @@
             border: 1px solid var(--color-neutral-300);
             border-radius: var(--radius-sm);
             padding: 6px 8px;
+        }
+        .param-row-settings {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: nowrap;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--radius-sm);
+            padding: 6px 8px;
+            background: #fff;
+        }
+        .param-row-settings label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .param-limit-input {
+            width: 96px !important;
         }
         .param-modal-del {
             border: none;
@@ -190,6 +251,7 @@
                         <th>参数名称</th>
                         <th>启用/禁用</th>
                         <th>绑定商品数</th>
+                        <th>设定</th>
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -203,7 +265,10 @@
         <div class="param-modal-dialog" role="dialog" aria-modal="true">
             <div class="param-modal-body">
                 <div class="param-modal-toolbar">
-                    <p class="param-modal-tip">参数名称：女款套裙F01</p>
+                    <p class="param-modal-tip">
+                        <label for="paramModalMainNameInput">参数名称：</label>
+                        <input type="text" id="paramModalMainNameInput" class="param-modal-main-name" value="女款套裙F01">
+                    </p>
                     <button type="button" class="param-add-row-btn" id="paramModalAddRowBtn">+ 添加一行</button>
                 </div>
                 <table class="spec-table param-modal-table">
@@ -212,6 +277,7 @@
                             <th>参数名称</th>
                             <th>加价</th>
                             <th>成本</th>
+                            <th style="width: 280px;">设定</th>
                             <th style="width: 48px;"></th>
                         </tr>
                     </thead>
@@ -231,7 +297,7 @@
             var addBtn = document.getElementById('openParamModalBtn');
             var modal = document.getElementById('paramModal');
             var modalBody = document.getElementById('paramModalTableBody');
-            var modalTip = document.querySelector('.param-modal-tip');
+            var modalMainNameInput = document.getElementById('paramModalMainNameInput');
             var modalAddRowBtn = document.getElementById('paramModalAddRowBtn');
             var STORAGE_KEY = 'shangchaoParamTemplateSimpleList';
             var modalMode = 'create';
@@ -268,6 +334,15 @@
                 savedListBody.innerHTML = '';
 
                 data.forEach(function (item, index) {
+                    var rows = Array.isArray(item.paramRows) ? item.paramRows : [];
+                    var requiredCount = rows.filter(function (r) { return !!r.required; }).length;
+                    var limitedRows = rows.filter(function (r) { return !!r.limited; });
+                    var limitedCount = limitedRows.length;
+                    var limitedMax = limitedRows.length ? Math.max.apply(null, limitedRows.map(function (r) { return Number(r.limitCount) || 0; })) : 0;
+                    var settingHtml = '<div class="table-setting-tags">' +
+                        (requiredCount ? ('<span class="setting-tag required">必选 ' + requiredCount + ' 项</span>') : '<span class="setting-tag">必选 无</span>') +
+                        (limitedCount ? ('<span class="setting-tag limited">限量 ' + limitedCount + ' 项 / 最大 ' + limitedMax + '</span>') : '<span class="setting-tag">限量 无</span>') +
+                        '</div>';
                     var tr = document.createElement('tr');
                     tr.innerHTML =
                         '<td>' + (index + 1) + '</td>' +
@@ -280,6 +355,7 @@
                             '</label>' +
                         '</td>' +
                         '<td>' + (item.bindCount || 0) + '</td>' +
+                        '<td>' + settingHtml + '</td>' +
                         '<td>' +
                             '<button type="button" class="action-btn action-edit" data-id="' + item.id + '">编辑</button>' +
                             '<button type="button" class="action-btn action-btn-danger action-delete" data-id="' + item.id + '">删除</button>' +
@@ -329,6 +405,13 @@
                     '<td><input type="text" class="modal-param-name" placeholder="参数名称" value="' + (defaultName || '') + '"></td>' +
                     '<td><input type="number" class="modal-param-price" value="0" min="0" step="0.01"> 元</td>' +
                     '<td><input type="number" class="modal-param-cost" value="0" min="0" step="0.01"> 元</td>' +
+                    '<td>' +
+                        '<div class="param-row-settings">' +
+                            '<label><input type="checkbox" class="modal-param-required"> 必选</label>' +
+                            '<label><input type="checkbox" class="modal-param-limited"> 限量</label>' +
+                            '<input type="number" class="modal-param-limit-count param-limit-input" value="1" min="1" step="1" placeholder="限量数量">' +
+                        '</div>' +
+                    '</td>' +
                     '<td style="text-align:center;"><button type="button" class="param-modal-del" title="删除">×</button></td>';
                 tr.querySelector('.param-modal-del').addEventListener('click', function () {
                     if (modalBody.querySelectorAll('tr').length <= 1) {
@@ -348,10 +431,25 @@
                 modalBody.appendChild(createModalRow('女款套裙F04'));
             }
 
+            function buildEditRows(paramItem) {
+                var bindCount = Number(paramItem.bindCount) || 0;
+                var savedRows = Array.isArray(paramItem.paramRows) ? paramItem.paramRows : [];
+                var rows = [];
+                for (var i = 0; i < bindCount; i++) {
+                    var row = savedRows[i] || {};
+                    rows.push({
+                        name: row.name || ((paramItem.name || '参数') + (i + 1)),
+                        price: Number(row.price) || 0,
+                        cost: Number(row.cost) || 0
+                    });
+                }
+                return rows;
+            }
+
             function openModal() {
                 modalMode = 'create';
                 editingParamId = null;
-                if (modalTip) modalTip.textContent = '参数名称：女款套裙F01';
+                if (modalMainNameInput) modalMainNameInput.value = '女款套裙F01';
                 if (modalAddRowBtn) modalAddRowBtn.style.display = 'inline-block';
                 resetModalRows();
                 modal.hidden = false;
@@ -361,10 +459,23 @@
             function openEditModal(paramItem) {
                 modalMode = 'edit';
                 editingParamId = Number(paramItem.id);
-                if (modalTip) modalTip.textContent = '参数名称：' + (paramItem.name || '');
+                if (modalMainNameInput) modalMainNameInput.value = paramItem.name || '';
                 if (modalAddRowBtn) modalAddRowBtn.style.display = 'none';
                 modalBody.innerHTML = '';
-                modalBody.appendChild(createModalRow(paramItem.name || ''));
+                buildEditRows(paramItem).forEach(function (row) {
+                    var tr = createModalRow(row.name || '');
+                    var priceEl = tr.querySelector('.modal-param-price');
+                    var costEl = tr.querySelector('.modal-param-cost');
+                    var requiredEl = tr.querySelector('.modal-param-required');
+                    var limitedEl = tr.querySelector('.modal-param-limited');
+                    var limitCountEl = tr.querySelector('.modal-param-limit-count');
+                    if (priceEl) priceEl.value = Number(row.price) || 0;
+                    if (costEl) costEl.value = Number(row.cost) || 0;
+                    if (requiredEl) requiredEl.checked = !!row.required;
+                    if (limitedEl) limitedEl.checked = !!row.limited;
+                    if (limitCountEl) limitCountEl.value = Number(row.limitCount) > 0 ? Number(row.limitCount) : 1;
+                    modalBody.appendChild(tr);
+                });
                 modal.hidden = false;
                 document.body.style.overflow = 'hidden';
             }
@@ -382,16 +493,29 @@
             });
             document.getElementById('paramModalConfirmBtn').addEventListener('click', function () {
                 var rows = [];
+                var mainName = (modalMainNameInput && modalMainNameInput.value ? modalMainNameInput.value : '').trim();
                 modalBody.querySelectorAll('tr').forEach(function (tr) {
                     var name = (tr.querySelector('.modal-param-name').value || '').trim();
-                    if (!name) return;
+                    var required = !!(tr.querySelector('.modal-param-required') && tr.querySelector('.modal-param-required').checked);
+                    var limited = !!(tr.querySelector('.modal-param-limited') && tr.querySelector('.modal-param-limited').checked);
+                    var limitCount = parseInt((tr.querySelector('.modal-param-limit-count') || {}).value, 10) || 1;
                     rows.push({
                         name: name,
                         price: parseFloat(tr.querySelector('.modal-param-price').value) || 0,
-                        cost: parseFloat(tr.querySelector('.modal-param-cost').value) || 0
+                        cost: parseFloat(tr.querySelector('.modal-param-cost').value) || 0,
+                        required: required,
+                        limited: limited,
+                        limitCount: limitCount
                     });
                 });
-                if (!rows.length) {
+                if (!mainName) {
+                    alert('请填写参数名称');
+                    return;
+                }
+                if (modalMode === 'create') {
+                    rows = rows.filter(function (row) { return (row.name || '').trim(); });
+                }
+                if (modalMode === 'create' && !rows.length) {
                     alert('请至少填写一条参数名称');
                     return;
                 }
@@ -399,7 +523,18 @@
                 if (modalMode === 'edit' && editingParamId != null) {
                     var editTarget = data.find(function (x) { return Number(x.id) === Number(editingParamId); });
                     if (!editTarget) return;
-                    editTarget.name = rows[0].name;
+                    editTarget.name = mainName;
+                    editTarget.paramRows = rows.map(function (row, idx) {
+                        var safeName = (row.name || '').trim() || (mainName + (idx + 1));
+                        return {
+                            name: safeName,
+                            price: Number(row.price) || 0,
+                            cost: Number(row.cost) || 0,
+                            required: !!row.required,
+                            limited: !!row.limited,
+                            limitCount: (Number(row.limitCount) > 0 ? Number(row.limitCount) : 1)
+                        };
+                    });
                     saveData(data);
                     renderTable();
                     closeModal();
